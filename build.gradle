@@ -14,7 +14,7 @@ apply plugin: 'maven-publish'
 
 version = '1.0'
 group = 'com.mt1006.mocap' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = 'MocapMod-FORGE-1.16.5'
+archivesBaseName = 'Mocap-FORGE-1.16.5'
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(8) // Mojang ships Java 8 to end users, so your mod should target Java 8.
 
