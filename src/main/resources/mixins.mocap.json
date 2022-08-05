@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "com.mt1006.mocap.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "client": [
+    "EntityLookupMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "refmap": "mixins.mocap.refmap.json"
+}
