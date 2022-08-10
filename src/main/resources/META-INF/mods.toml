@@ -9,9 +9,7 @@ displayName="Motion Capture Mod (mocap)"
 logoFile="logo.png"
 authors="mt1006 (mt1006x)"
 credits="Thanks to khitahi for making mod icon"
-description='''
-Allows you to record and replay player movements
-'''
+description="Allows you to record and replay player movements"
 
 [[dependencies.examplemod]]
     modId="forge"

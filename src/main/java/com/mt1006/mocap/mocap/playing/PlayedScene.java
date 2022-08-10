@@ -1,6 +1,7 @@
-package com.mt1006.mocap.mocap;
+package com.mt1006.mocap.mocap.playing;
 
 import com.mojang.authlib.GameProfile;
+import com.mt1006.mocap.utils.ProfileUtils;
 import com.mt1006.mocap.utils.RecordingUtils;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -253,9 +254,7 @@ public class PlayedScene
 		}
 		else
 		{
-			//GameProfile gameProfile = new GameProfile(null, profileName);
-			//return SkullTileEntity.updateGameprofile(gameProfile);
-			return Profiles.getGameProfile(profileName);
+			return ProfileUtils.getGameProfile(profileName);
 		}
 	}
 }

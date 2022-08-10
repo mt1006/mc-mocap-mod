@@ -1,6 +1,6 @@
 package com.mt1006.mocap.utils;
 
-import com.mt1006.mocap.mocap.SceneInfo;
+import com.mt1006.mocap.mocap.playing.SceneInfo;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.MinecraftServer;
@@ -20,6 +20,7 @@ public class FileUtils
 	private static final String SCENES_DIR_NAME = "scenes";
 	private static final String RECORDINGS_EXTENSION = ".mcmocap_rec";
 	private static final String SCENES_EXTENSION = ".mcmocap_scene";
+	private static final String CONFIG_FILE_NAME = "settings.mcmocap_conf";
 
 	private static boolean directoriesInitialized = false;
 	private static File mocapDirectory = null;
@@ -290,7 +291,7 @@ public class FileUtils
 		return scenes;
 	}
 
-	private static boolean initDirectories(CommandSourceStack commandSource)
+	public static boolean initDirectories(CommandSourceStack commandSource)
 	{
 		if (directoriesInitialized) { return true; }
 

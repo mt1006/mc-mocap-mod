@@ -1,4 +1,4 @@
-package com.mt1006.mocap.mocap;
+package com.mt1006.mocap.mocap.playing;
 
 import com.mojang.datafixers.util.Pair;
 import com.mt1006.mocap.utils.FileUtils;

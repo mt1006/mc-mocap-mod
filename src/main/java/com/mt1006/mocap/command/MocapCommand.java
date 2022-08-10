@@ -7,10 +7,11 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mt1006.mocap.MocapMod;
-import com.mt1006.mocap.mocap.SceneInfo;
-import com.mt1006.mocap.mocap.Playing;
-import com.mt1006.mocap.mocap.Recording;
-import com.mt1006.mocap.mocap.Scenes;
+import com.mt1006.mocap.mocap.commands.Settings;
+import com.mt1006.mocap.mocap.playing.SceneInfo;
+import com.mt1006.mocap.mocap.commands.Playing;
+import com.mt1006.mocap.mocap.commands.Recording;
+import com.mt1006.mocap.mocap.commands.Scenes;
 import com.mt1006.mocap.utils.FileUtils;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -65,6 +66,11 @@ public class MocapCommand
 						then(Commands.argument("id", IntegerArgumentType.integer()).executes(MocapCommand::playingStop))).
 					then(Commands.literal("stopAll").executes(Playing::stopAll)).
 					then(Commands.literal("list").executes(Playing::list))).
+				then(Commands.literal("settings").executes(Settings::list).
+					then(Commands.literal("playingSpeed").executes(Settings::info).
+						then(Commands.argument("newValue", DoubleArgumentType.doubleArg(0.0)).executes(Settings::set))).
+					then(Commands.literal("recordingMode").executes(Settings::info).
+						then(Commands.argument("newValue", DoubleArgumentType.doubleArg(0.0)).executes(Settings::set)))).
 				then(Commands.literal("info").executes(MocapCommand::info)).
 				then(Commands.literal("help").executes(MocapCommand::help)));
 	}

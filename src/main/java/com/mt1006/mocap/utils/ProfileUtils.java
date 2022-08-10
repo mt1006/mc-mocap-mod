@@ -1,4 +1,4 @@
-package com.mt1006.mocap.mocap;
+package com.mt1006.mocap.utils;
 
 import com.google.common.collect.Iterables;
 import com.mojang.authlib.GameProfile;
@@ -15,7 +15,7 @@ import net.minecraftforge.server.ServerLifecycleHooks;
 import java.io.File;
 import java.util.*;
 
-public class Profiles
+public class ProfileUtils
 {
 	// Original source code: https://github.com/iChun/iChunUtil/blob/1.16/src/main/java/me/ichun/mods/ichunutil/common/entity/util/EntityHelper.java
 
