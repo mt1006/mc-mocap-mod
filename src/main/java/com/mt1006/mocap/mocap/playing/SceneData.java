@@ -1,4 +1,4 @@
-package com.mt1006.mocap.mocap;
+package com.mt1006.mocap.mocap.playing;
 
 import com.mt1006.mocap.utils.FileUtils;
 import net.minecraft.commands.CommandSourceStack;
@@ -14,6 +14,7 @@ public class SceneData
 	private Map<String, byte[]> recordingsMap = new HashMap<>();
 	private Map<String, SceneInfo> scenesMap = new HashMap<>();
 	private Stack<String> resourcesStack = new Stack<>();
+	public boolean knownError = false;
 
 	public boolean load(CommandSourceStack commandSource, String name)
 	{
@@ -21,7 +22,10 @@ public class SceneData
 		{
 			if (resourcesStack.contains(name))
 			{
-				commandSource.sendFailure(new TranslatableComponent("mocap.commands.playing.start.failed.loop"));
+				commandSource.sendFailure(new TranslatableComponent("mocap.commands.playing.start.error"));
+				commandSource.sendFailure(new TranslatableComponent("mocap.commands.playing.start.error.loop"));
+				resourcesStack.push(name);
+				knownError = true;
 				return false;
 			}
 
@@ -38,7 +42,10 @@ public class SceneData
 		}
 		else
 		{
-			return loadResource(commandSource, name);
+			resourcesStack.push(name);
+			if (!loadResource(commandSource, name)) { return false; }
+			resourcesStack.pop();
+			return true;
 		}
 	}
 
@@ -52,6 +59,19 @@ public class SceneData
 	public SceneInfo getScene(String name)
 	{
 		return scenesMap.get(name);
+	}
+
+	public String getResourcePath()
+	{
+		StringBuilder retStr = new StringBuilder();
+
+		for (String str : resourcesStack)
+		{
+			retStr.append("/");
+			retStr.append(str);
+		}
+
+		return new String(retStr);
 	}
 
 	private boolean loadResource(CommandSourceStack commandSource, String name)

@@ -1,6 +1,7 @@
-package com.mt1006.mocap.mocap;
+package com.mt1006.mocap.mocap.commands;
 
 import com.mojang.brigadier.context.CommandContext;
+import com.mt1006.mocap.mocap.playing.PlayerState;
 import com.mt1006.mocap.utils.FileUtils;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -37,6 +38,7 @@ public class Recording
 				if (serverPlayer != Recording.serverPlayer)
 				{
 					commandSource.sendFailure(new TranslatableComponent("mocap.commands.recording.start.different_player"));
+					commandSource.sendFailure(new TranslatableComponent("mocap.commands.recording.start.different_player.tip"));
 					return 0;
 				}
 
@@ -47,6 +49,7 @@ public class Recording
 
 			case RECORDING:
 				commandSource.sendFailure(new TranslatableComponent("mocap.commands.recording.start.already_recording"));
+				commandSource.sendFailure(new TranslatableComponent("mocap.commands.recording.start.already_recording.tip"));
 				return 0;
 
 			case WAITING_FOR_DECISION:
@@ -60,6 +63,8 @@ public class Recording
 	public static int stop(CommandContext<CommandSourceStack> ctx)
 	{
 		CommandSourceStack commandSource = ctx.getSource();
+
+		if (Settings.RECORDING_SYNC.val) { Playing.stopAll(ctx); }
 
 		switch (state)
 		{
@@ -93,14 +98,17 @@ public class Recording
 		{
 			case NOT_RECORDING:
 				commandSource.sendFailure(new TranslatableComponent("mocap.commands.recording.save.nothing_to_save"));
+				commandSource.sendFailure(new TranslatableComponent("mocap.commands.recording.save.nothing_to_save.tip"));
 				return 0;
 
 			case WAITING_FOR_ACTION:
 				commandSource.sendFailure(new TranslatableComponent("mocap.commands.recording.save.waiting_for_action"));
+				commandSource.sendFailure(new TranslatableComponent("mocap.commands.recording.save.waiting_for_action.tip"));
 				return 0;
 
 			case RECORDING:
 				commandSource.sendFailure(new TranslatableComponent("mocap.commands.recording.save.recording_not_stopped"));
+				commandSource.sendFailure(new TranslatableComponent("mocap.commands.recording.save.recording_not_stopped.tip"));
 				return 0;
 
 			case WAITING_FOR_DECISION:

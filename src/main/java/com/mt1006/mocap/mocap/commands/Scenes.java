@@ -1,6 +1,7 @@
-package com.mt1006.mocap.mocap;
+package com.mt1006.mocap.mocap.commands;
 
 import com.mojang.brigadier.context.CommandContext;
+import com.mt1006.mocap.mocap.playing.SceneInfo;
 import com.mt1006.mocap.utils.FileUtils;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.TextComponent;
