@@ -1,4 +1,4 @@
-package com.mt1006.mocap.mocap;
+package com.mt1006.mocap.mocap.playing;
 
 import com.mt1006.mocap.utils.FileUtils;
 import net.minecraft.commands.CommandSourceStack;
@@ -95,6 +95,7 @@ public class SceneInfo
 			int fileVersion = Integer.parseInt(scanner.next());
 			if (fileVersion != FileUtils.SCENES_VERSION)
 			{
+				commandSource.sendFailure(new TranslatableComponent("mocap.commands.error.failed_to_load_scene"));
 				commandSource.sendFailure(new TranslatableComponent("mocap.commands.error.failed_to_load_scene.not_supported"));
 				scanner.close();
 				return false;

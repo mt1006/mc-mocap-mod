@@ -1,4 +1,4 @@
-package com.mt1006.mocap.mocap;
+package com.mt1006.mocap.mocap.playing;
 
 import com.mojang.datafixers.util.Pair;
 import com.mt1006.mocap.utils.FileUtils;
@@ -283,7 +283,7 @@ public class PlayerState
 				case SET_ENTITY_FLAGS:
 					Byte newEntityFlags = reader.readByte();
 
-					//https://wiki.vg/index.php?title=Entity_metadata&oldid=15886#Entity
+					//https://wiki.vg/index.php?title=Entity_metadata&oldid=17519#Entity
 					SynchedEntityData entityFlagsDataManager = new SynchedEntityData(player);
 					EntityDataAccessor<Byte> entityFlagsParameter = new EntityDataAccessor<>(0, EntityDataSerializers.BYTE);
 					entityFlagsDataManager.define(entityFlagsParameter, newEntityFlags);
@@ -294,9 +294,9 @@ public class PlayerState
 				case SET_LIVING_ENTITY_FLAGS:
 					Byte newLivingEntityFlags = reader.readByte();
 
-					//https://wiki.vg/index.php?title=Entity_metadata&oldid=15886#Living
+					//https://wiki.vg/index.php?title=Entity_metadata&oldid=17519#Living_Entity
 					SynchedEntityData livingEntityFlagsDataManager = new SynchedEntityData(player);
-					EntityDataAccessor<Byte> livingEntityFlagsParameter = new EntityDataAccessor<>(7, EntityDataSerializers.BYTE);
+					EntityDataAccessor<Byte> livingEntityFlagsParameter = new EntityDataAccessor<>(8, EntityDataSerializers.BYTE);
 					livingEntityFlagsDataManager.define(livingEntityFlagsParameter, newLivingEntityFlags);
 
 					packetTargets.broadcastAll(new ClientboundSetEntityDataPacket(player.getId(), livingEntityFlagsDataManager, true));
@@ -305,9 +305,9 @@ public class PlayerState
 				case SET_MAIN_HAND:
 					Byte newMainHand = reader.readByte();
 
-					//https://wiki.vg/index.php?title=Entity_metadata&oldid=15886#Player
+					//https://wiki.vg/index.php?title=Entity_metadata&oldid=17519#Player
 					SynchedEntityData setMainHandDataManager = new SynchedEntityData(player);
-					EntityDataAccessor<Byte> setMainHandParameter = new EntityDataAccessor<>(17, EntityDataSerializers.BYTE);
+					EntityDataAccessor<Byte> setMainHandParameter = new EntityDataAccessor<>(18, EntityDataSerializers.BYTE);
 					setMainHandDataManager.define(setMainHandParameter, newMainHand);
 
 					packetTargets.broadcastAll(new ClientboundSetEntityDataPacket(player.getId(), setMainHandDataManager, true));
