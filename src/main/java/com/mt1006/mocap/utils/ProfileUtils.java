@@ -1,4 +1,4 @@
-package com.mt1006.mocap.mocap;
+package com.mt1006.mocap.utils;
 
 import com.google.common.collect.Iterables;
 import com.mojang.authlib.GameProfile;
@@ -7,22 +7,14 @@ import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.play.server.SPlayerListItemPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerProfileCache;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.LogicalSidedProvider;
-import net.minecraftforge.fml.loading.FMLCommonLaunchHandler;
 import net.minecraftforge.fml.loading.FMLEnvironment;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 import java.io.File;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
-public class Profiles
+public class ProfileUtils
 {
 	// Original source code: https://github.com/iChun/iChunUtil/blob/1.16/src/main/java/me/ichun/mods/ichunutil/common/entity/util/EntityHelper.java
 
@@ -30,7 +22,7 @@ public class Profiles
 	public static PlayerProfileCache profileCache;
 	public static MinecraftSessionService sessionService;
 
-	public static GameProfile getGameProfile(String playerName)
+	public static GameProfile getGameProfile(MinecraftServer server, String playerName)
 	{
 		if (playerName != null && gameProfileCache.containsKey(playerName))
 		{
@@ -41,8 +33,8 @@ public class Profiles
 		{
 			if (FMLEnvironment.dist.isDedicatedServer())
 			{
-				sessionService = ServerLifecycleHooks.getCurrentServer().getSessionService();
-				profileCache = ServerLifecycleHooks.getCurrentServer().getProfileCache();
+				sessionService = server.getSessionService();
+				profileCache = server.getProfileCache();
 			}
 			else
 			{

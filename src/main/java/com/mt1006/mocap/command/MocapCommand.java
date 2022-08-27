@@ -2,15 +2,17 @@ package com.mt1006.mocap.command;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mt1006.mocap.MocapMod;
-import com.mt1006.mocap.mocap.SceneInfo;
-import com.mt1006.mocap.mocap.Playing;
-import com.mt1006.mocap.mocap.Recording;
-import com.mt1006.mocap.mocap.Scenes;
+import com.mt1006.mocap.mocap.commands.Settings;
+import com.mt1006.mocap.mocap.playing.SceneInfo;
+import com.mt1006.mocap.mocap.commands.Playing;
+import com.mt1006.mocap.mocap.commands.Recording;
+import com.mt1006.mocap.mocap.commands.Scenes;
 import com.mt1006.mocap.utils.FileUtils;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
@@ -65,6 +67,11 @@ public class MocapCommand
 						then(Commands.argument("id", IntegerArgumentType.integer()).executes(MocapCommand::playingStop))).
 					then(Commands.literal("stopAll").executes(Playing::stopAll)).
 					then(Commands.literal("list").executes(Playing::list))).
+				then(Commands.literal("settings").executes(Settings::list).
+					then(Commands.literal("playingSpeed").executes(Settings::info).
+						then(Commands.argument("newValue", DoubleArgumentType.doubleArg(0.0)).executes(Settings::set))).
+					then(Commands.literal("recordingSync").executes(Settings::info).
+						then(Commands.argument("newValue", BoolArgumentType.bool()).executes(Settings::set)))).
 				then(Commands.literal("info").executes(MocapCommand::info)).
 				then(Commands.literal("help").executes(MocapCommand::help)));
 	}
@@ -99,6 +106,7 @@ public class MocapCommand
 			if (!(entity instanceof ServerPlayerEntity))
 			{
 				ctx.getSource().sendFailure(new TranslationTextComponent("mocap.commands.recording.start.player_not_specified"));
+				ctx.getSource().sendFailure(new TranslationTextComponent("mocap.commands.recording.start.player_not_specified.tip"));
 				return 0;
 			}
 
@@ -191,12 +199,14 @@ public class MocapCommand
 				subscene.playerName = StringArgumentType.getString(ctx, "playerName");
 				if (subscene.playerName.length() > 16)
 				{
-					ctx.getSource().sendFailure(new TranslationTextComponent("mocap.commands.scenes.add_to.too_long_name"));
+					ctx.getSource().sendFailure(new TranslationTextComponent("mocap.commands.scenes.add_to.error"));
+					ctx.getSource().sendFailure(new TranslationTextComponent("mocap.commands.scenes.add_to.error.too_long_name"));
 					return 0;
 				}
 				if (subscene.playerName.contains(" "))
 				{
-					ctx.getSource().sendFailure(new TranslationTextComponent("mocap.commands.scenes.add_to.contain_spaces"));
+					ctx.getSource().sendFailure(new TranslationTextComponent("mocap.commands.scenes.add_to.error"));
+					ctx.getSource().sendFailure(new TranslationTextComponent("mocap.commands.scenes.add_to.error.contain_spaces"));
 					return 0;
 				}
 			}
@@ -266,7 +276,7 @@ public class MocapCommand
 		}
 		catch (Exception exception)
 		{
-			ctx.getSource().sendFailure(new TranslationTextComponent("mocap.commands.playing.start.failed"));
+			ctx.getSource().sendFailure(new TranslationTextComponent("mocap.commands.playing.start.error"));
 			return 0;
 		}
 	}

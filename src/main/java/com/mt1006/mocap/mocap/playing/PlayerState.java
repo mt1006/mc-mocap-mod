@@ -1,4 +1,4 @@
-package com.mt1006.mocap.mocap;
+package com.mt1006.mocap.mocap.playing;
 
 import com.mojang.datafixers.util.Pair;
 import com.mt1006.mocap.utils.FileUtils;
@@ -15,7 +15,6 @@ import net.minecraft.network.play.server.*;
 import net.minecraft.server.management.PlayerList;
 import net.minecraft.util.Hand;
 import net.minecraft.util.HandSide;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 
 import javax.annotation.Nullable;
@@ -255,7 +254,7 @@ public class PlayerState
 					float headRotY = reader.readFloat();
 
 					packetTargets.broadcastAll(new SEntityHeadLookPacket(player,
-							(byte)MathHelper.floor(headRotY * 256.0f / 360.0f)));
+							(byte)Math.floor(headRotY * 256.0f / 360.0f)));
 					return RET_OK;
 
 				case CHANGE_POSE:

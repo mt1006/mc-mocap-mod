@@ -1,9 +1,9 @@
-package com.mt1006.mocap;
+package com.mt1006.mocap.events;
 
-import com.mt1006.mocap.mocap.PlayedScene;
-import com.mt1006.mocap.mocap.PlayerState;
-import com.mt1006.mocap.mocap.Playing;
-import com.mt1006.mocap.mocap.Recording;
+import com.mt1006.mocap.MocapMod;
+import com.mt1006.mocap.mocap.playing.PlayerState;
+import com.mt1006.mocap.mocap.commands.Playing;
+import com.mt1006.mocap.mocap.commands.Recording;
 import net.minecraft.util.Util;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.event.TickEvent;

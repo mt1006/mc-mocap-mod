@@ -1,6 +1,7 @@
-package com.mt1006.mocap.mocap;
+package com.mt1006.mocap.mocap.commands;
 
 import com.mojang.brigadier.context.CommandContext;
+import com.mt1006.mocap.mocap.playing.PlayedScene;
 import net.minecraft.command.CommandSource;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -14,12 +15,17 @@ public class Playing
 {
 	private static List<PlayedScene> playedScenes =
 			Collections.synchronizedList(new LinkedList<>());
+	private static long tickCounter = 0;
+	private static double timer = 0.0;
 
 	public static int start(CommandSource commandSource, String name)
 	{
+		if (!Settings.loaded) { Settings.load(commandSource); }
+
 		PlayedScene scene = new PlayedScene();
 		if (!scene.start(commandSource, name, getNextID())) { return 0; }
 		playedScenes.add(scene);
+
 		commandSource.sendSuccess(new TranslationTextComponent("mocap.commands.playing.start.success"), false);
 		return 1;
 	}
@@ -37,6 +43,7 @@ public class Playing
 		}
 
 		commandSource.sendFailure(new TranslationTextComponent("mocap.commands.playing.stop.unable_to_find_scene"));
+		commandSource.sendFailure(new TranslationTextComponent("mocap.commands.playing.stop.unable_to_find_scene.tip"));
 		return 0;
 	}
 
@@ -67,15 +74,26 @@ public class Playing
 
 	public static void onTick()
 	{
-		ArrayList<PlayedScene> toRemove = new ArrayList<>();
-
-		for (PlayedScene scene : playedScenes)
+		if (!playedScenes.isEmpty())
 		{
-			if (scene.finished) { toRemove.add(scene); }
-			else { scene.onTick(); }
+			if ((long)timer < tickCounter) { timer = tickCounter; }
+
+			while ((long)timer == tickCounter)
+			{
+				ArrayList<PlayedScene> toRemove = new ArrayList<>();
+
+				for (PlayedScene scene : playedScenes)
+				{
+					if (scene.finished) { toRemove.add(scene); }
+					else { scene.onTick(); }
+				}
+
+				playedScenes.removeAll(toRemove);
+				timer += 1.0 / Settings.PLAYING_SPEED.val;
+			}
 		}
 
-		playedScenes.removeAll(toRemove);
+		tickCounter++;
 	}
 
 	private static int getNextID()

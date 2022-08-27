@@ -1,13 +1,19 @@
-package com.mt1006.mocap.mocap;
+package com.mt1006.mocap.mocap.playing;
 
 import com.mojang.authlib.GameProfile;
+import com.mt1006.mocap.mocap.commands.Recording;
+import com.mt1006.mocap.mocap.commands.Settings;
+import com.mt1006.mocap.utils.ProfileUtils;
 import com.mt1006.mocap.utils.RecordingUtils;
 import net.minecraft.command.CommandSource;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.network.play.server.*;
+import net.minecraft.network.play.server.SDestroyEntitiesPacket;
+import net.minecraft.network.play.server.SEntityMetadataPacket;
+import net.minecraft.network.play.server.SPlayerListItemPacket;
+import net.minecraft.network.play.server.SSpawnPlayerPacket;
 import net.minecraft.server.management.PlayerList;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -53,9 +59,14 @@ public class PlayedScene
 		else { type = SceneType.RECORDING; }
 
 		SceneData data = new SceneData();
-		if  (!data.load(commandSource, name))
+		if (!data.load(commandSource, name))
 		{
-			commandSource.sendFailure(new TranslationTextComponent("mocap.commands.playing.start.failed.load"));
+			if (!data.knownError)
+			{
+				commandSource.sendFailure(new TranslationTextComponent("mocap.commands.playing.start.error"));
+				commandSource.sendFailure(new TranslationTextComponent("mocap.commands.playing.start.error.load"));
+			}
+			commandSource.sendFailure(new TranslationTextComponent("mocap.commands.playing.start.error.load.path", data.getResourcePath()));
 			return false;
 		}
 
@@ -124,7 +135,8 @@ public class PlayedScene
 		GameProfile profile = getGameProfile(commandSource);
 		if (profile == null)
 		{
-			commandSource.sendFailure(new TranslationTextComponent("mocap.commands.playing.start.failed.profile"));
+			commandSource.sendFailure(new TranslationTextComponent("mocap.commands.playing.start.error"));
+			commandSource.sendFailure(new TranslationTextComponent("mocap.commands.playing.start.error.profile"));
 			return false;
 		}
 
@@ -133,7 +145,8 @@ public class PlayedScene
 		FakePlayer fakePlayer = new FakePlayer(world, profile);
 		if (!PlayerState.readHeader(fakePlayer, reader, new Vector3d(offsetX, offsetY, offsetZ)))
 		{
-			commandSource.sendFailure(new TranslationTextComponent("mocap.commands.playing.start.failed.load_header"));
+			commandSource.sendFailure(new TranslationTextComponent("mocap.commands.playing.start.error"));
+			commandSource.sendFailure(new TranslationTextComponent("mocap.commands.playing.start.error.load_header"));
 			return false;
 		}
 
@@ -172,7 +185,8 @@ public class PlayedScene
 	{
 		if (finished) { return true; }
 
-		if (startDelay <= tickCounter || tickCounter == 0)
+		if ((startDelay <= tickCounter && (!Settings.RECORDING_SYNC.val ||
+				Recording.state == Recording.State.RECORDING)) || tickCounter == 0)
 		{
 			switch (type)
 			{
@@ -250,9 +264,7 @@ public class PlayedScene
 		}
 		else
 		{
-			//GameProfile gameProfile = new GameProfile(null, profileName);
-			//return SkullTileEntity.updateGameprofile(gameProfile);
-			return Profiles.getGameProfile(profileName);
+			return ProfileUtils.getGameProfile(commandSource.getServer(), profileName);
 		}
 	}
 }
