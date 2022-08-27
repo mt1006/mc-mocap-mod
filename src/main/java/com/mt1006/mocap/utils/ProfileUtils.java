@@ -23,7 +23,7 @@ public class ProfileUtils
 	public static GameProfileCache profileCache;
 	public static MinecraftSessionService sessionService;
 
-	public static GameProfile getGameProfile(String playerName)
+	public static GameProfile getGameProfile(MinecraftServer server, String playerName)
 	{
 		if (playerName != null && gameProfileCache.containsKey(playerName))
 		{
@@ -34,8 +34,8 @@ public class ProfileUtils
 		{
 			if (FMLEnvironment.dist.isDedicatedServer())
 			{
-				sessionService = ServerLifecycleHooks.getCurrentServer().getSessionService();
-				profileCache = ServerLifecycleHooks.getCurrentServer().getProfileCache();
+				sessionService = server.getSessionService();
+				profileCache = server.getProfileCache();
 			}
 			else
 			{

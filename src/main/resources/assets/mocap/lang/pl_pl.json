@@ -1,61 +1,107 @@
 {
-  "mocap.commands.recording.start.already_recording": "Błąd: nagrywanie już rozpoczęte!\nUżyj \"/mocap recording stop\"",
-  "mocap.commands.recording.start.player_not_found": "Błąd: nie znaleziono gracza!",
-  "mocap.commands.recording.start.player_not_specified": "Błąd: nie określono gracza!\nDodaj nazwę gracza do komendy lub wykonaj ją jako gracz",
+  "mocap.commands.recording.start.already_recording": "§lBłąd:§r nagrywanie już rozpoczęte!",
+  "mocap.commands.recording.start.already_recording.tip": "Użyj \"/mocap recording stop\"",
+  "mocap.commands.recording.start.player_not_found": "§lBłąd:§r nie znaleziono gracza!",
+  "mocap.commands.recording.start.player_not_specified": "§lBłąd:§r nie określono gracza!",
+  "mocap.commands.recording.start.player_not_specified.tip": "Dodaj nazwę gracza do komendy lub wykonaj ją jako gracz",
   "mocap.commands.recording.start.waiting_for_action": "Wykonaj jakąkolwiek akcję lub użyj \"/mocap recording start\" ponownie, aby zacząć nagrywanie...",
-  "mocap.commands.recording.start.different_player": "Błąd: \"/mocap recording start\" zostało użyte ponownie z innym graczem na wejściu!\nMożesz użyć \"/mocap recording stop\" i spróbować ponownie rozpocząć nagrywanie",
+  "mocap.commands.recording.start.different_player": "§lBłąd:§r \"/mocap recording start\" zostało użyte ponownie z innym graczem na wejściu!",
+  "mocap.commands.recording.start.different_player.tip": "Możesz użyć \"/mocap recording stop\" i spróbować ponownie rozpocząć nagrywanie",
   "mocap.commands.recording.start.recording_started": "Nagrywanie rozpoczęte...",
-  "mocap.commands.recording.stop.server_not_recording": "Błąd: serwer nic teraz nie nagrywa!",
+
+  "mocap.commands.recording.stop.server_not_recording": "§lBłąd:§r serwer nic teraz nie nagrywa!",
   "mocap.commands.recording.stop.waiting_for_decision": "Nagrywanie zatrzymane - oczekiwanie na decyzję...\nUżyj \"/mocap recording save <recording_name>\" aby zapisać nagranie\nlub \"/mocap recording stop\" aby je odrzucić.",
   "mocap.commands.recording.stop.stop_waiting_for_action": "Zaprzestano oczekiwania na wykonanie akcji",
   "mocap.commands.recording.stop.recording_discarded": "Nagranie odrzucone",
-  "mocap.commands.recording.save.nothing_to_save": "Błąd: nie ma nic do zapisania!\nMusisz najpierw rozpocząć nagrywanie",
-  "mocap.commands.recording.save.waiting_for_action": "Błąd: nie ma nic do zapisania!\nAby rozpocząć nagrywanie, wykonaj jakąkolwiek akcję lub użyj ponownie \"/mocap recording start\"",
-  "mocap.commands.recording.save.recording_not_stopped": "Błąd: nagrywanie nie zostało zatrzymane!\nAby zapisać nagranie, musisz najwierw zatrzymać nagrywanie, używając \"/mocap recording stop\"",
-  "mocap.commands.recording.save.file_already_exist": "Błąd: nie udało się zapisać nagrania!\nNagranie o tej nazwie może już istnieć",
-  "mocap.commands.recording.save.exception": "Błąd: nie udało się zapisać nagrania!",
+
+  "mocap.commands.recording.save.nothing_to_save": "§lBłąd:§r nie ma nic do zapisania!",
+  "mocap.commands.recording.save.nothing_to_save.tip": "Musisz najpierw rozpocząć nagrywanie",
+  "mocap.commands.recording.save.waiting_for_action": "§lBłąd:§r nie ma nic do zapisania!",
+  "mocap.commands.recording.save.waiting_for_action.tip": "Aby rozpocząć nagrywanie, wykonaj jakąkolwiek akcję lub użyj ponownie \"/mocap recording start\"",
+  "mocap.commands.recording.save.recording_not_stopped": "§lBłąd:§r nagrywanie nie zostało zatrzymane!",
+  "mocap.commands.recording.save.recording_not_stopped.tip": "Aby zapisać nagranie, musisz najwierw zatrzymać nagrywanie, używając \"/mocap recording stop\"",
+  "mocap.commands.recording.save.file_already_exist": "§lBłąd:§r nie udało się zapisać nagrania!",
+  "mocap.commands.recording.save.file_already_exist.tip": "Nagranie o tej nazwie może już istnieć",
+  "mocap.commands.recording.save.exception": "§lBłąd:§r nie udało się zapisać nagrania!",
   "mocap.commands.recording.save.success": "Nagranie pomyślnie zapisane",
+
   "mocap.commands.recording.remove.failed": "Nie udało się usunąć nagrania!",
   "mocap.commands.recording.remove.success": "Nagranie pomyślnie usunięte",
-  "mocap.commands.recording.state.not_recording": "Stan: NOT_RECORDING",
-  "mocap.commands.recording.state.waiting_for_action": "Stan: WAITING_FOR_ACTION",
-  "mocap.commands.recording.state.recording": "Stan: RECORDING",
-  "mocap.commands.recording.state.waiting_for_decision": "Stan: WAITING_FOR_DECISION",
-  "mocap.commands.recording.state.player_name": "Nazwa gracza: %s",
-  "mocap.commands.scenes.add.file_already_exists": "Błąd: nie udało się dodać sceny!\nScena o tej nazwie może już istnieć",
-  "mocap.commands.scenes.add.exception": "Błąd: nie udało się dodać sceny!",
+
+  "mocap.commands.recording.state.not_recording": "§lStan:§r NOT_RECORDING",
+  "mocap.commands.recording.state.waiting_for_action": "§lStan:§r WAITING_FOR_ACTION",
+  "mocap.commands.recording.state.recording": "§lStan:§r RECORDING",
+  "mocap.commands.recording.state.waiting_for_decision": "§lStan:§r WAITING_FOR_DECISION",
+  "mocap.commands.recording.state.player_name": "§lNazwa gracza:§r %s",
+
+
+  "mocap.commands.scenes.add.error": "§lBłąd:§r nie udało się dodać sceny!",
+  "mocap.commands.scenes.add.error.file_already_exists": "Scena o tej nazwie może już istnieć",
   "mocap.commands.scenes.add.success": "Scena dodana pomyślnie",
+
   "mocap.commands.scenes.remove.failed": "Nie udało się usunąć sceny!",
   "mocap.commands.scenes.remove.success": "Scena pomyślnie usunięta",
-  "mocap.commands.scenes.add_to.file_not_exists": "Błąd: nie udało się dodać elementu do sceny!\nScena o tej nazwie nie istnieje",
-  "mocap.commands.scenes.add_to.too_long_name": "Błąd: nie udało się dodać elementu do sceny!\nMaksymalna długość nazwy gracza to 16",
-  "mocap.commands.scenes.add_to.contain_spaces": "Błąd: nie udało się dodać elementu do sceny!\nNazwa gracza nie może zawierać spacji",
-  "mocap.commands.scenes.add_to.exception": "Błąd: nie udało się dodać elementu do sceny!",
+
+  "mocap.commands.scenes.add_to.error": "§lBłąd:§r nie udało się dodać elementu do sceny!",
+  "mocap.commands.scenes.add_to.error.file_not_exists": "Scena o tej nazwie nie istnieje",
+  "mocap.commands.scenes.add_to.error.too_long_name": "Maksymalna długość nazwy gracza to 16",
+  "mocap.commands.scenes.add_to.error.contain_spaces": "Nazwa gracza nie może zawierać spacji",
   "mocap.commands.scenes.add_to.success": "Element pomyślnie dodany do sceny",
-  "mocap.commands.scenes.remove_from.file_not_exists": "Błąd: nie udało się usunąć elementu ze sceny!\nScena o tej nazwie nie istnieje",
-  "mocap.commands.scenes.remove_from.wrong_element_pos": "Błąd: nie udało się odnaleźć podanego elementu!\nUżyj \"/mocap scenes listElements [scene]\" aby uzyskać numery poszczególnych elementów",
-  "mocap.commands.scenes.remove_from.exception": "Błąd: nie udało się usunąć elementu ze sceny!",
+
+  "mocap.commands.scenes.remove_from.error": "§lBłąd:§r nie udało się usunąć elementu ze sceny!",
+  "mocap.commands.scenes.remove_from.error.file_not_exists": "Scena o tej nazwie nie istnieje",
+  "mocap.commands.scenes.remove_from.error.wrong_element_pos": "Element o podanym numerze nie istnieje",
+  "mocap.commands.scenes.remove_from.error.wrong_element_pos.tip": "Użyj \"/mocap scenes listElements [scene]\" aby uzyskać numery poszczególnych elementów",
   "mocap.commands.scenes.remove_from.success": "Element pomyślnie usunięty ze sceny",
-  "mocap.commands.scenes.list_elements.list": "Lista elementów w scenie:",
-  "mocap.commands.playing.start.failed.loop": "Błąd: nie udało się rozpocząć odtwarzania sceny!\nScena lub podsceny zawierają siebie nawzajem",
-  "mocap.commands.playing.start.failed.load": "Błąd: nie udało się rozpocząć odtwarzania sceny!\nNie udało się załadować wszystkich zasobów",
-  "mocap.commands.playing.start.failed.load_header": "Błąd: nie udało się rozpocząć odtwarzania sceny!\nNie udało się załadować nagłówka nagrania",
-  "mocap.commands.playing.start.failed.profile": "Błąd: nie udało się rozpocząć odtwarzania sceny!\nNie udało się załadować profilu gracza",
-  "mocap.commands.playing.start.failed": "Błąd: nie udało się rozpocząć odtwarzania sceny!",
+
+  "mocap.commands.scenes.list_elements.list": "§lLista elementów w scenie:§r",
+
+
+  "mocap.commands.playing.start.error": "§lBłąd:§r nie udało się rozpocząć odtwarzania sceny!",
+  "mocap.commands.playing.start.error.loop": "Scena lub podsceny zawierają siebie nawzajem",
+  "mocap.commands.playing.start.error.load": "Nie udało się załadować wszystkich zasobów",
+  "mocap.commands.playing.start.error.load.path": "Ścieżka zasobu: %s",
+  "mocap.commands.playing.start.error.load_header": "Nie udało się załadować nagłówka nagrania",
+  "mocap.commands.playing.start.error.profile": "Nie udało się załadować profilu gracza",
   "mocap.commands.playing.start.success": "Odtwarzanie rozpoczęte...",
-  "mocap.commands.playing.stop.unable_to_find_scene": "Błąd: nie udało się znaleźć sceny o podanym numerze!\nUżyj \"/mocap playing list\" aby uzyskać listę wszystkich obecnie odtwarzanych scen",
+
+  "mocap.commands.playing.stop.unable_to_find_scene": "§lBłąd:§r nie udało się znaleźć sceny o podanym numerze!",
+  "mocap.commands.playing.stop.unable_to_find_scene.tip": "Użyj \"/mocap playing list\" aby uzyskać listę wszystkich obecnie odtwarzanych scen",
   "mocap.commands.playing.stop.success": "Odtwarzanie zatrzymane",
+
   "mocap.commands.playing.stop_all.success": "Odtwarzanie wszystkich scen zatrzymane",
+
   "mocap.commands.playing.list.recordings": "§lNagrania:§r%s",
   "mocap.commands.playing.list.scenes": "§lSceny:§r%s",
   "mocap.commands.playing.list.playing": "§lObecnie odtwarzane:§r",
   "mocap.commands.playing.list.empty": "§7§o[puste]§r",
   "mocap.commands.playing.list.error": "§c§o[błąd]§r",
-  "mocap.commands.help": "%s - Pomoc\n  /mocap recording [...] - Nagrywanie ruchów gracza\n  /mocap scenes [...] - Tworzenie i modyfikowanie scen\n  /mocap playing [...] - Odtwarzanie scen i nagrań\n  /mocap info - Pokazuje informacje o modzie\n  /mocap help - Pokazuje tą wiadomość\nJak używać:\n- Najpierw musisz rozpocząć nagrywanie używając \"/mocap recording start\". Nagrane zostaną wszystkie ruchy twoje lub ruchy gracza danego jako argument w poleceniu.\n- Następnie, możesz przerwać nagrywanie przy użyciu \"/mocap recording stop\" i zapisać je używając \"/mocap recording save <nazwa>\".\n- Użyj \"/mocap playing start <nazwa>\" aby odtworzyć nagranie.\n- Możesz także tworzyć sceny do których można dodawać wiele nagrań lub innych scen, z parametrami takimi jak nazwa gracza, przesunięcie pozycji, czy opóźnienie startu.\n- Aby utworzyć scenę użyj \"/mocap scenes add <nazwa_sceny>\". Następnie, dodaj swoje nagranie używając \"/mocap scenes addTo <nazwa_sceny> <nazwa_nagrania> [opóźnienie] [offset_x] [offset_y] [offset_z] [nazwa_gracza]\" (możesz pominąć argumenty w nawiasach kwadratowych, jeśli chcesz).\n- Aby odtworzyć scenę użyj \"/mocap playing start .<nazwa_sceny>\" - musisz umieścić kropkę przed nazwą sceny.\n- Umieszczając kropkę przed nazwą, kiedy korzystasz z \"/mocap scenes addTo ...\", możesz także dodawać sceny do innej sceny.",
-  "mocap.commands.error.failed_to_init_directories": "Błąd: nie udało się zainicjalizować folderów!",
-  "mocap.commands.error.unable_to_get_argument": "Błąd: nie udało się pobrać argumentów!",
-  "mocap.commands.error.improper_name": "Błąd: niewłaściwa nazwa nagrania!\nMożesz tylko używać małych liter, liczb, podkreślnika, myślnika, lub kropki",
-  "mocap.commands.error.improper_name.dot_first": "Błąd: niewłaściwa nazwa nagrania!\nNie możesz użyć kropki jako pierwszego znaku",
-  "mocap.commands.error.failed_to_load_scene": "Błąd: nie udało się załadować pliku sceny!",
-  "mocap.commands.error.failed_to_load_scene.not_supported": "Błąd: nie udało się załadować pliku sceny!\nNiewspierana wersja pliku sceny"
+
+
+  "mocap.commands.settings.error": "§lBłąd:§r nie udało się znaleźć ustawienia!",
+
+  "mocap.commands.settings.list": "§lUstawienia:§r",
+  "mocap.commands.settings.list.info": "%s: %s",
+  "mocap.commands.settings.list.info_def": "%s: %s §7§o[domyślnie]§r",
+
+  "mocap.commands.settings.info.name": "§lNazwa:§r %s",
+  "mocap.commands.settings.info.about.playingSpeed": "§lO ustawieniu:§r Pozwala na zmianę prędkości odtwarzania nagrania lub sceny",
+  "mocap.commands.settings.info.about.recordingSync": "§lO ustawieniu:§r Ułatwia nagrywanie skomplikowanych scen przez synchronizację startu odtwarzanej sceny ze startem nagrywania",
+  "mocap.commands.settings.info.val": "§lObecna wartość:§r %s",
+  "mocap.commands.settings.info.def_val": "§lDomyślna wartość:§r %s",
+
+  "mocap.commands.settings.set.error": "§lBłąd:§r nie udało się odczytać wartości wejściowej!",
+  "mocap.commands.settings.set": "Wartość zmieniona z %s na %s",
+
+
+  "mocap.commands.help": "%s - §lPomoc§r\n  /mocap recording [...] - Nagrywanie ruchów gracza\n  /mocap scenes [...] - Tworzenie i modyfikowanie scen\n  /mocap playing [...] - Odtwarzanie scen i nagrań\n  /mocap settings [...] - Pokazuje i modyfikuje ustawienia\n  /mocap info - Pokazuje informacje o modzie\n  /mocap help - Pokazuje tą wiadomość\n§lJak używać:§r\n- Najpierw musisz rozpocząć nagrywanie używając \"/mocap recording start\". Nagrane zostaną wszystkie ruchy twoje lub ruchy gracza danego jako argument w poleceniu.\n- Następnie, możesz przerwać nagrywanie przy użyciu \"/mocap recording stop\" i zapisać je używając \"/mocap recording save <nazwa>\".\n- Użyj \"/mocap playing start <nazwa>\" aby odtworzyć nagranie.\n- Możesz także tworzyć sceny do których można dodawać wiele nagrań lub innych scen, z parametrami takimi jak nazwa gracza, przesunięcie pozycji, czy opóźnienie startu.\n- Aby utworzyć scenę użyj \"/mocap scenes add <nazwa_sceny>\". Następnie, dodaj swoje nagranie używając \"/mocap scenes addTo <nazwa_sceny> <nazwa_nagrania> [opóźnienie] [offset_x] [offset_y] [offset_z] [nazwa_gracza]\" (możesz pominąć argumenty w nawiasach kwadratowych, jeśli chcesz).\n- Aby odtworzyć scenę użyj \"/mocap playing start .<nazwa_sceny>\" - musisz umieścić kropkę przed nazwą sceny.\n- Umieszczając kropkę przed nazwą, kiedy korzystasz z \"/mocap scenes addTo ...\", możesz także dodawać sceny do innej sceny.",
+
+
+  "mocap.commands.error.failed_to_init_directories": "§lBłąd:§r nie udało się zainicjalizować folderów!",
+  "mocap.commands.error.unable_to_get_argument": "§lBłąd:§r nie udało się pobrać argumentów!",
+  "mocap.commands.error.improper_name": "§lBłąd:§r niewłaściwa nazwa nagrania!",
+  "mocap.commands.error.improper_name.character": "Możesz używać tylko małych liter, liczb, podkreślnika, myślnika, lub kropki",
+  "mocap.commands.error.improper_name.dot_first": "Nie możesz użyć kropki jako pierwszego znaku",
+  "mocap.commands.error.failed_to_load_scene": "§lBłąd:§r nie udało się załadować pliku sceny!",
+  "mocap.commands.error.failed_to_load_scene.not_supported": "§lBłąd:§r nie udało się załadować pliku sceny!\nNiewspierana wersja pliku sceny"
 }

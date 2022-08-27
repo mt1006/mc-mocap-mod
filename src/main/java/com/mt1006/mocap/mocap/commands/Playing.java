@@ -15,12 +15,17 @@ public class Playing
 {
 	private static List<PlayedScene> playedScenes =
 			Collections.synchronizedList(new LinkedList<>());
+	private static long tickCounter = 0;
+	private static double timer = 0.0;
 
 	public static int start(CommandSourceStack commandSource, String name)
 	{
+		if (!Settings.loaded) { Settings.load(commandSource); }
+
 		PlayedScene scene = new PlayedScene();
 		if (!scene.start(commandSource, name, getNextID())) { return 0; }
 		playedScenes.add(scene);
+
 		commandSource.sendSuccess(new TranslatableComponent("mocap.commands.playing.start.success"), false);
 		return 1;
 	}
@@ -38,6 +43,7 @@ public class Playing
 		}
 
 		commandSource.sendFailure(new TranslatableComponent("mocap.commands.playing.stop.unable_to_find_scene"));
+		commandSource.sendFailure(new TranslatableComponent("mocap.commands.playing.stop.unable_to_find_scene.tip"));
 		return 0;
 	}
 
@@ -68,15 +74,26 @@ public class Playing
 
 	public static void onTick()
 	{
-		ArrayList<PlayedScene> toRemove = new ArrayList<>();
-
-		for (PlayedScene scene : playedScenes)
+		if (!playedScenes.isEmpty())
 		{
-			if (scene.finished) { toRemove.add(scene); }
-			else { scene.onTick(); }
+			if ((long)timer < tickCounter) { timer = tickCounter; }
+
+			while ((long)timer == tickCounter)
+			{
+				ArrayList<PlayedScene> toRemove = new ArrayList<>();
+
+				for (PlayedScene scene : playedScenes)
+				{
+					if (scene.finished) { toRemove.add(scene); }
+					else { scene.onTick(); }
+				}
+
+				playedScenes.removeAll(toRemove);
+				timer += 1.0 / Settings.PLAYING_SPEED.val;
+			}
 		}
 
-		playedScenes.removeAll(toRemove);
+		tickCounter++;
 	}
 
 	private static int getNextID()

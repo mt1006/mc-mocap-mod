@@ -38,6 +38,7 @@ public class FileUtils
 			if (recordingFile.exists())
 			{
 				commandSource.sendFailure(new TranslatableComponent("mocap.commands.recording.save.file_already_exist"));
+				commandSource.sendFailure(new TranslatableComponent("mocap.commands.recording.save.file_already_exist.tip"));
 				return false;
 			}
 
@@ -130,7 +131,8 @@ public class FileUtils
 		{
 			if (sceneFile.exists())
 			{
-				commandSource.sendFailure(new TranslatableComponent("mocap.commands.scenes.add.file_already_exists"));
+				commandSource.sendFailure(new TranslatableComponent("mocap.commands.scenes.add.error"));
+				commandSource.sendFailure(new TranslatableComponent("mocap.commands.scenes.add.error.file_already_exists"));
 				return false;
 			}
 
@@ -140,7 +142,7 @@ public class FileUtils
 		}
 		catch (IOException exception)
 		{
-			commandSource.sendFailure(new TranslatableComponent("mocap.commands.scenes.add.exception"));
+			commandSource.sendFailure(new TranslatableComponent("mocap.commands.scenes.add.error"));
 			return false;
 		}
 
@@ -174,7 +176,8 @@ public class FileUtils
 		{
 			if (!sceneFile.exists())
 			{
-				commandSource.sendFailure(new TranslatableComponent("mocap.commands.scenes.add_to.file_not_exists"));
+				commandSource.sendFailure(new TranslatableComponent("mocap.commands.scenes.add_to.error"));
+				commandSource.sendFailure(new TranslatableComponent("mocap.commands.scenes.add_to.error.file_not_exists"));
 				return false;
 			}
 
@@ -192,7 +195,7 @@ public class FileUtils
 		}
 		catch (IOException exception)
 		{
-			commandSource.sendFailure(new TranslatableComponent("mocap.commands.scenes.add_to.exception"));
+			commandSource.sendFailure(new TranslatableComponent("mocap.commands.scenes.add_to.error"));
 			return false;
 		}
 
@@ -210,7 +213,8 @@ public class FileUtils
 		{
 			if (!sceneFile.exists())
 			{
-				commandSource.sendFailure(new TranslatableComponent("mocap.commands.scenes.remove_from.file_not_exists"));
+				commandSource.sendFailure(new TranslatableComponent("mocap.commands.scenes.remove_from.error"));
+				commandSource.sendFailure(new TranslatableComponent("mocap.commands.scenes.remove_from.error.file_not_exists"));
 				return false;
 			}
 
@@ -219,7 +223,9 @@ public class FileUtils
 
 			if (sceneInfo.subscenes.size() < pos || pos < 1)
 			{
-				commandSource.sendFailure(new TranslatableComponent("mocap.commands.scenes.remove_from.wrong_element_pos"));
+				commandSource.sendFailure(new TranslatableComponent("mocap.commands.scenes.remove_from.error"));
+				commandSource.sendFailure(new TranslatableComponent("mocap.commands.scenes.remove_from.error.wrong_element_pos"));
+				commandSource.sendFailure(new TranslatableComponent("mocap.commands.scenes.remove_from.error.wrong_element_pos.tip"));
 				return false;
 			}
 
@@ -238,7 +244,7 @@ public class FileUtils
 		}
 		catch (IOException exception)
 		{
-			commandSource.sendFailure(new TranslatableComponent("mocap.commands.scenes.remove_from.exception"));
+			commandSource.sendFailure(new TranslatableComponent("mocap.commands.scenes.remove_from.error"));
 			return false;
 		}
 
@@ -291,13 +297,20 @@ public class FileUtils
 		return scenes;
 	}
 
+	@Nullable
+	public static File getSettingsFile(CommandSourceStack commandSource)
+	{
+		if (!FileUtils.initDirectories(commandSource)) { return null; }
+		return new File(mocapDirectory, CONFIG_FILE_NAME);
+	}
+
 	public static boolean initDirectories(CommandSourceStack commandSource)
 	{
 		if (directoriesInitialized) { return true; }
 
 		MinecraftServer server = commandSource.getServer();
 
-		mocapDirectory = server.getWorldPath(new LevelResource(MOCAP_DIR_NAME)).toFile();
+		mocapDirectory = new File(server.getWorldPath(LevelResource.ROOT).toFile(), MOCAP_DIR_NAME);
 		if (!mocapDirectory.exists()) { mocapDirectory.mkdir(); }
 
 		recordingsDirectory = new File(mocapDirectory, RECORDINGS_DIR_NAME);
@@ -322,6 +335,7 @@ public class FileUtils
 
 		if (name.charAt(0) == '.')
 		{
+			commandSource.sendFailure(new TranslatableComponent("mocap.commands.error.improper_name"));
 			commandSource.sendFailure(new TranslatableComponent("mocap.commands.error.improper_name.dot_first"));
 			return false;
 		}
@@ -334,6 +348,7 @@ public class FileUtils
 				if (commandSource != null)
 				{
 					commandSource.sendFailure(new TranslatableComponent("mocap.commands.error.improper_name"));
+					commandSource.sendFailure(new TranslatableComponent("mocap.commands.error.improper_name.character"));
 				}
 				return false;
 			}

@@ -1,69 +1,107 @@
 {
-  "mocap.commands.recording.start.already_recording": "Error: recording already started!\nUse \"/mocap recording stop\"",
-  "mocap.commands.recording.start.player_not_found": "Error: player not found!",
-  "mocap.commands.recording.start.player_not_specified": "Error: player wasn't specified!\nAdd nickname to command or execute it as a player",
+  "mocap.commands.recording.start.already_recording": "§lError:§r recording already started!",
+  "mocap.commands.recording.start.already_recording.tip": "Use \"/mocap recording stop\"",
+  "mocap.commands.recording.start.player_not_found": "§lError:§r player not found!",
+  "mocap.commands.recording.start.player_not_specified": "§lError:§r player wasn't specified!",
+  "mocap.commands.recording.start.player_not_specified.tip": "Add nickname to command or execute it as a player",
   "mocap.commands.recording.start.waiting_for_action": "Take any action or use \"/mocap recording start\" again to start recording...",
-  "mocap.commands.recording.start.different_player": "Error: \"/mocap recording start\" executed again with different input player!\nYou can use \"/mocap recording stop\" and then try again to start recording",
+  "mocap.commands.recording.start.different_player": "§lError:§r \"/mocap recording start\" executed again with different input player!",
+  "mocap.commands.recording.start.different_player.tip": "You can use \"/mocap recording stop\" and then try again to start recording",
   "mocap.commands.recording.start.recording_started": "Recording started...",
-  "mocap.commands.recording.stop.server_not_recording": "Error: server isn't recording anything now!",
+
+  "mocap.commands.recording.stop.server_not_recording": "§lError:§r server isn't recording anything now!",
   "mocap.commands.recording.stop.waiting_for_decision": "Recording stopped - waiting for decision...\nUse \"/mocap recording save <recording_name>\" to save it\nor \"/mocap recording stop\" to discard it.",
   "mocap.commands.recording.stop.stop_waiting_for_action": "No longer waiting for action",
   "mocap.commands.recording.stop.recording_discarded": "Recording discarded",
-  "mocap.commands.recording.save.nothing_to_save": "Error: there is nothing to save!\nYou need to start recording first",
-  "mocap.commands.recording.save.waiting_for_action": "Error: there is nothing to save!\nTo start recording take any action or use \"/mocap recording start\" again",
-  "mocap.commands.recording.save.recording_not_stopped": "Error: recording is not stopped!\nTo save recording you need to first stop it using \"/mocap recording stop\"",
-  "mocap.commands.recording.save.file_already_exist": "Error: unable to save recording!\nRecording with this name may already exist",
-  "mocap.commands.recording.save.exception": "Error: unable to save recording!",
+
+  "mocap.commands.recording.save.nothing_to_save": "§lError:§r there is nothing to save!",
+  "mocap.commands.recording.save.nothing_to_save.tip": "You need to start recording first",
+  "mocap.commands.recording.save.waiting_for_action": "§lError:§r there is nothing to save!",
+  "mocap.commands.recording.save.waiting_for_action.tip": "To start recording take any action or use \"/mocap recording start\" again",
+  "mocap.commands.recording.save.recording_not_stopped": "§lError:§r recording is not stopped!",
+  "mocap.commands.recording.save.recording_not_stopped.tip": "To save recording you need to first stop it using \"/mocap recording stop\"",
+  "mocap.commands.recording.save.file_already_exist": "§lError:§r unable to save recording!",
+  "mocap.commands.recording.save.file_already_exist.tip": "Recording with this name may already exist",
+  "mocap.commands.recording.save.exception": "§lError:§r unable to save recording!",
   "mocap.commands.recording.save.success": "Recording successfully saved",
+
   "mocap.commands.recording.remove.failed": "Failed to remove recording!",
   "mocap.commands.recording.remove.success": "Recording successfully removed",
-  "mocap.commands.recording.state.not_recording": "State: NOT_RECORDING",
-  "mocap.commands.recording.state.waiting_for_action": "State: WAITING_FOR_ACTION",
-  "mocap.commands.recording.state.recording": "State: RECORDING",
-  "mocap.commands.recording.state.waiting_for_decision": "State: WAITING_FOR_DECISION",
-  "mocap.commands.recording.state.player_name": "Player name: %s",
-  "mocap.commands.scenes.add.file_already_exists": "Error: unable to add scene!\nScene with this name may already exist",
-  "mocap.commands.scenes.add.exception": "Error: unable to add scene!",
+
+  "mocap.commands.recording.state.not_recording": "§lState:§r NOT_RECORDING",
+  "mocap.commands.recording.state.waiting_for_action": "§lState:§r WAITING_FOR_ACTION",
+  "mocap.commands.recording.state.recording": "§lState:§r RECORDING",
+  "mocap.commands.recording.state.waiting_for_decision": "§lState:§r WAITING_FOR_DECISION",
+  "mocap.commands.recording.state.player_name": "§lPlayer name:§r %s",
+
+
+  "mocap.commands.scenes.add.error": "§lError:§r unable to add scene!",
+  "mocap.commands.scenes.add.error.file_already_exists": "§lError:§r unable to add scene!",
   "mocap.commands.scenes.add.success": "Scene successfully added",
+
   "mocap.commands.scenes.remove.failed": "Failed to remove scene!",
   "mocap.commands.scenes.remove.success": "Scene successfully removed",
-  "mocap.commands.scenes.add_to.file_not_exists": "Error: unable to add element to scene!\nScene with this name doesn't exist",
-  "mocap.commands.scenes.add_to.too_long_name": "Error: unable to add element to scene!\nMaximum length of a player's name is 16",
-  "mocap.commands.scenes.add_to.contain_spaces": "Error: unable to add element to scene!\nPlayer name cannot contain spaces",
-  "mocap.commands.scenes.add_to.exception": "Error: unable to add element to scene!",
+
+  "mocap.commands.scenes.add_to.error": "§lError:§r unable to add element to scene!",
+  "mocap.commands.scenes.add_to.error.file_not_exists": "Scene with this name doesn't exist",
+  "mocap.commands.scenes.add_to.error.too_long_name": "Maximum length of a player's name is 16",
+  "mocap.commands.scenes.add_to.error.contain_spaces": "Player name cannot contain spaces",
   "mocap.commands.scenes.add_to.success": "Element successfully added to scene",
-  "mocap.commands.scenes.remove_from.file_not_exists": "Error: unable to remove element from scene!\nScene with this name doesn't exist",
-  "mocap.commands.scenes.remove_from.wrong_element_pos": "Error: unable to find element!\nUse \"/mocap scenes listElements [scene]\" to get element numbers",
-  "mocap.commands.scenes.remove_from.exception": "Error: unable to remove element from scene!",
+
+  "mocap.commands.scenes.remove_from.error": "§lError:§r unable to remove element from scene!",
+  "mocap.commands.scenes.remove_from.error.file_not_exists": "Scene with this name doesn't exist",
+  "mocap.commands.scenes.remove_from.error.wrong_element_pos": "Element with the given number doesn't exist",
+  "mocap.commands.scenes.remove_from.error.wrong_element_pos.tip": "Use \"/mocap scenes listElements [scene]\" to get element numbers",
   "mocap.commands.scenes.remove_from.success": "Element successfully removed from scene",
-  "mocap.commands.scenes.list_elements.list": "Scene elements list:",
-  "mocap.commands.playing.start.failed.loop": "Error: failed to start scene!\nScene or sub-scenes contain themselves",
-  "mocap.commands.playing.start.failed.load": "Error: failed to start scene!\nFailed to load all resources",
-  "mocap.commands.playing.start.failed.load_header": "Error: failed to start scene!\nFailed to load recording header",
-  "mocap.commands.playing.start.failed.profile": "Error: failed to start scene!\nFailed to load player profile",
-  "mocap.commands.playing.start.failed": "Error: failed to start scene!",
+
+  "mocap.commands.scenes.list_elements.list": "§lScene elements list:§r",
+
+
+  "mocap.commands.playing.start.error": "§lError:§r failed to start scene!",
+  "mocap.commands.playing.start.error.loop": "Scene or sub-scenes contain themselves",
+  "mocap.commands.playing.start.error.load": "Failed to load all resources",
+  "mocap.commands.playing.start.error.load.path": "Resource path: %s",
+  "mocap.commands.playing.start.error.load_header": "Failed to load recording header",
+  "mocap.commands.playing.start.error.profile": "Failed to load player profile",
   "mocap.commands.playing.start.success": "Playing started...",
-  "mocap.commands.playing.stop.unable_to_find_scene": "Error: unable to find scene with given id!\nUse \"/mocap playing list\" to get list of all currently played scenes",
+
+  "mocap.commands.playing.stop.unable_to_find_scene": "§lError:§r unable to find scene with given id!",
+  "mocap.commands.playing.stop.unable_to_find_scene.tip": "Use \"/mocap playing list\" to get list of all currently played scenes",
   "mocap.commands.playing.stop.success": "Playing stopped",
+
   "mocap.commands.playing.stop_all.success": "Playing of all scenes stopped",
+
   "mocap.commands.playing.list.recordings": "§lRecordings:§r%s",
   "mocap.commands.playing.list.scenes": "§lScenes:§r%s",
   "mocap.commands.playing.list.playing": "§lCurrently playing:§r",
   "mocap.commands.playing.list.empty": "§7§o[empty]§r",
   "mocap.commands.playing.list.error": "§c§o[error]§r",
+
+
+  "mocap.commands.settings.error": "§lError:§r unable to find setting!",
+
   "mocap.commands.settings.list": "§lSettings:§r",
-  "mocap.commands.settings.list.info": "%s = %s",
+  "mocap.commands.settings.list.info": "%s: %s",
   "mocap.commands.settings.list.info_def": "%s: %s §7§o[default]§r",
+
   "mocap.commands.settings.info.name": "§lName:§r %s",
-  "mocap.commands.settings.info.about.playingSpeed": "§lAbout:§r Allows you to change speed of played recording or scene.",
-  "mocap.commands.settings.info.about.recordingMode": "§lAbout:§r Makes recording complex scenes easier by synchronizing start of played scene with start of recording.",
+  "mocap.commands.settings.info.about.playingSpeed": "§lAbout:§r Allows you to change speed of played recording or scene",
+  "mocap.commands.settings.info.about.recordingSync": "§lAbout:§r Makes recording of complex scenes easier by synchronizing start of played scene with start of recording",
   "mocap.commands.settings.info.val": "§lCurrent value:§r %s",
   "mocap.commands.settings.info.def_val": "§lDefault value:§r %s",
-  "mocap.commands.help": "%s - Help\n  /mocap recording [...] - Recording player movements\n  /mocap scenes [...] - Creating and modifying scenes\n  /mocap playing [...] - Playing scens and recordings\n  /mocap info - Displays information about mod\n  /mocap help - Displays this message\nHow to use:\n- First, you need to start recording using \"/mocap recording start\". It will record all your movements or movements of a player given as an argument. \n- Then, you can stop recording using \"/mocap recording stop\" and save it with \"/mocap recording save <name>\".\n- Use \"/mocap playing start <name>\" to play recording.\n- You can also create scenes to which you can add multiple recordings or other scenes, with parameters like player name, position offset, or start delay.\n- To create scene use \"/mocap scenes add <scene_name>\". Then, add your recording using \"/mocap scenes addTo <scene_name> <recording_name> [delay] [x_offset] [y_offset] [z_offset] [player_name]\" (you can skip arguments in square brackets if you want).\n- To play scene use \"/mocap playing start .<scene_name>\" - you need to put a dot before the scene name.\n- By putting a dot before name, when using \"/mocap scenes addTo ...\", you can also add scenes to other scenes.",
-  "mocap.commands.error.failed_to_init_directories": "Error: failed to initialize directories!",
-  "mocap.commands.error.unable_to_get_argument": "Error: unable to get argument!",
-  "mocap.commands.error.improper_name": "Error: improper recording name!\nYou can only use lowercase letters, numbers, an underscore, a dash, or a dot",
-  "mocap.commands.error.improper_name.dot_first": "Error: improper recording name!\nYou can't use a dot as a first character",
-  "mocap.commands.error.failed_to_load_scene": "Error: failed to load scene file!",
-  "mocap.commands.error.failed_to_load_scene.not_supported": "Error: failed to load scene file!\nNot supported scene file version"
+
+  "mocap.commands.settings.set.error": "§lError:§r unable to read input value!",
+  "mocap.commands.settings.set": "Value changed from %s to %s",
+
+
+  "mocap.commands.help": "%s - §lHelp§r\n  /mocap recording [...] - Recording player movements\n  /mocap scenes [...] - Creating and modifying scenes\n  /mocap playing [...] - Playing scens and recordings\n  /mocap settings [...] - Shows and modifies settings\n  /mocap info - Displays information about mod\n  /mocap help - Displays this message\n§lHow to use:§r\n- First, you need to start recording using \"/mocap recording start\". It will record all your movements or movements of a player given as an argument. \n- Then, you can stop recording using \"/mocap recording stop\" and save it with \"/mocap recording save <name>\".\n- Use \"/mocap playing start <name>\" to play recording.\n- You can also create scenes to which you can add multiple recordings or other scenes, with parameters like player name, position offset, or start delay.\n- To create scene use \"/mocap scenes add <scene_name>\". Then, add your recording using \"/mocap scenes addTo <scene_name> <recording_name> [delay] [x_offset] [y_offset] [z_offset] [player_name]\" (you can skip arguments in square brackets if you want).\n- To play scene use \"/mocap playing start .<scene_name>\" - you need to put a dot before the scene name.\n- By putting a dot before name, when using \"/mocap scenes addTo ...\", you can also add scenes to other scenes.",
+
+
+  "mocap.commands.error.failed_to_init_directories": "§lError:§r failed to initialize directories!",
+  "mocap.commands.error.unable_to_get_argument": "§lError:§r unable to get argument!",
+  "mocap.commands.error.improper_name": "§lError:§r improper recording name!",
+  "mocap.commands.error.improper_name.character": "You can only use lowercase letters, numbers, an underscore, a dash, or a dot",
+  "mocap.commands.error.improper_name.dot_first": "You can't use a dot as a first character",
+  "mocap.commands.error.failed_to_load_scene": "§lError:§r failed to load scene file!",
+  "mocap.commands.error.failed_to_load_scene.not_supported": "Not supported scene file version"
 }

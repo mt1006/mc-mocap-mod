@@ -2,6 +2,7 @@ package com.mt1006.mocap.command;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -69,8 +70,8 @@ public class MocapCommand
 				then(Commands.literal("settings").executes(Settings::list).
 					then(Commands.literal("playingSpeed").executes(Settings::info).
 						then(Commands.argument("newValue", DoubleArgumentType.doubleArg(0.0)).executes(Settings::set))).
-					then(Commands.literal("recordingMode").executes(Settings::info).
-						then(Commands.argument("newValue", DoubleArgumentType.doubleArg(0.0)).executes(Settings::set)))).
+					then(Commands.literal("recordingSync").executes(Settings::info).
+						then(Commands.argument("newValue", BoolArgumentType.bool()).executes(Settings::set)))).
 				then(Commands.literal("info").executes(MocapCommand::info)).
 				then(Commands.literal("help").executes(MocapCommand::help)));
 	}
@@ -105,6 +106,7 @@ public class MocapCommand
 			if (!(entity instanceof ServerPlayer))
 			{
 				ctx.getSource().sendFailure(new TranslatableComponent("mocap.commands.recording.start.player_not_specified"));
+				ctx.getSource().sendFailure(new TranslatableComponent("mocap.commands.recording.start.player_not_specified.tip"));
 				return 0;
 			}
 
@@ -197,12 +199,14 @@ public class MocapCommand
 				subscene.playerName = StringArgumentType.getString(ctx, "playerName");
 				if (subscene.playerName.length() > 16)
 				{
-					ctx.getSource().sendFailure(new TranslatableComponent("mocap.commands.scenes.add_to.too_long_name"));
+					ctx.getSource().sendFailure(new TranslatableComponent("mocap.commands.scenes.add_to.error"));
+					ctx.getSource().sendFailure(new TranslatableComponent("mocap.commands.scenes.add_to.error.too_long_name"));
 					return 0;
 				}
 				if (subscene.playerName.contains(" "))
 				{
-					ctx.getSource().sendFailure(new TranslatableComponent("mocap.commands.scenes.add_to.contain_spaces"));
+					ctx.getSource().sendFailure(new TranslatableComponent("mocap.commands.scenes.add_to.error"));
+					ctx.getSource().sendFailure(new TranslatableComponent("mocap.commands.scenes.add_to.error.contain_spaces"));
 					return 0;
 				}
 			}
@@ -272,7 +276,7 @@ public class MocapCommand
 		}
 		catch (Exception exception)
 		{
-			ctx.getSource().sendFailure(new TranslatableComponent("mocap.commands.playing.start.failed"));
+			ctx.getSource().sendFailure(new TranslatableComponent("mocap.commands.playing.start.error"));
 			return 0;
 		}
 	}
