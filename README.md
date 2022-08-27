@@ -11,6 +11,8 @@ It records:
 
 After you save recording, you can create a scene, to which you can add multiple recordings or other scenes, with parameters like player name, position offset, or start delay.
 
+CurseForge page: https://www.curseforge.com/minecraft/mc-mods/motion-capture-mod-mocap
+
 # How to use
 
 - First, you need to start recording using ```/mocap recording start```. It will record all your movements or movements of a player given as an argument. 
@@ -26,12 +28,17 @@ After you save recording, you can create a scene, to which you can add multiple 
 /mocap recording [...] - Recording player movements
 /mocap scenes [...] - Creating and modifying scenes
 /mocap playing [...] - Playing scens and recordings
+/mocap settings [...] - Shows and modifies settings
 /mocap info - Displays information about mod
 /mocap help - Displays help message
 ```
 
 # Example
 
-### Simple example of one recording used 4 times in a scene with time and position offset
+Simple example of one recording used 4 times in a scene with time and position offset
 
-![](example.png)
+![](screenshots/example1.png)
+
+One recording of climbing stairs used multiple times in a scene with start delay
+
+![](screenshots/example2.png)
