@@ -27,7 +27,7 @@ CurseForge page: https://www.curseforge.com/minecraft/mc-mods/motion-capture-mod
 ```
 /mocap recording [...] - Recording player movements
 /mocap scenes [...] - Creating and modifying scenes
-/mocap playing [...] - Playing scens and recordings
+/mocap playing [...] - Playing scenes and recordings
 /mocap settings [...] - Shows and modifies settings
 /mocap info - Displays information about mod
 /mocap help - Displays help message
