@@ -156,7 +156,7 @@ public class PlayedScene
 
 		//https://wiki.vg/index.php?title=Entity_metadata&oldid=17519#Player
 		SynchedEntityData dataManager = new SynchedEntityData(entity);
-		EntityDataAccessor<Byte> skinPartsParameter = new EntityDataAccessor<>(17, EntityDataSerializers.BYTE);
+		EntityDataAccessor<Byte> skinPartsParameter = new EntityDataAccessor<>(16, EntityDataSerializers.BYTE);
 		dataManager.define(skinPartsParameter, (byte)0b01111111);
 
 		packetTargets.broadcastAll(new ClientboundSetEntityDataPacket(entity.getId(), dataManager, true));
