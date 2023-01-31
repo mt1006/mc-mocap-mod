@@ -4,21 +4,21 @@ license="GNU Lesser General Public License v3.0"
 
 [[mods]]
 modId="mocap"
-version="1.1"
+version="1.2"
 displayName="Motion Capture Mod (mocap)"
 logoFile="logo.png"
 authors="mt1006 (mt1006x)"
 credits="Thanks to khitahi for making mod icon"
 description="Allows you to record and replay player movements"
 
-[[dependencies.examplemod]]
+[[dependencies.mocap]]
     modId="forge"
     mandatory=true
     versionRange="[40,)"
     ordering="NONE"
     side="BOTH"
 
-[[dependencies.examplemod]]
+[[dependencies.mocap]]
     modId="minecraft"
     mandatory=true
     versionRange="[1.18.2,1.19)"

@@ -1,6 +1,0 @@
-===Version 1.1===
--Added "/mocap settings" command.
--Added setting "playingSpeed" that changes playing speed.
--Added setting "recordingSync" which when enabled, syncs playing start with recording start. It can help with creating complex scenes.
--When failed to play scene, error message now also contains path to resource that caused error.
--Small improvements to chat messages.
