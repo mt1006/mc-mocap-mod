@@ -18,9 +18,10 @@ public class ProfileUtils
 {
 	// Original source code: https://github.com/iChun/iChunUtil/blob/1.16/src/main/java/me/ichun/mods/ichunutil/common/entity/util/EntityHelper.java
 
-	public static Map<String, GameProfile> gameProfileCache = Collections.synchronizedMap(new HashMap<>());
-	public static PlayerProfileCache profileCache;
-	public static MinecraftSessionService sessionService;
+	public static final String USERID_CACHE_FILE = "usercache.json";
+	public static final Map<String, GameProfile> gameProfileCache = Collections.synchronizedMap(new HashMap<>());
+	public static PlayerProfileCache profileCache = null;
+	public static MinecraftSessionService sessionService = null;
 
 	public static GameProfile getGameProfile(MinecraftServer server, String playerName)
 	{
@@ -60,9 +61,10 @@ public class ProfileUtils
 
 	private static void setClientProfileLookupObjects()
 	{
-		YggdrasilAuthenticationService yggdrasilauthenticationservice = new YggdrasilAuthenticationService(Minecraft.getInstance().getProxy(), UUID.randomUUID().toString());
+		YggdrasilAuthenticationService yggdrasilauthenticationservice =
+				new YggdrasilAuthenticationService(Minecraft.getInstance().getProxy(), UUID.randomUUID().toString());
 		sessionService = yggdrasilauthenticationservice.createMinecraftSessionService();
 		GameProfileRepository gameprofilerepository = yggdrasilauthenticationservice.createProfileRepository();
-		profileCache = new PlayerProfileCache(gameprofilerepository, new File(Minecraft.getInstance().gameDirectory, MinecraftServer.USERID_CACHE_FILE.getName()));
+		profileCache = new PlayerProfileCache(gameprofilerepository, new File(Minecraft.getInstance().gameDirectory, USERID_CACHE_FILE));
 	}
 }

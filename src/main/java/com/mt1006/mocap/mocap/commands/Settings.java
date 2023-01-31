@@ -3,108 +3,44 @@ package com.mt1006.mocap.mocap.commands;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import com.mt1006.mocap.utils.FileUtils;
+import com.mt1006.mocap.mocap.files.Files;
+import com.mt1006.mocap.utils.Utils;
 import net.minecraft.command.CommandSource;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.util.text.ITextComponent;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.PrintWriter;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 public class Settings
 {
-	public static class Setting<T>
-	{
-		public String name;
-		public T defVal;
-		public T val;
-
-		public Setting(String name, T defVal)
-		{
-			this.name = name;
-			this.defVal = defVal;
-			this.val = defVal;
-		}
-
-		public TranslationTextComponent getInfo()
-		{
-			if (val.equals(defVal))
-			{
-				return new TranslationTextComponent("mocap.commands.settings.list.info_def", name, val.toString());
-			}
-			else
-			{
-				return new TranslationTextComponent("mocap.commands.settings.list.info", name, val.toString());
-			}
-		}
-
-		public void fromString(String str)
-		{
-			try
-			{
-				if (defVal instanceof Double) { val = (T)new Double(Double.parseDouble(str)); }
-				else if (defVal instanceof Boolean) { val = (T)new Boolean(Boolean.parseBoolean(str)); }
-				else { val = defVal; }
-			}
-			catch (Exception exception)
-			{
-				val = defVal;
-			}
-		}
-
-		public boolean fromCommand(CommandContext<CommandSource> ctx)
-		{
-			try
-			{
-				if (defVal instanceof Double) { val = (T)new Double(DoubleArgumentType.getDouble(ctx, "newValue")); }
-				else if (defVal instanceof Boolean) { val = (T)new Boolean(BoolArgumentType.getBool(ctx, "newValue")); }
-				else { val = defVal; }
-				return true;
-			}
-			catch (Exception exception)
-			{
-				val = defVal;
-				return false;
-			}
-		}
-
-		@Nullable
-		public String getString()
-		{
-			StringBuilder str = new StringBuilder(name);
-			str.append("=");
-
-			try
-			{
-				if (val instanceof Double) { str.append(val); }
-				else if (val instanceof Boolean) { str.append(val); }
-				else { return null; }
-			}
-			catch (Exception exception)
-			{
-				return null;
-			}
-
-			str.append("\n");
-			return new String(str);
-		}
-	}
-
 	public static final Setting<Double> PLAYING_SPEED = new Setting<>("playingSpeed", 1.0);
 	public static final Setting<Boolean> RECORDING_SYNC = new Setting<>("recordingSync", false);
-	public static HashMap<String, Setting<?>> settingsMap = new HashMap<>();
+	public static final Setting<Boolean> PLAY_BLOCK_ACTIONS = new Setting<>("playBlockActions", true);
+	public static final Setting<Boolean> SET_BLOCK_STATES = new Setting<>("setBlockStates", true);
+	public static final Setting<Boolean> ALLOW_MINESKIN_REQUESTS = new Setting<>("allowMineskinRequests", true);
+	public static Map<String, Setting<?>> settingsMap = new LinkedHashMap<>();
 	public static boolean loaded = false;
 
 	public static void load(CommandSource commandSource)
 	{
 		settingsMap.put(PLAYING_SPEED.name, PLAYING_SPEED);
 		settingsMap.put(RECORDING_SYNC.name, RECORDING_SYNC);
+		settingsMap.put(PLAY_BLOCK_ACTIONS.name, PLAY_BLOCK_ACTIONS);
+		settingsMap.put(SET_BLOCK_STATES.name, SET_BLOCK_STATES);
+		settingsMap.put(ALLOW_MINESKIN_REQUESTS.name, ALLOW_MINESKIN_REQUESTS);
+
+		for (Setting<?> setting : settingsMap.values())
+		{
+			setting.reset();
+		}
 
 		try
 		{
-			File settingsFile = FileUtils.getSettingsFile(commandSource);
+			File settingsFile = Files.getSettingsFile(commandSource);
 
 			if (settingsFile != null)
 			{
@@ -144,7 +80,7 @@ public class Settings
 	{
 		try
 		{
-			File settingsFile = FileUtils.getSettingsFile(commandSource);
+			File settingsFile = Files.getSettingsFile(commandSource);
 			if (settingsFile == null) { return; }
 
 			PrintWriter printWriter = new PrintWriter(settingsFile);
@@ -171,12 +107,11 @@ public class Settings
 		CommandSource commandSource = ctx.getSource();
 		if (!loaded) { load(commandSource); }
 
-		commandSource.sendSuccess(new TranslationTextComponent("mocap.commands.settings.list"), false);
+		Utils.sendSuccess(commandSource, "mocap.commands.settings.list");
 		for (Setting<?> setting : settingsMap.values())
 		{
-			commandSource.sendSuccess(setting.getInfo(), false);
+			Utils.sendSuccessComponent(commandSource, setting.getInfo());
 		}
-
 		return 1;
 	}
 
@@ -192,22 +127,21 @@ public class Settings
 		}
 		catch (Exception exception)
 		{
-			ctx.getSource().sendFailure(new TranslationTextComponent("mocap.commands.error.unable_to_get_argument"));
+			Utils.sendFailure(commandSource, "mocap.commands.error.unable_to_get_argument");
 			return 0;
 		}
 
 		Setting<?> setting = settingsMap.get(settingName);
 		if (setting == null)
 		{
-			commandSource.sendFailure(new TranslationTextComponent("mocap.commands.settings.error"));
+			Utils.sendFailure(commandSource, "mocap.commands.settings.error");
 			return 0;
 		}
 
-		commandSource.sendSuccess(new TranslationTextComponent("mocap.commands.settings.info.name", settingName), false);
-		commandSource.sendSuccess(new TranslationTextComponent("mocap.commands.settings.info.about." + settingName), false);
-		commandSource.sendSuccess(new TranslationTextComponent("mocap.commands.settings.info.val", setting.val.toString()), false);
-		commandSource.sendSuccess(new TranslationTextComponent("mocap.commands.settings.info.def_val", setting.defVal.toString()), false);
-
+		Utils.sendSuccess(commandSource, "mocap.commands.settings.info.name", settingName);
+		Utils.sendSuccess(commandSource, "mocap.commands.settings.info.about." + settingName);
+		Utils.sendSuccess(commandSource, "mocap.commands.settings.info.val", setting.val.toString());
+		Utils.sendSuccess(commandSource, "mocap.commands.settings.info.def_val", setting.defVal.toString());
 		return 1;
 	}
 
@@ -223,25 +157,100 @@ public class Settings
 		}
 		catch (Exception exception)
 		{
-			ctx.getSource().sendFailure(new TranslationTextComponent("mocap.commands.error.unable_to_get_argument"));
+			Utils.sendFailure(commandSource, "mocap.commands.error.unable_to_get_argument");
 			return 0;
 		}
 
 		Setting<?> setting = settingsMap.get(settingName);
 		if (setting == null)
 		{
-			commandSource.sendFailure(new TranslationTextComponent("mocap.commands.settings.error"));
+			Utils.sendFailure(commandSource, "mocap.commands.settings.error");
 			return 0;
 		}
 
 		String oldValue = setting.val.toString();
 		if (!setting.fromCommand(ctx))
 		{
-			commandSource.sendFailure(new TranslationTextComponent("mocap.commands.settings.set.error"));
+			Utils.sendFailure(commandSource, "mocap.commands.settings.set.error");
 		}
 
-		commandSource.sendSuccess(new TranslationTextComponent("mocap.commands.settings.set", oldValue, setting.val.toString()), false);
+		Utils.sendSuccess(commandSource, "mocap.commands.settings.set", oldValue, setting.val.toString());
 		save(commandSource);
 		return 1;
+	}
+
+	public static class Setting<T>
+	{
+		public String name;
+		public T defVal;
+		public T val;
+
+		public Setting(String name, T defVal)
+		{
+			this.name = name;
+			this.defVal = defVal;
+			this.val = defVal;
+		}
+
+		public void reset()
+		{
+			val = defVal;
+		}
+
+		public ITextComponent getInfo()
+		{
+			if (val.equals(defVal)) { return Utils.getComponent("mocap.commands.settings.list.info_def", name, val.toString()); }
+			else { return Utils.getComponent("mocap.commands.settings.list.info", name, val.toString()); }
+		}
+
+		public void fromString(String str)
+		{
+			try
+			{
+				if (defVal instanceof Double) { val = (T)Double.valueOf(Double.parseDouble(str)); }
+				else if (defVal instanceof Boolean) { val = (T)Boolean.valueOf(Boolean.parseBoolean(str)); }
+				else { val = defVal; }
+			}
+			catch (Exception exception)
+			{
+				val = defVal;
+			}
+		}
+
+		public boolean fromCommand(CommandContext<CommandSource> ctx)
+		{
+			try
+			{
+				if (defVal instanceof Double) { val = (T)Double.valueOf(DoubleArgumentType.getDouble(ctx, "newValue")); }
+				else if (defVal instanceof Boolean) { val = (T)Boolean.valueOf(BoolArgumentType.getBool(ctx, "newValue")); }
+				else { val = defVal; }
+				return true;
+			}
+			catch (Exception exception)
+			{
+				val = defVal;
+				return false;
+			}
+		}
+
+		public @Nullable String getString()
+		{
+			StringBuilder str = new StringBuilder(name);
+			str.append("=");
+
+			try
+			{
+				if (val instanceof Double) { str.append(val); }
+				else if (val instanceof Boolean) { str.append(val); }
+				else { return null; }
+			}
+			catch (Exception exception)
+			{
+				return null;
+			}
+
+			str.append("\n");
+			return new String(str);
+		}
 	}
 }

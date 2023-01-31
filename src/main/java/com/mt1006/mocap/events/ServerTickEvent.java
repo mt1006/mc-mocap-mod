@@ -1,11 +1,10 @@
 package com.mt1006.mocap.events;
 
 import com.mt1006.mocap.MocapMod;
-import com.mt1006.mocap.mocap.playing.PlayerState;
 import com.mt1006.mocap.mocap.commands.Playing;
 import com.mt1006.mocap.mocap.commands.Recording;
-import net.minecraft.util.Util;
-import net.minecraft.util.text.TranslationTextComponent;
+import com.mt1006.mocap.mocap.playing.PlayerActions;
+import com.mt1006.mocap.utils.Utils;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -13,7 +12,7 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber(modid = MocapMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ServerTickEvent
 {
-	private static PlayerState oldPlayerState = null;
+	private static PlayerActions previousActions = null;
 
 	@SubscribeEvent
 	public static void onServerTick(TickEvent.ServerTickEvent tickEvent)
@@ -22,23 +21,23 @@ public class ServerTickEvent
 		{
 			if (Recording.state == Recording.State.WAITING_FOR_ACTION)
 			{
-				PlayerState playerState = new PlayerState(Recording.serverPlayer);
-				if (!playerState.compare(oldPlayerState))
+				PlayerActions playerActions = new PlayerActions(Recording.serverPlayer);
+				if (playerActions.differs(previousActions))
 				{
 					Recording.previousPlayerState = null;
 					Recording.state = Recording.State.RECORDING;
-					Recording.serverPlayer.sendMessage(new TranslationTextComponent("mocap.commands.recording.start.recording_started"), Util.NIL_UUID);
-					oldPlayerState = null;
+					Utils.sendSystemMessage(Recording.serverPlayer, "mocap.commands.recording.start.recording_started");
+					previousActions = null;
 				}
 				else
 				{
-					oldPlayerState = playerState;
+					previousActions = playerActions;
 				}
 			}
 
 			if (Recording.state == Recording.State.RECORDING)
 			{
-				PlayerState playerState = new PlayerState(Recording.serverPlayer);
+				PlayerActions playerState = new PlayerActions(Recording.serverPlayer);
 				playerState.saveDifference(Recording.recording, Recording.previousPlayerState);
 				Recording.previousPlayerState = playerState;
 			}

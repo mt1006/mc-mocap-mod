@@ -1,13 +1,12 @@
 package com.mt1006.mocap.mocap.commands;
 
 import com.mojang.brigadier.context.CommandContext;
+import com.mt1006.mocap.mocap.files.SceneFile;
 import com.mt1006.mocap.mocap.playing.SceneInfo;
-import com.mt1006.mocap.utils.FileUtils;
+import com.mt1006.mocap.utils.Utils;
 import net.minecraft.command.CommandSource;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class Scenes
 {
@@ -16,18 +15,21 @@ public class Scenes
 		SceneInfo sceneInfo = new SceneInfo();
 		if(!sceneInfo.load(commandSource, name)) { return 0; }
 
-		commandSource.sendSuccess(new TranslationTextComponent("mocap.commands.scenes.list_elements.list"), false);
+		Utils.sendSuccess(commandSource, "mocap.commands.scenes.list_elements.list");
 
 		int i = 1;
 		for (SceneInfo.Subscene element : sceneInfo.subscenes)
 		{
-			commandSource.sendSuccess(new StringTextComponent(String.format("[%d] %s <%f> [%f; %f; %f] (%s)",
-					i, element.getName(), element.startDelay, element.startPos[0], element.startPos[1], element.startPos[2],
-					element.playerName)), false);
-			i++;
+			Utils.sendSuccessLiteral(commandSource, "[%d] %s <%f> [%f; %f; %f] (%s)", i++, element.name,
+					element.startDelay, element.startPos[0], element.startPos[1], element.startPos[2], element.playerName);
+
+			if (element.mineskinURL != null)
+			{
+				Utils.sendSuccessComponent(commandSource, Utils.getURLComponent(element.mineskinURL, "   (§n%s§r)", element.mineskinURL));
+			}
 		}
 
-		commandSource.sendSuccess(new StringTextComponent("[id] name <startDelay> [x; y; z] (playerName)"), false);
+		Utils.sendSuccessLiteral(commandSource, "[id] name <startDelay> [x; y; z] (playerName) (mineskinURL)");
 		return 1;
 	}
 
@@ -36,29 +38,25 @@ public class Scenes
 		CommandSource commandSource = ctx.getSource();
 
 		StringBuilder scenesListStr = new StringBuilder();
-		ArrayList<String> scenesList = FileUtils.scenesList(commandSource);
+		List<String> scenesList = SceneFile.list(commandSource);
 
 		if (scenesList == null)
 		{
-			scenesListStr.append(" ");
-			scenesListStr.append(new TranslationTextComponent("mocap.commands.playing.list.error").getString());
+			scenesListStr.append(" ").append(Utils.stringFromComponent("mocap.commands.playing.list.error"));
 		}
 		else if (!scenesList.isEmpty())
 		{
 			for (String name : scenesList)
 			{
-				scenesListStr.append(" .");
-				scenesListStr.append(name);
+				scenesListStr.append(" .").append(name);
 			}
 		}
 		else
 		{
-			scenesListStr.append(" ");
-			scenesListStr.append(new TranslationTextComponent("mocap.commands.playing.list.empty").getString());
+			scenesListStr.append(" ").append(Utils.stringFromComponent("mocap.commands.playing.list.empty"));
 		}
 
-		commandSource.sendSuccess(new TranslationTextComponent("mocap.commands.playing.list.scenes",
-				new String(scenesListStr)), false);
+		Utils.sendSuccess(commandSource, "mocap.commands.playing.list.scenes", new String(scenesListStr));
 		return 1;
 	}
 }

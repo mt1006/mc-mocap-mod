@@ -1,38 +1,43 @@
 package com.mt1006.mocap.mocap.playing;
 
 import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
+import com.mojang.authlib.properties.PropertyMap;
 import com.mt1006.mocap.mocap.commands.Recording;
 import com.mt1006.mocap.mocap.commands.Settings;
-import com.mt1006.mocap.utils.ProfileUtils;
-import com.mt1006.mocap.utils.RecordingUtils;
+import com.mt1006.mocap.utils.*;
 import net.minecraft.command.CommandSource;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.network.play.server.SDestroyEntitiesPacket;
-import net.minecraft.network.play.server.SEntityMetadataPacket;
 import net.minecraft.network.play.server.SPlayerListItemPacket;
 import net.minecraft.network.play.server.SSpawnPlayerPacket;
 import net.minecraft.server.management.PlayerList;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.util.math.vector.Vector3i;
 import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.common.util.FakePlayer;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
+import javax.net.ssl.HttpsURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+import java.util.UUID;
 
 public class PlayedScene
 {
+	private static final String MINESKIN_API_URL = "https://api.mineskin.org/get/uuid/";
+
 	private int id;
 	private SceneType type;
 	private String name;
 	private boolean root;
 	private PlayerList packetTargets;
-	private ServerWorld world;
+	private ServerWorld level;
 
-	private String profileName = null;
+	private String playerName = null;
+	private String mineskinURL = null;
 	private double offsetX = 0.0;
 	private double offsetY = 0.0;
 	private double offsetZ = 0.0;
@@ -41,19 +46,24 @@ public class PlayedScene
 	public boolean finished = false;
 
 	// SCENE
-	private ArrayList<PlayedScene> subscenes;
+	private final List<PlayedScene> subscenes = new ArrayList<>();
 
 	// RECORDING
-	private FakePlayer entity = null;
-	private RecordingUtils.RecordingReader reader = new RecordingUtils.RecordingReader();
+	private RecordingData recording;
+	private FakePlayer fakePlayer;
+	private Vector3i blockOffset = new Vector3i(0, 0, 0);
+	private int pos = 0;
 
-	public boolean start(CommandSource commandSource, String name, int id)
+	public boolean start(CommandSource commandSource, String name, String playerName, String mineskinURL, int id)
 	{
-		root = true;
+		this.root = true;
 		this.id = id;
 		this.name = name;
-		world = commandSource.getLevel();
-		packetTargets = commandSource.getLevel().getServer().getPlayerList();
+		this.level = commandSource.getLevel();
+		this.packetTargets = level.getServer().getPlayerList();
+
+		this.playerName = playerName;
+		this.mineskinURL = mineskinURL;
 
 		if (name.charAt(0) == '.') { type = SceneType.SCENE; }
 		else { type = SceneType.RECORDING; }
@@ -63,32 +73,27 @@ public class PlayedScene
 		{
 			if (!data.knownError)
 			{
-				commandSource.sendFailure(new TranslationTextComponent("mocap.commands.playing.start.error"));
-				commandSource.sendFailure(new TranslationTextComponent("mocap.commands.playing.start.error.load"));
+				Utils.sendFailure(commandSource, "mocap.commands.playing.start.error");
+				Utils.sendFailure(commandSource, "mocap.commands.playing.start.error.load");
 			}
-			commandSource.sendFailure(new TranslationTextComponent("mocap.commands.playing.start.error.load.path", data.getResourcePath()));
+			Utils.sendFailure(commandSource, "mocap.commands.playing.start.error.load.path", data.getResourcePath());
 			return false;
 		}
 
 		switch (type)
 		{
-			case RECORDING:
-				if (!startPlayingRecording(commandSource, data)) { return false; }
-				break;
-
-			case SCENE:
-				if (!startPlayingScene(commandSource, data)) { return false; }
-				break;
+			case RECORDING: return startPlayingRecording(commandSource, data);
+			case SCENE: return startPlayingScene(commandSource, data);
+			default: return false;
 		}
-		return true;
 	}
 
 	private boolean startSubscene(CommandSource commandSource, PlayedScene parent, SceneInfo.Subscene info, SceneData data)
 	{
 		root = false;
 		id = 0;
-		name = info.getName();
-		world = commandSource.getLevel();
+		name = info.name;
+		level = commandSource.getLevel();
 		packetTargets = commandSource.getLevel().getServer().getPlayerList();
 
 		if (name.charAt(0) == '.') { type = SceneType.SCENE; }
@@ -97,36 +102,30 @@ public class PlayedScene
 		offsetX = parent.offsetX + info.startPos[0];
 		offsetY = parent.offsetY + info.startPos[1];
 		offsetZ = parent.offsetZ + info.startPos[2];
+		blockOffset = new Vector3i(Math.round(offsetX), Math.round(offsetY), Math.round(offsetZ));
 		startDelay = (int)Math.round(info.startDelay * 20.0);
-
-		profileName = info.playerName;
-		if (profileName == null) { profileName = parent.profileName; }
+		playerName = info.playerName != null ? info.playerName : parent.playerName;
+		mineskinURL = info.mineskinURL != null ? info.mineskinURL : parent.mineskinURL;
 
 		switch (type)
 		{
-			case RECORDING:
-				if (!startPlayingRecording(commandSource, data)) { return false; }
-				break;
-
-			case SCENE:
-				if (!startPlayingScene(commandSource, data)) { return false; }
-				break;
+			case RECORDING: return startPlayingRecording(commandSource, data);
+			case SCENE: return startPlayingScene(commandSource, data);
+			default: return false;
 		}
-		return true;
 	}
 
 	private boolean startPlayingScene(CommandSource commandSource, SceneData data)
 	{
-		subscenes = new ArrayList<>();
-
 		SceneInfo sceneInfo = data.getScene(name);
+		if (sceneInfo == null) { return false; }
+
 		for (SceneInfo.Subscene subscene : sceneInfo.subscenes)
 		{
 			PlayedScene newScene = new PlayedScene();
 			if (!newScene.startSubscene(commandSource, this, subscene, data)) { return false; }
 			subscenes.add(newScene);
 		}
-
 		return true;
 	}
 
@@ -135,31 +134,49 @@ public class PlayedScene
 		GameProfile profile = getGameProfile(commandSource);
 		if (profile == null)
 		{
-			commandSource.sendFailure(new TranslationTextComponent("mocap.commands.playing.start.error"));
-			commandSource.sendFailure(new TranslationTextComponent("mocap.commands.playing.start.error.profile"));
+			Utils.sendFailure(commandSource, "mocap.commands.playing.start.error");
+			Utils.sendFailure(commandSource, "mocap.commands.playing.start.error.profile");
 			return false;
 		}
 
-		reader.recording = data.getRecording(name);
-
-		FakePlayer fakePlayer = new FakePlayer(world, profile);
-		if (!PlayerState.readHeader(fakePlayer, reader, new Vector3d(offsetX, offsetY, offsetZ)))
+		GameProfile newProfile = new GameProfile(UUID.randomUUID(), profile.getName());
+		try
 		{
-			commandSource.sendFailure(new TranslationTextComponent("mocap.commands.playing.start.error"));
-			commandSource.sendFailure(new TranslationTextComponent("mocap.commands.playing.start.error.load_header"));
-			return false;
+			PropertyMap oldPropertyMap = (PropertyMap)Fields.gameProfileProperties.get(profile);
+			PropertyMap newPropertyMap = (PropertyMap)Fields.gameProfileProperties.get(newProfile);
+
+			newPropertyMap.putAll(oldPropertyMap);
+
+			if (mineskinURL != null && Settings.ALLOW_MINESKIN_REQUESTS.val)
+			{
+				Property skinProperty = propertyFromMineskinURL();
+
+				if (skinProperty != null)
+				{
+					if (newPropertyMap.containsKey("textures")) { newPropertyMap.get("textures").clear(); }
+					newPropertyMap.put("textures", skinProperty);
+				}
+				else
+				{
+					Utils.sendFailure(commandSource, "mocap.commands.playing.start.warning.mineskin");
+				}
+			}
 		}
+		catch (Exception ignore) {}
 
-		entity = fakePlayer;
-		packetTargets.broadcastAll(new SPlayerListItemPacket(SPlayerListItemPacket.Action.ADD_PLAYER, entity));
-		packetTargets.broadcastAll(new SSpawnPlayerPacket(entity));
+		recording = data.getRecording(name);
+		if (recording == null) { return false; }
 
-		//https://wiki.vg/index.php?title=Entity_metadata&oldid=15886#Player
-		EntityDataManager dataManager = new EntityDataManager(entity);
-		DataParameter<Byte> skinPartsParameter = new DataParameter<>(16, DataSerializers.BYTE);
-		dataManager.define(skinPartsParameter, (byte)0b01111111);
+		fakePlayer = new FakePlayer(level, newProfile);
+		PlayerActions.initFakePlayer(fakePlayer, recording, new Vector3d(offsetX, offsetY, offsetZ));
+		level.addNewPlayer(fakePlayer);
 
-		packetTargets.broadcastAll(new SEntityMetadataPacket(entity.getId(), dataManager, true));
+		recording.preExecute(fakePlayer, blockOffset);
+
+		packetTargets.broadcastAll(new SPlayerListItemPacket(SPlayerListItemPacket.Action.ADD_PLAYER, fakePlayer));
+		packetTargets.broadcastAll(new SSpawnPlayerPacket(fakePlayer));
+
+		packetTargets.broadcastAll(new EntityData<>(fakePlayer, EntityData.SET_SKIN_PARTS, (byte)0b01111111).getPacket());
 		return true;
 	}
 
@@ -193,7 +210,7 @@ public class PlayedScene
 				case RECORDING:
 					while (true)
 					{
-						int retVal = PlayerState.readState(packetTargets, entity, reader);
+						int retVal = recording.executeNext(packetTargets, fakePlayer, blockOffset, pos++);
 
 						if (retVal < 0) { finished = true; }
 						if (retVal <= 0) { break; }
@@ -231,8 +248,8 @@ public class PlayedScene
 		switch (type)
 		{
 			case RECORDING:
-				packetTargets.broadcastAll(new SPlayerListItemPacket(SPlayerListItemPacket.Action.REMOVE_PLAYER, entity));
-				list.add(entity.getId());
+				packetTargets.broadcastAll(new SPlayerListItemPacket(SPlayerListItemPacket.Action.REMOVE_PLAYER, fakePlayer));
+				list.add(fakePlayer.getId());
 				break;
 
 			case SCENE:
@@ -244,27 +261,56 @@ public class PlayedScene
 		}
 	}
 
-	@Nullable
-	private GameProfile getGameProfile(CommandSource commandSource)
+	private @Nullable GameProfile getGameProfile(CommandSource commandSource)
 	{
+		String profileName = playerName;
+
 		if (profileName == null)
 		{
 			if (commandSource.getEntity() instanceof ServerPlayerEntity)
 			{
-				return ((ServerPlayerEntity)commandSource.getEntity()).getGameProfile();
+				profileName = ((ServerPlayerEntity)commandSource.getEntity()).getGameProfile().getName();
 			}
 			else if (!commandSource.getLevel().players().isEmpty())
 			{
-				return commandSource.getLevel().players().get(0).getGameProfile();
+				profileName = commandSource.getLevel().players().get(0).getGameProfile().getName();
 			}
 			else
 			{
-				return null;
+				profileName = "Player";
 			}
 		}
-		else
+
+		return ProfileUtils.getGameProfile(commandSource.getServer(), profileName);
+	}
+	private @Nullable Property propertyFromMineskinURL()
+	{
+		String mineskinID = mineskinURL.contains("/") ? mineskinURL.substring(mineskinURL.lastIndexOf('/') + 1) : mineskinURL;
+		String mineskinApiURL = MINESKIN_API_URL + mineskinID;
+
+		try
 		{
-			return ProfileUtils.getGameProfile(commandSource.getServer(), profileName);
+			URL url = new URL(mineskinApiURL);
+
+			URLConnection connection = url.openConnection();
+			if (!(connection instanceof HttpsURLConnection)) { return null; }
+
+			HttpsURLConnection httpsConnection = (HttpsURLConnection)connection;
+
+			httpsConnection.setUseCaches(false);
+			httpsConnection.setRequestMethod("GET");
+
+			Scanner scanner = new Scanner(httpsConnection.getInputStream());
+			String text = scanner.useDelimiter("\\A").next();
+
+			scanner.close();
+			httpsConnection.disconnect();
+
+			String value = text.split("\"value\":\"")[1].split("\"")[0];
+			String signature = text.split("\"signature\":\"")[1].split("\"")[0];
+
+			return new Property("textures", value, signature);
 		}
+		catch (Exception ignore) { return null; }
 	}
 }
