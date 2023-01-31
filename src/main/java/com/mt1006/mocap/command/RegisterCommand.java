@@ -7,7 +7,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.server.command.ConfigCommand;
 
 @Mod.EventBusSubscriber(modid = MocapMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
-public class RegisterCommands
+public class RegisterCommand
 {
 	@SubscribeEvent
 	public static void registerCommands(RegisterCommandsEvent event)
