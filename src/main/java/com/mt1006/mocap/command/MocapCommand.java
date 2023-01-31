@@ -8,18 +8,17 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mt1006.mocap.MocapMod;
-import com.mt1006.mocap.mocap.commands.Settings;
-import com.mt1006.mocap.mocap.playing.SceneInfo;
 import com.mt1006.mocap.mocap.commands.Playing;
 import com.mt1006.mocap.mocap.commands.Recording;
 import com.mt1006.mocap.mocap.commands.Scenes;
-import com.mt1006.mocap.utils.FileUtils;
+import com.mt1006.mocap.mocap.commands.Settings;
+import com.mt1006.mocap.mocap.files.RecordingFile;
+import com.mt1006.mocap.mocap.files.SceneFile;
+import com.mt1006.mocap.mocap.playing.SceneInfo;
+import com.mt1006.mocap.utils.Utils;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.GameProfileArgument;
-import net.minecraft.commands.arguments.coordinates.Vec3Argument;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 
@@ -52,7 +51,19 @@ public class MocapCommand
 						then(Commands.argument("offsetX", DoubleArgumentType.doubleArg()).executes(MocapCommand::scenesAddTo).
 						then(Commands.argument("offsetY", DoubleArgumentType.doubleArg()).executes(MocapCommand::scenesAddTo).
 						then(Commands.argument("offsetZ", DoubleArgumentType.doubleArg()).executes(MocapCommand::scenesAddTo).
-						then(Commands.argument("playerName", StringArgumentType.string()).executes(MocapCommand::scenesAddTo))))))))).
+						then(Commands.argument("playerName", StringArgumentType.string()).executes(MocapCommand::scenesAddTo).
+						then(Commands.argument("mineskinURL", StringArgumentType.greedyString()).executes(MocapCommand::scenesAddTo)))))))))).
+					/*then(Commands.literal("modify").
+						then(Commands.literal("recordingName").
+							then(Commands.argument("recordingName", StringArgumentType.string()).executes(MocapCommand::scenesModify))).
+						then(Commands.literal("startDelay").
+							then(Commands.argument("startDelay", DoubleArgumentType.doubleArg(0.0)).executes(MocapCommand::scenesModify))).
+						then(Commands.literal("positionOffset").
+							then(Commands.argument("offsetX", DoubleArgumentType.doubleArg())).
+							then(Commands.argument("offsetY", DoubleArgumentType.doubleArg())).
+							then(Commands.argument("offsetZ", DoubleArgumentType.doubleArg()).executes(MocapCommand::scenesModify))).
+						then(Commands.literal("playerName").
+							then(Commands.argument("playerName", StringArgumentType.string()).executes(MocapCommand::scenesModify)))).*/
 					then(Commands.literal("removeFrom").
 						then(Commands.argument("sceneName", StringArgumentType.string()).
 						then(Commands.argument("toRemove", IntegerArgumentType.integer()).executes(MocapCommand::scenesRemoveFrom)))).
@@ -62,7 +73,8 @@ public class MocapCommand
 				then(Commands.literal("playing").
 					then(Commands.literal("start").
 						then(Commands.argument("name", StringArgumentType.string()).executes(MocapCommand::playingStart).
-						then(Commands.argument("startPos", Vec3Argument.vec3()).executes(MocapCommand::playingStart)))).
+						then(Commands.argument("playerName", StringArgumentType.string()).executes(MocapCommand::playingStart).
+						then(Commands.argument("mineskinURL", StringArgumentType.greedyString()).executes(MocapCommand::playingStart))))).
 					then(Commands.literal("stop").
 						then(Commands.argument("id", IntegerArgumentType.integer()).executes(MocapCommand::playingStop))).
 					then(Commands.literal("stopAll").executes(Playing::stopAll)).
@@ -71,6 +83,12 @@ public class MocapCommand
 					then(Commands.literal("playingSpeed").executes(Settings::info).
 						then(Commands.argument("newValue", DoubleArgumentType.doubleArg(0.0)).executes(Settings::set))).
 					then(Commands.literal("recordingSync").executes(Settings::info).
+						then(Commands.argument("newValue", BoolArgumentType.bool()).executes(Settings::set))).
+					then(Commands.literal("playBlockActions").executes(Settings::info).
+						then(Commands.argument("newValue", BoolArgumentType.bool()).executes(Settings::set))).
+					then(Commands.literal("setBlockStates").executes(Settings::info).
+						then(Commands.argument("newValue", BoolArgumentType.bool()).executes(Settings::set))).
+					then(Commands.literal("allowMineskinRequests").executes(Settings::info).
 						then(Commands.argument("newValue", BoolArgumentType.bool()).executes(Settings::set)))).
 				then(Commands.literal("info").executes(MocapCommand::info)).
 				then(Commands.literal("help").executes(MocapCommand::help)));
@@ -86,7 +104,7 @@ public class MocapCommand
 
 			if (gameProfiles.size() != 1)
 			{
-				ctx.getSource().sendFailure(new TranslatableComponent("mocap.commands.recording.start.player_not_found"));
+				Utils.sendFailure(ctx.getSource(), "mocap.commands.recording.start.player_not_found");
 				return 0;
 			}
 
@@ -95,7 +113,7 @@ public class MocapCommand
 
 			if(serverPlayer == null)
 			{
-				ctx.getSource().sendFailure(new TranslatableComponent("mocap.commands.recording.start.player_not_found"));
+				Utils.sendFailure(ctx.getSource(), "mocap.commands.recording.start.player_not_found");
 				return 0;
 			}
 		}
@@ -105,8 +123,8 @@ public class MocapCommand
 
 			if (!(entity instanceof ServerPlayer))
 			{
-				ctx.getSource().sendFailure(new TranslatableComponent("mocap.commands.recording.start.player_not_specified"));
-				ctx.getSource().sendFailure(new TranslatableComponent("mocap.commands.recording.start.player_not_specified.tip"));
+				Utils.sendFailure(ctx.getSource(), "mocap.commands.recording.start.player_not_specified");
+				Utils.sendFailure(ctx.getSource(), "mocap.commands.recording.start.player_not_specified.tip");
 				return 0;
 			}
 
@@ -125,7 +143,7 @@ public class MocapCommand
 		}
 		catch (Exception exception)
 		{
-			ctx.getSource().sendFailure(new TranslatableComponent("mocap.commands.error.unable_to_get_argument"));
+			Utils.sendFailure(ctx.getSource(), "mocap.commands.error.unable_to_get_argument");
 			return 0;
 		}
 	}
@@ -135,11 +153,11 @@ public class MocapCommand
 		try
 		{
 			String name = StringArgumentType.getString(ctx, "name");
-			if (!FileUtils.removeRecording(ctx.getSource(), name)) { return 0; }
+			if (!RecordingFile.remove(ctx.getSource(), name)) { return 0; }
 		}
 		catch (Exception exception)
 		{
-			ctx.getSource().sendFailure(new TranslatableComponent("mocap.commands.error.unable_to_get_argument"));
+			Utils.sendFailure(ctx.getSource(), "mocap.commands.error.unable_to_get_argument");
 			return 0;
 		}
 
@@ -151,12 +169,11 @@ public class MocapCommand
 		try
 		{
 			String name = StringArgumentType.getString(ctx, "name");
-			if (name.charAt(0) == '.') { name = name.substring(1); }
-			if (!FileUtils.addScene(ctx.getSource(), name)) { return 0; }
+			if (!SceneFile.add(ctx.getSource(), name)) { return 0; }
 		}
 		catch (Exception exception)
 		{
-			ctx.getSource().sendFailure(new TranslatableComponent("mocap.commands.error.unable_to_get_argument"));
+			Utils.sendFailure(ctx.getSource(), "mocap.commands.error.unable_to_get_argument");
 			return 0;
 		}
 
@@ -168,12 +185,11 @@ public class MocapCommand
 		try
 		{
 			String name = StringArgumentType.getString(ctx, "name");
-			if (name.charAt(0) == '.') { name = name.substring(1); }
-			if (!FileUtils.removeScene(ctx.getSource(), name)) { return 0; }
+			if (!SceneFile.remove(ctx.getSource(), name)) { return 0; }
 		}
 		catch (Exception exception)
 		{
-			ctx.getSource().sendFailure(new TranslatableComponent("mocap.commands.error.unable_to_get_argument"));
+			Utils.sendFailure(ctx.getSource(), "mocap.commands.error.unable_to_get_argument");
 			return 0;
 		}
 
@@ -185,7 +201,6 @@ public class MocapCommand
 		try
 		{
 			String name = StringArgumentType.getString(ctx, "sceneName");
-			if (name.charAt(0) == '.') { name = name.substring(1); }
 
 			String toAdd = StringArgumentType.getString(ctx, "toAdd");
 			SceneInfo.Subscene subscene = new SceneInfo.Subscene(toAdd);
@@ -197,26 +212,30 @@ public class MocapCommand
 				subscene.startPos[1] = DoubleArgumentType.getDouble(ctx, "offsetY");
 				subscene.startPos[2] = DoubleArgumentType.getDouble(ctx, "offsetZ");
 				subscene.playerName = StringArgumentType.getString(ctx, "playerName");
+
 				if (subscene.playerName.length() > 16)
 				{
-					ctx.getSource().sendFailure(new TranslatableComponent("mocap.commands.scenes.add_to.error"));
-					ctx.getSource().sendFailure(new TranslatableComponent("mocap.commands.scenes.add_to.error.too_long_name"));
+					Utils.sendFailure(ctx.getSource(), "mocap.commands.scenes.add_to.error");
+					Utils.sendFailure(ctx.getSource(), "mocap.commands.scenes.add_to.error.too_long_name");
 					return 0;
 				}
+
 				if (subscene.playerName.contains(" "))
 				{
-					ctx.getSource().sendFailure(new TranslatableComponent("mocap.commands.scenes.add_to.error"));
-					ctx.getSource().sendFailure(new TranslatableComponent("mocap.commands.scenes.add_to.error.contain_spaces"));
+					Utils.sendFailure(ctx.getSource(), "mocap.commands.scenes.add_to.error");
+					Utils.sendFailure(ctx.getSource(), "mocap.commands.scenes.add_to.error.contain_spaces");
 					return 0;
 				}
+
+				subscene.mineskinURL = StringArgumentType.getString(ctx, "mineskinURL");
 			}
 			catch (Exception ignore) {}
 
-			if (!FileUtils.addToScene(ctx.getSource(), name, subscene.sceneToStr())) { return 0; }
+			if (!SceneFile.addElement(ctx.getSource(), name, subscene.sceneToStr())) { return 0; }
 		}
 		catch (Exception exception)
 		{
-			ctx.getSource().sendFailure(new TranslatableComponent("mocap.commands.error.unable_to_get_argument"));
+			Utils.sendFailure(ctx.getSource(), "mocap.commands.error.unable_to_get_argument");
 			return 0;
 		}
 
@@ -228,14 +247,13 @@ public class MocapCommand
 		try
 		{
 			String name = StringArgumentType.getString(ctx, "sceneName");
-			if (name.charAt(0) == '.') { name = name.substring(1); }
 			int pos = IntegerArgumentType.getInteger(ctx, "toRemove");
 
-			if (!FileUtils.removeFromScene(ctx.getSource(), name, pos)) { return 0; }
+			if (!SceneFile.removeElement(ctx.getSource(), name, pos)) { return 0; }
 		}
 		catch (Exception exception)
 		{
-			ctx.getSource().sendFailure(new TranslatableComponent("mocap.commands.error.unable_to_get_argument"));
+			Utils.sendFailure(ctx.getSource(), "mocap.commands.error.unable_to_get_argument");
 			return 0;
 		}
 
@@ -247,36 +265,43 @@ public class MocapCommand
 		try
 		{
 			String name = StringArgumentType.getString(ctx, "name");
-			if (name.charAt(0) == '.') { name = name.substring(1); }
 			return Scenes.listElements(ctx.getSource(), name);
 		}
 		catch (Exception exception)
 		{
-			ctx.getSource().sendFailure(new TranslatableComponent("mocap.commands.error.unable_to_get_argument"));
+			Utils.sendFailure(ctx.getSource(), "mocap.commands.error.unable_to_get_argument");
 			return 0;
 		}
 	}
 
 	private static int playingStart(CommandContext<CommandSourceStack> ctx)
 	{
-		String name;
+		String name, playerName = null, mineskinURL = null;
+
 		try
 		{
 			name = StringArgumentType.getString(ctx, "name");
 		}
 		catch (Exception exception)
 		{
-			ctx.getSource().sendFailure(new TranslatableComponent("mocap.commands.error.unable_to_get_argument"));
+			Utils.sendFailure(ctx.getSource(), "mocap.commands.error.unable_to_get_argument");
 			return 0;
 		}
 
 		try
 		{
-			return Playing.start(ctx.getSource(), name);
+			playerName = StringArgumentType.getString(ctx, "playerName");
+			mineskinURL = StringArgumentType.getString(ctx, "mineskinURL");
+		}
+		catch (Exception ignore) {}
+
+		try
+		{
+			return Playing.start(ctx.getSource(), name, playerName, mineskinURL);
 		}
 		catch (Exception exception)
 		{
-			ctx.getSource().sendFailure(new TranslatableComponent("mocap.commands.playing.start.error"));
+			Utils.sendFailure(ctx.getSource(), "mocap.commands.playing.start.error");
 			return 0;
 		}
 	}
@@ -290,7 +315,7 @@ public class MocapCommand
 		}
 		catch (Exception exception)
 		{
-			ctx.getSource().sendFailure(new TranslatableComponent("mocap.commands.error.unable_to_get_argument"));
+			Utils.sendFailure(ctx.getSource(), "mocap.commands.error.unable_to_get_argument");
 			return 0;
 		}
 
@@ -299,14 +324,14 @@ public class MocapCommand
 
 	private static int info(CommandContext<CommandSourceStack> ctx)
 	{
-		ctx.getSource().sendSuccess(new TextComponent(MocapMod.getFullName()), false);
-		ctx.getSource().sendSuccess(new TextComponent("Author: mt1006 (mt1006x)"), false);
+		Utils.sendSuccessLiteral(ctx.getSource(), MocapMod.getFullName());
+		Utils.sendSuccessLiteral(ctx.getSource(), "Author: mt1006 (mt1006x)");
 		return 1;
 	}
 
 	private static int help(CommandContext<CommandSourceStack> ctx)
 	{
-		ctx.getSource().sendSuccess(new TranslatableComponent("mocap.commands.help", MocapMod.getName()), false);
+		Utils.sendSuccess(ctx.getSource(), "mocap.commands.help", MocapMod.getName());
 		return 1;
 	}
 }

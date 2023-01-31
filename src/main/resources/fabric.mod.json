@@ -14,7 +14,7 @@
   },
 
   "license": "GNU Lesser General Public License v3.0",
-  "icon": "assets/mocap/icon.png",
+  "icon": "assets/mocap/logo.png",
 
   "environment": "*",
   "entrypoints": {

@@ -1,0 +1,11 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.mt1006.mocap.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins":
+  [
+    "BlockItemMixin"
+  ],
+  "injectors": { "defaultRequire": 1 }
+}

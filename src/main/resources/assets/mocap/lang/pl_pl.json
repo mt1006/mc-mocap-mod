@@ -63,6 +63,7 @@
   "mocap.commands.playing.start.error.load.path": "Ścieżka zasobu: %s",
   "mocap.commands.playing.start.error.load_header": "Nie udało się załadować nagłówka nagrania",
   "mocap.commands.playing.start.error.profile": "Nie udało się załadować profilu gracza",
+  "mocap.commands.playing.start.warning.mineskin": "Nie udało się załadować skina z mineskin.org",
   "mocap.commands.playing.start.success": "Odtwarzanie rozpoczęte...",
 
   "mocap.commands.playing.stop.unable_to_find_scene": "§lBłąd:§r nie udało się znaleźć sceny o podanym numerze!",
@@ -87,6 +88,9 @@
   "mocap.commands.settings.info.name": "§lNazwa:§r %s",
   "mocap.commands.settings.info.about.playingSpeed": "§lO ustawieniu:§r Pozwala na zmianę prędkości odtwarzania nagrania lub sceny",
   "mocap.commands.settings.info.about.recordingSync": "§lO ustawieniu:§r Ułatwia nagrywanie skomplikowanych scen przez synchronizację startu odtwarzanej sceny ze startem nagrywania",
+  "mocap.commands.settings.info.about.playBlockActions": "§lO ustawieniu:§r Odtwarza stawianie, niszczenie i interakcje z blokami",
+  "mocap.commands.settings.info.about.setBlockStates": "§lO ustawieniu:§r Na początku odtwarzania ustawia stany bloków na te przed rozpoczęciem nagrywania",
+  "mocap.commands.settings.info.about.allowMineskinRequests": "§lO ustawieniu:§r Zezwala na żądania HTTPS do mineskin.org w celu załadowania skinów",
   "mocap.commands.settings.info.val": "§lObecna wartość:§r %s",
   "mocap.commands.settings.info.def_val": "§lDomyślna wartość:§r %s",
 

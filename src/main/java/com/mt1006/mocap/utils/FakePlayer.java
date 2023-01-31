@@ -3,7 +3,6 @@ package com.mt1006.mocap.utils;
 import com.mojang.authlib.GameProfile;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
@@ -16,12 +15,12 @@ import net.minecraft.server.level.ServerPlayerGameMode;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.stats.Stat;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
-import java.util.UUID;
 
 // FakePlayer class from Forge
 public class FakePlayer extends ServerPlayer
@@ -32,25 +31,22 @@ public class FakePlayer extends ServerPlayer
 		this.connection = new FakePlayerNetHandler(level.getServer(), this);
 	}
 
-	@Override public Vec3 position(){ return new Vec3(0, 0, 0); }
-	@Override public BlockPos blockPosition(){ return BlockPos.ZERO; }
-	@Override public void displayClientMessage(Component chatComponent, boolean actionBar){}
-	@Override public void sendMessage(Component component, UUID senderUUID) {}
-	@Override public void awardStat(Stat par1StatBase, int par2){}
-	//@Override public void openGui(Object mod, int modGuiId, World world, int x, int y, int z){}
-	@Override public boolean isInvulnerableTo(DamageSource source){ return true; }
-	@Override public boolean canHarmPlayer(Player player){ return false; }
-	@Override public void die(DamageSource source){ return; }
-	@Override public void tick(){ return; }
-	@Override public void updateOptions(ServerboundClientInformationPacket pkt){ return; }
-	@Override @Nullable public MinecraftServer getServer() { return level.getServer(); }
+	@Override public void checkInsideBlocks() { super.checkInsideBlocks(); }
+	@Override public Entity changeDimension(@NotNull ServerLevel p_20118_) { return null; }
+
+	@Override public void displayClientMessage(@NotNull Component chatComponent, boolean actionBar) { }
+	@Override public void awardStat(@NotNull Stat stat, int amount) { }
+	@Override public boolean isInvulnerableTo(@NotNull DamageSource source) { return true; }
+	@Override public boolean canHarmPlayer(@NotNull Player player) { return false; }
+	@Override public void die(@NotNull DamageSource source) { }
+	@Override public void tick() { }
+	@Override public void updateOptions(@NotNull ServerboundClientInformationPacket packet) { }
 
 	private static class FakePlayerNetHandler extends ServerGamePacketListenerImpl
 	{
 		private static final Connection DUMMY_CONNECTION = new Connection(PacketFlow.CLIENTBOUND);
 
-		public FakePlayerNetHandler(MinecraftServer server, ServerPlayer player)
-		{
+		public FakePlayerNetHandler(MinecraftServer server, ServerPlayer player) {
 			super(server, DUMMY_CONNECTION, player);
 		}
 
