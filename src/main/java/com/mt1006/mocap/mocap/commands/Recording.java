@@ -1,10 +1,10 @@
 package com.mt1006.mocap.mocap.commands;
 
 import com.mojang.brigadier.context.CommandContext;
-import com.mt1006.mocap.mocap.playing.PlayerState;
-import com.mt1006.mocap.utils.FileUtils;
+import com.mt1006.mocap.mocap.files.RecordingFile;
+import com.mt1006.mocap.mocap.playing.PlayerActions;
+import com.mt1006.mocap.utils.Utils;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.ArrayList;
@@ -19,10 +19,10 @@ public class Recording
 		WAITING_FOR_DECISION
 	}
 
-	public static ArrayList<Byte> recording = new ArrayList<>();
+	public static RecordingFile.Writer recording = new RecordingFile.Writer();
 	public static State state = State.NOT_RECORDING;
 	public static ServerPlayer serverPlayer = null;
-	public static PlayerState previousPlayerState = null;
+	public static PlayerActions previousPlayerState = null;
 
 	public static int start(CommandSourceStack commandSource, ServerPlayer serverPlayer)
 	{
@@ -30,30 +30,30 @@ public class Recording
 		{
 			case NOT_RECORDING:
 				Recording.serverPlayer = serverPlayer;
-				commandSource.sendSuccess(Component.translatable("mocap.commands.recording.start.waiting_for_action"), false);
+				Utils.sendSuccess(commandSource, "mocap.commands.recording.start.waiting_for_action");
 				state = State.WAITING_FOR_ACTION;
 				break;
 
 			case WAITING_FOR_ACTION:
 				if (serverPlayer != Recording.serverPlayer)
 				{
-					commandSource.sendFailure(Component.translatable("mocap.commands.recording.start.different_player"));
-					commandSource.sendFailure(Component.translatable("mocap.commands.recording.start.different_player.tip"));
+					Utils.sendFailure(commandSource, "mocap.commands.recording.start.different_player");
+					Utils.sendFailure(commandSource, "mocap.commands.recording.start.different_player.tip");
 					return 0;
 				}
 
 				previousPlayerState = null;
 				state = State.RECORDING;
-				commandSource.sendSuccess(Component.translatable("mocap.commands.recording.start.recording_started"), false);
+				Utils.sendSuccess(commandSource, "mocap.commands.recording.start.recording_started");
 				break;
 
 			case RECORDING:
-				commandSource.sendFailure(Component.translatable("mocap.commands.recording.start.already_recording"));
-				commandSource.sendFailure(Component.translatable("mocap.commands.recording.start.already_recording.tip"));
+				Utils.sendFailure(commandSource, "mocap.commands.recording.start.already_recording");
+				Utils.sendFailure(commandSource, "mocap.commands.recording.start.already_recording.tip");
 				return 0;
 
 			case WAITING_FOR_DECISION:
-				commandSource.sendFailure(Component.translatable("mocap.commands.recording.stop.waiting_for_decision"));
+				Utils.sendFailure(commandSource, "mocap.commands.recording.stop.waiting_for_decision");
 				return 0;
 		}
 
@@ -69,22 +69,22 @@ public class Recording
 		switch (state)
 		{
 			case NOT_RECORDING:
-				commandSource.sendFailure(Component.translatable("mocap.commands.recording.stop.server_not_recording"));
+				Utils.sendFailure(commandSource, "mocap.commands.recording.stop.server_not_recording");
 				return 0;
 
 			case WAITING_FOR_ACTION:
-				commandSource.sendSuccess(Component.translatable("mocap.commands.recording.stop.stop_waiting_for_action"), false);
+				Utils.sendSuccess(commandSource, "mocap.commands.recording.stop.stop_waiting_for_action");
 				state = State.NOT_RECORDING;
 				break;
 
 			case RECORDING:
-				commandSource.sendSuccess(Component.translatable("mocap.commands.recording.stop.waiting_for_decision"), false);
+				Utils.sendSuccess(commandSource, "mocap.commands.recording.stop.waiting_for_decision");
 				state = State.WAITING_FOR_DECISION;
 				break;
 
 			case WAITING_FOR_DECISION:
 				recording.clear();
-				commandSource.sendSuccess(Component.translatable("mocap.commands.recording.stop.recording_discarded"), false);
+				Utils.sendSuccess(commandSource, "mocap.commands.recording.stop.recording_discarded");
 				state = State.NOT_RECORDING;
 				break;
 		}
@@ -97,22 +97,22 @@ public class Recording
 		switch (state)
 		{
 			case NOT_RECORDING:
-				commandSource.sendFailure(Component.translatable("mocap.commands.recording.save.nothing_to_save"));
-				commandSource.sendFailure(Component.translatable("mocap.commands.recording.save.nothing_to_save.tip"));
+				Utils.sendFailure(commandSource, "mocap.commands.recording.save.nothing_to_save");
+				Utils.sendFailure(commandSource, "mocap.commands.recording.save.nothing_to_save.tip");
 				return 0;
 
 			case WAITING_FOR_ACTION:
-				commandSource.sendFailure(Component.translatable("mocap.commands.recording.save.waiting_for_action"));
-				commandSource.sendFailure(Component.translatable("mocap.commands.recording.save.waiting_for_action.tip"));
+				Utils.sendFailure(commandSource, "mocap.commands.recording.save.waiting_for_action");
+				Utils.sendFailure(commandSource, "mocap.commands.recording.save.waiting_for_action.tip");
 				return 0;
 
 			case RECORDING:
-				commandSource.sendFailure(Component.translatable("mocap.commands.recording.save.recording_not_stopped"));
-				commandSource.sendFailure(Component.translatable("mocap.commands.recording.save.recording_not_stopped.tip"));
+				Utils.sendFailure(commandSource, "mocap.commands.recording.save.recording_not_stopped");
+				Utils.sendFailure(commandSource, "mocap.commands.recording.save.recording_not_stopped.tip");
 				return 0;
 
 			case WAITING_FOR_DECISION:
-				if (FileUtils.saveRecording(commandSource, name, recording)) { state = State.NOT_RECORDING; }
+				if (RecordingFile.save(commandSource, name, recording)) { state = State.NOT_RECORDING; }
 				else { return 0; }
 				break;
 		}
@@ -125,29 +125,25 @@ public class Recording
 		CommandSourceStack commandSource = ctx.getSource();
 
 		StringBuilder recordingsListStr = new StringBuilder();
-		ArrayList<String> recordingsList = FileUtils.recordingsList(commandSource);
+		ArrayList<String> recordingsList = RecordingFile.list(commandSource);
 
 		if (recordingsList == null)
 		{
-			recordingsListStr.append(" ");
-			recordingsListStr.append(Component.translatable("mocap.commands.playing.list.error").getString());
+			recordingsListStr.append(" ").append(Utils.stringFromComponent("mocap.commands.playing.list.error"));
 		}
 		else if (!recordingsList.isEmpty())
 		{
 			for (String name : recordingsList)
 			{
-				recordingsListStr.append(" ");
-				recordingsListStr.append(name);
+				recordingsListStr.append(" ").append(name);
 			}
 		}
 		else
 		{
-			recordingsListStr.append(" ");
-			recordingsListStr.append(Component.translatable("mocap.commands.playing.list.empty").getString());
+			recordingsListStr.append(" ").append(Utils.stringFromComponent("mocap.commands.playing.list.empty"));
 		}
 
-		commandSource.sendSuccess(Component.translatable("mocap.commands.playing.list.recordings",
-				new String(recordingsListStr)), false);
+		Utils.sendSuccess(commandSource, "mocap.commands.playing.list.recordings", new String(recordingsListStr));
 		return 1;
 	}
 
@@ -158,21 +154,21 @@ public class Recording
 		switch (state)
 		{
 			case NOT_RECORDING:
-				commandSource.sendSuccess(Component.translatable("mocap.commands.recording.state.not_recording"), false);
+				Utils.sendSuccess(commandSource, "mocap.commands.recording.state.not_recording");
 				break;
 
 			case WAITING_FOR_ACTION:
-				commandSource.sendSuccess(Component.translatable("mocap.commands.recording.state.waiting_for_action"), false);
-				commandSource.sendSuccess(Component.translatable("mocap.commands.recording.state.player_name", serverPlayer.getName()), false);
+				Utils.sendSuccess(commandSource, "mocap.commands.recording.state.waiting_for_action");
+				Utils.sendSuccess(commandSource, "mocap.commands.recording.state.player_name");
 				break;
 
 			case RECORDING:
-				commandSource.sendSuccess(Component.translatable("mocap.commands.recording.state.recording"), false);
-				commandSource.sendSuccess(Component.translatable("mocap.commands.recording.state.player_name", serverPlayer.getName()), false);
+				Utils.sendSuccess(commandSource, "mocap.commands.recording.state.recording");
+				Utils.sendSuccess(commandSource, "mocap.commands.recording.state.player_name", serverPlayer.getName());
 				break;
 
 			case WAITING_FOR_DECISION:
-				commandSource.sendSuccess(Component.translatable("mocap.commands.recording.state.waiting_for_decision"), false);
+				Utils.sendSuccess(commandSource, "mocap.commands.recording.state.waiting_for_decision");
 				break;
 		}
 		return 1;
