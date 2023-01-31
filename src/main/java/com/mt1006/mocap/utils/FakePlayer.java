@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile;
 import net.minecraft.network.Connection;
 import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.PlayerChatMessage;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.game.*;
@@ -13,7 +14,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.stats.Stat;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
@@ -27,21 +30,22 @@ public class FakePlayer extends ServerPlayer
 		this.connection = new FakePlayerNetHandler(level.getServer(), this);
 	}
 
-	@Override public void displayClientMessage(Component chatComponent, boolean actionBar) { }
-	@Override public void awardStat(Stat stat, int amount) { }
-	@Override public boolean isInvulnerableTo(DamageSource source) { return true; }
-	@Override public boolean canHarmPlayer(Player player) { return false; }
-	@Override public void die(DamageSource source) { }
+	@Override public void checkInsideBlocks() { super.checkInsideBlocks(); }
+	@Override public Entity changeDimension(@NotNull ServerLevel p_20118_) { return null; }
+
+	@Override public void displayClientMessage(@NotNull Component chatComponent, boolean actionBar) { }
+	@Override public void awardStat(@NotNull Stat stat, int amount) { }
+	@Override public boolean isInvulnerableTo(@NotNull DamageSource source) { return true; }
+	@Override public boolean canHarmPlayer(@NotNull Player player) { return false; }
+	@Override public void die(@NotNull DamageSource source) { }
 	@Override public void tick() { }
-	@Override public void updateOptions(ServerboundClientInformationPacket packet) { }
-	@Override @Nullable public MinecraftServer getServer() { return level.getServer(); }
+	@Override public void updateOptions(@NotNull ServerboundClientInformationPacket packet) { }
 
 	private static class FakePlayerNetHandler extends ServerGamePacketListenerImpl
 	{
 		private static final Connection DUMMY_CONNECTION = new Connection(PacketFlow.CLIENTBOUND);
 
-		public FakePlayerNetHandler(MinecraftServer server, ServerPlayer player)
-		{
+		public FakePlayerNetHandler(MinecraftServer server, ServerPlayer player) {
 			super(server, DUMMY_CONNECTION, player);
 		}
 
@@ -97,5 +101,11 @@ public class FakePlayer extends ServerPlayer
 		@Override public void handleCustomPayload(ServerboundCustomPayloadPacket packet) { }
 		@Override public void handleChangeDifficulty(ServerboundChangeDifficultyPacket packet) { }
 		@Override public void handleLockDifficulty(ServerboundLockDifficultyPacket packet) { }
+		@Override public void dismount(double x, double y, double z, float yaw, float pitch) { }
+		@Override public void teleport(double x, double y, double z, float yaw, float pitch, Set<ClientboundPlayerPositionPacket.RelativeArgument> relativeSet, boolean dismountVehicle) { }
+		@Override public void ackBlockChangesUpTo(int sequence) { }
+		@Override public void handleChatCommand(ServerboundChatCommandPacket packet) { }
+		@Override public void handleChatAck(ServerboundChatAckPacket packet) { }
+		@Override public void addPendingMessage(PlayerChatMessage message) { }
 	}
 }
