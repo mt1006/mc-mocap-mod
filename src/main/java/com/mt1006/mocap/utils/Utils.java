@@ -1,5 +1,10 @@
 package com.mt1006.mocap.utils;
 
+import net.minecraft.Util;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.*;
+import net.minecraft.server.level.ServerPlayer;
+
 public class Utils
 {
 	public static byte[] floatToByteArray(float val)
@@ -26,5 +31,48 @@ public class Utils
 		long bits = (((long)bytes[0] & 0xFF) << 56) | (((long)bytes[1] & 0xFF) << 48) | (((long)bytes[2] & 0xFF) << 40) | (((long)bytes[3] & 0xFF) << 32) |
 				(((long)bytes[4] & 0xFF) << 24) | (((long)bytes[5] & 0xFF) << 16) | (((long)bytes[6] & 0xFF) << 8) | ((long)bytes[7] & 0xFF);
 		return Double.longBitsToDouble(bits);
+	}
+
+
+
+	public static void sendSuccess(CommandSourceStack commandSource, String component, Object... args)
+	{
+		commandSource.sendSuccess(new TranslatableComponent(component, args), false);
+	}
+
+	public static void sendSuccessLiteral(CommandSourceStack commandSource, String format, Object... args)
+	{
+		commandSource.sendSuccess(new TextComponent(String.format(format, args)), false);
+	}
+
+	public static void sendSuccessComponent(CommandSourceStack commandSource, Component component)
+	{
+		commandSource.sendSuccess(component, false);
+	}
+
+	public static void sendFailure(CommandSourceStack commandSource, String component, Object... args)
+	{
+		commandSource.sendFailure(new TranslatableComponent(component, args));
+	}
+
+	public static void sendSystemMessage(ServerPlayer player, String component, Object... args)
+	{
+		player.sendMessage(new TranslatableComponent(component, args), Util.NIL_UUID);
+	}
+
+	public static String stringFromComponent(String component, Object... args)
+	{
+		return new TranslatableComponent(component, args).getString();
+	}
+
+	public static Component getComponent(String component, Object... args)
+	{
+		return new TranslatableComponent(component, args);
+	}
+
+	public static Component getURLComponent(String url, String str, Object... args)
+	{
+		MutableComponent component = new TextComponent(String.format(str, args));
+		return component.setStyle(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, url)));
 	}
 }

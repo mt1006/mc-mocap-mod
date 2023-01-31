@@ -2,9 +2,9 @@ package com.mt1006.mocap.mocap.commands;
 
 import com.mojang.brigadier.context.CommandContext;
 import com.mt1006.mocap.mocap.playing.PlayedScene;
+import com.mt1006.mocap.utils.Utils;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,62 +13,59 @@ import java.util.List;
 
 public class Playing
 {
-	private static List<PlayedScene> playedScenes =
-			Collections.synchronizedList(new LinkedList<>());
+	private static final List<PlayedScene> playedScenes = Collections.synchronizedList(new LinkedList<>());
 	private static long tickCounter = 0;
 	private static double timer = 0.0;
+	private static double previousPlayingSpeed = 0.0;
 
-	public static int start(CommandSourceStack commandSource, String name)
+	public static int start(CommandSourceStack commandSource, String name, String playerName, String mineskinURL)
 	{
 		if (!Settings.loaded) { Settings.load(commandSource); }
 
 		PlayedScene scene = new PlayedScene();
-		if (!scene.start(commandSource, name, getNextID())) { return 0; }
+		if (!scene.start(commandSource, name, playerName, mineskinURL, getNextID())) { return 0; }
 		playedScenes.add(scene);
 
-		commandSource.sendSuccess(new TranslatableComponent("mocap.commands.playing.start.success"), false);
+		Utils.sendSuccess(commandSource, "mocap.commands.playing.start.success");
 		return 1;
 	}
 
-	public static int stop(CommandSourceStack commandSource, int id)
+	public static void stop(CommandSourceStack commandSource, int id)
 	{
 		for (PlayedScene scene : playedScenes)
 		{
 			if (scene.getID() == id)
 			{
 				scene.stop();
-				commandSource.sendSuccess(new TranslatableComponent("mocap.commands.playing.stop.success"), false);
-				return 1;
+				Utils.sendSuccess(commandSource, "mocap.commands.playing.stop.success");
+				return;
 			}
 		}
 
-		commandSource.sendFailure(new TranslatableComponent("mocap.commands.playing.stop.unable_to_find_scene"));
-		commandSource.sendFailure(new TranslatableComponent("mocap.commands.playing.stop.unable_to_find_scene.tip"));
-		return 0;
+		Utils.sendFailure(commandSource, "mocap.commands.playing.stop.unable_to_find_scene");
+		Utils.sendFailure(commandSource, "mocap.commands.playing.stop.unable_to_find_scene.tip");
 	}
 
-	public static int stopAll(CommandContext<CommandSourceStack> ctx)
+	public static int stopAll(@Nullable CommandContext<CommandSourceStack> ctx)
 	{
 		for (PlayedScene scene : playedScenes)
 		{
 			scene.stop();
 		}
 
-		ctx.getSource().sendSuccess(new TranslatableComponent("mocap.commands.playing.stop_all.success"), false);
+		if (ctx != null) { Utils.sendSuccess(ctx.getSource(), "mocap.commands.playing.stop_all.success"); }
 		return 1;
 	}
 
 	public static int list(CommandContext<CommandSourceStack> ctx)
 	{
 		CommandSourceStack commandSource = ctx.getSource();
-
-		commandSource.sendSuccess(new TranslatableComponent("mocap.commands.playing.list.playing"), false);
+		Utils.sendSuccess(ctx.getSource(), "mocap.commands.playing.list.playing");
 
 		for (PlayedScene scene : playedScenes)
 		{
-			commandSource.sendSuccess(new TextComponent(String.format("[%d] %s", scene.getID(), scene.getName())), false);
+			Utils.sendSuccessLiteral(commandSource, "[%d] %s", scene.getID(), scene.getName());
 		}
-
 		return 1;
 	}
 
@@ -76,6 +73,12 @@ public class Playing
 	{
 		if (!playedScenes.isEmpty())
 		{
+			if (previousPlayingSpeed != Settings.PLAYING_SPEED.val)
+			{
+				timer = 0.0;
+				previousPlayingSpeed = Settings.PLAYING_SPEED.val;
+			}
+
 			if ((long)timer < tickCounter) { timer = tickCounter; }
 
 			while ((long)timer == tickCounter)
@@ -89,6 +92,8 @@ public class Playing
 				}
 
 				playedScenes.removeAll(toRemove);
+				if (playedScenes.isEmpty()) { break; }
+
 				timer += 1.0 / Settings.PLAYING_SPEED.val;
 			}
 		}
@@ -106,7 +111,6 @@ public class Playing
 				maxInt = scene.getID() + 1;
 			}
 		}
-
 		return maxInt;
 	}
 }
