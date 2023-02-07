@@ -13,6 +13,7 @@ import net.minecraft.network.protocol.game.*;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
@@ -179,20 +180,18 @@ public class PlayedScene
 
 	public void stop()
 	{
-		if (root)
+		switch (type)
 		{
-			ArrayList<Integer> IDs = new ArrayList<>();
-			removeEntities(IDs);
+			case RECORDING:
+				packetTargets.broadcastAll(new ClientboundPlayerInfoRemovePacket(ImmutableList.of(fakePlayer.getUUID())));
+				fakePlayer.remove(Entity.RemovalReason.UNLOADED_WITH_PLAYER);
+				break;
 
-			int[] arrayOfIDs = new int[IDs.size()];
-			for (int i = 0; i < IDs.size(); i++)
-			{
-				arrayOfIDs[i] = IDs.get(i);
-			}
-
-			packetTargets.broadcastAll(new ClientboundRemoveEntitiesPacket(arrayOfIDs));
-			finished = true;
+			case SCENE:
+				subscenes.forEach(PlayedScene::stop);
+				break;
 		}
+		finished = true;
 	}
 
 	public boolean onTick()
@@ -238,24 +237,6 @@ public class PlayedScene
 	public String getName()
 	{
 		return name;
-	}
-
-	private void removeEntities(ArrayList<Integer> list)
-	{
-		switch (type)
-		{
-			case RECORDING:
-				packetTargets.broadcastAll(new ClientboundPlayerInfoRemovePacket(ImmutableList.of(fakePlayer.getUUID())));
-				list.add(fakePlayer.getId());
-				break;
-
-			case SCENE:
-				for (PlayedScene playedScene : subscenes)
-				{
-					playedScene.removeEntities(list);
-				}
-				break;
-		}
 	}
 
 	private @Nullable GameProfile getGameProfile(CommandSourceStack commandSource)

@@ -35,8 +35,6 @@ public class Utils
 		return Double.longBitsToDouble(bits);
 	}
 
-
-
 	public static void sendSuccess(CommandSourceStack commandSource, String component, Object... args)
 	{
 		commandSource.sendSuccess(Component.translatable(component, args), false);
