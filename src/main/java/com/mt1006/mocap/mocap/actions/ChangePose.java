@@ -56,7 +56,7 @@ public class ChangePose implements Action
 
 	@Override public int execute(PlayerList packetTargets, FakePlayer fakePlayer, Vec3i blockOffset)
 	{
-		packetTargets.broadcastAll(new EntityData<>(fakePlayer, EntityData.POSE, pose).getPacket());
+		new EntityData<>(fakePlayer, EntityData.POSE, pose).broadcastAll(packetTargets);
 		return RET_OK;
 	}
 }
