@@ -95,6 +95,7 @@ public class PlayerMovement implements Action
 		fakePlayer.checkInsideBlocks();
 
 		packetTargets.broadcastAll(new ClientboundTeleportEntityPacket(fakePlayer));
+
 		return RET_OK;
 	}
 }

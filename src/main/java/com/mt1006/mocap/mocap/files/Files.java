@@ -2,7 +2,6 @@ package com.mt1006.mocap.mocap.files;
 
 import com.mt1006.mocap.utils.Utils;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.storage.LevelResource;
 import org.jetbrains.annotations.Nullable;

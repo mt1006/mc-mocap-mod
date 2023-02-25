@@ -9,12 +9,13 @@ import com.mt1006.mocap.mocap.commands.Settings;
 import com.mt1006.mocap.utils.*;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.Vec3i;
-import net.minecraft.network.protocol.game.*;
-import net.minecraft.network.syncher.EntityDataSerializers;
-import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.network.protocol.game.ClientboundAddPlayerPacket;
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoRemovePacket;
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
@@ -175,26 +176,24 @@ public class PlayedScene
 		packetTargets.broadcastAll(new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER, fakePlayer));
 		packetTargets.broadcastAll(new ClientboundAddPlayerPacket(fakePlayer));
 
-		packetTargets.broadcastAll(new EntityData<>(fakePlayer, EntityData.SET_SKIN_PARTS, (byte)0b01111111).getPacket());
+		new EntityData<>(fakePlayer, EntityData.SET_SKIN_PARTS, (byte)0b01111111).broadcastAll(packetTargets);
 		return true;
 	}
 
 	public void stop()
 	{
-		if (root)
+		switch (type)
 		{
-			ArrayList<Integer> IDs = new ArrayList<>();
-			removeEntities(IDs);
+			case RECORDING:
+				packetTargets.broadcastAll(new ClientboundPlayerInfoRemovePacket(ImmutableList.of(fakePlayer.getUUID())));
+				fakePlayer.remove(Entity.RemovalReason.UNLOADED_WITH_PLAYER);
+				break;
 
-			int[] arrayOfIDs = new int[IDs.size()];
-			for (int i = 0; i < IDs.size(); i++)
-			{
-				arrayOfIDs[i] = IDs.get(i);
-			}
-
-			packetTargets.broadcastAll(new ClientboundRemoveEntitiesPacket(arrayOfIDs));
-			finished = true;
+			case SCENE:
+				subscenes.forEach(PlayedScene::stop);
+				break;
 		}
+		finished = true;
 	}
 
 	public boolean onTick()
@@ -240,24 +239,6 @@ public class PlayedScene
 	public String getName()
 	{
 		return name;
-	}
-
-	private void removeEntities(ArrayList<Integer> list)
-	{
-		switch (type)
-		{
-			case RECORDING:
-				packetTargets.broadcastAll(new ClientboundPlayerInfoRemovePacket(ImmutableList.of(fakePlayer.getUUID())));
-				list.add(fakePlayer.getId());
-				break;
-
-			case SCENE:
-				for (PlayedScene playedScene : subscenes)
-				{
-					playedScene.removeEntities(list);
-				}
-				break;
-		}
 	}
 
 	private @Nullable GameProfile getGameProfile(CommandSourceStack commandSource)
