@@ -9,6 +9,5 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(LivingEntity.class)
 public interface LivingEntityMixin
 {
-	@Accessor
-	static @Nullable EntityDataAccessor<Byte> getDATA_LIVING_ENTITY_FLAGS() { return null; }
+	@Accessor static @Nullable EntityDataAccessor<Byte> getDATA_LIVING_ENTITY_FLAGS() { return null; }
 }
