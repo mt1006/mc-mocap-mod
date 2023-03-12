@@ -4,8 +4,6 @@ import com.mt1006.mocap.MocapMod;
 import com.mt1006.mocap.mocap.commands.Playing;
 import com.mt1006.mocap.mocap.commands.Settings;
 import com.mt1006.mocap.mocap.files.Files;
-import com.mt1006.mocap.mocap.playing.PlayedScene;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;

@@ -1,11 +1,15 @@
 package com.mt1006.mocap.utils;
 
+import com.mt1006.mocap.events.PlayerConnectionEvent;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import org.jetbrains.annotations.Nullable;
 
 public class Utils
 {
@@ -35,11 +39,9 @@ public class Utils
 		return Double.longBitsToDouble(bits);
 	}
 
-
-
 	public static void sendSuccess(CommandSourceStack commandSource, String component, Object... args)
 	{
-		commandSource.sendSuccess(Component.translatable(component, args), false);
+		commandSource.sendSuccess(getTranslatableComponent(commandSource.getEntity(), component, args), false);
 	}
 
 	public static void sendSuccessLiteral(CommandSourceStack commandSource, String format, Object... args)
@@ -54,12 +56,12 @@ public class Utils
 
 	public static void sendFailure(CommandSourceStack commandSource, String component, Object... args)
 	{
-		commandSource.sendFailure(Component.translatable(component, args));
+		commandSource.sendFailure(getTranslatableComponent(commandSource.getEntity(), component, args));
 	}
 
 	public static void sendSystemMessage(ServerPlayer player, String component, Object... args)
 	{
-		player.sendSystemMessage(Component.translatable(component, args));
+		player.sendSystemMessage(getTranslatableComponent(player, component, args));
 	}
 
 	public static String stringFromComponent(String component, Object... args)
@@ -67,14 +69,21 @@ public class Utils
 		return Component.translatable(component, args).getString();
 	}
 
-	public static Component getComponent(String component, Object... args)
+	public static Component getTranslatableComponent(@Nullable Entity entity, String component, Object... args)
 	{
-		return Component.translatable(component, args);
+		if (supportsTranslatable(entity)) { return Component.translatable(component, args); }
+		else { return Component.literal(Component.translatable(component, args).getString()); }
 	}
 
 	public static Component getURLComponent(String url, String str, Object... args)
 	{
 		MutableComponent component = Component.literal(String.format(str, args));
 		return component.setStyle(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, url)));
+	}
+
+	private static boolean supportsTranslatable(@Nullable Entity entity)
+	{
+		if (entity == null) { return false; }
+		return entity instanceof Player && PlayerConnectionEvent.isInSet((Player)entity);
 	}
 }

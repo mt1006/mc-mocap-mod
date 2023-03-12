@@ -1,5 +1,6 @@
 package com.mt1006.mocap;
 
+import com.mt1006.mocap.network.MocapPackets;
 import com.mt1006.mocap.utils.Fields;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -13,7 +14,7 @@ import org.apache.logging.log4j.Logger;
 public class MocapMod
 {
 	public static final String MOD_ID = "mocap";
-	public static final String VERSION = "1.2";
+	public static final String VERSION = "1.2.1";
 	public static final String FOR_VERSION = "1.19.2";
 	public static final String FOR_LOADER = "Forge";
 	public static final Logger LOGGER = LogManager.getLogger();
@@ -28,6 +29,7 @@ public class MocapMod
 	{
 		MocapMod.LOGGER.info(getFullName() + " - Author: mt1006 (mt1006x)");
 		Fields.init();
+		MocapPackets.register();
 	}
 
 	public static String getName()

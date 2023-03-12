@@ -53,28 +53,28 @@ public class RightClickBlock implements BlockAction
 
 	private Direction directionFromByte(byte val)
 	{
-		return switch (val)
+		switch (val)
 		{
-			default -> Direction.DOWN;
-			case 1 -> Direction.UP;
-			case 2 -> Direction.NORTH;
-			case 3 -> Direction.SOUTH;
-			case 4 -> Direction.WEST;
-			case 5 -> Direction.EAST;
-		};
+			default: return Direction.DOWN;
+			case 1: return Direction.UP;
+			case 2: return Direction.NORTH;
+			case 3: return Direction.SOUTH;
+			case 4: return Direction.WEST;
+			case 5: return Direction.EAST;
+		}
 	}
 
 	private byte directionToByte(Direction direction)
 	{
-		return switch (direction)
+		switch (direction)
 		{
-			case DOWN -> 0;
-			case UP -> 1;
-			case NORTH -> 2;
-			case SOUTH -> 3;
-			case WEST -> 4;
-			case EAST -> 5;
-		};
+			default: return 0;
+			case UP: return 1;
+			case NORTH: return 2;
+			case SOUTH: return 3;
+			case WEST: return 4;
+			case EAST: return 5;
+		}
 	}
 
 	@Override public void preExecute(FakePlayer fakePlayer, Vec3i blockOffset) {}

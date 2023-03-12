@@ -24,7 +24,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.spongepowered.mixin'
 
 
-version = '1.2'
+version = '1.2.1'
 group = 'com.mt1006.mocap'
 archivesBaseName = 'Mocap-FORGE-1.19.2'
 
