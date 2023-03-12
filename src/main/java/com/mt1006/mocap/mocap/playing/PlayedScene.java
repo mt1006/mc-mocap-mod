@@ -9,7 +9,9 @@ import com.mt1006.mocap.mocap.commands.Settings;
 import com.mt1006.mocap.utils.*;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.Vec3i;
-import net.minecraft.network.protocol.game.*;
+import net.minecraft.network.protocol.game.ClientboundAddPlayerPacket;
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoRemovePacket;
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
@@ -73,18 +75,19 @@ public class PlayedScene
 		{
 			if (!data.knownError)
 			{
-				Utils.sendFailure(commandSource, "mocap.commands.playing.start.error");
-				Utils.sendFailure(commandSource, "mocap.commands.playing.start.error.load");
+				Utils.sendFailure(commandSource, "mocap.playing.start.error");
+				Utils.sendFailure(commandSource, "mocap.playing.start.error.load");
 			}
-			Utils.sendFailure(commandSource, "mocap.commands.playing.start.error.load.path", data.getResourcePath());
+			Utils.sendFailure(commandSource, "mocap.playing.start.error.load.path", data.getResourcePath());
 			return false;
 		}
 
-		return switch (type)
+		switch (type)
 		{
-			case RECORDING -> startPlayingRecording(commandSource, data);
-			case SCENE -> startPlayingScene(commandSource, data);
-		};
+			case RECORDING: return startPlayingRecording(commandSource, data);
+			case SCENE: return startPlayingScene(commandSource, data);
+			default: return false;
+		}
 	}
 
 	private boolean startSubscene(CommandSourceStack commandSource, PlayedScene parent, SceneInfo.Subscene info, SceneData data)
@@ -106,11 +109,12 @@ public class PlayedScene
 		playerName = info.playerName != null ? info.playerName : parent.playerName;
 		mineskinURL = info.mineskinURL != null ? info.mineskinURL : parent.mineskinURL;
 
-		return switch (type)
+		switch (type)
 		{
-			case RECORDING -> startPlayingRecording(commandSource, data);
-			case SCENE -> startPlayingScene(commandSource, data);
-		};
+			case RECORDING: return startPlayingRecording(commandSource, data);
+			case SCENE: return startPlayingScene(commandSource, data);
+			default: return false;
+		}
 	}
 
 	private boolean startPlayingScene(CommandSourceStack commandSource, SceneData data)
@@ -132,8 +136,8 @@ public class PlayedScene
 		GameProfile profile = getGameProfile(commandSource);
 		if (profile == null)
 		{
-			Utils.sendFailure(commandSource, "mocap.commands.playing.start.error");
-			Utils.sendFailure(commandSource, "mocap.commands.playing.start.error.profile");
+			Utils.sendFailure(commandSource, "mocap.playing.start.error");
+			Utils.sendFailure(commandSource, "mocap.playing.start.error.profile");
 			return false;
 		}
 
@@ -156,7 +160,7 @@ public class PlayedScene
 				}
 				else
 				{
-					Utils.sendFailure(commandSource, "mocap.commands.playing.start.warning.mineskin");
+					Utils.sendFailure(commandSource, "mocap.playing.start.warning.mineskin");
 				}
 			}
 		}

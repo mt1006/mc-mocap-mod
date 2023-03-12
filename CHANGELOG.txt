@@ -1,3 +1,8 @@
+===Version 1.2.1===
+-Fixed a compatibility issue causing skin top layer not being visible (thanks KlashRaick, JLUsr and efi1212 for reporting).
+-Fixed fake players not being removed from the server level causing memory leaks, performance issues, strange mob behaviour, problems with placing blocks, blocks staying activated and probably many other bad things (thanks KlashRaick for reporting).
+-When mod is not installed on a client-side, the server now sends text with English translation instead of translation keys.
+
 ===Version 1.2===
 -Placing, breaking and interacting with blocks is now recorded.
 -Skins can now be set from the mineskin.org URL.

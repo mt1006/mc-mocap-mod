@@ -34,8 +34,8 @@ public class RecordingData
 		byte version = reader.readByte();
 		if (version > RecordingFile.RECORDING_VERSION)
 		{
-			Utils.sendFailure(commandSource, "mocap.commands.playing.start.error");
-			Utils.sendFailure(commandSource, "mocap.commands.playing.start.error.load_header");
+			Utils.sendFailure(commandSource, "mocap.playing.start.error");
+			Utils.sendFailure(commandSource, "mocap.playing.start.error.load_header");
 			return false;
 		}
 

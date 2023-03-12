@@ -143,12 +143,12 @@ public class ChangeItem implements Action
 
 			switch (i)
 			{
-				case 0 -> list.add(new Pair<>(EquipmentSlot.MAINHAND, itemStack));
-				case 1 -> list.add(new Pair<>(EquipmentSlot.OFFHAND, itemStack));
-				case 2 -> list.add(new Pair<>(EquipmentSlot.FEET, itemStack));
-				case 3 -> list.add(new Pair<>(EquipmentSlot.LEGS, itemStack));
-				case 4 -> list.add(new Pair<>(EquipmentSlot.CHEST, itemStack));
-				case 5 -> list.add(new Pair<>(EquipmentSlot.HEAD, itemStack));
+				case 0: list.add(new Pair<>(EquipmentSlot.MAINHAND, itemStack)); break;
+				case 1: list.add(new Pair<>(EquipmentSlot.OFFHAND, itemStack)); break;
+				case 2: list.add(new Pair<>(EquipmentSlot.FEET, itemStack)); break;
+				case 3: list.add(new Pair<>(EquipmentSlot.LEGS, itemStack)); break;
+				case 4: list.add(new Pair<>(EquipmentSlot.CHEST, itemStack)); break;
+				case 5: list.add(new Pair<>(EquipmentSlot.HEAD, itemStack)); break;
 			}
 		}
 
