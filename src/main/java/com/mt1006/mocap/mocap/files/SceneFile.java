@@ -24,8 +24,8 @@ public class SceneFile
 		{
 			if (sceneFile.exists())
 			{
-				Utils.sendFailure(commandSource, "mocap.commands.scenes.add.error");
-				Utils.sendFailure(commandSource, "mocap.commands.scenes.add.error.file_already_exists");
+				Utils.sendFailure(commandSource, "mocap.scenes.add.error");
+				Utils.sendFailure(commandSource, "mocap.scenes.add.error.file_already_exists");
 				return false;
 			}
 
@@ -35,11 +35,11 @@ public class SceneFile
 		}
 		catch (IOException exception)
 		{
-			Utils.sendFailure(commandSource, "mocap.commands.scenes.add.error");
+			Utils.sendFailure(commandSource, "mocap.scenes.add.error");
 			return false;
 		}
 
-		Utils.sendSuccess(commandSource, "mocap.commands.scenes.add.success");
+		Utils.sendSuccess(commandSource, "mocap.scenes.add.success");
 		return true;
 	}
 
@@ -50,11 +50,11 @@ public class SceneFile
 
 		if (!sceneFile.delete())
 		{
-			Utils.sendFailure(commandSource, "mocap.commands.scenes.remove.failed");
+			Utils.sendFailure(commandSource, "mocap.scenes.remove.failed");
 			return false;
 		}
 
-		Utils.sendSuccess(commandSource, "mocap.commands.scenes.remove.success");
+		Utils.sendSuccess(commandSource, "mocap.scenes.remove.success");
 		return true;
 	}
 
@@ -67,8 +67,8 @@ public class SceneFile
 		{
 			if (!sceneFile.exists())
 			{
-				Utils.sendFailure(commandSource, "mocap.commands.scenes.add_to.error");
-				Utils.sendFailure(commandSource, "mocap.commands.scenes.add_to.error.file_not_exists");
+				Utils.sendFailure(commandSource, "mocap.scenes.add_to.error");
+				Utils.sendFailure(commandSource, "mocap.scenes.add_to.error.file_not_exists");
 				return false;
 			}
 
@@ -86,11 +86,11 @@ public class SceneFile
 		}
 		catch (IOException exception)
 		{
-			Utils.sendFailure(commandSource, "mocap.commands.scenes.add_to.error");
+			Utils.sendFailure(commandSource, "mocap.scenes.add_to.error");
 			return false;
 		}
 
-		Utils.sendSuccess(commandSource, "mocap.commands.scenes.add_to.success");
+		Utils.sendSuccess(commandSource, "mocap.scenes.add_to.success");
 		return true;
 	}
 
@@ -103,8 +103,8 @@ public class SceneFile
 		{
 			if (!sceneFile.exists())
 			{
-				Utils.sendFailure(commandSource, "mocap.commands.scenes.remove_from.error");
-				Utils.sendFailure(commandSource, "mocap.commands.scenes.remove_from.error.file_not_exists");
+				Utils.sendFailure(commandSource, "mocap.scenes.remove_from.error");
+				Utils.sendFailure(commandSource, "mocap.scenes.remove_from.error.file_not_exists");
 				return false;
 			}
 
@@ -113,9 +113,9 @@ public class SceneFile
 
 			if (sceneInfo.subscenes.size() < pos || pos < 1)
 			{
-				Utils.sendFailure(commandSource, "mocap.commands.scenes.remove_from.error");
-				Utils.sendFailure(commandSource, "mocap.commands.scenes.remove_from.error.wrong_element_pos");
-				Utils.sendFailure(commandSource, "mocap.commands.scenes.remove_from.error.wrong_element_pos.tip");
+				Utils.sendFailure(commandSource, "mocap.scenes.remove_from.error");
+				Utils.sendFailure(commandSource, "mocap.scenes.remove_from.error.wrong_element_pos");
+				Utils.sendFailure(commandSource, "mocap.scenes.remove_from.error.wrong_element_pos.tip");
 				return false;
 			}
 
@@ -130,11 +130,11 @@ public class SceneFile
 		}
 		catch (IOException exception)
 		{
-			Utils.sendFailure(commandSource, "mocap.commands.scenes.remove_from.error");
+			Utils.sendFailure(commandSource, "mocap.scenes.remove_from.error");
 			return false;
 		}
 
-		Utils.sendSuccess(commandSource, "mocap.commands.scenes.remove_from.success");
+		Utils.sendSuccess(commandSource, "mocap.scenes.remove_from.success");
 		return true;
 	}
 

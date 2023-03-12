@@ -8,8 +8,7 @@ import net.minecraft.entity.Pose;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.management.PlayerList;
 import net.minecraft.util.math.vector.Vector3i;
-
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class ChangePose implements Action
 {
@@ -31,7 +30,7 @@ public class ChangePose implements Action
 			case 5: pose = Pose.SPIN_ATTACK; break;
 			case 6: pose = Pose.CROUCHING; break;
 			case 7: pose = Pose.DYING; break;
-		};
+		}
 	}
 
 	public void write(RecordingFile.Writer writer, @Nullable PlayerActions actions)
@@ -57,7 +56,7 @@ public class ChangePose implements Action
 
 	@Override public int execute(PlayerList packetTargets, FakePlayer fakePlayer, Vector3i blockOffset)
 	{
-		packetTargets.broadcastAll(new EntityData<>(fakePlayer, EntityData.POSE, pose).getPacket());
+		new EntityData<>(fakePlayer, EntityData.POSE, pose).broadcastAll(packetTargets);
 		return RET_OK;
 	}
 }

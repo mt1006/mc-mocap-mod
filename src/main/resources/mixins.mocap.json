@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "package": "com.mt1006.mocap.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins":
+  [
+    "EntityMixin",
+    "LivingEntityMixin",
+    "PlayerMixin"
+  ],
+  "injectors": { "defaultRequire": 1 },
+  "refmap": "mixins.mocap.refmap.json"
+}

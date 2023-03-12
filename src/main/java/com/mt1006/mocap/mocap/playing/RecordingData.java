@@ -5,6 +5,7 @@ import com.mt1006.mocap.mocap.actions.BlockAction;
 import com.mt1006.mocap.mocap.commands.Settings;
 import com.mt1006.mocap.mocap.files.Files;
 import com.mt1006.mocap.mocap.files.RecordingFile;
+import com.mt1006.mocap.utils.EntityData;
 import com.mt1006.mocap.utils.FakePlayer;
 import com.mt1006.mocap.utils.Utils;
 import net.minecraft.command.CommandSource;
@@ -33,8 +34,8 @@ public class RecordingData
 		byte version = reader.readByte();
 		if (version > RecordingFile.RECORDING_VERSION)
 		{
-			Utils.sendFailure(commandSource, "mocap.commands.playing.start.error");
-			Utils.sendFailure(commandSource, "mocap.commands.playing.start.error.load_header");
+			Utils.sendFailure(commandSource, "mocap.playing.start.error");
+			Utils.sendFailure(commandSource, "mocap.playing.start.error.load_header");
 			return false;
 		}
 
@@ -75,6 +76,7 @@ public class RecordingData
 	public int executeNext(PlayerList packetTargets, FakePlayer fakePlayer, Vector3i blockOffset, int pos)
 	{
 		if (pos >= actions.size()) { return Action.RET_END; }
+		if (pos == 0) { firstExecute(packetTargets, fakePlayer); }
 
 		try
 		{
@@ -87,5 +89,10 @@ public class RecordingData
 		{
 			return Action.RET_ERROR;
 		}
+	}
+
+	private void firstExecute(PlayerList packetTargets, FakePlayer fakePlayer)
+	{
+		new EntityData<>(fakePlayer, EntityData.SET_SKIN_PARTS, (byte)0b01111111).broadcastAll(packetTargets);
 	}
 }

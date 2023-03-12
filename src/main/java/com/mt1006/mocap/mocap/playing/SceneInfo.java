@@ -29,8 +29,8 @@ public class SceneInfo
 			int fileVersion = Integer.parseInt(scanner.next());
 			if (fileVersion > SceneFile.SCENE_VERSION)
 			{
-				Utils.sendFailure(commandSource, "mocap.commands.error.failed_to_load_scene");
-				Utils.sendFailure(commandSource, "mocap.commands.error.failed_to_load_scene.not_supported");
+				Utils.sendFailure(commandSource, "mocap.error.failed_to_load_scene");
+				Utils.sendFailure(commandSource, "mocap.error.failed_to_load_scene.not_supported");
 				scanner.close();
 				return false;
 			}
@@ -44,7 +44,7 @@ public class SceneInfo
 		}
 		catch (Exception exception)
 		{
-			Utils.sendFailure(commandSource, "mocap.commands.error.failed_to_load_scene");
+			Utils.sendFailure(commandSource, "mocap.error.failed_to_load_scene");
 			return false;
 		}
 		return true;

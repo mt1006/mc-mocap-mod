@@ -5,26 +5,31 @@ buildscript
 		maven { url = 'https://maven.minecraftforge.net' }
 		mavenCentral()
 	}
+
 	dependencies
 	{
 		classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
+		classpath 'org.spongepowered:mixingradle:0.7.+'
 	}
 }
 
-apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'eclipse'
-apply plugin: 'maven-publish'
+plugins
+{
+	id 'eclipse'
+	id 'maven-publish'
+}
 
-version = '1.2'
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'org.spongepowered.mixin'
+
+
+version = '1.2.1'
 group = 'com.mt1006.mocap'
 archivesBaseName = 'Mocap-FORGE-1.16.5'
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(8)
 
-println('Java: ' + System.getProperty('java.version') +
-		' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') +
-		') Arch: ' + System.getProperty('os.arch'))
-
+println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
 minecraft
 {
 	mappings channel: 'official', version: '1.16.5'
@@ -34,8 +39,10 @@ minecraft
 		client
 		{
 			workingDirectory project.file('run')
+
 			property 'forge.logging.markers', 'REGISTRIES'
 			property 'forge.logging.console.level', 'debug'
+			property 'forge.enabledGameTestNamespaces', 'mocap'
 
 			mods
 			{
@@ -46,8 +53,10 @@ minecraft
 		server
 		{
 			workingDirectory project.file('run')
+
 			property 'forge.logging.markers', 'REGISTRIES'
 			property 'forge.logging.console.level', 'debug'
+			property 'forge.enabledGameTestNamespaces', 'mocap'
 
 			mods
 			{
@@ -63,6 +72,13 @@ dependencies
 {
 	implementation 'org.jetbrains:annotations:23.0.0'
 	minecraft 'net.minecraftforge:forge:1.16.5-36.2.39'
+	annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+}
+
+mixin
+{
+	add sourceSets.main, 'mixins.mocap.refmap.json'
+	config 'mixins.mocap.json'
 }
 
 jar
@@ -70,15 +86,20 @@ jar
 	manifest
 	{
 		attributes([
-			"Specification-Title": "mocap",
-			"Specification-Vendor": "mt1006",
-			"Specification-Version": "${version}",
-			"Implementation-Title": "mocap",
-			"Implementation-Version": "${version}",
-			"Implementation-Vendor": "mt1006",
-			"Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-			])
+				"Specification-Title": "mocap",
+				"Specification-Vendor": "mt1006",
+				"Specification-Version": "${version}",
+				"Implementation-Title": "mocap",
+				"Implementation-Version": "${version}",
+				"Implementation-Vendor": "mt1006",
+				"Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+				])
 	}
 }
 
-jar.finalizedBy('reobfJar') 
+jar.finalizedBy('reobfJar')
+
+tasks.withType(JavaCompile).configureEach
+{
+	options.encoding = 'UTF-8'
+}

@@ -43,7 +43,7 @@ public interface Action
 			case BREAK_BLOCK: return new BreakBlock(reader);
 			case PLACE_BLOCK: return new PlaceBlock(reader);
 			case RIGHT_CLICK_BLOCK: return new RightClickBlock(reader);
-			default: return null;
 		}
+		return null;
 	}
 }

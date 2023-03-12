@@ -46,7 +46,7 @@ public class SetEntityFlags implements Action
 
 	@Override public int execute(PlayerList packetTargets, FakePlayer fakePlayer, Vector3i blockOffset)
 	{
-		packetTargets.broadcastAll(new EntityData<>(fakePlayer, EntityData.ENTITY_FLAGS, entityFlags).getPacket());
+		new EntityData<>(fakePlayer, EntityData.ENTITY_FLAGS, entityFlags).broadcastAll(packetTargets);
 		return RET_OK;
 	}
 }

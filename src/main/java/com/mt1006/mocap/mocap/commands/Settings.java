@@ -107,10 +107,10 @@ public class Settings
 		CommandSource commandSource = ctx.getSource();
 		if (!loaded) { load(commandSource); }
 
-		Utils.sendSuccess(commandSource, "mocap.commands.settings.list");
+		Utils.sendSuccess(commandSource, "mocap.settings.list");
 		for (Setting<?> setting : settingsMap.values())
 		{
-			Utils.sendSuccessComponent(commandSource, setting.getInfo());
+			Utils.sendSuccessComponent(commandSource, setting.getInfo(commandSource));
 		}
 		return 1;
 	}
@@ -127,21 +127,21 @@ public class Settings
 		}
 		catch (Exception exception)
 		{
-			Utils.sendFailure(commandSource, "mocap.commands.error.unable_to_get_argument");
+			Utils.sendFailure(commandSource, "mocap.error.unable_to_get_argument");
 			return 0;
 		}
 
 		Setting<?> setting = settingsMap.get(settingName);
 		if (setting == null)
 		{
-			Utils.sendFailure(commandSource, "mocap.commands.settings.error");
+			Utils.sendFailure(commandSource, "mocap.settings.error");
 			return 0;
 		}
 
-		Utils.sendSuccess(commandSource, "mocap.commands.settings.info.name", settingName);
-		Utils.sendSuccess(commandSource, "mocap.commands.settings.info.about." + settingName);
-		Utils.sendSuccess(commandSource, "mocap.commands.settings.info.val", setting.val.toString());
-		Utils.sendSuccess(commandSource, "mocap.commands.settings.info.def_val", setting.defVal.toString());
+		Utils.sendSuccess(commandSource, "mocap.settings.info.name", settingName);
+		Utils.sendSuccess(commandSource, "mocap.settings.info.about." + settingName);
+		Utils.sendSuccess(commandSource, "mocap.settings.info.val", setting.val.toString());
+		Utils.sendSuccess(commandSource, "mocap.settings.info.def_val", setting.defVal.toString());
 		return 1;
 	}
 
@@ -157,24 +157,24 @@ public class Settings
 		}
 		catch (Exception exception)
 		{
-			Utils.sendFailure(commandSource, "mocap.commands.error.unable_to_get_argument");
+			Utils.sendFailure(commandSource, "mocap.error.unable_to_get_argument");
 			return 0;
 		}
 
 		Setting<?> setting = settingsMap.get(settingName);
 		if (setting == null)
 		{
-			Utils.sendFailure(commandSource, "mocap.commands.settings.error");
+			Utils.sendFailure(commandSource, "mocap.settings.error");
 			return 0;
 		}
 
 		String oldValue = setting.val.toString();
 		if (!setting.fromCommand(ctx))
 		{
-			Utils.sendFailure(commandSource, "mocap.commands.settings.set.error");
+			Utils.sendFailure(commandSource, "mocap.settings.set.error");
 		}
 
-		Utils.sendSuccess(commandSource, "mocap.commands.settings.set", oldValue, setting.val.toString());
+		Utils.sendSuccess(commandSource, "mocap.settings.set", oldValue, setting.val.toString());
 		save(commandSource);
 		return 1;
 	}
@@ -197,10 +197,18 @@ public class Settings
 			val = defVal;
 		}
 
-		public ITextComponent getInfo()
+		public ITextComponent getInfo(CommandSource commandSource)
 		{
-			if (val.equals(defVal)) { return Utils.getComponent("mocap.commands.settings.list.info_def", name, val.toString()); }
-			else { return Utils.getComponent("mocap.commands.settings.list.info", name, val.toString()); }
+			if (val.equals(defVal))
+			{
+				return Utils.getTranslatableComponent(commandSource.getEntity(),
+						"mocap.settings.list.info_def", name, val.toString());
+			}
+			else
+			{
+				return Utils.getTranslatableComponent(commandSource.getEntity(),
+						"mocap.settings.list.info", name, val.toString());
+			}
 		}
 
 		public void fromString(String str)

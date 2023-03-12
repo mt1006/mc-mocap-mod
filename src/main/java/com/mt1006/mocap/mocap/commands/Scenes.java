@@ -15,7 +15,7 @@ public class Scenes
 		SceneInfo sceneInfo = new SceneInfo();
 		if(!sceneInfo.load(commandSource, name)) { return 0; }
 
-		Utils.sendSuccess(commandSource, "mocap.commands.scenes.list_elements.list");
+		Utils.sendSuccess(commandSource, "mocap.scenes.list_elements.list");
 
 		int i = 1;
 		for (SceneInfo.Subscene element : sceneInfo.subscenes)
@@ -42,7 +42,7 @@ public class Scenes
 
 		if (scenesList == null)
 		{
-			scenesListStr.append(" ").append(Utils.stringFromComponent("mocap.commands.playing.list.error"));
+			scenesListStr.append(" ").append(Utils.stringFromComponent("mocap.playing.list.error"));
 		}
 		else if (!scenesList.isEmpty())
 		{
@@ -53,10 +53,10 @@ public class Scenes
 		}
 		else
 		{
-			scenesListStr.append(" ").append(Utils.stringFromComponent("mocap.commands.playing.list.empty"));
+			scenesListStr.append(" ").append(Utils.stringFromComponent("mocap.playing.list.empty"));
 		}
 
-		Utils.sendSuccess(commandSource, "mocap.commands.playing.list.scenes", new String(scenesListStr));
+		Utils.sendSuccess(commandSource, "mocap.playing.list.scenes", new String(scenesListStr));
 		return 1;
 	}
 }

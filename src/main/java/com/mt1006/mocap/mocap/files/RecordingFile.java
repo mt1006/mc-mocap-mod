@@ -26,8 +26,8 @@ public class RecordingFile
 		{
 			if (recordingFile.exists())
 			{
-				Utils.sendFailure(commandSource, "mocap.commands.recording.save.file_already_exist");
-				Utils.sendFailure(commandSource, "mocap.commands.recording.save.file_already_exist.tip");
+				Utils.sendFailure(commandSource, "mocap.recording.save.file_already_exist");
+				Utils.sendFailure(commandSource, "mocap.recording.save.file_already_exist.tip");
 				return false;
 			}
 
@@ -41,11 +41,11 @@ public class RecordingFile
 		}
 		catch (IOException exception)
 		{
-			Utils.sendFailure(commandSource, "mocap.commands.recording.save.exception");
+			Utils.sendFailure(commandSource, "mocap.recording.save.exception");
 			return false;
 		}
 
-		Utils.sendSuccess(commandSource, "mocap.commands.recording.save.success");
+		Utils.sendSuccess(commandSource, "mocap.recording.save.success");
 		return true;
 	}
 
@@ -56,11 +56,11 @@ public class RecordingFile
 
 		if (!recordingFile.delete())
 		{
-			Utils.sendFailure(commandSource, "mocap.commands.recording.remove.failed");
+			Utils.sendFailure(commandSource, "mocap.recording.remove.failed");
 			return false;
 		}
 
-		Utils.sendSuccess(commandSource, "mocap.commands.recording.remove.success");
+		Utils.sendSuccess(commandSource, "mocap.recording.remove.success");
 		return true;
 	}
 

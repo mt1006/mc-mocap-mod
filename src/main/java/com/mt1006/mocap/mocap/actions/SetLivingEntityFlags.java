@@ -43,7 +43,7 @@ public class SetLivingEntityFlags implements Action
 
 	@Override public int execute(PlayerList packetTargets, FakePlayer fakePlayer, Vector3i blockOffset)
 	{
-		packetTargets.broadcastAll(new EntityData<>(fakePlayer, EntityData.LIVING_ENTITY_FLAGS, livingEntityFlags).getPacket());
+		new EntityData<>(fakePlayer, EntityData.LIVING_ENTITY_FLAGS, livingEntityFlags).broadcastAll(packetTargets);
 		return RET_OK;
 	}
 }

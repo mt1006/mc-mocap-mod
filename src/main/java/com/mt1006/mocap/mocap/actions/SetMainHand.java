@@ -40,7 +40,7 @@ public class SetMainHand implements Action
 
 	@Override public int execute(PlayerList packetTargets, FakePlayer fakePlayer, Vector3i blockOffset)
 	{
-		packetTargets.broadcastAll(new EntityData<>(fakePlayer, EntityData.SET_MAIN_HAND, mainHand).getPacket());
+		new EntityData<>(fakePlayer, EntityData.SET_MAIN_HAND, mainHand).broadcastAll(packetTargets);
 		return RET_OK;
 	}
 }

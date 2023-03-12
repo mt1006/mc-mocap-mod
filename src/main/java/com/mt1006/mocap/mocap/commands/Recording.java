@@ -30,30 +30,30 @@ public class Recording
 		{
 			case NOT_RECORDING:
 				Recording.serverPlayer = serverPlayer;
-				Utils.sendSuccess(commandSource, "mocap.commands.recording.start.waiting_for_action");
+				Utils.sendSuccess(commandSource, "mocap.recording.start.waiting_for_action");
 				state = State.WAITING_FOR_ACTION;
 				break;
 
 			case WAITING_FOR_ACTION:
 				if (serverPlayer != Recording.serverPlayer)
 				{
-					Utils.sendFailure(commandSource, "mocap.commands.recording.start.different_player");
-					Utils.sendFailure(commandSource, "mocap.commands.recording.start.different_player.tip");
+					Utils.sendFailure(commandSource, "mocap.recording.start.different_player");
+					Utils.sendFailure(commandSource, "mocap.recording.start.different_player.tip");
 					return 0;
 				}
 
 				previousPlayerState = null;
 				state = State.RECORDING;
-				Utils.sendSuccess(commandSource, "mocap.commands.recording.start.recording_started");
+				Utils.sendSuccess(commandSource, "mocap.recording.start.recording_started");
 				break;
 
 			case RECORDING:
-				Utils.sendFailure(commandSource, "mocap.commands.recording.start.already_recording");
-				Utils.sendFailure(commandSource, "mocap.commands.recording.start.already_recording.tip");
+				Utils.sendFailure(commandSource, "mocap.recording.start.already_recording");
+				Utils.sendFailure(commandSource, "mocap.recording.start.already_recording.tip");
 				return 0;
 
 			case WAITING_FOR_DECISION:
-				Utils.sendFailure(commandSource, "mocap.commands.recording.stop.waiting_for_decision");
+				Utils.sendFailure(commandSource, "mocap.recording.stop.waiting_for_decision");
 				return 0;
 		}
 
@@ -69,22 +69,22 @@ public class Recording
 		switch (state)
 		{
 			case NOT_RECORDING:
-				Utils.sendFailure(commandSource, "mocap.commands.recording.stop.server_not_recording");
+				Utils.sendFailure(commandSource, "mocap.recording.stop.server_not_recording");
 				return 0;
 
 			case WAITING_FOR_ACTION:
-				Utils.sendSuccess(commandSource, "mocap.commands.recording.stop.stop_waiting_for_action");
+				Utils.sendSuccess(commandSource, "mocap.recording.stop.stop_waiting_for_action");
 				state = State.NOT_RECORDING;
 				break;
 
 			case RECORDING:
-				Utils.sendSuccess(commandSource, "mocap.commands.recording.stop.waiting_for_decision");
+				Utils.sendSuccess(commandSource, "mocap.recording.stop.waiting_for_decision");
 				state = State.WAITING_FOR_DECISION;
 				break;
 
 			case WAITING_FOR_DECISION:
 				recording.clear();
-				Utils.sendSuccess(commandSource, "mocap.commands.recording.stop.recording_discarded");
+				Utils.sendSuccess(commandSource, "mocap.recording.stop.recording_discarded");
 				state = State.NOT_RECORDING;
 				break;
 		}
@@ -97,18 +97,18 @@ public class Recording
 		switch (state)
 		{
 			case NOT_RECORDING:
-				Utils.sendFailure(commandSource, "mocap.commands.recording.save.nothing_to_save");
-				Utils.sendFailure(commandSource, "mocap.commands.recording.save.nothing_to_save.tip");
+				Utils.sendFailure(commandSource, "mocap.recording.save.nothing_to_save");
+				Utils.sendFailure(commandSource, "mocap.recording.save.nothing_to_save.tip");
 				return 0;
 
 			case WAITING_FOR_ACTION:
-				Utils.sendFailure(commandSource, "mocap.commands.recording.save.waiting_for_action");
-				Utils.sendFailure(commandSource, "mocap.commands.recording.save.waiting_for_action.tip");
+				Utils.sendFailure(commandSource, "mocap.recording.save.waiting_for_action");
+				Utils.sendFailure(commandSource, "mocap.recording.save.waiting_for_action.tip");
 				return 0;
 
 			case RECORDING:
-				Utils.sendFailure(commandSource, "mocap.commands.recording.save.recording_not_stopped");
-				Utils.sendFailure(commandSource, "mocap.commands.recording.save.recording_not_stopped.tip");
+				Utils.sendFailure(commandSource, "mocap.recording.save.recording_not_stopped");
+				Utils.sendFailure(commandSource, "mocap.recording.save.recording_not_stopped.tip");
 				return 0;
 
 			case WAITING_FOR_DECISION:
@@ -129,7 +129,7 @@ public class Recording
 
 		if (recordingsList == null)
 		{
-			recordingsListStr.append(" ").append(Utils.stringFromComponent("mocap.commands.playing.list.error"));
+			recordingsListStr.append(" ").append(Utils.stringFromComponent("mocap.playing.list.error"));
 		}
 		else if (!recordingsList.isEmpty())
 		{
@@ -140,10 +140,10 @@ public class Recording
 		}
 		else
 		{
-			recordingsListStr.append(" ").append(Utils.stringFromComponent("mocap.commands.playing.list.empty"));
+			recordingsListStr.append(" ").append(Utils.stringFromComponent("mocap.playing.list.empty"));
 		}
 
-		Utils.sendSuccess(commandSource, "mocap.commands.playing.list.recordings", new String(recordingsListStr));
+		Utils.sendSuccess(commandSource, "mocap.playing.list.recordings", new String(recordingsListStr));
 		return 1;
 	}
 
@@ -154,21 +154,21 @@ public class Recording
 		switch (state)
 		{
 			case NOT_RECORDING:
-				Utils.sendSuccess(commandSource, "mocap.commands.recording.state.not_recording");
+				Utils.sendSuccess(commandSource, "mocap.recording.state.not_recording");
 				break;
 
 			case WAITING_FOR_ACTION:
-				Utils.sendSuccess(commandSource, "mocap.commands.recording.state.waiting_for_action");
-				Utils.sendSuccess(commandSource, "mocap.commands.recording.state.player_name");
+				Utils.sendSuccess(commandSource, "mocap.recording.state.waiting_for_action");
+				Utils.sendSuccess(commandSource, "mocap.recording.state.player_name");
 				break;
 
 			case RECORDING:
-				Utils.sendSuccess(commandSource, "mocap.commands.recording.state.recording");
-				Utils.sendSuccess(commandSource, "mocap.commands.recording.state.player_name", serverPlayer.getName());
+				Utils.sendSuccess(commandSource, "mocap.recording.state.recording");
+				Utils.sendSuccess(commandSource, "mocap.recording.state.player_name", serverPlayer.getName());
 				break;
 
 			case WAITING_FOR_DECISION:
-				Utils.sendSuccess(commandSource, "mocap.commands.recording.state.waiting_for_decision");
+				Utils.sendSuccess(commandSource, "mocap.recording.state.waiting_for_decision");
 				break;
 		}
 		return 1;
