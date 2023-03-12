@@ -5,7 +5,10 @@
   "compatibilityLevel": "JAVA_8",
   "mixins":
   [
-    "BlockItemMixin"
+    "BlockItemMixin",
+    "EntityMixin",
+    "LivingEntityMixin",
+    "PlayerMixin"
   ],
   "injectors": { "defaultRequire": 1 }
 }

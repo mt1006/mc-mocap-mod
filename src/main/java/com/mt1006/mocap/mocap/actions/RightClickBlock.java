@@ -68,14 +68,13 @@ public class RightClickBlock implements BlockAction
 	{
 		switch (direction)
 		{
-			case DOWN: return 0;
+			default: return 0;
 			case UP: return 1;
 			case NORTH: return 2;
 			case SOUTH: return 3;
 			case WEST: return 4;
 			case EAST: return 5;
 		}
-		return 0;
 	}
 
 	@Override public void preExecute(FakePlayer fakePlayer, Vec3i blockOffset) {}

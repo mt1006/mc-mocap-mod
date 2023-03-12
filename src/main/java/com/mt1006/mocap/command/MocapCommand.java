@@ -104,7 +104,7 @@ public class MocapCommand
 
 			if (gameProfiles.size() != 1)
 			{
-				Utils.sendFailure(ctx.getSource(), "mocap.commands.recording.start.player_not_found");
+				Utils.sendFailure(ctx.getSource(), "mocap.recording.start.player_not_found");
 				return 0;
 			}
 
@@ -113,7 +113,7 @@ public class MocapCommand
 
 			if(serverPlayer == null)
 			{
-				Utils.sendFailure(ctx.getSource(), "mocap.commands.recording.start.player_not_found");
+				Utils.sendFailure(ctx.getSource(), "mocap.recording.start.player_not_found");
 				return 0;
 			}
 		}
@@ -123,8 +123,8 @@ public class MocapCommand
 
 			if (!(entity instanceof ServerPlayer))
 			{
-				Utils.sendFailure(ctx.getSource(), "mocap.commands.recording.start.player_not_specified");
-				Utils.sendFailure(ctx.getSource(), "mocap.commands.recording.start.player_not_specified.tip");
+				Utils.sendFailure(ctx.getSource(), "mocap.recording.start.player_not_specified");
+				Utils.sendFailure(ctx.getSource(), "mocap.recording.start.player_not_specified.tip");
 				return 0;
 			}
 
@@ -143,7 +143,7 @@ public class MocapCommand
 		}
 		catch (Exception exception)
 		{
-			Utils.sendFailure(ctx.getSource(), "mocap.commands.error.unable_to_get_argument");
+			Utils.sendFailure(ctx.getSource(), "mocap.error.unable_to_get_argument");
 			return 0;
 		}
 	}
@@ -157,7 +157,7 @@ public class MocapCommand
 		}
 		catch (Exception exception)
 		{
-			Utils.sendFailure(ctx.getSource(), "mocap.commands.error.unable_to_get_argument");
+			Utils.sendFailure(ctx.getSource(), "mocap.error.unable_to_get_argument");
 			return 0;
 		}
 
@@ -173,7 +173,7 @@ public class MocapCommand
 		}
 		catch (Exception exception)
 		{
-			Utils.sendFailure(ctx.getSource(), "mocap.commands.error.unable_to_get_argument");
+			Utils.sendFailure(ctx.getSource(), "mocap.error.unable_to_get_argument");
 			return 0;
 		}
 
@@ -189,7 +189,7 @@ public class MocapCommand
 		}
 		catch (Exception exception)
 		{
-			Utils.sendFailure(ctx.getSource(), "mocap.commands.error.unable_to_get_argument");
+			Utils.sendFailure(ctx.getSource(), "mocap.error.unable_to_get_argument");
 			return 0;
 		}
 
@@ -215,15 +215,15 @@ public class MocapCommand
 
 				if (subscene.playerName.length() > 16)
 				{
-					Utils.sendFailure(ctx.getSource(), "mocap.commands.scenes.add_to.error");
-					Utils.sendFailure(ctx.getSource(), "mocap.commands.scenes.add_to.error.too_long_name");
+					Utils.sendFailure(ctx.getSource(), "mocap.scenes.add_to.error");
+					Utils.sendFailure(ctx.getSource(), "mocap.scenes.add_to.error.too_long_name");
 					return 0;
 				}
 
 				if (subscene.playerName.contains(" "))
 				{
-					Utils.sendFailure(ctx.getSource(), "mocap.commands.scenes.add_to.error");
-					Utils.sendFailure(ctx.getSource(), "mocap.commands.scenes.add_to.error.contain_spaces");
+					Utils.sendFailure(ctx.getSource(), "mocap.scenes.add_to.error");
+					Utils.sendFailure(ctx.getSource(), "mocap.scenes.add_to.error.contain_spaces");
 					return 0;
 				}
 
@@ -235,7 +235,7 @@ public class MocapCommand
 		}
 		catch (Exception exception)
 		{
-			Utils.sendFailure(ctx.getSource(), "mocap.commands.error.unable_to_get_argument");
+			Utils.sendFailure(ctx.getSource(), "mocap.error.unable_to_get_argument");
 			return 0;
 		}
 
@@ -253,7 +253,7 @@ public class MocapCommand
 		}
 		catch (Exception exception)
 		{
-			Utils.sendFailure(ctx.getSource(), "mocap.commands.error.unable_to_get_argument");
+			Utils.sendFailure(ctx.getSource(), "mocap.error.unable_to_get_argument");
 			return 0;
 		}
 
@@ -269,7 +269,7 @@ public class MocapCommand
 		}
 		catch (Exception exception)
 		{
-			Utils.sendFailure(ctx.getSource(), "mocap.commands.error.unable_to_get_argument");
+			Utils.sendFailure(ctx.getSource(), "mocap.error.unable_to_get_argument");
 			return 0;
 		}
 	}
@@ -284,7 +284,7 @@ public class MocapCommand
 		}
 		catch (Exception exception)
 		{
-			Utils.sendFailure(ctx.getSource(), "mocap.commands.error.unable_to_get_argument");
+			Utils.sendFailure(ctx.getSource(), "mocap.error.unable_to_get_argument");
 			return 0;
 		}
 
@@ -301,7 +301,7 @@ public class MocapCommand
 		}
 		catch (Exception exception)
 		{
-			Utils.sendFailure(ctx.getSource(), "mocap.commands.playing.start.error");
+			Utils.sendFailure(ctx.getSource(), "mocap.playing.start.error");
 			return 0;
 		}
 	}
@@ -315,7 +315,7 @@ public class MocapCommand
 		}
 		catch (Exception exception)
 		{
-			Utils.sendFailure(ctx.getSource(), "mocap.commands.error.unable_to_get_argument");
+			Utils.sendFailure(ctx.getSource(), "mocap.error.unable_to_get_argument");
 			return 0;
 		}
 
@@ -331,7 +331,7 @@ public class MocapCommand
 
 	private static int help(CommandContext<CommandSourceStack> ctx)
 	{
-		Utils.sendSuccess(ctx.getSource(), "mocap.commands.help", MocapMod.getName());
+		Utils.sendSuccess(ctx.getSource(), "mocap.help", MocapMod.getName());
 		return 1;
 	}
 }

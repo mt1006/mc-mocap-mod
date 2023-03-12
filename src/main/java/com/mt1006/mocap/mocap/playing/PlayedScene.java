@@ -10,7 +10,6 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.Vec3i;
 import net.minecraft.network.protocol.game.ClientboundAddPlayerPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket;
-import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
@@ -73,10 +72,10 @@ public class PlayedScene
 		{
 			if (!data.knownError)
 			{
-				Utils.sendFailure(commandSource, "mocap.commands.playing.start.error");
-				Utils.sendFailure(commandSource, "mocap.commands.playing.start.error.load");
+				Utils.sendFailure(commandSource, "mocap.playing.start.error");
+				Utils.sendFailure(commandSource, "mocap.playing.start.error.load");
 			}
-			Utils.sendFailure(commandSource, "mocap.commands.playing.start.error.load.path", data.getResourcePath());
+			Utils.sendFailure(commandSource, "mocap.playing.start.error.load.path", data.getResourcePath());
 			return false;
 		}
 
@@ -134,8 +133,8 @@ public class PlayedScene
 		GameProfile profile = getGameProfile(commandSource);
 		if (profile == null)
 		{
-			Utils.sendFailure(commandSource, "mocap.commands.playing.start.error");
-			Utils.sendFailure(commandSource, "mocap.commands.playing.start.error.profile");
+			Utils.sendFailure(commandSource, "mocap.playing.start.error");
+			Utils.sendFailure(commandSource, "mocap.playing.start.error.profile");
 			return false;
 		}
 
@@ -158,7 +157,7 @@ public class PlayedScene
 				}
 				else
 				{
-					Utils.sendFailure(commandSource, "mocap.commands.playing.start.warning.mineskin");
+					Utils.sendFailure(commandSource, "mocap.playing.start.warning.mineskin");
 				}
 			}
 		}
@@ -176,26 +175,24 @@ public class PlayedScene
 		packetTargets.broadcastAll(new ClientboundPlayerInfoPacket(ClientboundPlayerInfoPacket.Action.ADD_PLAYER, fakePlayer));
 		packetTargets.broadcastAll(new ClientboundAddPlayerPacket(fakePlayer));
 
-		packetTargets.broadcastAll(new EntityData<>(fakePlayer, EntityData.SET_SKIN_PARTS, (byte)0b01111111).getPacket());
+		new EntityData<>(fakePlayer, EntityData.SET_SKIN_PARTS, (byte)0b01111111).broadcastAll(packetTargets);
 		return true;
 	}
 
 	public void stop()
 	{
-		if (root)
+		switch (type)
 		{
-			ArrayList<Integer> IDs = new ArrayList<>();
-			removeEntities(IDs);
+			case RECORDING:
+				packetTargets.broadcastAll(new ClientboundPlayerInfoPacket(ClientboundPlayerInfoPacket.Action.REMOVE_PLAYER, fakePlayer));
+				level.removePlayerImmediately(fakePlayer);
+				break;
 
-			int[] arrayOfIDs = new int[IDs.size()];
-			for (int i = 0; i < IDs.size(); i++)
-			{
-				arrayOfIDs[i] = IDs.get(i);
-			}
-
-			packetTargets.broadcastAll(new ClientboundRemoveEntitiesPacket(arrayOfIDs));
-			finished = true;
+			case SCENE:
+				subscenes.forEach(PlayedScene::stop);
+				break;
 		}
+		finished = true;
 	}
 
 	public boolean onTick()
@@ -241,24 +238,6 @@ public class PlayedScene
 	public String getName()
 	{
 		return name;
-	}
-
-	private void removeEntities(ArrayList<Integer> list)
-	{
-		switch (type)
-		{
-			case RECORDING:
-				packetTargets.broadcastAll(new ClientboundPlayerInfoPacket(ClientboundPlayerInfoPacket.Action.REMOVE_PLAYER, fakePlayer));
-				list.add(fakePlayer.getId());
-				break;
-
-			case SCENE:
-				for (PlayedScene playedScene : subscenes)
-				{
-					playedScene.removeEntities(list);
-				}
-				break;
-		}
 	}
 
 	private @Nullable GameProfile getGameProfile(CommandSourceStack commandSource)
