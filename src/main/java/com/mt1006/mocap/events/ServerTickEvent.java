@@ -26,7 +26,7 @@ public class ServerTickEvent
 				{
 					Recording.previousPlayerState = null;
 					Recording.state = Recording.State.RECORDING;
-					Utils.sendSystemMessage(Recording.serverPlayer, "mocap.commands.recording.start.recording_started");
+					Utils.sendSystemMessage(Recording.serverPlayer, "mocap.recording.start.recording_started");
 					previousActions = null;
 				}
 				else

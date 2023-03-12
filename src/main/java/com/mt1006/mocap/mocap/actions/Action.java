@@ -29,21 +29,21 @@ public interface Action
 
 	static Action readAction(RecordingFile.Reader reader)
 	{
-		return switch (reader.readByte())
+		switch (reader.readByte())
 		{
-			case NEXT_TICK -> new NextTick();
-			case PLAYER_MOVEMENT -> new PlayerMovement(reader);
-			case HEAD_ROTATION -> new HeadRotation(reader);
-			case CHANGE_POSE -> new ChangePose(reader);
-			case CHANGE_ITEM -> new ChangeItem(reader);
-			case SET_ENTITY_FLAGS -> new SetEntityFlags(reader);
-			case SET_LIVING_ENTITY_FLAGS -> new SetLivingEntityFlags(reader);
-			case SET_MAIN_HAND -> new SetMainHand(reader);
-			case SWING -> new Swing(reader);
-			case BREAK_BLOCK -> new BreakBlock(reader);
-			case PLACE_BLOCK -> new PlaceBlock(reader);
-			case RIGHT_CLICK_BLOCK -> new RightClickBlock(reader);
-			default -> null;
-		};
+			case NEXT_TICK: return new NextTick();
+			case PLAYER_MOVEMENT: return new PlayerMovement(reader);
+			case HEAD_ROTATION: return new HeadRotation(reader);
+			case CHANGE_POSE: return new ChangePose(reader);
+			case CHANGE_ITEM: return new ChangeItem(reader);
+			case SET_ENTITY_FLAGS: return new SetEntityFlags(reader);
+			case SET_LIVING_ENTITY_FLAGS: return new SetLivingEntityFlags(reader);
+			case SET_MAIN_HAND: return new SetMainHand(reader);
+			case SWING: return new Swing(reader);
+			case BREAK_BLOCK: return new BreakBlock(reader);
+			case PLACE_BLOCK: return new PlaceBlock(reader);
+			case RIGHT_CLICK_BLOCK: return new RightClickBlock(reader);
+		}
+		return null;
 	}
 }
