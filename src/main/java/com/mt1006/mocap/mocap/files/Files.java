@@ -2,7 +2,6 @@ package com.mt1006.mocap.mocap.files;
 
 import com.mt1006.mocap.utils.Utils;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.storage.LevelResource;
 import org.jetbrains.annotations.Nullable;
@@ -47,7 +46,7 @@ public class Files
 
 		if (!mocapDirectory.isDirectory() || !recordingsDirectory.isDirectory() || !scenesDirectory.isDirectory())
 		{
-			Utils.sendFailure(commandSource, "mocap.commands.error.failed_to_init_directories");
+			Utils.sendFailure(commandSource, "mocap.error.failed_to_init_directories");
 			return false;
 		}
 
@@ -68,8 +67,8 @@ public class Files
 		{
 			if (commandSource != null)
 			{
-				Utils.sendFailure(commandSource, "mocap.commands.error.improper_name");
-				Utils.sendFailure(commandSource, "mocap.commands.error.improper_name.dot_first");
+				Utils.sendFailure(commandSource, "mocap.error.improper_name");
+				Utils.sendFailure(commandSource, "mocap.error.improper_name.dot_first");
 			}
 			return false;
 		}
@@ -80,8 +79,8 @@ public class Files
 			{
 				if (commandSource != null)
 				{
-					Utils.sendFailure(commandSource, "mocap.commands.error.improper_name");
-					Utils.sendFailure(commandSource, "mocap.commands.error.improper_name.character");
+					Utils.sendFailure(commandSource, "mocap.error.improper_name");
+					Utils.sendFailure(commandSource, "mocap.error.improper_name.character");
 				}
 				return false;
 			}

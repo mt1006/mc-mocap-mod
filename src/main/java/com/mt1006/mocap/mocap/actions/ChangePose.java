@@ -1,14 +1,10 @@
 package com.mt1006.mocap.mocap.actions;
 
-import com.google.common.collect.ImmutableList;
 import com.mt1006.mocap.mocap.files.RecordingFile;
 import com.mt1006.mocap.mocap.playing.PlayerActions;
 import com.mt1006.mocap.utils.EntityData;
 import com.mt1006.mocap.utils.FakePlayer;
 import net.minecraft.core.Vec3i;
-import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
-import net.minecraft.network.syncher.EntityDataSerializers;
-import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
@@ -25,16 +21,16 @@ public class ChangePose implements Action
 
 	public ChangePose(RecordingFile.Reader reader)
 	{
-		pose = switch (reader.readInt())
+		switch (reader.readInt())
 		{
-			default -> Pose.STANDING;
-			case 2 -> Pose.FALL_FLYING;
-			case 3 -> Pose.SLEEPING;
-			case 4 -> Pose.SWIMMING;
-			case 5 -> Pose.SPIN_ATTACK;
-			case 6 -> Pose.CROUCHING;
-			case 7 -> Pose.DYING;
-		};
+			default: pose = Pose.STANDING; break;
+			case 2: pose = Pose.FALL_FLYING; break;
+			case 3: pose = Pose.SLEEPING; break;
+			case 4: pose = Pose.SWIMMING; break;
+			case 5: pose = Pose.SPIN_ATTACK; break;
+			case 6: pose = Pose.CROUCHING; break;
+			case 7: pose = Pose.DYING; break;
+		}
 	}
 
 	public void write(RecordingFile.Writer writer, @Nullable PlayerActions actions)
@@ -60,7 +56,7 @@ public class ChangePose implements Action
 
 	@Override public int execute(PlayerList packetTargets, FakePlayer fakePlayer, Vec3i blockOffset)
 	{
-		packetTargets.broadcastAll(new EntityData<>(fakePlayer, EntityData.POSE, pose).getPacket());
+		new EntityData<>(fakePlayer, EntityData.POSE, pose).broadcastAll(packetTargets);
 		return RET_OK;
 	}
 }

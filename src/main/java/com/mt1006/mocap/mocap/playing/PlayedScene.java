@@ -1,5 +1,6 @@
 package com.mt1006.mocap.mocap.playing;
 
+import com.google.common.collect.ImmutableList;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
@@ -12,6 +13,7 @@ import net.minecraft.network.protocol.game.*;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
@@ -71,18 +73,19 @@ public class PlayedScene
 		{
 			if (!data.knownError)
 			{
-				Utils.sendFailure(commandSource, "mocap.commands.playing.start.error");
-				Utils.sendFailure(commandSource, "mocap.commands.playing.start.error.load");
+				Utils.sendFailure(commandSource, "mocap.playing.start.error");
+				Utils.sendFailure(commandSource, "mocap.playing.start.error.load");
 			}
-			Utils.sendFailure(commandSource, "mocap.commands.playing.start.error.load.path", data.getResourcePath());
+			Utils.sendFailure(commandSource, "mocap.playing.start.error.load.path", data.getResourcePath());
 			return false;
 		}
 
-		return switch (type)
+		switch (type)
 		{
-			case RECORDING -> startPlayingRecording(commandSource, data);
-			case SCENE -> startPlayingScene(commandSource, data);
-		};
+			case RECORDING: return startPlayingRecording(commandSource, data);
+			case SCENE: return startPlayingScene(commandSource, data);
+			default: return false;
+		}
 	}
 
 	private boolean startSubscene(CommandSourceStack commandSource, PlayedScene parent, SceneInfo.Subscene info, SceneData data)
@@ -104,11 +107,12 @@ public class PlayedScene
 		playerName = info.playerName != null ? info.playerName : parent.playerName;
 		mineskinURL = info.mineskinURL != null ? info.mineskinURL : parent.mineskinURL;
 
-		return switch (type)
+		switch (type)
 		{
-			case RECORDING -> startPlayingRecording(commandSource, data);
-			case SCENE -> startPlayingScene(commandSource, data);
-		};
+			case RECORDING: return startPlayingRecording(commandSource, data);
+			case SCENE: return startPlayingScene(commandSource, data);
+			default: return false;
+		}
 	}
 
 	private boolean startPlayingScene(CommandSourceStack commandSource, SceneData data)
@@ -130,8 +134,8 @@ public class PlayedScene
 		GameProfile profile = getGameProfile(commandSource);
 		if (profile == null)
 		{
-			Utils.sendFailure(commandSource, "mocap.commands.playing.start.error");
-			Utils.sendFailure(commandSource, "mocap.commands.playing.start.error.profile");
+			Utils.sendFailure(commandSource, "mocap.playing.start.error");
+			Utils.sendFailure(commandSource, "mocap.playing.start.error.profile");
 			return false;
 		}
 
@@ -154,7 +158,7 @@ public class PlayedScene
 				}
 				else
 				{
-					Utils.sendFailure(commandSource, "mocap.commands.playing.start.warning.mineskin");
+					Utils.sendFailure(commandSource, "mocap.playing.start.warning.mineskin");
 				}
 			}
 		}
@@ -172,26 +176,24 @@ public class PlayedScene
 		packetTargets.broadcastAll(new ClientboundPlayerInfoPacket(ClientboundPlayerInfoPacket.Action.ADD_PLAYER, fakePlayer));
 		packetTargets.broadcastAll(new ClientboundAddPlayerPacket(fakePlayer));
 
-		packetTargets.broadcastAll(new EntityData<>(fakePlayer, EntityData.SET_SKIN_PARTS, (byte)0b01111111).getPacket());
+		new EntityData<>(fakePlayer, EntityData.SET_SKIN_PARTS, (byte)0b01111111).broadcastAll(packetTargets);
 		return true;
 	}
 
 	public void stop()
 	{
-		if (root)
+		switch (type)
 		{
-			ArrayList<Integer> IDs = new ArrayList<>();
-			removeEntities(IDs);
+			case RECORDING:
+				packetTargets.broadcastAll(new ClientboundPlayerInfoPacket(ClientboundPlayerInfoPacket.Action.REMOVE_PLAYER, fakePlayer));
+				fakePlayer.remove(Entity.RemovalReason.UNLOADED_WITH_PLAYER);
+				break;
 
-			int[] arrayOfIDs = new int[IDs.size()];
-			for (int i = 0; i < IDs.size(); i++)
-			{
-				arrayOfIDs[i] = IDs.get(i);
-			}
-
-			packetTargets.broadcastAll(new ClientboundRemoveEntitiesPacket(arrayOfIDs));
-			finished = true;
+			case SCENE:
+				subscenes.forEach(PlayedScene::stop);
+				break;
 		}
+		finished = true;
 	}
 
 	public boolean onTick()
@@ -237,24 +239,6 @@ public class PlayedScene
 	public String getName()
 	{
 		return name;
-	}
-
-	private void removeEntities(ArrayList<Integer> list)
-	{
-		switch (type)
-		{
-			case RECORDING:
-				packetTargets.broadcastAll(new ClientboundPlayerInfoPacket(ClientboundPlayerInfoPacket.Action.REMOVE_PLAYER, fakePlayer));
-				list.add(fakePlayer.getId());
-				break;
-
-			case SCENE:
-				for (PlayedScene playedScene : subscenes)
-				{
-					playedScene.removeEntities(list);
-				}
-				break;
-		}
 	}
 
 	private @Nullable GameProfile getGameProfile(CommandSourceStack commandSource)

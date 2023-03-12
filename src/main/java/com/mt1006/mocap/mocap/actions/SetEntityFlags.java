@@ -1,14 +1,10 @@
 package com.mt1006.mocap.mocap.actions;
 
-import com.google.common.collect.ImmutableList;
 import com.mt1006.mocap.mocap.files.RecordingFile;
 import com.mt1006.mocap.mocap.playing.PlayerActions;
 import com.mt1006.mocap.utils.EntityData;
 import com.mt1006.mocap.utils.FakePlayer;
 import net.minecraft.core.Vec3i;
-import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
-import net.minecraft.network.syncher.EntityDataSerializers;
-import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
@@ -50,7 +46,7 @@ public class SetEntityFlags implements Action
 
 	@Override public int execute(PlayerList packetTargets, FakePlayer fakePlayer, Vec3i blockOffset)
 	{
-		packetTargets.broadcastAll(new EntityData<>(fakePlayer, EntityData.ENTITY_FLAGS, entityFlags).getPacket());
+		new EntityData<>(fakePlayer, EntityData.ENTITY_FLAGS, entityFlags).broadcastAll(packetTargets);
 		return RET_OK;
 	}
 }
