@@ -21,8 +21,8 @@ public class SceneData
 		{
 			if (resourceStack.contains(name))
 			{
-				Utils.sendFailure(commandSource, "mocap.commands.playing.start.error");
-				Utils.sendFailure(commandSource, "mocap.commands.playing.start.error.loop");
+				Utils.sendFailure(commandSource, "mocap.playing.start.error");
+				Utils.sendFailure(commandSource, "mocap.playing.start.error.loop");
 				resourceStack.push(name);
 				knownError = true;
 				return false;

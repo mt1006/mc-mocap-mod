@@ -6,7 +6,7 @@ import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
-import com.mt1006.mocap.DedicatedServerInitializer;
+import com.mt1006.mocap.IsDedicatedServer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.players.GameProfileCache;
@@ -29,7 +29,7 @@ public class ProfileUtils
 
 		if (profileCache == null || sessionService == null)
 		{
-			if (DedicatedServerInitializer.isDedicatedServer)
+			if (IsDedicatedServer.isDedicatedServer)
 			{
 				sessionService = server.getSessionService();
 				profileCache = server.getProfileCache();
