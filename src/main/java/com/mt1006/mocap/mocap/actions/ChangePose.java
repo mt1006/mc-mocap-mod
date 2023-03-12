@@ -21,16 +21,16 @@ public class ChangePose implements Action
 
 	public ChangePose(RecordingFile.Reader reader)
 	{
-		pose = switch (reader.readInt())
+		switch (reader.readInt())
 		{
-			default -> Pose.STANDING;
-			case 2 -> Pose.FALL_FLYING;
-			case 3 -> Pose.SLEEPING;
-			case 4 -> Pose.SWIMMING;
-			case 5 -> Pose.SPIN_ATTACK;
-			case 6 -> Pose.CROUCHING;
-			case 7 -> Pose.DYING;
-		};
+			default: pose = Pose.STANDING; break;
+			case 2: pose = Pose.FALL_FLYING; break;
+			case 3: pose = Pose.SLEEPING; break;
+			case 4: pose = Pose.SWIMMING; break;
+			case 5: pose = Pose.SPIN_ATTACK; break;
+			case 6: pose = Pose.CROUCHING; break;
+			case 7: pose = Pose.DYING; break;
+		}
 	}
 
 	public void write(RecordingFile.Writer writer, @Nullable PlayerActions actions)

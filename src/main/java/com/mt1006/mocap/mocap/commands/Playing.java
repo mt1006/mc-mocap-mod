@@ -26,7 +26,7 @@ public class Playing
 		if (!scene.start(commandSource, name, playerName, mineskinURL, getNextID())) { return 0; }
 		playedScenes.add(scene);
 
-		Utils.sendSuccess(commandSource, "mocap.commands.playing.start.success");
+		Utils.sendSuccess(commandSource, "mocap.playing.start.success");
 		return 1;
 	}
 
@@ -37,13 +37,13 @@ public class Playing
 			if (scene.getID() == id)
 			{
 				scene.stop();
-				Utils.sendSuccess(commandSource, "mocap.commands.playing.stop.success");
+				Utils.sendSuccess(commandSource, "mocap.playing.stop.success");
 				return;
 			}
 		}
 
-		Utils.sendFailure(commandSource, "mocap.commands.playing.stop.unable_to_find_scene");
-		Utils.sendFailure(commandSource, "mocap.commands.playing.stop.unable_to_find_scene.tip");
+		Utils.sendFailure(commandSource, "mocap.playing.stop.unable_to_find_scene");
+		Utils.sendFailure(commandSource, "mocap.playing.stop.unable_to_find_scene.tip");
 	}
 
 	public static int stopAll(@Nullable CommandContext<CommandSourceStack> ctx)
@@ -53,14 +53,14 @@ public class Playing
 			scene.stop();
 		}
 
-		if (ctx != null) { Utils.sendSuccess(ctx.getSource(), "mocap.commands.playing.stop_all.success"); }
+		if (ctx != null) { Utils.sendSuccess(ctx.getSource(), "mocap.playing.stop_all.success"); }
 		return 1;
 	}
 
 	public static int list(CommandContext<CommandSourceStack> ctx)
 	{
 		CommandSourceStack commandSource = ctx.getSource();
-		Utils.sendSuccess(ctx.getSource(), "mocap.commands.playing.list.playing");
+		Utils.sendSuccess(ctx.getSource(), "mocap.playing.list.playing");
 
 		for (PlayedScene scene : playedScenes)
 		{
