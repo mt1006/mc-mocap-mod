@@ -26,7 +26,7 @@ apply plugin: 'org.spongepowered.mixin'
 
 version = '1.2.1'
 group = 'com.mt1006.mocap'
-archivesBaseName = 'Mocap-FORGE-1.19.3'
+archivesBaseName = 'Mocap-FORGE-1.19.4'
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
@@ -34,7 +34,7 @@ println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty '
 
 minecraft
 {
-	mappings channel: 'official', version: '1.19.3'
+	mappings channel: 'official', version: '1.19.4'
 
 	runs
 	{
@@ -72,7 +72,7 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 dependencies
 {
-    minecraft 'net.minecraftforge:forge:1.19.3-44.0.41'
+    minecraft 'net.minecraftforge:forge:1.19.4-45.0.4'
 	annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 

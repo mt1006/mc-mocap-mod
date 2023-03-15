@@ -104,7 +104,7 @@ public class PlayedScene
 		offsetX = parent.offsetX + info.startPos[0];
 		offsetY = parent.offsetY + info.startPos[1];
 		offsetZ = parent.offsetZ + info.startPos[2];
-		blockOffset = new Vec3i(Math.round(offsetX), Math.round(offsetY), Math.round(offsetZ));
+		blockOffset = new Vec3i((int)Math.round(offsetX), (int)Math.round(offsetY), (int)Math.round(offsetZ));
 		startDelay = (int)Math.round(info.startDelay * 20.0);
 		playerName = info.playerName != null ? info.playerName : parent.playerName;
 		mineskinURL = info.mineskinURL != null ? info.mineskinURL : parent.mineskinURL;
