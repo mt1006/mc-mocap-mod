@@ -89,6 +89,8 @@ public class MocapCommand
 					then(Commands.literal("setBlockStates").executes(Settings::info).
 						then(Commands.argument("newValue", BoolArgumentType.bool()).executes(Settings::set))).
 					then(Commands.literal("allowMineskinRequests").executes(Settings::info).
+						then(Commands.argument("newValue", BoolArgumentType.bool()).executes(Settings::set))).
+					then(Commands.literal("canPushEntities").executes(Settings::info).
 						then(Commands.argument("newValue", BoolArgumentType.bool()).executes(Settings::set)))).
 				then(Commands.literal("info").executes(MocapCommand::info)).
 				then(Commands.literal("help").executes(MocapCommand::help)));

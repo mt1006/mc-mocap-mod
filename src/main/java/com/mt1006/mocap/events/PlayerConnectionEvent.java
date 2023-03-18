@@ -11,15 +11,16 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
-import java.util.IdentityHashMap;
-import java.util.Set;
+import java.util.*;
 
 @Mod.EventBusSubscriber(modid = MocapMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class PlayerConnectionEvent
 {
 	private static final int MAX_PLAYER_COUNT = 2048;
-	private static final Set<Player> players = Collections.newSetFromMap(new IdentityHashMap<>());
+	private static final int MAX_NOCOL_PLAYER_COUNT = 4096;
+
+	public static final Set<Player> players = Collections.newSetFromMap(new IdentityHashMap<>());
+	public static final Set<UUID> nocolPlayers = new HashSet<>();
 
 	@SubscribeEvent
 	public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent loggedInEvent)
@@ -27,7 +28,7 @@ public class PlayerConnectionEvent
 		Player player = loggedInEvent.getEntity();
 		if (!(player instanceof ServerPlayer)) { return; }
 
-		MocapPacketS2C.send((ServerPlayer)player, MocapPackets.CURRENT_VERSION);
+		MocapPacketS2C.send((ServerPlayer)player, MocapPacketS2C.ON_LOGIN, null);
 	}
 
 	@SubscribeEvent
@@ -43,8 +44,14 @@ public class PlayerConnectionEvent
 		players.removeIf(Entity::isRemoved);
 	}
 
-	public static boolean isInSet(Player player)
+	public static void addNocolPlayer(UUID uuid)
 	{
-		return players.contains(player);
+		if (nocolPlayers.size() >= MAX_NOCOL_PLAYER_COUNT) { return; }
+		nocolPlayers.add(uuid);
+	}
+
+	public static void removeNocolPlayer(UUID uuid)
+	{
+		nocolPlayers.remove(uuid);
 	}
 }

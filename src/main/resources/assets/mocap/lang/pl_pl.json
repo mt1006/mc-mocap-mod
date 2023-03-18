@@ -91,6 +91,7 @@
   "mocap.settings.info.about.playBlockActions": "§lO ustawieniu:§r Odtwarza stawianie, niszczenie i interakcje z blokami",
   "mocap.settings.info.about.setBlockStates": "§lO ustawieniu:§r Na początku odtwarzania ustawia stany bloków na te przed rozpoczęciem nagrywania",
   "mocap.settings.info.about.allowMineskinRequests": "§lO ustawieniu:§r Zezwala na żądania HTTPS do mineskin.org w celu załadowania skinów",
+  "mocap.settings.info.about.canPushEntities": "§lO ustawieniu:§r Sprawia, że odtwarzani gracze mogą popychać inne istoty",
   "mocap.settings.info.val": "§lObecna wartość:§r %s",
   "mocap.settings.info.def_val": "§lDomyślna wartość:§r %s",
 

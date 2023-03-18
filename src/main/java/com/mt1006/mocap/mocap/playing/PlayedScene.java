@@ -4,8 +4,10 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
+import com.mt1006.mocap.events.PlayerConnectionEvent;
 import com.mt1006.mocap.mocap.commands.Recording;
 import com.mt1006.mocap.mocap.commands.Settings;
+import com.mt1006.mocap.network.MocapPacketS2C;
 import com.mt1006.mocap.utils.*;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.Vec3i;
@@ -16,6 +18,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
@@ -178,6 +181,17 @@ public class PlayedScene
 		packetTargets.broadcastAll(new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER, fakePlayer));
 		packetTargets.broadcastAll(new ClientboundAddPlayerPacket(fakePlayer));
 
+		if (!Settings.CAN_PUSH_ENTITIES.val)
+		{
+			for (Player player : PlayerConnectionEvent.players)
+			{
+				if (!(player instanceof ServerPlayer)) { continue; }
+
+				MocapPacketS2C.send((ServerPlayer)player, MocapPacketS2C.NOCOL_PLAYER_ADD, fakePlayer.getUUID());
+				PlayerConnectionEvent.addNocolPlayer(fakePlayer.getUUID());
+			}
+		}
+
 		new EntityData<>(fakePlayer, EntityData.SET_SKIN_PARTS, (byte)0b01111111).broadcastAll(packetTargets);
 		return true;
 	}
@@ -187,6 +201,17 @@ public class PlayedScene
 		switch (type)
 		{
 			case RECORDING:
+				if (PlayerConnectionEvent.nocolPlayers.contains(fakePlayer.getUUID()))
+				{
+					for (Player player : PlayerConnectionEvent.players)
+					{
+						if (!(player instanceof ServerPlayer)) { continue; }
+
+						MocapPacketS2C.send((ServerPlayer)player, MocapPacketS2C.NOCOL_PLAYER_REMOVE, fakePlayer.getUUID());
+						PlayerConnectionEvent.removeNocolPlayer(fakePlayer.getUUID());
+					}
+				}
+
 				packetTargets.broadcastAll(new ClientboundPlayerInfoRemovePacket(ImmutableList.of(fakePlayer.getUUID())));
 				fakePlayer.remove(Entity.RemovalReason.UNLOADED_WITH_PLAYER);
 				break;

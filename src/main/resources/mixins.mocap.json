@@ -6,6 +6,7 @@
   [
     "EntityMixin",
     "LivingEntityMixin",
+    "LivingEntityMixin2",
     "PlayerMixin"
   ],
   "injectors": { "defaultRequire": 1 },

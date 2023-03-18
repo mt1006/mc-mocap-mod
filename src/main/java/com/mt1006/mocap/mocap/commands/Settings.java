@@ -22,6 +22,7 @@ public class Settings
 	public static final Setting<Boolean> PLAY_BLOCK_ACTIONS = new Setting<>("playBlockActions", true);
 	public static final Setting<Boolean> SET_BLOCK_STATES = new Setting<>("setBlockStates", true);
 	public static final Setting<Boolean> ALLOW_MINESKIN_REQUESTS = new Setting<>("allowMineskinRequests", true);
+	public static final Setting<Boolean> CAN_PUSH_ENTITIES = new Setting<>("canPushEntities", true);
 	public static Map<String, Setting<?>> settingsMap = new LinkedHashMap<>();
 	public static boolean loaded = false;
 
@@ -32,6 +33,7 @@ public class Settings
 		settingsMap.put(PLAY_BLOCK_ACTIONS.name, PLAY_BLOCK_ACTIONS);
 		settingsMap.put(SET_BLOCK_STATES.name, SET_BLOCK_STATES);
 		settingsMap.put(ALLOW_MINESKIN_REQUESTS.name, ALLOW_MINESKIN_REQUESTS);
+		settingsMap.put(CAN_PUSH_ENTITIES.name, CAN_PUSH_ENTITIES);
 
 		for (Setting<?> setting : settingsMap.values())
 		{

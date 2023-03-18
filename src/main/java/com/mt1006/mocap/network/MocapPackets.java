@@ -11,7 +11,7 @@ public class MocapPackets
 	private static final String PROTOCOL_VERSION = "1";
 	public static final SimpleChannel INSTANCE = NetworkRegistry.newSimpleChannel(
 			new ResourceLocation(MocapMod.MOD_ID, "main"), () -> PROTOCOL_VERSION, (str) -> true, (str) -> true);
-	public static final int CURRENT_VERSION = 1;
+	public static final int CURRENT_VERSION = 2;
 
 	public static void register()
 	{

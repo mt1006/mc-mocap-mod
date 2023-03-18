@@ -84,6 +84,6 @@ public class Utils
 	private static boolean supportsTranslatable(@Nullable Entity entity)
 	{
 		if (entity == null) { return false; }
-		return entity instanceof Player && PlayerConnectionEvent.isInSet((Player)entity);
+		return entity instanceof Player && PlayerConnectionEvent.players.contains((Player)entity);
 	}
 }

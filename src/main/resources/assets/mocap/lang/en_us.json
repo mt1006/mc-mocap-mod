@@ -91,6 +91,7 @@
   "mocap.settings.info.about.playBlockActions": "§lAbout:§r Plays back placing, destroying, and interacting with blocks",
   "mocap.settings.info.about.setBlockStates": "§lAbout:§r At the playback start sets block states to those before the start of recording",
   "mocap.settings.info.about.allowMineskinRequests": "§lAbout:§r Allows HTTPS requests to mineskin.org to load skins",
+  "mocap.settings.info.about.canPushEntities": "§lAbout:§r Makes fake players push other entities",
   "mocap.settings.info.val": "§lCurrent value:§r %s",
   "mocap.settings.info.def_val": "§lDefault value:§r %s",
 
