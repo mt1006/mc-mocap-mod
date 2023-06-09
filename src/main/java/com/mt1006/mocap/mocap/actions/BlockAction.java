@@ -36,7 +36,7 @@ public interface BlockAction extends Action
 		public void place(FakePlayer fakePlayer, BlockPos blockPos)
 		{
 			BlockState blockState = Block.stateById(blockID);
-			Level level = fakePlayer.level;
+			Level level = fakePlayer.level();
 
 			level.setBlock(blockPos, blockState, 3);
 
@@ -47,7 +47,7 @@ public interface BlockAction extends Action
 
 		public void placeSilently(FakePlayer fakePlayer, BlockPos blockPos)
 		{
-			fakePlayer.level.setBlock(blockPos, Block.stateById(blockID), 3);
+			fakePlayer.level().setBlock(blockPos, Block.stateById(blockID), 3);
 		}
 	}
 }

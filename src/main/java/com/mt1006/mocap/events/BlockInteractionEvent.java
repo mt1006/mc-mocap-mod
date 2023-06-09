@@ -56,7 +56,7 @@ public class BlockInteractionEvent
 	private static boolean usedOnShift(Player player, BlockPos blockPos)
 	{
 		return player.isSecondaryUseActive() && (!player.getMainHandItem().isEmpty() || !player.getOffhandItem().isEmpty()) &&
-				!(player.getMainHandItem().doesSneakBypassUse(player.level, blockPos, player) &&
-						player.getOffhandItem().doesSneakBypassUse(player.level, blockPos, player));
+				!(player.getMainHandItem().doesSneakBypassUse(player.level(), blockPos, player) &&
+						player.getOffhandItem().doesSneakBypassUse(player.level(), blockPos, player));
 	}
 }

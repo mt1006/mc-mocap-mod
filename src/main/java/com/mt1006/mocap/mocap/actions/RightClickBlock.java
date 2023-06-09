@@ -81,10 +81,10 @@ public class RightClickBlock implements BlockAction
 
 	@Override public int execute(PlayerList packetTargets, FakePlayer fakePlayer, Vec3i blockOffset)
 	{
-		BlockState blockState = fakePlayer.level.getBlockState(blockHitResult.getBlockPos().offset(blockOffset));
+		BlockState blockState = fakePlayer.level().getBlockState(blockHitResult.getBlockPos().offset(blockOffset));
 		InteractionHand interactionHand = offHand ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
 
-		blockState.use(fakePlayer.level, fakePlayer, interactionHand, blockHitResult);
+		blockState.use(fakePlayer.level(), fakePlayer, interactionHand, blockHitResult);
 		return RET_OK;
 	}
 }

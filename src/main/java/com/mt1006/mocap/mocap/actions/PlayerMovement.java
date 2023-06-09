@@ -28,7 +28,7 @@ public class PlayerMovement implements Action
 		rotation[0] = player.getXRot();
 		rotation[1] = player.getYRot();
 
-		isOnGround = player.isOnGround();
+		isOnGround = player.onGround();
 	}
 
 	public PlayerMovement(RecordingFile.Reader reader)
