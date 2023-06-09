@@ -42,7 +42,7 @@ public class BreakBlock implements BlockAction
 
 	@Override public int execute(PlayerList packetTargets, FakePlayer fakePlayer, Vec3i blockOffset)
 	{
-		fakePlayer.level.destroyBlock(blockPos.offset(blockOffset), false, fakePlayer);
+		fakePlayer.level().destroyBlock(blockPos.offset(blockOffset), false, fakePlayer);
 		return RET_OK;
 	}
 }

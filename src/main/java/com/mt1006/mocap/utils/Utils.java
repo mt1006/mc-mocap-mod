@@ -41,17 +41,17 @@ public class Utils
 
 	public static void sendSuccess(CommandSourceStack commandSource, String component, Object... args)
 	{
-		commandSource.sendSuccess(getTranslatableComponent(commandSource.getEntity(), component, args), false);
+		commandSource.sendSuccess(() -> getTranslatableComponent(commandSource.getEntity(), component, args), false);
 	}
 
 	public static void sendSuccessLiteral(CommandSourceStack commandSource, String format, Object... args)
 	{
-		commandSource.sendSuccess(Component.literal(String.format(format, args)), false);
+		commandSource.sendSuccess(() -> Component.literal(String.format(format, args)), false);
 	}
 
 	public static void sendSuccessComponent(CommandSourceStack commandSource, Component component)
 	{
-		commandSource.sendSuccess(component, false);
+		commandSource.sendSuccess(() -> component, false);
 	}
 
 	public static void sendFailure(CommandSourceStack commandSource, String component, Object... args)
