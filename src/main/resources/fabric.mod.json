@@ -1,38 +1,36 @@
 {
-  "schemaVersion": 1,
-  "id": "mocap",
-  "version": "${version}",
+	"schemaVersion": 1,
+	"id": "mocap",
+	"version": "${version}",
 
-  "name": "Motion Capture Mod (mocap)",
-  "description": "Allows you to record and replay player movements",
-  "authors": [
-    "mt1006 (mt1006x)"
-  ],
-  "contact": {
-    "sources": "https://github.com/mt1006/mc-mocap-mod",
-    "issues": "https://github.com/mt1006/mc-mocap-mod/issues"
-  },
+	"name": "Motion Capture Mod (mocap)",
+	"description": "Allows you to record and replay player movements",
+	"authors": ["mt1006 (mt1006x)"],
+	"contact":
+	{
+		"sources": "https://github.com/mt1006/mc-mocap-mod",
+		"issues": "https://github.com/mt1006/mc-mocap-mod/issues"
+	},
 
-  "license": "GNU Lesser General Public License v3.0",
-  "icon": "assets/mocap/logo.png",
+	"license": "GNU Lesser General Public License v3.0",
+	"icon": "assets/mocap/logo.png",
 
-  "environment": "*",
-  "entrypoints": {
-    "main": [
-      "com.mt1006.mocap.MocapMod"
-    ]
-  },
-  "mixins": [
-    "mocap.mixins.json"
-  ],
+	"environment": "*",
+	"entrypoints":
+	{
+		"main": ["com.mt1006.mocap.MocapMod"]
+	},
+	"mixins": ["mocap.mixins.json"],
 
-  "depends": {
-    "fabricloader": ">=0.14.21",
-    "fabric-api": "*",
-    "minecraft": "~1.20",
-    "java": ">=17"
-  },
-  "suggests": {
-    "another-mod": "*"
-  }
+	"depends":
+	{
+		"fabricloader": ">=0.14.21",
+		"fabric-api": "*",
+		"minecraft": "~1.20",
+		"java": ">=17"
+	},
+	"suggests":
+	{
+		"another-mod": "*"
+	}
 }
