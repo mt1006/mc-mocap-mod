@@ -19,13 +19,14 @@ CurseForge page: https://www.curseforge.com/minecraft/mc-mods/motion-capture-mod
 - Then, you can stop recording using ```/mocap recording stop``` and save it with ```/mocap recording save <name>```.
 - Use ```/mocap playing start <name>``` to play recording.
 - You can also create scenes to which you can add multiple recordings or other scenes, with parameters like player name, position offset, or start delay.
-- To create scene use ```/mocap scenes add <scene_name>```. Then, add your recording using ```/mocap scenes addTo <scene_name> <recording_name> [delay] [x_offset] [y_offset] [z_offset] [player_name]``` (you can skip arguments in square brackets if you want).
+- To create scene use ```/mocap scenes add <scene_name>```. Then, add your recording using ```/mocap scenes addTo <scene_name> <recording_name> [delay] [x_offset] [y_offset] [z_offset] [player_name] [skin_source_type] [skin_source]``` (you can skip arguments in square brackets if you want).
 - To play scene use ```/mocap playing start .<scene_name>``` - you need to put a dot before the scene name.
 - By putting a dot before name, when using ```/mocap scenes addTo (...)```, you can also add scenes to other scenes.
 
 ### Commands
 ```
 /mocap recording [...] - Recording player movements
+/mocap recordings [...] - Managing recording files
 /mocap scenes [...] - Creating and modifying scenes
 /mocap playing [...] - Playing scenes and recordings
 /mocap settings [...] - Shows and modifies settings

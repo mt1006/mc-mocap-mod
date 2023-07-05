@@ -1,3 +1,35 @@
+===Version 1.3===
+-Changes to command structure - split "/mocap recording" into "recording" and "recordings".
+-Added commands to rename, copy and get information about recordings and scenes.
+-Added commands to modify and get information about scene elements.
+-Skins can now be set from another player (without changing fake player name) or from a local file (proposed by Live_CK).
+-Player model can now be swapped with the other entity by editing scene element (proposed by cucurbito).
+-Entities other than player are now recorded.
+-Player riding other entity is now properly recorded (mentioned by Snownee, M7MEDpro, Afirmaran1010, erixon_07).
+-Hurting player or other entities is now recorded.
+-Player death is now recorded.
+-Placing double blocks (like beds or doors) is now properly recorded.
+-Block destroying progress is now recorded.
+-Arrow and bee stinger count are now recorded.
+-Potion effects are now recorded.
+-Sleeping is now properly recorded.
+-Added option to make fake player not collide with other entities (proposed by Snownee).
+-Added suggestions for recording and scene names in commands.
+-Added setting "trackVehicleEntities" which enables tracking vehicle entities (enabled by default).
+-Added setting "trackItemEntities" which enables tracking item (enabled by default).
+-Added setting "trackOtherEntities" which enables tracking entities other than vehicles and items (disabled by default).
+-Added setting "trackPlayedEntities" which enables tracking entities that are currently played (disabled by default).
+-Added settings "playVehicleEntities", "playItemEntities" and "playOtherEntities" which are counterparts of "track..." settings but for playback (all are enabled by default).
+-Added setting "entityTrackingDistance" which controls entity tracking distance (128 by default, the number represents the distance from the player in blocks, 0 disables tracking and -1 disables limit).
+-Added setting "entitiesAfterPlayback" which determines what will happen with entities after playback (1 by default, -1 - will be released as a normal entity, 0 - will be left untouched, 1 - will be removed, 2 - will be killed with animation).
+-Added setting "preventSavingEntities" which prevents game from saving played entities in case of for example leaving game (enabled by default).
+-Added setting "dropFromBlocks" which enables drop from blocks (disabled by default - recommended with "playItemEntities" disabled to prevent duplicates).
+-Added setting "useCreativeGameMode" which sets fake players game mode to creative therefore making monsters ignore then (disabled by default).
+-Added setting "recordPlayerDeath" (enabled by default).
+-Fixed message about recording start being sent to recorded player instead of player who started recording.
+-Updated help message.
+-Stack trace of some non-critical, unknown exceptions is now logged.
+
 ===Version 1.2.1===
 -Fixed a compatibility issue causing skin top layer not being visible (thanks KlashRaick, JLUsr and efi1212 for reporting).
 -Fixed fake players not being removed from the server level causing memory leaks, performance issues, strange mob behaviour, problems with placing blocks, blocks staying activated and probably many other bad things (thanks KlashRaick for reporting).
@@ -11,7 +43,7 @@
 -Added setting "allowMineskinRequests" which by default is enabled and allows HTTPS requests to mineskin.org to load skins.
 -Added optional argument "mineskinURL" to "/mocap scenes addTo" that can be used to set skin from the mineskin.org URL.
 -Added optional arguments "playerName" and "mineskinURL" to "/mocap playing start".
--Removed "startPos" optional argument from "/mocap playing start" (it didn't work anyway)
+-Removed "startPos" optional argument from "/mocap playing start" (it didn't work anyway).
 -Item enchantments are now recorded.
 -Using off-hand item or trident with riptide enchantment is now properly recorded.
 -Fake players can now interact with pressure plates and tripwires.

@@ -12,7 +12,7 @@ public class RegisterCommand
 	@SubscribeEvent
 	public static void registerCommands(RegisterCommandsEvent event)
 	{
-		MocapCommand.register(event.getDispatcher());
+		MocapCommand.register(event.getDispatcher(), event.getBuildContext());
 		ConfigCommand.register(event.getDispatcher());
 	}
 }

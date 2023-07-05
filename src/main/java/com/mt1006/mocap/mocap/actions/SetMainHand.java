@@ -1,46 +1,54 @@
 package com.mt1006.mocap.mocap.actions;
 
-import com.mt1006.mocap.mocap.files.RecordingFile;
-import com.mt1006.mocap.mocap.playing.PlayerActions;
+import com.mt1006.mocap.mocap.files.RecordingFiles;
+import com.mt1006.mocap.mocap.playing.PlayingContext;
 import com.mt1006.mocap.utils.EntityData;
-import com.mt1006.mocap.utils.FakePlayer;
-import net.minecraft.core.Vec3i;
-import net.minecraft.server.players.PlayerList;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
-public class SetMainHand implements Action
+public class SetMainHand implements ComparableAction
 {
 	private final byte mainHand;
 
-	public SetMainHand(Player player)
+	public SetMainHand(Entity entity)
 	{
-		if (player.getMainArm() == HumanoidArm.LEFT) { mainHand = 0; }
-		else { mainHand = 1; }
+		if (entity instanceof LivingEntity)
+		{
+			if (((LivingEntity)entity).getMainArm() == HumanoidArm.LEFT) { mainHand = 0; }
+			else { mainHand = 1; }
+		}
+		else
+		{
+			mainHand = 1;
+		}
 	}
 
-	public SetMainHand(RecordingFile.Reader reader)
+	public SetMainHand(RecordingFiles.Reader reader)
 	{
 		mainHand = reader.readByte();
 	}
 
-	public void write(RecordingFile.Writer writer, @Nullable PlayerActions actions)
+	@Override public boolean differs(ComparableAction action)
 	{
-		if (!differs(actions)) { return; }
-		writer.addByte(SET_MAIN_HAND);
+		return mainHand != ((SetMainHand)action).mainHand;
+	}
+
+	@Override public void write(RecordingFiles.Writer writer, @Nullable ComparableAction action)
+	{
+		if (action != null && !differs(action)) { return; }
+		writer.addByte(Type.SET_MAIN_HAND.id);
 		writer.addByte(mainHand);
 	}
 
-	public boolean differs(@Nullable PlayerActions actions)
+	@Override public Result execute(PlayingContext ctx)
 	{
-		if (actions == null) { return true; }
-		return mainHand != actions.setMainHand.mainHand;
-	}
-
-	@Override public int execute(PlayerList packetTargets, FakePlayer fakePlayer, Vec3i blockOffset)
-	{
-		new EntityData<>(fakePlayer, EntityData.SET_MAIN_HAND, mainHand).broadcastAll(packetTargets);
-		return RET_OK;
+		if (ctx.entity instanceof Player) { new EntityData(ctx.entity, EntityData.PLAYER_MAIN_HAND, mainHand).broadcast(ctx); }
+		else if (ctx.entity instanceof Mob) { ((Mob)ctx.entity).setLeftHanded(mainHand == 0); }
+		else { return Result.IGNORED; }
+		return Result.OK;
 	}
 }
