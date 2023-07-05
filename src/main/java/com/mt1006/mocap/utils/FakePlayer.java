@@ -34,14 +34,11 @@ public class FakePlayer extends ServerPlayerEntity
 		this.connection = new FakePlayerNetHandler(level.getServer(), this);
 	}
 
-	@Override public void checkInsideBlocks() { super.checkInsideBlocks(); }
 	@Override public Entity changeDimension(ServerWorld level) { return null; }
 
 	@Override public void displayClientMessage(ITextComponent chatComponent, boolean actionBar) { }
 	@Override public void sendMessage(ITextComponent component, UUID senderUUID) { }
 	@Override public void awardStat(Stat par1StatBase, int par2) { }
-	@Override public boolean isInvulnerableTo(DamageSource source) { return true; }
-	@Override public boolean canHarmPlayer(PlayerEntity player) { return false; }
 	@Override public void die(DamageSource source) { }
 	@Override public void tick() { }
 	@Override public void updateOptions(CClientSettingsPacket pkt) { }

@@ -6,16 +6,13 @@ import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
-import com.mt1006.mocap.IsDedicatedServer;
+import com.mt1006.mocap.MocapMod;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerProfileCache;
 
 import java.io.File;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class ProfileUtils
 {
@@ -28,14 +25,11 @@ public class ProfileUtils
 
 	public static GameProfile getGameProfile(MinecraftServer server, String playerName)
 	{
-		if (playerName != null && gameProfileCache.containsKey(playerName))
-		{
-			return gameProfileCache.get(playerName);
-		}
+		if (gameProfileCache.containsKey(playerName)) { return gameProfileCache.get(playerName); }
 
 		if (profileCache == null || sessionService == null)
 		{
-			if (IsDedicatedServer.isDedicatedServer)
+			if (MocapMod.isDedicatedServer)
 			{
 				sessionService = server.getSessionService();
 				profileCache = server.getProfileCache();

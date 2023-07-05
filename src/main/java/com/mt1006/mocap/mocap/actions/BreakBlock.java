@@ -1,9 +1,10 @@
 package com.mt1006.mocap.mocap.actions;
 
-import com.mt1006.mocap.mocap.files.RecordingFile;
-import com.mt1006.mocap.utils.FakePlayer;
+import com.mt1006.mocap.mocap.files.RecordingFiles;
+import com.mt1006.mocap.mocap.playing.PlayingContext;
+import com.mt1006.mocap.mocap.settings.Settings;
 import net.minecraft.block.BlockState;
-import net.minecraft.server.management.PlayerList;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3i;
 
@@ -18,15 +19,15 @@ public class BreakBlock implements BlockAction
 		this.blockPos = blockPos;
 	}
 
-	public BreakBlock(RecordingFile.Reader reader)
+	public BreakBlock(RecordingFiles.Reader reader)
 	{
 		previousBlockState = new BlockStateData(reader);
 		blockPos = new BlockPos(reader.readInt(), reader.readInt(), reader.readInt());
 	}
 
-	public void write(RecordingFile.Writer writer)
+	public void write(RecordingFiles.Writer writer)
 	{
-		writer.addByte(BREAK_BLOCK);
+		writer.addByte(Type.BREAK_BLOCK.id);
 
 		previousBlockState.write(writer);
 
@@ -35,14 +36,14 @@ public class BreakBlock implements BlockAction
 		writer.addInt(blockPos.getZ());
 	}
 
-	@Override public void preExecute(FakePlayer fakePlayer, Vector3i blockOffset)
+	@Override public void preExecute(Entity entity, Vector3i blockOffset)
 	{
-		previousBlockState.placeSilently(fakePlayer, blockPos.offset(blockOffset));
+		previousBlockState.placeSilently(entity, blockPos.offset(blockOffset));
 	}
 
-	@Override public int execute(PlayerList packetTargets, FakePlayer fakePlayer, Vector3i blockOffset)
+	@Override public Result execute(PlayingContext ctx)
 	{
-		fakePlayer.level.destroyBlock(blockPos.offset(blockOffset), false, fakePlayer);
-		return RET_OK;
+		ctx.level.destroyBlock(blockPos.offset(ctx.blockOffset), Settings.DROP_FROM_BLOCKS.val);
+		return Result.OK;
 	}
 }

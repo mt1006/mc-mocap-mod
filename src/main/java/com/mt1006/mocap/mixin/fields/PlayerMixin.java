@@ -1,4 +1,4 @@
-package com.mt1006.mocap.mixin;
+package com.mt1006.mocap.mixin.fields;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.datasync.DataParameter;

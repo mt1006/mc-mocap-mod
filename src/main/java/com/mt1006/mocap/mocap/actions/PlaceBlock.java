@@ -1,9 +1,9 @@
 package com.mt1006.mocap.mocap.actions;
 
-import com.mt1006.mocap.mocap.files.RecordingFile;
-import com.mt1006.mocap.utils.FakePlayer;
+import com.mt1006.mocap.mocap.files.RecordingFiles;
+import com.mt1006.mocap.mocap.playing.PlayingContext;
 import net.minecraft.block.BlockState;
-import net.minecraft.server.management.PlayerList;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3i;
 
@@ -20,16 +20,16 @@ public class PlaceBlock implements BlockAction
 		this.blockPos = blockPos;
 	}
 
-	public PlaceBlock(RecordingFile.Reader reader)
+	public PlaceBlock(RecordingFiles.Reader reader)
 	{
 		previousBlockState = new BlockStateData(reader);
 		newBlockState = new BlockStateData(reader);
 		blockPos = new BlockPos(reader.readInt(), reader.readInt(), reader.readInt());
 	}
 
-	public void write(RecordingFile.Writer writer)
+	public void write(RecordingFiles.Writer writer)
 	{
-		writer.addByte(PLACE_BLOCK);
+		writer.addByte(Type.PLACE_BLOCK.id);
 
 		previousBlockState.write(writer);
 		newBlockState.write(writer);
@@ -39,14 +39,14 @@ public class PlaceBlock implements BlockAction
 		writer.addInt(blockPos.getZ());
 	}
 
-	@Override public void preExecute(FakePlayer fakePlayer, Vector3i blockOffset)
+	@Override public void preExecute(Entity entity, Vector3i blockOffset)
 	{
-		previousBlockState.placeSilently(fakePlayer, blockPos.offset(blockOffset));
+		previousBlockState.placeSilently(entity, blockPos.offset(blockOffset));
 	}
 
-	@Override public int execute(PlayerList packetTargets, FakePlayer fakePlayer, Vector3i blockOffset)
+	@Override public Result execute(PlayingContext ctx)
 	{
-		newBlockState.place(fakePlayer, blockPos.offset(blockOffset));
-		return RET_OK;
+		newBlockState.place(ctx.entity, blockPos.offset(ctx.blockOffset));
+		return Result.OK;
 	}
 }

@@ -1,53 +1,61 @@
 package com.mt1006.mocap.mocap.actions;
 
-import com.mt1006.mocap.mocap.files.RecordingFile;
-import com.mt1006.mocap.mocap.playing.PlayerActions;
-import com.mt1006.mocap.utils.FakePlayer;
-import net.minecraft.entity.player.PlayerEntity;
+import com.mt1006.mocap.mocap.files.RecordingFiles;
+import com.mt1006.mocap.mocap.playing.PlayingContext;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.network.play.server.SAnimateHandPacket;
-import net.minecraft.server.management.PlayerList;
 import net.minecraft.util.Hand;
-import net.minecraft.util.math.vector.Vector3i;
 import org.jetbrains.annotations.Nullable;
 
-public class Swing implements Action
+public class Swing implements ComparableAction
 {
 	private final boolean swinging;
 	private final int swingingTime;
 	private final boolean offHand;
 
-	public Swing(PlayerEntity player)
+	public Swing(Entity entity)
 	{
-		swinging = player.swinging;
-		swingingTime = player.swingTime;
-		offHand = player.swingingArm == Hand.OFF_HAND;
+		if (entity instanceof LivingEntity)
+		{
+			LivingEntity livingEntity = (LivingEntity)entity;
+			swinging = livingEntity.swinging;
+			swingingTime = livingEntity.swingTime;
+			offHand = livingEntity.swingingArm == Hand.OFF_HAND;
+		}
+		else
+		{
+			swinging = false;
+			swingingTime = 0;
+			offHand = false;
+		}
 	}
 
-	public Swing(RecordingFile.Reader reader)
+	public Swing(RecordingFiles.Reader reader)
 	{
 		swinging = true;
 		swingingTime = 0;
 		offHand = reader.readBoolean();
 	}
 
-	public void write(RecordingFile.Writer writer, @Nullable PlayerActions actions)
+	@Override public boolean differs(ComparableAction action)
 	{
-		if (swinging && (actions == null || !actions.swing.swinging || actions.swing.swingingTime > swingingTime))
+		return swinging != ((Swing)action).swinging;
+	}
+
+	@Override public void write(RecordingFiles.Writer writer, @Nullable ComparableAction action)
+	{
+		if (swinging && (action == null || !((Swing)action).swinging || ((Swing)action).swingingTime > swingingTime))
 		{
-			writer.addByte(SWING);
+			writer.addByte(Type.SWING.id);
 			writer.addBoolean(offHand);
 		}
 	}
 
-	public boolean differs(@Nullable PlayerActions actions)
+	@Override public Result execute(PlayingContext ctx)
 	{
-		if (actions == null) { return true; }
-		return swinging != actions.swing.swinging;
-	}
-
-	@Override public int execute(PlayerList packetTargets, FakePlayer fakePlayer, Vector3i blockOffset)
-	{
-		packetTargets.broadcastAll(new SAnimateHandPacket(fakePlayer, offHand ? 3 : 0));
-		return RET_OK;
+		if (!(ctx.entity instanceof LivingEntity)) { return Result.IGNORED; } //TODO: check if check not present
+		ctx.broadcast(new SAnimateHandPacket(ctx.entity, offHand ? 3 : 0));
+		return Result.OK;
 	}
 }

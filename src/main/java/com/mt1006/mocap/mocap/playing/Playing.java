@@ -1,7 +1,6 @@
-package com.mt1006.mocap.mocap.commands;
+package com.mt1006.mocap.mocap.playing;
 
-import com.mojang.brigadier.context.CommandContext;
-import com.mt1006.mocap.mocap.playing.PlayedScene;
+import com.mt1006.mocap.mocap.settings.Settings;
 import com.mt1006.mocap.utils.Utils;
 import net.minecraft.command.CommandSource;
 import org.jetbrains.annotations.Nullable;
@@ -13,17 +12,18 @@ import java.util.List;
 
 public class Playing
 {
-	private static final List<PlayedScene> playedScenes = Collections.synchronizedList(new LinkedList<>());
+	public static final String MOCAP_ENTITY_TAG = "mocap_entity";
+	public static final List<PlayedScene> playedScenes = Collections.synchronizedList(new LinkedList<>());
 	private static long tickCounter = 0;
 	private static double timer = 0.0;
 	private static double previousPlayingSpeed = 0.0;
 
-	public static int start(CommandSource commandSource, String name, String playerName, String mineskinURL)
+	public static int start(CommandSource commandSource, String name, PlayerData playerData)
 	{
 		if (!Settings.loaded) { Settings.load(commandSource); }
 
 		PlayedScene scene = new PlayedScene();
-		if (!scene.start(commandSource, name, playerName, mineskinURL, getNextID())) { return 0; }
+		if (!scene.start(commandSource, name, playerData, getNextID())) { return 0; }
 		playedScenes.add(scene);
 
 		Utils.sendSuccess(commandSource, "mocap.playing.start.success");
@@ -46,27 +46,22 @@ public class Playing
 		Utils.sendFailure(commandSource, "mocap.playing.stop.unable_to_find_scene.tip");
 	}
 
-	public static int stopAll(@Nullable CommandContext<CommandSource> ctx)
+	public static boolean stopAll(@Nullable CommandSource commandSource)
 	{
-		for (PlayedScene scene : playedScenes)
-		{
-			scene.stop();
-		}
-
-		if (ctx != null) { Utils.sendSuccess(ctx.getSource(), "mocap.playing.stop_all.success"); }
-		return 1;
+		playedScenes.forEach(PlayedScene::stop);
+		if (commandSource != null) { Utils.sendSuccess(commandSource, "mocap.playing.stop_all.success"); }
+		return true;
 	}
 
-	public static int list(CommandContext<CommandSource> ctx)
+	public static boolean list(CommandSource commandSource)
 	{
-		CommandSource commandSource = ctx.getSource();
-		Utils.sendSuccess(ctx.getSource(), "mocap.playing.list.playing");
+		Utils.sendSuccess(commandSource, "mocap.playing.list");
 
 		for (PlayedScene scene : playedScenes)
 		{
 			Utils.sendSuccessLiteral(commandSource, "[%d] %s", scene.getID(), scene.getName());
 		}
-		return 1;
+		return true;
 	}
 
 	public static void onTick()
@@ -87,7 +82,7 @@ public class Playing
 
 				for (PlayedScene scene : playedScenes)
 				{
-					if (scene.finished) { toRemove.add(scene); }
+					if (scene.isFinished()) { toRemove.add(scene); }
 					else { scene.onTick(); }
 				}
 
@@ -97,7 +92,6 @@ public class Playing
 				timer += 1.0 / Settings.PLAYING_SPEED.val;
 			}
 		}
-
 		tickCounter++;
 	}
 

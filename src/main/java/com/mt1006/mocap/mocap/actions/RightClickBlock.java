@@ -1,9 +1,11 @@
 package com.mt1006.mocap.mocap.actions;
 
-import com.mt1006.mocap.mocap.files.RecordingFile;
-import com.mt1006.mocap.utils.FakePlayer;
+import com.mt1006.mocap.mocap.files.RecordingFiles;
+import com.mt1006.mocap.mocap.playing.PlayingContext;
+import net.minecraft.block.BedBlock;
 import net.minecraft.block.BlockState;
-import net.minecraft.server.management.PlayerList;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
@@ -22,7 +24,7 @@ public class RightClickBlock implements BlockAction
 		this.offHand = offHand;
 	}
 
-	public RightClickBlock(RecordingFile.Reader reader)
+	public RightClickBlock(RecordingFiles.Reader reader)
 	{
 		Vector3d pos = new Vector3d(reader.readDouble(), reader.readDouble(), reader.readDouble());
 		BlockPos blockPos = new BlockPos(reader.readInt(), reader.readInt(), reader.readInt());
@@ -31,24 +33,6 @@ public class RightClickBlock implements BlockAction
 
 		blockHitResult = new BlockRayTraceResult(pos, direction, blockPos, inside);
 		offHand = reader.readBoolean();
-	}
-
-	public void write(RecordingFile.Writer writer)
-	{
-		writer.addByte(RIGHT_CLICK_BLOCK);
-
-		writer.addDouble(blockHitResult.getLocation().x);
-		writer.addDouble(blockHitResult.getLocation().y);
-		writer.addDouble(blockHitResult.getLocation().z);
-
-		writer.addInt(blockHitResult.getBlockPos().getX());
-		writer.addInt(blockHitResult.getBlockPos().getY());
-		writer.addInt(blockHitResult.getBlockPos().getZ());
-
-		writer.addByte(directionToByte(blockHitResult.getDirection()));
-		writer.addBoolean(blockHitResult.isInside());
-
-		writer.addBoolean(offHand);
 	}
 
 	private Direction directionFromByte(byte val)
@@ -77,14 +61,35 @@ public class RightClickBlock implements BlockAction
 		}
 	}
 
-	@Override public void preExecute(FakePlayer fakePlayer, Vector3i blockOffset) {}
-
-	@Override public int execute(PlayerList packetTargets, FakePlayer fakePlayer, Vector3i blockOffset)
+	public void write(RecordingFiles.Writer writer)
 	{
-		BlockState blockState = fakePlayer.level.getBlockState(blockHitResult.getBlockPos().offset(blockOffset));
+		writer.addByte(Type.RIGHT_CLICK_BLOCK.id);
+
+		writer.addDouble(blockHitResult.getLocation().x);
+		writer.addDouble(blockHitResult.getLocation().y);
+		writer.addDouble(blockHitResult.getLocation().z);
+
+		writer.addInt(blockHitResult.getBlockPos().getX());
+		writer.addInt(blockHitResult.getBlockPos().getY());
+		writer.addInt(blockHitResult.getBlockPos().getZ());
+
+		writer.addByte(directionToByte(blockHitResult.getDirection()));
+		writer.addBoolean(blockHitResult.isInside());
+
+		writer.addBoolean(offHand);
+	}
+
+	@Override public void preExecute(Entity entity, Vector3i blockOffset) {}
+
+	@Override public Result execute(PlayingContext ctx)
+	{
+		if (!(ctx.entity instanceof PlayerEntity)) { return Result.IGNORED; }
+
+		BlockState blockState = ctx.level.getBlockState(blockHitResult.getBlockPos().offset(ctx.blockOffset));
 		Hand interactionHand = offHand ? Hand.OFF_HAND : Hand.MAIN_HAND;
 
-		blockState.use(fakePlayer.level, fakePlayer, interactionHand, blockHitResult);
-		return RET_OK;
+		if (blockState.getBlock() instanceof BedBlock) { return Result.OK; }
+		blockState.use(ctx.level, (PlayerEntity)ctx.entity, interactionHand, blockHitResult);
+		return Result.OK;
 	}
 }

@@ -4,9 +4,24 @@
   "compatibilityLevel": "JAVA_8",
   "mixins":
   [
-    "EntityMixin",
-    "LivingEntityMixin",
-    "PlayerMixin"
+    "LivingEntityMethodMixin",
+    "ServerLevelMixin",
+    "SkinManagerMixin",
+    "fields.EntityMixin",
+    "fields.LivingEntityMixin",
+    "fields.PlayerMixin",
+    "fields.AbstractHorseMixin",
+    "fields.LlamaMixin",
+    "fields.PigMixin",
+    "fields.BoatMixin",
+    "fields.HorseMixin",
+    "fields.ServerLevelEntitiesMixin"
+  ],
+  "client":
+  [
+    "CommandSuggestionsMixin",
+    "AbstractClientPlayerMixin",
+    "fields.PlayerInfoMixin"
   ],
   "injectors": { "defaultRequire": 1 },
   "refmap": "mixins.mocap.refmap.json"

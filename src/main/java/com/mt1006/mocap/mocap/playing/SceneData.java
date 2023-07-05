@@ -1,92 +1,101 @@
 package com.mt1006.mocap.mocap.playing;
 
+import com.mt1006.mocap.mocap.files.Files;
+import com.mt1006.mocap.mocap.files.SceneFiles;
 import com.mt1006.mocap.utils.Utils;
 import net.minecraft.command.CommandSource;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Stack;
+import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
+import java.util.Locale;
+import java.util.Scanner;
 
 public class SceneData
 {
-	private final Map<String, RecordingData> recordingMap = new HashMap<>();
-	private final Map<String, SceneInfo> sceneMap = new HashMap<>();
-	private final Stack<String> resourceStack = new Stack<>();
-	public boolean knownError = false;
+	public final ArrayList<Subscene> subscenes = new ArrayList<>();
+	public int version = 0;
+	public long fileSize = 0;
 
 	public boolean load(CommandSource commandSource, String name)
 	{
-		if (name.charAt(0) == '.')
+		byte[] data = Files.loadFile(Files.getSceneFile(commandSource, name));
+		if (data == null) { return false; }
+		return load(commandSource, data);
+	}
+
+	public boolean load(CommandSource commandSource, byte[] scene)
+	{
+		fileSize = scene.length;
+
+		try (Scanner scanner = new Scanner(new ByteArrayInputStream(scene)))
 		{
-			if (resourceStack.contains(name))
+			version = Integer.parseInt(scanner.next());
+			if (version > SceneFiles.SCENE_VERSION)
 			{
-				Utils.sendFailure(commandSource, "mocap.playing.start.error");
-				Utils.sendFailure(commandSource, "mocap.playing.start.error.loop");
-				resourceStack.push(name);
-				knownError = true;
+				Utils.sendFailure(commandSource, "mocap.error.failed_to_load_scene");
+				Utils.sendFailure(commandSource, "mocap.error.failed_to_load_scene.not_supported");
+				scanner.close();
 				return false;
 			}
 
-			resourceStack.push(name);
+			if (scanner.hasNextLine()) { scanner.nextLine(); }
 
-			if (!loadResource(commandSource, name)) { return false; }
-
-			SceneInfo scene = getScene(name);
-			if (scene == null) { return false; }
-
-			for (SceneInfo.Subscene subscene : scene.subscenes)
+			while (scanner.hasNextLine())
 			{
-				if (!load(commandSource, subscene.name)) { return false; }
+				subscenes.add(new Subscene(new Scanner(scanner.nextLine())));
 			}
+			return true;
 		}
-		else
+		catch (Exception exception)
 		{
-			resourceStack.push(name);
-			if (!loadResource(commandSource, name)) { return false; }
+			Utils.sendException(exception, commandSource, "mocap.error.failed_to_load_scene");
+			return false;
 		}
-
-		resourceStack.pop();
-		return true;
 	}
 
-	public @Nullable RecordingData getRecording(String name)
+	public static class Subscene
 	{
-		return recordingMap.get(name);
-	}
+		private static final PlayerData EMPTY_PLAYER_DATA = new PlayerData((String)null);
+		public String name;
+		public double startDelay = 0.0;
+		public double[] posOffset = new double[3];
+		public PlayerData playerData = EMPTY_PLAYER_DATA;
+		public @Nullable String playerAsEntityID = null;
 
-	public @Nullable SceneInfo getScene(String name)
-	{
-		return sceneMap.get(name);
-	}
+		public Subscene(String name)
+		{
+			this.name = name;
+			posOffset[0] = 0.0;
+			posOffset[1] = 0.0;
+			posOffset[2] = 0.0;
+		}
 
-	public String getResourcePath()
-	{
-		StringBuilder retStr = new StringBuilder();
-		for (String str : resourceStack)
+		public Subscene(Scanner scanner)
 		{
-			retStr.append("/");
-			retStr.append(str);
+			name = scanner.next();
+			try
+			{
+				startDelay = Double.parseDouble(scanner.next());
+				posOffset[0] = Double.parseDouble(scanner.next());
+				posOffset[1] = Double.parseDouble(scanner.next());
+				posOffset[2] = Double.parseDouble(scanner.next());
+				playerData = new PlayerData(scanner);
+				playerAsEntityID = Utils.toNullableStr(scanner.next());
+			}
+			catch (Exception ignore) {}
 		}
-		return new String(retStr);
-	}
 
-	private boolean loadResource(CommandSource commandSource, String name)
-	{
-		if (name.charAt(0) == '.')
+		public Subscene copy()
 		{
-			if (sceneMap.containsKey(name)) { return true; }
-			SceneInfo sceneInfo = new SceneInfo();
-			if (!sceneInfo.load(commandSource, name)) { return false; }
-			sceneMap.put(name, sceneInfo);
+			return new Subscene(new Scanner(sceneToStr()));
 		}
-		else
+
+		public String sceneToStr()
 		{
-			if (recordingMap.containsKey(name)) { return true; }
-			RecordingData recording = new RecordingData();
-			if (!recording.load(commandSource, name)) { return false; }
-			recordingMap.put(name, recording);
+			return String.format(Locale.US, "%s %f %f %f %f %s %s", name, startDelay,
+					posOffset[0], posOffset[1], posOffset[2], playerData.dataToStr(),
+					Utils.toNotNullStr(playerAsEntityID));
 		}
-		return true;
 	}
 }

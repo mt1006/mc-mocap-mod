@@ -1,25 +1,22 @@
 package com.mt1006.mocap.mocap.actions;
 
-import com.mojang.brigadier.StringReader;
 import com.mojang.datafixers.util.Pair;
-import com.mt1006.mocap.mocap.files.RecordingFile;
-import com.mt1006.mocap.mocap.playing.PlayerActions;
-import com.mt1006.mocap.utils.FakePlayer;
-import net.minecraft.entity.player.PlayerEntity;
+import com.mt1006.mocap.mocap.files.RecordingFiles;
+import com.mt1006.mocap.mocap.playing.PlayingContext;
+import com.mt1006.mocap.utils.Utils;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.network.play.server.SEntityEquipmentPacket;
-import net.minecraft.server.management.PlayerList;
-import net.minecraft.util.math.vector.Vector3i;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ChangeItem implements Action
+public class ChangeItem implements ComparableAction
 {
 	private static final byte NO_ITEM = 0;
 	private static final byte ID_ONLY = 1;
@@ -27,18 +24,17 @@ public class ChangeItem implements Action
 	private static final int ITEM_COUNT = 6;
 	private final List<Pair<Integer, String>> items = new ArrayList<>();
 
-	public ChangeItem(PlayerEntity player)
+	public ChangeItem(Entity entity)
 	{
-		addItem(player.getMainHandItem());
-		addItem(player.getOffhandItem());
+		if (!(entity instanceof LivingEntity)) { return; }
+		LivingEntity livingEntity = (LivingEntity)entity;
 
-		for (ItemStack itemStack : player.getArmorSlots())
-		{
-			addItem(itemStack);
-		}
+		addItem(livingEntity.getMainHandItem());
+		addItem(livingEntity.getOffhandItem());
+		livingEntity.getArmorSlots().forEach(this::addItem);
 	}
 
-	public ChangeItem(RecordingFile.Reader reader)
+	public ChangeItem(RecordingFiles.Reader reader)
 	{
 		for (int i = 0; i < ITEM_COUNT; i++)
 		{
@@ -50,10 +46,50 @@ public class ChangeItem implements Action
 		}
 	}
 
-	public void write(RecordingFile.Writer writer, @Nullable PlayerActions actions)
+	private void addItem(@Nullable ItemStack itemStack)
 	{
-		if (!differs(actions)) { return; }
-		writer.addByte(CHANGE_ITEM);
+		if (itemStack == null)
+		{
+			items.add(null);
+			return;
+		}
+
+		String nbtString;
+		if (itemStack.getTag() == null) { nbtString = null; }
+		else { nbtString = itemStack.getTag().getAsString(); }
+
+		items.add(new Pair<>(Item.getId(itemStack.getItem()), nbtString));
+	}
+
+	@Override public boolean differs(ComparableAction action)
+	{
+		if (items.size() != ((ChangeItem)action).items.size()) { return true; }
+
+		for (int i = 0; i < items.size(); i++)
+		{
+			Pair<Integer, String> item1 = items.get(i);
+			Pair<Integer, String> item2 = ((ChangeItem)action).items.get(i);
+
+			if (item1 == null && item2 == null) { continue; }
+			if ((item1 == null) != (item2 == null)) { return true; }
+			if (item1.getFirst().intValue() != item2.getFirst().intValue()) { return true; }
+
+			if (item1.getSecond() == null && item2.getSecond() == null) { continue; }
+			if ((item1.getSecond() == null) != (item2.getSecond() == null)) { return true; }
+			if (!item1.getSecond().equals(item2.getSecond())) { return true; }
+		}
+		return false;
+	}
+
+	@Override public void write(RecordingFiles.Writer writer, @Nullable ComparableAction action)
+	{
+		if (action != null && !differs(action)) { return; }
+
+		int count = 0;
+		for (Pair<Integer, String> ignored : items) { count++; }
+		if (count != ITEM_COUNT) { return; }
+
+		writer.addByte(Type.CHANGE_ITEM.id);
 
 		for (Pair<Integer, String> item : items)
 		{
@@ -75,48 +111,11 @@ public class ChangeItem implements Action
 		}
 	}
 
-	public boolean differs(@Nullable PlayerActions actions)
-	{
-		if (actions == null) { return true; }
-
-		if (items.size() != actions.changeItem.items.size()) { return true; }
-
-		for (int i = 0; i < items.size(); i++)
-		{
-			Pair<Integer, String> item1 = items.get(i);
-			Pair<Integer, String> item2 = actions.changeItem.items.get(i);
-
-			if (item1 == null && item2 == null) { continue; }
-			if ((item1 == null) != (item2 == null)) { return true; }
-			if (item1.getFirst().intValue() != item2.getFirst().intValue()) { return true; }
-
-			if (item1.getSecond() == null && item2.getSecond() == null) { continue; }
-			if ((item1.getSecond() == null) != (item2.getSecond() == null)) { return true; }
-			if (!item1.getSecond().equals(item2.getSecond())) { return true; }
-		}
-		return false;
-	}
-
-	private void addItem(@Nullable ItemStack itemStack)
-	{
-		if (itemStack == null)
-		{
-			items.add(null);
-			return;
-		}
-
-		String nbtString;
-		if (itemStack.getTag() == null) { nbtString = null; }
-		else { nbtString = itemStack.getTag().getAsString(); }
-
-		items.add(new Pair<>(Item.getId(itemStack.getItem()), nbtString));
-	}
-
-	@Override public int execute(PlayerList packetTargets, FakePlayer fakePlayer, Vector3i blockOffset)
+	@Override public Result execute(PlayingContext ctx)
 	{
 		List<Pair<EquipmentSlotType, ItemStack>> list = new ArrayList<>();
 
-		if (items.size() != ITEM_COUNT) { return RET_ERROR; }
+		if (items.size() != ITEM_COUNT) { return Result.ERROR; }
 		for (int i = 0; i < ITEM_COUNT; i++)
 		{
 			Pair<Integer, String> item = items.get(i);
@@ -127,13 +126,13 @@ public class ChangeItem implements Action
 			{
 				try
 				{
-					CompoundNBT compoundTag = new JsonToNBT(new StringReader(item.getSecond())).readStruct();
+					CompoundNBT compoundTag = Utils.nbtFromString(item.getSecond());
 					itemStack = new ItemStack(Item.byId(item.getFirst()));
 					itemStack.setTag(compoundTag);
 				}
 				catch (Exception exception)
 				{
-					return RET_ERROR;
+					return Result.ERROR;
 				}
 			}
 			else
@@ -152,7 +151,7 @@ public class ChangeItem implements Action
 			}
 		}
 
-		packetTargets.broadcastAll(new SEntityEquipmentPacket(fakePlayer.getId(), list));
-		return RET_OK;
+		ctx.packetTargets.broadcastAll(new SEntityEquipmentPacket(ctx.entity.getId(), list));
+		return Result.OK;
 	}
 }

@@ -1,10 +1,15 @@
 package com.mt1006.mocap.utils;
 
+import com.mojang.brigadier.StringReader;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mt1006.mocap.MocapMod;
 import com.mt1006.mocap.events.PlayerConnectionEvent;
 import net.minecraft.command.CommandSource;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.util.Util;
 import net.minecraft.util.text.*;
 import net.minecraft.util.text.event.ClickEvent;
@@ -12,6 +17,8 @@ import org.jetbrains.annotations.Nullable;
 
 public class Utils
 {
+	public static final String NULL_STR = "[null]";
+
 	public static byte[] floatToByteArray(float val)
 	{
 		int bits = Float.floatToIntBits(val);
@@ -38,6 +45,22 @@ public class Utils
 		return Double.longBitsToDouble(bits);
 	}
 
+	public static @Nullable String toNullableStr(String str)
+	{
+		return !str.equals(NULL_STR) ? str : null;
+	}
+
+	public static String toNotNullStr(@Nullable String str)
+	{
+		return str != null ? str : NULL_STR;
+	}
+
+	public static void exception(Exception exception, String str)
+	{
+		MocapMod.LOGGER.error(str);
+		exception.printStackTrace();
+	}
+
 	public static void sendSuccess(CommandSource commandSource, String component, Object... args)
 	{
 		commandSource.sendSuccess(getTranslatableComponent(commandSource.getEntity(), component, args), false);
@@ -58,8 +81,15 @@ public class Utils
 		commandSource.sendFailure(getTranslatableComponent(commandSource.getEntity(), component, args));
 	}
 
-	public static void sendSystemMessage(ServerPlayerEntity player, String component, Object... args)
+	public static void sendException(Exception exception, CommandSource commandSource, String component, Object... args)
 	{
+		sendFailure(commandSource, component, args);
+		exception(exception, stringFromComponent(component, args));
+	}
+
+	public static void sendSystemMessage(@Nullable PlayerEntity player, String component, Object... args)
+	{
+		if (player == null) { return; }
 		player.sendMessage(getTranslatableComponent(player, component, args), Util.NIL_UUID);
 	}
 
@@ -80,9 +110,13 @@ public class Utils
 		return component.setStyle(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, url)));
 	}
 
+	public static CompoundNBT nbtFromString(String nbtString) throws CommandSyntaxException
+	{
+		return new JsonToNBT(new StringReader(nbtString)).readStruct();
+	}
+
 	private static boolean supportsTranslatable(@Nullable Entity entity)
 	{
-		if (entity == null) { return false; }
-		return entity instanceof PlayerEntity && PlayerConnectionEvent.isInSet((PlayerEntity)entity);
+		return entity instanceof ServerPlayerEntity && PlayerConnectionEvent.players.contains((ServerPlayerEntity)entity);
 	}
 }
