@@ -1,7 +1,7 @@
-package com.mt1006.mocap.mixin;
+package com.mt1006.mocap.mixin.fabric;
 
 import com.mt1006.mocap.events.BlockInteractionEvent;
-import com.mt1006.mocap.mocap.commands.Recording;
+import com.mt1006.mocap.mocap.recording.Recording;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class BlockItemMixin
 {
 	@Inject(method = "placeBlock", at = @At(value = "HEAD"))
-	private void useOnMixin(BlockPlaceContext blockPlaceContext, BlockState blockState, CallbackInfoReturnable<Boolean> callbackInfo)
+	private void atPlaceBlock(BlockPlaceContext blockPlaceContext, BlockState blockState, CallbackInfoReturnable<Boolean> cir)
 	{
 		if (Recording.state == Recording.State.RECORDING && !blockPlaceContext.getLevel().isClientSide)
 		{

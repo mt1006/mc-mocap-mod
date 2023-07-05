@@ -1,19 +1,21 @@
 package com.mt1006.mocap.mocap.actions;
 
-import com.mt1006.mocap.mocap.files.RecordingFile;
-import com.mt1006.mocap.utils.FakePlayer;
-import net.minecraft.core.Vec3i;
-import net.minecraft.server.players.PlayerList;
+import com.mt1006.mocap.mocap.files.RecordingFiles;
+import com.mt1006.mocap.mocap.playing.PlayingContext;
 
 public class NextTick implements Action
 {
-	public void write(RecordingFile.Writer writer)
+	public NextTick() {}
+
+	public NextTick(RecordingFiles.Reader ignored) {}
+
+	public void write(RecordingFiles.Writer writer)
 	{
-		writer.addByte(NEXT_TICK);
+		writer.addByte(Type.NEXT_TICK.id);
 	}
 
-	@Override public int execute(PlayerList packetTargets, FakePlayer fakePlayer, Vec3i blockOffset)
+	@Override public Result execute(PlayingContext ctx)
 	{
-		return RET_NEXT_TICK;
+		return Result.NEXT_TICK;
 	}
 }
