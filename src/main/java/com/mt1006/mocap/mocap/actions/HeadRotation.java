@@ -1,44 +1,40 @@
 package com.mt1006.mocap.mocap.actions;
 
-import com.mt1006.mocap.mocap.files.RecordingFile;
-import com.mt1006.mocap.mocap.playing.PlayerActions;
-import com.mt1006.mocap.utils.FakePlayer;
-import net.minecraft.core.Vec3i;
+import com.mt1006.mocap.mocap.files.RecordingFiles;
+import com.mt1006.mocap.mocap.playing.PlayingContext;
 import net.minecraft.network.protocol.game.ClientboundRotateHeadPacket;
-import net.minecraft.server.players.PlayerList;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 
-public class HeadRotation implements Action
+public class HeadRotation implements ComparableAction
 {
 	private final float headRotY;
 
-	public HeadRotation(Player player)
+	public HeadRotation(Entity entity)
 	{
-		headRotY = player.yHeadRot;
+		headRotY = entity.getYHeadRot();
 	}
 
-	public HeadRotation(RecordingFile.Reader reader)
+	public HeadRotation(RecordingFiles.Reader reader)
 	{
 		headRotY = reader.readFloat();
 	}
 
-	public void write(RecordingFile.Writer writer, @Nullable PlayerActions actions)
+	@Override public boolean differs(ComparableAction action)
 	{
-		if (!differs(actions)) { return; }
-		writer.addByte(HEAD_ROTATION);
+		return headRotY != ((HeadRotation)action).headRotY;
+	}
+
+	@Override public void write(RecordingFiles.Writer writer, @Nullable ComparableAction action)
+	{
+		if (action != null && !differs(action)) { return; }
+		writer.addByte(Type.HEAD_ROTATION.id);
 		writer.addFloat(headRotY);
 	}
 
-	public boolean differs(@Nullable PlayerActions actions)
+	@Override public Result execute(PlayingContext ctx)
 	{
-		if (actions == null) { return true; }
-		return headRotY != actions.headRotation.headRotY;
-	}
-
-	@Override public int execute(PlayerList packetTargets, FakePlayer fakePlayer, Vec3i blockOffset)
-	{
-		packetTargets.broadcastAll(new ClientboundRotateHeadPacket(fakePlayer, (byte)Math.floor(headRotY * 256.0f / 360.0f)));
-		return RET_OK;
+		ctx.broadcast(new ClientboundRotateHeadPacket(ctx.entity, (byte)Math.floor(headRotY * 256.0f / 360.0f)));
+		return Result.OK;
 	}
 }
