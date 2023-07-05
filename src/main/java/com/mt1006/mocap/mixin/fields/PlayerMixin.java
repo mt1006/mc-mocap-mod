@@ -1,4 +1,4 @@
-package com.mt1006.mocap.mixin;
+package com.mt1006.mocap.mixin.fields;
 
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.world.entity.player.Player;

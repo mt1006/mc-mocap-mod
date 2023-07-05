@@ -1,52 +1,49 @@
 package com.mt1006.mocap.mocap.actions;
 
-import com.mt1006.mocap.mocap.files.RecordingFile;
-import com.mt1006.mocap.mocap.playing.PlayerActions;
+import com.mt1006.mocap.mocap.files.RecordingFiles;
+import com.mt1006.mocap.mocap.playing.PlayingContext;
 import com.mt1006.mocap.utils.EntityData;
-import com.mt1006.mocap.utils.FakePlayer;
-import net.minecraft.core.Vec3i;
-import net.minecraft.server.players.PlayerList;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.Nullable;
 
-public class SetEntityFlags implements Action
+public class SetEntityFlags implements ComparableAction
 {
 	private final byte entityFlags;
 
-	public SetEntityFlags(Player player)
+	public SetEntityFlags(Entity entity)
 	{
 		byte entityFlags = 0;
-		if (player.isOnFire()) { entityFlags |= 0x01; }
-		if (player.isShiftKeyDown()) { entityFlags |= 0x02; }
-		if (player.isSprinting()) { entityFlags |= 0x08; }
-		if (player.isSwimming()) { entityFlags |= 0x10; }
-		if (player.isInvisible()) { entityFlags |= 0x20; }
-		if (player.isGlowing()) { entityFlags |= 0x40; }
-		if (player.isFallFlying()) { entityFlags |= 0x80; }
+		if (entity.isOnFire()) { entityFlags |= 0x01; }
+		if (entity.isShiftKeyDown()) { entityFlags |= 0x02; }
+		if (entity.isSprinting()) { entityFlags |= 0x08; }
+		if (entity.isSwimming()) { entityFlags |= 0x10; }
+		if (entity.isInvisible()) { entityFlags |= 0x20; }
+		if (entity.isGlowing()) { entityFlags |= 0x40; }
+		if (entity instanceof LivingEntity && ((LivingEntity)entity).isFallFlying()) { entityFlags |= 0x80; }
 		this.entityFlags = entityFlags;
 	}
 
-	public SetEntityFlags(RecordingFile.Reader reader)
+	public SetEntityFlags(RecordingFiles.Reader reader)
 	{
 		entityFlags = reader.readByte();
 	}
 
-	public void write(RecordingFile.Writer writer, @Nullable PlayerActions actions)
+	@Override public boolean differs(ComparableAction action)
 	{
-		if (!differs(actions)) { return; }
-		writer.addByte(SET_ENTITY_FLAGS);
+		return entityFlags != ((SetEntityFlags)action).entityFlags;
+	}
+
+	@Override public void write(RecordingFiles.Writer writer, @Nullable ComparableAction action)
+	{
+		if (action != null && !differs(action)) { return; }
+		writer.addByte(Type.SET_ENTITY_FLAGS.id);
 		writer.addByte(entityFlags);
 	}
 
-	public boolean differs(@Nullable PlayerActions actions)
+	@Override public Result execute(PlayingContext ctx)
 	{
-		if (actions == null) { return true; }
-		return entityFlags != actions.setEntityFlags.entityFlags;
-	}
-
-	@Override public int execute(PlayerList packetTargets, FakePlayer fakePlayer, Vec3i blockOffset)
-	{
-		new EntityData<>(fakePlayer, EntityData.ENTITY_FLAGS, entityFlags).broadcastAll(packetTargets);
-		return RET_OK;
+		new EntityData(ctx.entity, EntityData.ENTITY_FLAGS, entityFlags).broadcast(ctx);
+		return Result.OK;
 	}
 }

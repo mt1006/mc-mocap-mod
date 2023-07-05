@@ -16,7 +16,6 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.stats.Stat;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,15 +28,13 @@ public class FakePlayer extends ServerPlayer
 	{
 		super(level.getServer(), level, name, new ServerPlayerGameMode(level));
 		this.connection = new FakePlayerNetHandler(level.getServer(), this);
+		setInvulnerable(true);
 	}
 
-	@Override public void checkInsideBlocks() { super.checkInsideBlocks(); }
 	@Override public Entity changeDimension(@NotNull ServerLevel p_20118_) { return null; }
 
 	@Override public void displayClientMessage(@NotNull Component chatComponent, boolean actionBar) { }
 	@Override public void awardStat(@NotNull Stat stat, int amount) { }
-	@Override public boolean isInvulnerableTo(@NotNull DamageSource source) { return true; }
-	@Override public boolean canHarmPlayer(@NotNull Player player) { return false; }
 	@Override public void die(@NotNull DamageSource source) { }
 	@Override public void tick() { }
 	@Override public void updateOptions(@NotNull ServerboundClientInformationPacket packet) { }

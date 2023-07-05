@@ -1,49 +1,112 @@
 package com.mt1006.mocap.mocap.actions;
 
-import com.mt1006.mocap.mocap.files.RecordingFile;
-import com.mt1006.mocap.utils.FakePlayer;
-import net.minecraft.core.Vec3i;
-import net.minecraft.server.players.PlayerList;
+import com.mt1006.mocap.mocap.files.RecordingFiles;
+import com.mt1006.mocap.mocap.playing.PlayingContext;
+import net.minecraft.world.entity.Entity;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
 
 public interface Action
 {
-	int RET_OK = 1;
-	int RET_NEXT_TICK = 0;
-	int RET_END = -1;
-	int RET_ERROR = -2;
+	List<Function<RecordingFiles.Reader, Action>> REGISTERED = new ArrayList<>();
 
-	byte NEXT_TICK = 0;
-	byte PLAYER_MOVEMENT = 1;
-	byte HEAD_ROTATION = 2;
-	byte CHANGE_POSE = 3;
-	byte CHANGE_ITEM = 4;
-	byte SET_ENTITY_FLAGS = 5;
-	byte SET_LIVING_ENTITY_FLAGS = 6;
-	byte SET_MAIN_HAND = 7;
-	byte SWING = 8;
-	byte BREAK_BLOCK = 9;
-	byte PLACE_BLOCK = 10;
-	byte RIGHT_CLICK_BLOCK = 11;
+	Result execute(PlayingContext ctx);
 
-	int execute(PlayerList packetTargets, FakePlayer fakePlayer, Vec3i blockOffset);
-
-	static Action readAction(RecordingFile.Reader reader)
+	static void init()
 	{
-		switch (reader.readByte())
+		if (REGISTERED.size() == 0)
 		{
-			case NEXT_TICK: return new NextTick();
-			case PLAYER_MOVEMENT: return new PlayerMovement(reader);
-			case HEAD_ROTATION: return new HeadRotation(reader);
-			case CHANGE_POSE: return new ChangePose(reader);
-			case CHANGE_ITEM: return new ChangeItem(reader);
-			case SET_ENTITY_FLAGS: return new SetEntityFlags(reader);
-			case SET_LIVING_ENTITY_FLAGS: return new SetLivingEntityFlags(reader);
-			case SET_MAIN_HAND: return new SetMainHand(reader);
-			case SWING: return new Swing(reader);
-			case BREAK_BLOCK: return new BreakBlock(reader);
-			case PLACE_BLOCK: return new PlaceBlock(reader);
-			case RIGHT_CLICK_BLOCK: return new RightClickBlock(reader);
+			for (Type type : Type.values()) { type.init(); }
 		}
-		return null;
+	}
+
+	static Action readAction(RecordingFiles.Reader reader)
+	{
+		Function<RecordingFiles.Reader, Action> constructor = REGISTERED.get(reader.readByte());
+		return constructor != null ? constructor.apply(reader) : null;
+	}
+
+	enum Type
+	{
+		NEXT_TICK(0, NextTick::new),
+		MOVEMENT(1, Movement::new, Movement::new),
+		HEAD_ROTATION(2, HeadRotation::new, HeadRotation::new),
+		CHANGE_POSE(3, ChangePose::new, ChangePose::new),
+		CHANGE_ITEM(4, ChangeItem::new, ChangeItem::new),
+		SET_ENTITY_FLAGS(5, SetEntityFlags::new, SetEntityFlags::new),
+		SET_LIVING_ENTITY_FLAGS(6, SetLivingEntityFlags::new, SetLivingEntityFlags::new),
+		SET_MAIN_HAND(7, SetMainHand::new, SetMainHand::new),
+		SWING(8, Swing::new, Swing::new),
+		BREAK_BLOCK(9, BreakBlock::new),
+		PLACE_BLOCK(10, PlaceBlock::new),
+		RIGHT_CLICK_BLOCK(11, RightClickBlock::new),
+		SET_EFFECT_COLOR(12, SetEffectColor::new, SetEffectColor::new),
+		SET_ARROW_COUNT(13, SetArrowCount::new, SetArrowCount::new),
+		SLEEP(14, Sleep::new, Sleep::new),
+		PLACE_BLOCK_SILENTLY(15, PlaceBlockSilently::new),
+		ENTITY_UPDATE(16, EntityUpdate::new),
+		ENTITY_ACTION(17, EntityAction::new),
+		HURT(18, Hurt::new),
+		VEHICLE_DATA(19, VehicleData::new, VehicleData::new),
+		BREAK_BLOCK_PROGRESS(20, BreakBlockProgress::new);
+
+		public final byte id;
+		public final Function<RecordingFiles.Reader, Action> fromReader;
+		public final Function<Entity, ComparableAction> fromEntity;
+
+		Type(int id, Function<RecordingFiles.Reader, Action> fromReader)
+		{
+			this.id = (byte)id;
+			this.fromReader = fromReader;
+			this.fromEntity = null;
+
+			if (fromReader.apply(RecordingFiles.DummyReader.READER) instanceof ComparableAction)
+			{
+				throw new RuntimeException("Tried to register ComparableAction without \"fromEntity\" constructor!");
+			}
+			registerAction();
+		}
+
+		Type(int id, Function<RecordingFiles.Reader, Action> fromReader, Function<Entity, ComparableAction> fromEntity)
+		{
+			this.id = (byte)id;
+			this.fromReader = fromReader;
+			this.fromEntity = fromEntity;
+
+			if (fromEntity == null) { throw new NullPointerException(); }
+			ComparableAction.REGISTERED.add(fromEntity);
+			registerAction();
+		}
+
+		private void registerAction()
+		{
+			if (REGISTERED.size() != id)
+			{
+				throw new RuntimeException("Tried to register Action with id out of order!");
+			}
+			REGISTERED.add(fromReader);
+		}
+
+		public void init() { /* dummy */ }
+	}
+
+	enum Result
+	{
+		OK(false, false),
+		IGNORED(false, false),
+		NEXT_TICK(true, false),
+		END(true, true),
+		ERROR(true, true);
+
+		public final boolean endsTick;
+		public final boolean endsPlayback;
+
+		Result(boolean endsTick, boolean endsPlayback)
+		{
+			this.endsTick = endsTick;
+			this.endsPlayback = endsPlayback;
+		}
 	}
 }
