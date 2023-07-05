@@ -5,34 +5,33 @@
 
   "name": "Motion Capture Mod (mocap)",
   "description": "Allows you to record and replay player movements",
-  "authors": [
-    "mt1006 (mt1006x)"
-  ],
-  "contact": {
+  "authors": ["mt1006 (mt1006x)"],
+  "contact":
+  {
+    "homepage": "https://curseforge.com/minecraft/mc-mods/motion-capture-mod-mocap",
     "sources": "https://github.com/mt1006/mc-mocap-mod",
     "issues": "https://github.com/mt1006/mc-mocap-mod/issues"
   },
 
   "license": "GNU Lesser General Public License v3.0",
-  "icon": "assets/mocap/logo.png",
+  "icon": "logo.png",
 
   "environment": "*",
-  "entrypoints": {
-    "main": [
-      "com.mt1006.mocap.MocapMod"
-    ]
+  "entrypoints":
+  {
+    "main": ["com.mt1006.mocap.MocapMod"]
   },
-  "mixins": [
-    "mocap.mixins.json"
-  ],
+  "mixins": ["mocap.mixins.json"],
 
-  "depends": {
+  "depends":
+  {
     "fabricloader": ">=0.14.17",
     "fabric-api": "*",
     "minecraft": "~1.19.4",
     "java": ">=17"
   },
-  "suggests": {
+  "suggests":
+  {
     "another-mod": "*"
   }
 }

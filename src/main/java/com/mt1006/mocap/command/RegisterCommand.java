@@ -6,6 +6,6 @@ public class RegisterCommand
 {
 	public static void registerCommands()
 	{
-		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> MocapCommand.register(dispatcher));
+		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> MocapCommand.register(dispatcher, registryAccess));
 	}
 }
