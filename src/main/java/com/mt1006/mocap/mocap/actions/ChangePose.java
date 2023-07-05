@@ -1,25 +1,22 @@
 package com.mt1006.mocap.mocap.actions;
 
-import com.mt1006.mocap.mocap.files.RecordingFile;
-import com.mt1006.mocap.mocap.playing.PlayerActions;
+import com.mt1006.mocap.mocap.files.RecordingFiles;
+import com.mt1006.mocap.mocap.playing.PlayingContext;
 import com.mt1006.mocap.utils.EntityData;
-import com.mt1006.mocap.utils.FakePlayer;
-import net.minecraft.core.Vec3i;
-import net.minecraft.server.players.PlayerList;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Pose;
-import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
-public class ChangePose implements Action
+public class ChangePose implements ComparableAction
 {
 	private final Pose pose;
 
-	public ChangePose(Player player)
+	public ChangePose(Entity entity)
 	{
-		pose = player.getPose();
+		pose = entity.getPose();
 	}
 
-	public ChangePose(RecordingFile.Reader reader)
+	public ChangePose(RecordingFiles.Reader reader)
 	{
 		switch (reader.readInt())
 		{
@@ -30,33 +27,37 @@ public class ChangePose implements Action
 			case 5: pose = Pose.SPIN_ATTACK; break;
 			case 6: pose = Pose.CROUCHING; break;
 			case 7: pose = Pose.DYING; break;
+			case 8: pose = Pose.LONG_JUMPING; break;
 		}
 	}
 
-	public void write(RecordingFile.Writer writer, @Nullable PlayerActions actions)
+	@Override public boolean differs(ComparableAction action)
 	{
-		if (!differs(actions)) { return; }
-		writer.addByte(CHANGE_POSE);
-
-		if (pose == Pose.STANDING) { writer.addInt(1); }
-		else if (pose == Pose.FALL_FLYING) { writer.addInt(2); }
-		else if (pose == Pose.SLEEPING) { writer.addInt(3); }
-		else if (pose == Pose.SWIMMING) { writer.addInt(4); }
-		else if (pose == Pose.SPIN_ATTACK) { writer.addInt(5); }
-		else if (pose == Pose.CROUCHING) { writer.addInt(6); }
-		else if (pose == Pose.DYING) { writer.addInt(7); }
-		else { writer.addInt(0); }
+		return pose != ((ChangePose)action).pose;
 	}
 
-	public boolean differs(@Nullable PlayerActions actions)
+	@Override public void write(RecordingFiles.Writer writer, @Nullable ComparableAction action)
 	{
-		if (actions == null) { return true; }
-		return pose != actions.changePose.pose;
+		if (action != null && !differs(action)) { return; }
+		writer.addByte(Type.CHANGE_POSE.id);
+
+		switch (pose)
+		{
+			case STANDING: writer.addInt(1); break;
+			case FALL_FLYING: writer.addInt(2); break;
+			case SLEEPING: writer.addInt(3); break;
+			case SWIMMING: writer.addInt(4); break;
+			case SPIN_ATTACK: writer.addInt(5); break;
+			case CROUCHING: writer.addInt(6); break;
+			case DYING: writer.addInt(7); break;
+			case LONG_JUMPING: writer.addInt(8); break;
+			default: writer.addInt(0);
+		}
 	}
 
-	@Override public int execute(PlayerList packetTargets, FakePlayer fakePlayer, Vec3i blockOffset)
+	@Override public Result execute(PlayingContext ctx)
 	{
-		new EntityData<>(fakePlayer, EntityData.POSE, pose).broadcastAll(packetTargets);
-		return RET_OK;
+		new EntityData(ctx.entity, EntityData.ENTITY_POSE, pose).broadcast(ctx);
+		return Result.OK;
 	}
 }
