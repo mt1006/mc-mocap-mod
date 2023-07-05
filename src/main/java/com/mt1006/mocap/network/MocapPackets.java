@@ -10,8 +10,8 @@ public class MocapPackets
 {
 	private static final String PROTOCOL_VERSION = "1";
 	public static final SimpleChannel INSTANCE = NetworkRegistry.newSimpleChannel(
-			new ResourceLocation(MocapMod.MOD_ID, "main"), () -> PROTOCOL_VERSION, (str) -> true, (str) -> true);
-	public static final int CURRENT_VERSION = 1;
+			new ResourceLocation(MocapMod.MOD_ID, "forge"), () -> PROTOCOL_VERSION, (str) -> true, (str) -> true);
+	public static final int CURRENT_VERSION = 3;
 
 	public static void register()
 	{
@@ -27,5 +27,4 @@ public class MocapPackets
 				.consumerMainThread(MocapPacketC2S::handle)
 				.add();
 	}
-
 }
