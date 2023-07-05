@@ -1,7 +1,10 @@
 package com.mt1006.mocap.network;
 
+import com.mt1006.mocap.command.InputArgument;
 import com.mt1006.mocap.events.PlayerConnectionEvent;
+import com.mt1006.mocap.mocap.playing.CustomSkinManager;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.PacketDistributor;
 
@@ -10,38 +13,77 @@ import java.util.function.Supplier;
 public class MocapPacketC2S
 {
 	public static final int ACCEPT_SERVER = 0;
+	public static final int REQUEST_CUSTOM_SKIN = 1;
 
-	private int version;
-	private int op;
+	private final int version;
+	private final int op;
+	private final Object object;
 
-	public MocapPacketC2S() { }
+	public MocapPacketC2S(int version, int op, Object object)
+	{
+		this.version = version;
+		this.op = op;
+		this.object = object;
+	}
 
 	public MocapPacketC2S(FriendlyByteBuf buf)
 	{
 		version = buf.readInt();
 		op = buf.readInt();
+
+		switch (op)
+		{
+			case REQUEST_CUSTOM_SKIN:
+				object = NetworkUtils.readString(buf);
+				break;
+
+			default:
+				object = null;
+		}
 	}
 
 	public void encode(FriendlyByteBuf buf)
 	{
 		buf.writeInt(version);
 		buf.writeInt(op);
+
+		if (op == REQUEST_CUSTOM_SKIN && object instanceof String)
+		{
+			NetworkUtils.writeString(buf, (String)object);
+		}
 	}
 
 	public void handle(Supplier<NetworkEvent.Context> ctx)
 	{
-		if (version != MocapPackets.CURRENT_VERSION) { return; }
+		if (version < MocapPackets.CURRENT_VERSION) { return; }
+		ServerPlayer sender = ctx.get().getSender();
 
-		if (op == ACCEPT_SERVER) { PlayerConnectionEvent.addPlayer(ctx.get().getSender()); }
+		switch (op)
+		{
+			case ACCEPT_SERVER:
+				PlayerConnectionEvent.addPlayer(sender);
+				if (sender != null) { MocapPacketS2C.sendInputSuggestionsAdd(sender, InputArgument.serverInputSet); }
+				break;
+
+			case REQUEST_CUSTOM_SKIN:
+				if (object instanceof String) { CustomSkinManager.sendSkinToClient(sender, (String)object); }
+				break;
+		}
 	}
 
-	public static void send(int op)
+	public static void sendAcceptServer()
 	{
-		MocapPacketC2S packet = new MocapPacketC2S();
+		send(ACCEPT_SERVER, null);
+	}
 
-		packet.version = MocapPackets.CURRENT_VERSION;
-		packet.op = op;
+	public static void sendRequestCustomSkin(String name)
+	{
+		send(REQUEST_CUSTOM_SKIN, name);
+	}
 
+	private static void send(int op, Object object)
+	{
+		MocapPacketC2S packet = new MocapPacketC2S(MocapPackets.CURRENT_VERSION, op, object);
 		MocapPackets.INSTANCE.send(PacketDistributor.SERVER.with(() -> null), packet);
 	}
 }

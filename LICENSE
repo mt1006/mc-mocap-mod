@@ -30,12 +30,12 @@ with which the Combined Work was made is also called the "Linked
 Version".
 
   The "Minimal Corresponding Source" for a Combined Work means the
-Corresponding Source for the Combined Work, excluding any source code
+Corresponding Source for the Combined Work, excluding any skinSource code
 for portions of the Combined Work that, considered in isolation, are
 based on the Application, and not on the Linked Version.
 
   The "Corresponding Application Code" for a Combined Work means the
-object code and/or source code for the Application, including any data
+object code and/or skinSource code for the Application, including any data
 and utility programs needed for reproducing the Combined Work from the
 Application, but excluding the System Libraries of the Combined Work.
 

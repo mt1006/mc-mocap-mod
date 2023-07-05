@@ -1,8 +1,10 @@
-package com.mt1006.mocap.mocap.commands;
+package com.mt1006.mocap.mocap.settings;
 
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.mt1006.mocap.command.CommandUtils;
 import com.mt1006.mocap.mocap.files.Files;
 import com.mt1006.mocap.utils.Utils;
 import net.minecraft.commands.CommandSourceStack;
@@ -23,6 +25,20 @@ public class Settings
 	public static final Setting<Boolean> SET_BLOCK_STATES = new Setting<>("setBlockStates", true);
 	public static final Setting<Boolean> ALLOW_MINESKIN_REQUESTS = new Setting<>("allowMineskinRequests", true);
 	public static final Setting<Boolean> CAN_PUSH_ENTITIES = new Setting<>("canPushEntities", true);
+	public static final Setting<Boolean> USE_CREATIVE_GAME_MODE = new Setting<>("useCreativeGameMode", false);
+	public static final Setting<Boolean> DROP_FROM_BLOCKS = new Setting<>("dropFromBlocks", false);
+	public static final Setting<Boolean> TRACK_VEHICLE_ENTITIES = new Setting<>("trackVehicleEntities", true);
+	public static final Setting<Boolean> TRACK_ITEM_ENTITIES = new Setting<>("trackItemEntities", true);
+	public static final Setting<Boolean> TRACK_OTHER_ENTITIES = new Setting<>("trackOtherEntities", false);
+	public static final Setting<Boolean> TRACK_PLAYED_ENTITIES = new Setting<>("trackPlayedEntities", false);
+	public static final Setting<Double> ENTITY_TRACKING_DISTANCE = new Setting<>("entityTrackingDistance", 128.0);
+	public static final Setting<Boolean> PLAY_VEHICLE_ENTITIES = new Setting<>("playVehicleEntities", true);
+	public static final Setting<Boolean> PLAY_ITEM_ENTITIES = new Setting<>("playItemEntities", true);
+	public static final Setting<Boolean> PLAY_OTHER_ENTITIES = new Setting<>("playOtherEntities", true);
+	public static final Setting<Integer> ENTITIES_AFTER_PLAYBACK = new Setting<>("entitiesAfterPlayback", 1);
+	public static final Setting<Boolean> PREVENT_SAVING_ENTITIES = new Setting<>("preventSavingEntities", true);
+	public static final Setting<Boolean> RECORD_PLAYER_DEATH = new Setting<>("recordPlayerDeath", true);
+
 	public static Map<String, Setting<?>> settingsMap = new LinkedHashMap<>();
 	public static boolean loaded = false;
 
@@ -34,11 +50,21 @@ public class Settings
 		settingsMap.put(SET_BLOCK_STATES.name, SET_BLOCK_STATES);
 		settingsMap.put(ALLOW_MINESKIN_REQUESTS.name, ALLOW_MINESKIN_REQUESTS);
 		settingsMap.put(CAN_PUSH_ENTITIES.name, CAN_PUSH_ENTITIES);
+		settingsMap.put(USE_CREATIVE_GAME_MODE.name, USE_CREATIVE_GAME_MODE);
+		settingsMap.put(DROP_FROM_BLOCKS.name, DROP_FROM_BLOCKS);
+		settingsMap.put(TRACK_VEHICLE_ENTITIES.name, TRACK_VEHICLE_ENTITIES);
+		settingsMap.put(TRACK_ITEM_ENTITIES.name, TRACK_ITEM_ENTITIES);
+		settingsMap.put(TRACK_OTHER_ENTITIES.name, TRACK_OTHER_ENTITIES);
+		settingsMap.put(TRACK_PLAYED_ENTITIES.name, TRACK_PLAYED_ENTITIES);
+		settingsMap.put(ENTITY_TRACKING_DISTANCE.name, ENTITY_TRACKING_DISTANCE);
+		settingsMap.put(PLAY_VEHICLE_ENTITIES.name, PLAY_VEHICLE_ENTITIES);
+		settingsMap.put(PLAY_ITEM_ENTITIES.name, PLAY_ITEM_ENTITIES);
+		settingsMap.put(PLAY_OTHER_ENTITIES.name, PLAY_OTHER_ENTITIES);
+		settingsMap.put(ENTITIES_AFTER_PLAYBACK.name, ENTITIES_AFTER_PLAYBACK);
+		settingsMap.put(PREVENT_SAVING_ENTITIES.name, PREVENT_SAVING_ENTITIES);
+		settingsMap.put(RECORD_PLAYER_DEATH.name, RECORD_PLAYER_DEATH);
 
-		for (Setting<?> setting : settingsMap.values())
-		{
-			setting.reset();
-		}
+		settingsMap.values().forEach(Setting::reset);
 
 		try
 		{
@@ -129,7 +155,7 @@ public class Settings
 		}
 		catch (Exception exception)
 		{
-			Utils.sendFailure(commandSource, "mocap.error.unable_to_get_argument");
+			Utils.sendException(exception, commandSource, "mocap.error.unable_to_get_argument");
 			return 0;
 		}
 
@@ -147,27 +173,23 @@ public class Settings
 		return 1;
 	}
 
-	public static int set(CommandContext<CommandSourceStack> ctx)
+	public static boolean set(CommandContext<CommandSourceStack> ctx)
 	{
 		CommandSourceStack commandSource = ctx.getSource();
 		if (!loaded) { load(commandSource); }
 
-		String settingName;
-		try
-		{
-			settingName = ctx.getNodes().get(ctx.getNodes().size() - 2).getNode().getName();
-		}
-		catch (Exception exception)
+		String settingName = CommandUtils.getCommandNode(ctx, -2);
+		if (settingName == null)
 		{
 			Utils.sendFailure(commandSource, "mocap.error.unable_to_get_argument");
-			return 0;
+			return false;
 		}
 
 		Setting<?> setting = settingsMap.get(settingName);
 		if (setting == null)
 		{
 			Utils.sendFailure(commandSource, "mocap.settings.error");
-			return 0;
+			return false;
 		}
 
 		String oldValue = setting.val.toString();
@@ -178,7 +200,7 @@ public class Settings
 
 		Utils.sendSuccess(commandSource, "mocap.settings.set", oldValue, setting.val.toString());
 		save(commandSource);
-		return 1;
+		return true;
 	}
 
 	public static class Setting<T>
@@ -203,13 +225,11 @@ public class Settings
 		{
 			if (val.equals(defVal))
 			{
-				return Utils.getTranslatableComponent(commandSource.getEntity(),
-						"mocap.settings.list.info_def", name, val.toString());
+				return Utils.getTranslatableComponent(commandSource.getEntity(), "mocap.settings.list.info_def", name, val.toString());
 			}
 			else
 			{
-				return Utils.getTranslatableComponent(commandSource.getEntity(),
-						"mocap.settings.list.info", name, val.toString());
+				return Utils.getTranslatableComponent(commandSource.getEntity(), "mocap.settings.list.info", name, val.toString());
 			}
 		}
 
@@ -218,8 +238,9 @@ public class Settings
 			try
 			{
 				if (defVal instanceof Double) { val = (T)Double.valueOf(Double.parseDouble(str)); }
+				else if (defVal instanceof Integer) { val = (T)Integer.valueOf(Integer.parseInt(str)); }
 				else if (defVal instanceof Boolean) { val = (T)Boolean.valueOf(Boolean.parseBoolean(str)); }
-				else { val = defVal; }
+				else { val = defVal; } //TODO: add warning (1.3.1)
 			}
 			catch (Exception exception)
 			{
@@ -232,8 +253,9 @@ public class Settings
 			try
 			{
 				if (defVal instanceof Double) { val = (T)Double.valueOf(DoubleArgumentType.getDouble(ctx, "newValue")); }
+				else if (defVal instanceof Integer) { val = (T)Integer.valueOf(IntegerArgumentType.getInteger(ctx, "newValue")); }
 				else if (defVal instanceof Boolean) { val = (T)Boolean.valueOf(BoolArgumentType.getBool(ctx, "newValue")); }
-				else { val = defVal; }
+				else { val = defVal; } //TODO: add error message (1.3.1)
 				return true;
 			}
 			catch (Exception exception)
@@ -251,8 +273,9 @@ public class Settings
 			try
 			{
 				if (val instanceof Double) { str.append(val); }
+				else if (val instanceof Integer) { str.append(val); }
 				else if (val instanceof Boolean) { str.append(val); }
-				else { return null; }
+				else { return null; }  //TODO: add warning (1.3.1)
 			}
 			catch (Exception exception)
 			{

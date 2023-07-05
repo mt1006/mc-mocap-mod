@@ -24,7 +24,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.spongepowered.mixin'
 
 
-version = '1.2.1'
+version = '1.3'
 group = 'com.mt1006.mocap'
 archivesBaseName = 'Mocap-FORGE-1.19.4'
 
@@ -72,7 +72,7 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 dependencies
 {
-    minecraft 'net.minecraftforge:forge:1.19.4-45.0.4'
+    minecraft 'net.minecraftforge:forge:1.19.4-45.1.0'
 	annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 

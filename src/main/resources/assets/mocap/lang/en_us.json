@@ -25,9 +25,6 @@
   "mocap.recording.save.exception": "§lError:§r unable to save recording!",
   "mocap.recording.save.success": "Recording successfully saved",
 
-  "mocap.recording.remove.failed": "Failed to remove recording!",
-  "mocap.recording.remove.success": "Recording successfully removed",
-
   "mocap.recording.state.not_recording": "§lState:§r NOT_RECORDING",
   "mocap.recording.state.waiting_for_action": "§lState:§r WAITING_FOR_ACTION",
   "mocap.recording.state.recording": "§lState:§r RECORDING",
@@ -35,26 +32,74 @@
   "mocap.recording.state.player_name": "§lPlayer name:§r %s",
 
 
+  "mocap.recordings.copy.failed": "Failed to copy recording!",
+  "mocap.recordings.copy.success": "Recording successfully copied",
+
+  "mocap.recordings.rename.failed": "Failed to rename recording!",
+  "mocap.recordings.rename.success": "Recording successfully renamed",
+
+  "mocap.recordings.remove.failed": "Failed to remove recording!",
+  "mocap.recordings.remove.success": "Recording successfully removed",
+
+  "mocap.recordings.info.failed": "Failed to get recording information!",
+  "mocap.recordings.info.info": "§l[RECORDING INFORMATION]§r",
+  "mocap.recordings.info.length": "§lLength:§r %s s (%d ticks)",
+  "mocap.recordings.info.size": "§lSize:§r %s KB (%d operations)",
+  "mocap.recordings.info.start_pos": "§lStart position:§r %s %s %s",
+
+  "mocap.recordings.list": "§lRecordings:§r%s",
+
+
   "mocap.scenes.add.error": "§lError:§r unable to add scene!",
   "mocap.scenes.add.error.file_already_exists": "§lError:§r unable to add scene!",
   "mocap.scenes.add.success": "Scene successfully added",
+
+  "mocap.scenes.copy.failed": "Failed to copy scene!",
+  "mocap.scenes.copy.success": "Scene successfully copied",
+
+  "mocap.scenes.rename.failed": "Failed to rename scene!",
+  "mocap.scenes.rename.success": "Scene successfully renamed",
 
   "mocap.scenes.remove.failed": "Failed to remove scene!",
   "mocap.scenes.remove.success": "Scene successfully removed",
 
   "mocap.scenes.add_to.error": "§lError:§r unable to add element to scene!",
-  "mocap.scenes.add_to.error.file_not_exists": "Scene with this name doesn't exist",
-  "mocap.scenes.add_to.error.too_long_name": "Maximum length of a player's name is 16",
+  "mocap.scenes.add_to.error.too_long_name": "Maximum length of a player name is 16",
   "mocap.scenes.add_to.error.contain_spaces": "Player name cannot contain spaces",
   "mocap.scenes.add_to.success": "Element successfully added to scene",
 
   "mocap.scenes.remove_from.error": "§lError:§r unable to remove element from scene!",
-  "mocap.scenes.remove_from.error.file_not_exists": "Scene with this name doesn't exist",
-  "mocap.scenes.remove_from.error.wrong_element_pos": "Element with the given number doesn't exist",
-  "mocap.scenes.remove_from.error.wrong_element_pos.tip": "Use \"/mocap scenes listElements [scene]\" to get element numbers",
   "mocap.scenes.remove_from.success": "Element successfully removed from scene",
 
-  "mocap.scenes.list_elements.list": "§lScene elements list:§r",
+  "mocap.scenes.modify.error": "§lError:§r unable to modify scene element!",
+  "mocap.scenes.modify.success": "Element successfully modified",
+
+  "mocap.scenes.element_info.failed": "Failed to get scene element information!",
+  "mocap.scenes.element_info.info": "§l[SCENE ELEMENT INFORMATION]§r",
+  "mocap.scenes.element_info.id": "§lScene/Position:§r %s / %d",
+  "mocap.scenes.element_info.name": "§lName:§r %s",
+  "mocap.scenes.element_info.player_name.default": "§lPlayer name:§r §7§o[default]§r",
+  "mocap.scenes.element_info.player_name.custom": "§lPlayer name:§r %s",
+  "mocap.scenes.element_info.skin.default": "§lSkin:§r §7§o[default]§r",
+  "mocap.scenes.element_info.skin.profile": "§lSkin:§r from player - %s",
+  "mocap.scenes.element_info.skin.file": "§lSkin:§r from file - %s",
+  "mocap.scenes.element_info.skin.mineskin": "§lSkin:§r from mineskin.org:",
+  "mocap.scenes.element_info.start_delay": "§lStart delay:§r %s s (%d ticks)",
+  "mocap.scenes.element_info.offset": "§lPosition offset:§r [%f; %f; %f]",
+  "mocap.scenes.element_info.player_as_entity.disabled": "§lPlayer as entity:§r §7§o[disabled]§r",
+  "mocap.scenes.element_info.player_as_entity.enabled": "§lPlayer as entity:§r %s",
+
+  "mocap.scenes.list_elements": "§lScene elements list:§r",
+
+  "mocap.scenes.info.failed": "Failed to get scene information!",
+  "mocap.scenes.info.info": "§l[SCENE INFORMATION]§r",
+  "mocap.scenes.info.size": "§lSize:§r %s KB (%d elements)",
+
+  "mocap.scenes.list": "§lScenes:§r%s",
+
+  "mocap.scenes.error.file_not_exists": "Scene with this name doesn't exist",
+  "mocap.scenes.error.wrong_element_pos": "Element with the given number doesn't exist",
+  "mocap.scenes.error.wrong_element_pos.tip": "Use \"/mocap scenes listElements [scene]\" to get element numbers",
 
 
   "mocap.playing.start.error": "§lError:§r failed to start scene!",
@@ -63,7 +108,10 @@
   "mocap.playing.start.error.load.path": "Resource path: %s",
   "mocap.playing.start.error.load_header": "Failed to load recording header",
   "mocap.playing.start.error.profile": "Failed to load player profile",
-  "mocap.playing.start.warning.mineskin": "Failed to load skin from mineskin.org",
+  "mocap.playing.start.warning.unknown_entity": "Trying to use unknown entity as player",
+  "mocap.playing.start.warning.skin.profile": "Failed to load skin from player profile",
+  "mocap.playing.start.warning.skin.file": "Failed to load skin from file",
+  "mocap.playing.start.warning.skin.mineskin": "Failed to load skin from mineskin.org",
   "mocap.playing.start.success": "Playing started...",
 
   "mocap.playing.stop.unable_to_find_scene": "§lError:§r unable to find scene with given id!",
@@ -72,11 +120,7 @@
 
   "mocap.playing.stop_all.success": "Playing of all scenes stopped",
 
-  "mocap.playing.list.recordings": "§lRecordings:§r%s",
-  "mocap.playing.list.scenes": "§lScenes:§r%s",
-  "mocap.playing.list.playing": "§lCurrently playing:§r",
-  "mocap.playing.list.empty": "§7§o[empty]§r",
-  "mocap.playing.list.error": "§c§o[error]§r",
+  "mocap.playing.list": "§lCurrently playing:§r",
 
 
   "mocap.settings.error": "§lError:§r unable to find setting!",
@@ -92,6 +136,19 @@
   "mocap.settings.info.about.setBlockStates": "§lAbout:§r At the playback start sets block states to those before the start of recording",
   "mocap.settings.info.about.allowMineskinRequests": "§lAbout:§r Allows HTTPS requests to mineskin.org to load skins",
   "mocap.settings.info.about.canPushEntities": "§lAbout:§r Makes fake players push other entities",
+  "mocap.settings.info.about.useCreativeGameMode": "§lAbout:§r Sets fake players game mode to creative (monsters will ignore them)",
+  "mocap.settings.info.about.dropFromBlocks": "§lAbout:§r Enables drop from destroyed blocks (recommended with \"playItemEntities\" disabled to prevent duplicates)",
+  "mocap.settings.info.about.trackVehicleEntities": "§lAbout:§r Enables tracking (recording) vehicle entities (like boats or horses)",
+  "mocap.settings.info.about.trackItemEntities": "§lAbout:§r Enables tracking (recording) item entities",
+  "mocap.settings.info.about.trackOtherEntities": "§lAbout:§r Enables tracking (recording) entities other than vehicles and items",
+  "mocap.settings.info.about.trackPlayedEntities": "§lAbout:§r Enables tracking (recording) entities that are currently played",
+  "mocap.settings.info.about.entityTrackingDistance": "§lAbout:§r Limits the entity tracking distance (>0 - tracking radius in blocks; 0 - disable tracking; -1 - distance not limited)",
+  "mocap.settings.info.about.playVehicleEntities": "§lAbout:§r Enables playing vehicle entities (like boats or horses)",
+  "mocap.settings.info.about.playItemEntities": "§lAbout:§r Enables playing item entities",
+  "mocap.settings.info.about.playOtherEntities": "§lAbout:§r Enables playing entities other than vehicles and items",
+  "mocap.settings.info.about.entitiesAfterPlayback": "§lAbout:§r Determines what will happen with entities after playback (-1 - release it as a normal entity; 0 - left untouched; 1 - remove; 2 - kill with animation)",
+  "mocap.settings.info.about.preventSavingEntities": "§lAbout:§r Prevents game from saving played entities in case of for example leaving game",
+  "mocap.settings.info.about.recordPlayerDeath": "§lAbout:§r Enables recording player death and stops recording at that moment",
   "mocap.settings.info.val": "§lCurrent value:§r %s",
   "mocap.settings.info.def_val": "§lDefault value:§r %s",
 
@@ -99,7 +156,22 @@
   "mocap.settings.set": "Value changed from %s to %s",
 
 
-  "mocap.help": "%s - §lHelp§r\n  /mocap recording [...] - Recording player movements\n  /mocap scenes [...] - Creating and modifying scenes\n  /mocap playing [...] - Playing scenes and recordings\n  /mocap settings [...] - Shows and modifies settings\n  /mocap info - Displays information about mod\n  /mocap help - Displays this message\n§lHow to use:§r\n- First, you need to start recording using \"/mocap recording start\". It will record all your movements or movements of a player given as an argument. \n- Then, you can stop recording using \"/mocap recording stop\" and save it with \"/mocap recording save <name>\".\n- Use \"/mocap playing start <name>\" to play recording.\n- You can also create scenes to which you can add multiple recordings or other scenes, with parameters like player name, position offset, or start delay.\n- To create scene use \"/mocap scenes add <scene_name>\". Then, add your recording using \"/mocap scenes addTo <scene_name> <recording_name> [delay] [x_offset] [y_offset] [z_offset] [player_name]\" (you can skip arguments in square brackets if you want).\n- To play scene use \"/mocap playing start .<scene_name>\" - you need to put a dot before the scene name.\n- By putting a dot before name, when using \"/mocap scenes addTo ...\", you can also add scenes to other scenes.",
+  "mocap.help": "%s - §lHelp§r\n  /mocap recording [...] - Recording player movements\n  /mocap recordings [...] - Managing recording files\n  /mocap scenes [...] - Creating and modifying scenes\n  /mocap playing [...] - Playing scenes and recordings\n  /mocap settings [...] - Shows and modifies settings\n  /mocap info - Displays information about mod\n  /mocap help - Displays this message\n§lHow to use:§r\n- First, you need to start recording using \"/mocap recording start\". It will record all your movements or movements of a player given as an argument. \n- Then, you can stop recording using \"/mocap recording stop\" and save it with \"/mocap recording save <name>\".\n- Use \"/mocap playing start <name>\" to play recording.\n- You can also create scenes to which you can add multiple recordings or other scenes, with parameters like player name, position offset, or start delay.\n- To create scene use \"/mocap scenes add <scene_name>\". Then, add your recording using \"/mocap scenes addTo <scene_name> <recording_name> [delay] [x_offset] [y_offset] [z_offset] [player_name] [skin_source_type] [skin_source]\" (you can skip arguments in square brackets if you want).\n- To play scene use \"/mocap playing start .<scene_name>\" - you need to put a dot before the scene name.\n- By putting a dot before name, when using \"/mocap scenes addTo ...\", you can also add scenes to other scenes.",
+
+
+  "mocap.list.empty": "§7§o[empty]§r",
+  "mocap.list.error": "§c§o[error]§r",
+
+
+  "mocap.file.info.name": "§lName:§r %s",
+  "mocap.file.info.version.current": "§lFormat version:§r %d §7§o[current]§r",
+  "mocap.file.info.version.old": "§lFormat version:§r %d §7§o[old]§r",
+  "mocap.file.info.version.unknown": "§lFormat version:§r %d §7§o[unknown/undefined]§r",
+  "mocap.file.info.version.not_supported": "§lFormat version:§r %d §7§o[not supported]§r",
+
+
+  "mocap.warning.custom_skin_cache_limit": "§lWarning:§r custom skin cache size reached limit!",
+  "mocap.warning.custom_skin_cache_limit.tip": "Rejoin the world to clear it",
 
 
   "mocap.error.failed_to_init_directories": "§lError:§r failed to initialize directories!",
