@@ -2,7 +2,6 @@ package com.mt1006.mocap.mocap.actions;
 
 import com.mt1006.mocap.mocap.files.RecordingFiles;
 import com.mt1006.mocap.mocap.playing.PlayingContext;
-import net.minecraft.network.protocol.game.ClientboundAnimatePacket;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -12,7 +11,7 @@ public class Swing implements ComparableAction
 {
 	private final boolean swinging;
 	private final int swingingTime;
-	private final boolean offHand;
+	private final InteractionHand hand;
 
 	public Swing(Entity entity)
 	{
@@ -21,13 +20,13 @@ public class Swing implements ComparableAction
 			LivingEntity livingEntity = (LivingEntity)entity;
 			swinging = livingEntity.swinging;
 			swingingTime = livingEntity.swingTime;
-			offHand = livingEntity.swingingArm == InteractionHand.OFF_HAND;
+			hand = livingEntity.swingingArm;
 		}
 		else
 		{
 			swinging = false;
 			swingingTime = 0;
-			offHand = false;
+			hand = InteractionHand.MAIN_HAND;
 		}
 	}
 
@@ -35,7 +34,7 @@ public class Swing implements ComparableAction
 	{
 		swinging = true;
 		swingingTime = 0;
-		offHand = reader.readBoolean();
+		hand = reader.readBoolean() ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
 	}
 
 	@Override public boolean differs(ComparableAction action)
@@ -48,14 +47,14 @@ public class Swing implements ComparableAction
 		if (swinging && (action == null || !((Swing)action).swinging || ((Swing)action).swingingTime > swingingTime))
 		{
 			writer.addByte(Type.SWING.id);
-			writer.addBoolean(offHand);
+			writer.addBoolean(hand == InteractionHand.OFF_HAND);
 		}
 	}
 
 	@Override public Result execute(PlayingContext ctx)
 	{
-		if (!(ctx.entity instanceof LivingEntity)) { return Result.IGNORED; } //TODO: check if check not present
-		ctx.broadcast(new ClientboundAnimatePacket(ctx.entity, offHand ? 3 : 0));
+		if (!(ctx.entity instanceof LivingEntity)) { return Result.IGNORED; }
+		((LivingEntity)ctx.entity).swing(hand);
 		return Result.OK;
 	}
 }

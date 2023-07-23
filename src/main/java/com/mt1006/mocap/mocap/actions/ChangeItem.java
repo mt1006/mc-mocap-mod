@@ -1,14 +1,17 @@
 package com.mt1006.mocap.mocap.actions;
 
 import com.mojang.datafixers.util.Pair;
+import com.mt1006.mocap.mixin.fields.AbstractHorseMixin;
+import com.mt1006.mocap.mixin.fields.LivingEntityMixin;
 import com.mt1006.mocap.mocap.files.RecordingFiles;
 import com.mt1006.mocap.mocap.playing.PlayingContext;
 import com.mt1006.mocap.utils.Utils;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.animal.horse.AbstractHorse;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -113,8 +116,6 @@ public class ChangeItem implements ComparableAction
 
 	@Override public Result execute(PlayingContext ctx)
 	{
-		List<Pair<EquipmentSlot, ItemStack>> list = new ArrayList<>();
-
 		if (items.size() != ITEM_COUNT) { return Result.ERROR; }
 		for (int i = 0; i < ITEM_COUNT; i++)
 		{
@@ -142,16 +143,23 @@ public class ChangeItem implements ComparableAction
 
 			switch (i)
 			{
-				case 0: list.add(new Pair<>(EquipmentSlot.MAINHAND, itemStack)); break;
-				case 1: list.add(new Pair<>(EquipmentSlot.OFFHAND, itemStack)); break;
-				case 2: list.add(new Pair<>(EquipmentSlot.FEET, itemStack)); break;
-				case 3: list.add(new Pair<>(EquipmentSlot.LEGS, itemStack)); break;
-				case 4: list.add(new Pair<>(EquipmentSlot.CHEST, itemStack)); break;
-				case 5: list.add(new Pair<>(EquipmentSlot.HEAD, itemStack)); break;
+				case 0: ctx.entity.setItemSlot(EquipmentSlot.MAINHAND, itemStack); break;
+				case 1: ctx.entity.setItemSlot(EquipmentSlot.OFFHAND, itemStack); break;
+				case 2: ctx.entity.setItemSlot(EquipmentSlot.FEET, itemStack); break;
+				case 3: ctx.entity.setItemSlot(EquipmentSlot.LEGS, itemStack); break;
+				case 4: ctx.entity.setItemSlot(EquipmentSlot.CHEST, itemStack); break;
+				case 5: ctx.entity.setItemSlot(EquipmentSlot.HEAD, itemStack); break;
 			}
-		}
 
-		ctx.packetTargets.broadcastAll(new ClientboundSetEquipmentPacket(ctx.entity.getId(), list));
+			if (i == 4 && ctx.entity instanceof AbstractHorse)
+			{
+				try { ((AbstractHorseMixin)ctx.entity).getInventory().setItem(1, itemStack); }
+				catch (Exception ignore) {}
+			}
+
+			// for non-player living entities it's detected in their "tick" method
+			if (ctx.entity instanceof Player) { ((LivingEntityMixin)ctx.entity).callDetectEquipmentUpdates();}
+		}
 		return Result.OK;
 	}
 }

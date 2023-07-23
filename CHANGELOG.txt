@@ -1,3 +1,14 @@
+===Version 1.3.1===
+-Added settings "fluentMovements" controlling distance to played entity for player to receive additional packets for more fluent movements (32 by default).
+-Fixed entity data synchronization issues.
+-Fixed packets being sent to players far away from played entities.
+-Fixed issue with horse armor not being set properly (reported by M7MEDpro).
+-Fixed issues with players position being offset during playback on versions 1.19.4 and 1.20.1.
+-Fixed horse variant resetting to default or chest disappearing on horse-like entities when their mouth "is open" on versions 1.19.2 and lower.
+-Fixed llama variants not being recorded on versions 1.19.2 and lower, on Fabric.
+-Fixed setting "preventSavingEntities" not preventing saving entities on version 1.16.5.
+-Fixes for loading skin from a file.
+
 ===Version 1.3===
 -Changes to command structure - split "/mocap recording" into "recording" and "recordings".
 -Added commands to rename, copy and get information about recordings and scenes.

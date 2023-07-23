@@ -85,14 +85,21 @@ public class Movement implements ComparableAction
 	@Override public Result execute(PlayingContext ctx)
 	{
 		//TODO: switch from relative to absolute
-		double x = ctx.entity.getX() + position[0];
-		double y = ctx.entity.getY() + position[1];
-		double z = ctx.entity.getZ() + position[2];
-		ctx.entity.moveTo(x, y, z, rotation[1], rotation[0]);
+		if (ctx.entity == ctx.mainEntity)
+		{
+			ctx.shiftPosition(position[0], position[1], position[2], rotation[1], rotation[0]);
+		}
+		else
+		{
+			double x = ctx.entity.getX() + position[0];
+			double y = ctx.entity.getY() + position[1];
+			double z = ctx.entity.getZ() + position[2];
+			ctx.entity.moveTo(x, y, z, rotation[1], rotation[0]);
+		}
+
 		ctx.entity.setOnGround(isOnGround);
 		((EntityMixin)ctx.entity).callCheckInsideBlocks();
-
-		ctx.broadcast(new ClientboundTeleportEntityPacket(ctx.entity));
+		ctx.fluentMovement(() -> new ClientboundTeleportEntityPacket(ctx.entity));
 		return Result.OK;
 	}
 }
