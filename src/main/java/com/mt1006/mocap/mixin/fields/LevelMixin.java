@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @Mixin(ServerWorld.class)
-public interface ServerLevelEntitiesMixin
+public interface LevelMixin
 {
 	@Accessor Map<UUID, Entity> getEntitiesByUuid();
 }

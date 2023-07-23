@@ -1,8 +1,6 @@
 package com.mt1006.mocap.mocap.actions;
 
-import com.mt1006.mocap.mixin.fields.BoatMixin;
-import com.mt1006.mocap.mixin.fields.HorseMixin;
-import com.mt1006.mocap.mixin.fields.LlamaMixin;
+import com.mt1006.mocap.mixin.fields.*;
 import com.mt1006.mocap.mocap.files.RecordingFiles;
 import com.mt1006.mocap.mocap.playing.PlayingContext;
 import com.mt1006.mocap.utils.EntityData;
@@ -17,6 +15,8 @@ import net.minecraft.entity.passive.horse.HorseEntity;
 import net.minecraft.entity.passive.horse.LlamaEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.DyeColor;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import org.jetbrains.annotations.Nullable;
 
 public class VehicleData implements ComparableAction
@@ -52,7 +52,7 @@ public class VehicleData implements ComparableAction
 			if (abstractHorse.isStanding()) { flags |= 0x20; }
 			if ((EntityData.ABSTRACT_HORSE_FLAGS.valOrDef(entity, (byte)0) & 0x40) != 0) { flags |= 0x40; }
 
-			else if (entity instanceof AbstractChestedHorseEntity) { flag1 = ((AbstractChestedHorseEntity)entity).hasChest(); }
+			if (entity instanceof AbstractChestedHorseEntity) { flag1 = ((AbstractChestedHorseEntity)entity).hasChest(); }
 			else if (entity instanceof HorseEntity) { int1 = ((HorseMixin)entity).callGetTypeVariant(); }
 
 			if (entity instanceof LlamaEntity)
@@ -64,7 +64,7 @@ public class VehicleData implements ComparableAction
 		}
 		else if (entity instanceof PigEntity)
 		{
-			flag1 = EntityData.PIG_HAS_SADDLE.valOrDef(entity, false);
+			flag1 = ((PigEntity)entity).isSaddled();
 		}
 		else if (entity instanceof BoatEntity)
 		{
@@ -136,7 +136,6 @@ public class VehicleData implements ComparableAction
 	@Override public Result execute(PlayingContext ctx)
 	{
 		if (!used) { return Result.OK; }
-		EntityData entityData = new EntityData(ctx.entity);
 
 		if (ctx.entity instanceof AgeableEntity)
 		{
@@ -145,8 +144,14 @@ public class VehicleData implements ComparableAction
 
 		if (ctx.entity instanceof AbstractHorseEntity)
 		{
-			//TODO: replace EntityData
-			entityData.add(EntityData.ABSTRACT_HORSE_FLAGS, flags);
+			EntityData.ABSTRACT_HORSE_FLAGS.set(ctx.entity, flags);
+
+			try
+			{
+				ItemStack itemStack = new ItemStack((flags & 0x04) != 0 ? Items.SADDLE : Items.AIR);
+				((AbstractHorseMixin)ctx.entity).getInventory().setItem(0, itemStack);
+			}
+			catch (Exception ignore) {}
 
 			if (ctx.entity instanceof AbstractChestedHorseEntity) { ((AbstractChestedHorseEntity)ctx.entity).setChest(flag1); }
 			else if (ctx.entity instanceof HorseEntity) { ((HorseMixin)ctx.entity).callSetTypeVariant(int1); }
@@ -159,7 +164,7 @@ public class VehicleData implements ComparableAction
 		}
 		else if (ctx.entity instanceof PigEntity)
 		{
-			entityData.add(EntityData.PIG_HAS_SADDLE, flag1);
+			((PigMixin)ctx.entity).getSteering().setSaddle(flag1);
 		}
 		else if (ctx.entity instanceof BoatEntity)
 		{
@@ -176,7 +181,6 @@ public class VehicleData implements ComparableAction
 			((AbstractMinecartEntity)ctx.entity).setDamage(float1);
 		}
 
-		entityData.broadcast(ctx);
 		return Result.OK;
 	}
 }

@@ -1,10 +1,11 @@
 package com.mt1006.mocap.command.commands;
 
+import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.mojang.brigadier.context.CommandContext;
+import com.mt1006.mocap.command.CommandInfo;
 import com.mt1006.mocap.command.CommandUtils;
 import com.mt1006.mocap.mocap.files.SceneFiles;
 import com.mt1006.mocap.mocap.playing.SceneData;
@@ -18,6 +19,9 @@ import java.util.List;
 
 public class ScenesCommand
 {
+	private static final Command<CommandSource> COMMAND_ADD_TO = CommandUtils.command(ScenesCommand::addTo);
+	private static final Command<CommandSource> COMMAND_MODIFY = CommandUtils.command(ScenesCommand::modify);
+
 	public static LiteralArgumentBuilder<CommandSource> getArgumentBuilder()
 	{
 		LiteralArgumentBuilder<CommandSource> commandBuilder = Commands.literal("scenes");
@@ -28,138 +32,138 @@ public class ScenesCommand
 		commandBuilder.then(Commands.literal("remove").then(CommandUtils.withStringArgument(SceneFiles::remove, "name")));
 		commandBuilder.then(Commands.literal("addTo").
 			then(Commands.argument("sceneName", StringArgumentType.string()).
-			then(Commands.argument("toAdd", StringArgumentType.string()).executes(ScenesCommand::addTo).
-			then(Commands.argument("startDelay", DoubleArgumentType.doubleArg(0.0)).executes(ScenesCommand::addTo).
-			then(Commands.argument("offsetX", DoubleArgumentType.doubleArg()).executes(ScenesCommand::addTo).
-			then(Commands.argument("offsetY", DoubleArgumentType.doubleArg()).executes(ScenesCommand::addTo).
-			then(Commands.argument("offsetZ", DoubleArgumentType.doubleArg()).executes(ScenesCommand::addTo).
-			then(CommandUtils.withPlayerArguments(ScenesCommand::addTo)))))))));
+			then(Commands.argument("toAdd", StringArgumentType.string()).executes(COMMAND_ADD_TO).
+			then(Commands.argument("startDelay", DoubleArgumentType.doubleArg(0.0)).executes(COMMAND_ADD_TO).
+			then(Commands.argument("offsetX", DoubleArgumentType.doubleArg()).executes(COMMAND_ADD_TO).
+			then(Commands.argument("offsetY", DoubleArgumentType.doubleArg()).executes(COMMAND_ADD_TO).
+			then(Commands.argument("offsetZ", DoubleArgumentType.doubleArg()).executes(COMMAND_ADD_TO).
+			then(CommandUtils.withPlayerArguments(COMMAND_ADD_TO)))))))));
 		commandBuilder.then(Commands.literal("removeFrom").
 			then(Commands.argument("sceneName", StringArgumentType.string()).
-			then(Commands.argument("toRemove", IntegerArgumentType.integer()).executes(ScenesCommand::removeFrom))));
+			then(Commands.argument("toRemove", IntegerArgumentType.integer()).executes(CommandUtils.command(ScenesCommand::removeFrom)))));
 		commandBuilder.then(Commands.literal("modify").
 			then(Commands.argument("sceneName", StringArgumentType.string()).
 			then(Commands.argument("toModify", IntegerArgumentType.integer()).
-			then(Commands.literal("subsceneName").then(Commands.argument("newName", StringArgumentType.string()).executes(ScenesCommand::modify))).
-			then(Commands.literal("startDelay").then(Commands.argument("delay", DoubleArgumentType.doubleArg(0.0)).executes(ScenesCommand::modify))).
+			then(Commands.literal("subsceneName").then(Commands.argument("newName", StringArgumentType.string()).executes(COMMAND_MODIFY))).
+			then(Commands.literal("startDelay").then(Commands.argument("delay", DoubleArgumentType.doubleArg(0.0)).executes(COMMAND_MODIFY))).
 			then(Commands.literal("positionOffset").
 				then(Commands.argument("offsetX", DoubleArgumentType.doubleArg()).
 				then(Commands.argument("offsetY", DoubleArgumentType.doubleArg()).
-				then(Commands.argument("offsetZ", DoubleArgumentType.doubleArg()).executes(ScenesCommand::modify))))).
-			then(Commands.literal("playerInfo").then(CommandUtils.withPlayerArguments(ScenesCommand::modify))).
+				then(Commands.argument("offsetZ", DoubleArgumentType.doubleArg()).executes(COMMAND_MODIFY))))).
+			then(Commands.literal("playerInfo").then(CommandUtils.withPlayerArguments(COMMAND_MODIFY))).
 			then(Commands.literal("playerAsEntity").
-				then(Commands.literal("disabled").executes(ScenesCommand::modify)).
+				then(Commands.literal("disabled").executes(COMMAND_MODIFY)).
 				then(Commands.literal("enabled").
 					then(Commands.argument("entity", EntitySummonArgument.id()).suggests(SuggestionProviders.SUMMONABLE_ENTITIES).
-						executes(ScenesCommand::modify)))))));
+						executes(COMMAND_MODIFY)))))));
 		commandBuilder.then(Commands.literal("elementInfo").
 			then(Commands.argument("sceneName", StringArgumentType.string()).
-			then(Commands.argument("elementPos", IntegerArgumentType.integer()).executes(ScenesCommand::elementInfo))));
+			then(Commands.argument("elementPos", IntegerArgumentType.integer()).executes(CommandUtils.command(ScenesCommand::elementInfo)))));
 		commandBuilder.then(Commands.literal("listElements").then(CommandUtils.withStringArgument(SceneFiles::listElements, "name")));
-		commandBuilder.then(Commands.literal("info").then(CommandUtils.withStringArgument(SceneFiles::info, "name"))); //TODO: check
-		commandBuilder.then(Commands.literal("list").executes(CommandUtils.simpleCommand(ScenesCommand::list)));
+		commandBuilder.then(Commands.literal("info").then(CommandUtils.withStringArgument(SceneFiles::info, "name")));
+		commandBuilder.then(Commands.literal("list").executes(CommandUtils.command(ScenesCommand::list)));
 
 		return commandBuilder;
 	}
 
-	private static int addTo(CommandContext<CommandSource> ctx)
+	private static boolean addTo(CommandInfo commandInfo)
 	{
 		try
 		{
-			String name = StringArgumentType.getString(ctx, "sceneName");
+			String name = commandInfo.getString("sceneName");
 
-			String toAdd = StringArgumentType.getString(ctx, "toAdd");
+			String toAdd = commandInfo.getString("toAdd");
 			SceneData.Subscene subscene = new SceneData.Subscene(toAdd);
 
 			try
 			{
-				subscene.startDelay = DoubleArgumentType.getDouble(ctx, "startDelay");
-				subscene.posOffset[0] = DoubleArgumentType.getDouble(ctx, "offsetX");
-				subscene.posOffset[1] = DoubleArgumentType.getDouble(ctx, "offsetY");
-				subscene.posOffset[2] = DoubleArgumentType.getDouble(ctx, "offsetZ");
-				subscene.playerData = CommandUtils.getPlayerData(ctx);
+				subscene.startDelay = commandInfo.getDouble("startDelay");
+				subscene.posOffset[0] = commandInfo.getDouble("offsetX");
+				subscene.posOffset[1] = commandInfo.getDouble("offsetY");
+				subscene.posOffset[2] = commandInfo.getDouble("offsetZ");
+				subscene.playerData = commandInfo.getPlayerData();
 
 				if (subscene.playerData.name != null)
 				{
 					//TODO: move
 					if (subscene.playerData.name.length() > 16)
 					{
-						Utils.sendFailure(ctx.getSource(), "mocap.scenes.add_to.error");
-						Utils.sendFailure(ctx.getSource(), "mocap.scenes.add_to.error.too_long_name");
-						return 0;
+						commandInfo.sendFailure("mocap.scenes.add_to.error");
+						commandInfo.sendFailure("mocap.scenes.add_to.error.too_long_name");
+						return false;
 					}
 
 					if (subscene.playerData.name.contains(" "))
 					{
-						Utils.sendFailure(ctx.getSource(), "mocap.scenes.add_to.error");
-						Utils.sendFailure(ctx.getSource(), "mocap.scenes.add_to.error.contain_spaces");
-						return 0;
+						commandInfo.sendFailure("mocap.scenes.add_to.error");
+						commandInfo.sendFailure("mocap.scenes.add_to.error.contain_spaces");
+						return false;
 					}
 				}
 			}
 			catch (Exception ignore) {}
 
-			return SceneFiles.addElement(ctx.getSource(), name, subscene.sceneToStr()) ? 1 : 0;
+			return SceneFiles.addElement(commandInfo, name, subscene.sceneToStr());
 		}
 		catch (Exception exception)
 		{
-			Utils.sendException(exception, ctx.getSource(), "mocap.error.unable_to_get_argument");
-			return 0;
+			commandInfo.sendException(exception, "mocap.error.unable_to_get_argument");
+			return false;
 		}
 	}
 
-	private static int removeFrom(CommandContext<CommandSource> ctx)
+	private static boolean removeFrom(CommandInfo commandInfo)
 	{
 		try
 		{
-			String name = StringArgumentType.getString(ctx, "sceneName");
-			int pos = IntegerArgumentType.getInteger(ctx, "toRemove");
+			String name = commandInfo.getString("sceneName");
+			int pos = commandInfo.getInteger("toRemove");
 
-			return SceneFiles.removeElement(ctx.getSource(), name, pos) ? 1 : 0;
+			return SceneFiles.removeElement(commandInfo, name, pos);
 		}
 		catch (Exception exception)
 		{
-			Utils.sendException(exception, ctx.getSource(), "mocap.error.unable_to_get_argument");
-			return 0;
+			commandInfo.sendException(exception, "mocap.error.unable_to_get_argument");
+			return false;
 		}
 	}
 
-	private static int modify(CommandContext<CommandSource> ctx)
+	private static boolean modify(CommandInfo commandInfo)
 	{
 		try
 		{
-			String name = StringArgumentType.getString(ctx, "sceneName");
-			int pos = IntegerArgumentType.getInteger(ctx, "toModify");
+			String name = commandInfo.getString("sceneName");
+			int pos = commandInfo.getInteger("toModify");
 
-			return SceneFiles.modify(ctx, name, pos) ? 1 : 0;
+			return SceneFiles.modify(commandInfo, name, pos);
 		}
 		catch (Exception exception)
 		{
-			Utils.sendException(exception, ctx.getSource(), "mocap.error.unable_to_get_argument");
-			return 0;
+			commandInfo.sendException(exception, "mocap.error.unable_to_get_argument");
+			return false;
 		}
 	}
 
-	private static int elementInfo(CommandContext<CommandSource> ctx)
+	private static boolean elementInfo(CommandInfo commandInfo)
 	{
 		try
 		{
-			String name = StringArgumentType.getString(ctx, "sceneName");
-			int pos = IntegerArgumentType.getInteger(ctx, "elementPos");
+			String name = commandInfo.getString("sceneName");
+			int pos = commandInfo.getInteger("elementPos");
 
-			return SceneFiles.elementInfo(ctx.getSource(), name, pos) ? 1 : 0;
+			return SceneFiles.elementInfo(commandInfo, name, pos);
 		}
 		catch (Exception exception)
 		{
-			Utils.sendException(exception, ctx.getSource(), "mocap.error.unable_to_get_argument");
-			return 0;
+			commandInfo.sendException(exception, "mocap.error.unable_to_get_argument");
+			return false;
 		}
 	}
 
-	public static boolean list(CommandSource commandSource)
+	public static boolean list(CommandInfo commandInfo)
 	{
 		StringBuilder scenesListStr = new StringBuilder();
-		List<String> scenesList = SceneFiles.list(commandSource.getServer(), commandSource);
+		List<String> scenesList = SceneFiles.list(commandInfo.source.getServer(), commandInfo);
 
 		if (scenesList == null)
 		{
@@ -177,7 +181,7 @@ public class ScenesCommand
 			scenesListStr.append(" ").append(Utils.stringFromComponent("mocap.list.empty"));
 		}
 
-		Utils.sendSuccess(commandSource, "mocap.scenes.list", new String(scenesListStr));
+		commandInfo.sendSuccess("mocap.scenes.list", new String(scenesListStr));
 		return true;
 	}
 }

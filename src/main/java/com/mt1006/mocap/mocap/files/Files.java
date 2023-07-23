@@ -1,8 +1,8 @@
 package com.mt1006.mocap.mocap.files;
 
 import com.mt1006.mocap.MocapMod;
-import com.mt1006.mocap.utils.Utils;
-import net.minecraft.command.CommandSource;
+import com.mt1006.mocap.command.CommandInfo;
+import com.mt1006.mocap.command.CommandOutput;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.storage.FolderName;
 import org.jetbrains.annotations.Nullable;
@@ -31,22 +31,22 @@ public class Files
 	public static File skinDirectory = null;
 	public static File slimSkinDirectory = null;
 
-	public static boolean initAndCheck(CommandSource commandSource, String name)
+	public static boolean initAndCheck(CommandInfo commandInfo, String name)
 	{
-		return initDirectories(commandSource) && checkIfProperName(commandSource, name);
+		return initDirectories(commandInfo) && checkIfProperName(commandInfo, name);
 	}
 
 	public static boolean initAndCheck(MinecraftServer server, String name)
 	{
-		return initDirectories(server, null) && checkIfProperName(null, name);
+		return initDirectories(server, CommandOutput.DUMMY) && checkIfProperName(CommandOutput.DUMMY, name);
 	}
 
-	private static boolean initDirectories(CommandSource commandSource)
+	private static boolean initDirectories(CommandInfo commandInfo)
 	{
-		return initDirectories(commandSource.getServer(), commandSource);
+		return initDirectories(commandInfo.source.getServer(), commandInfo);
 	}
 
-	public static boolean initDirectories(MinecraftServer server, @Nullable CommandSource commandSource)
+	public static boolean initDirectories(MinecraftServer server, CommandOutput commandOutput)
 	{
 		if (directoriesInitialized) { return true; }
 
@@ -59,7 +59,7 @@ public class Files
 		if (!mocapDirectory.isDirectory() || !recordingsDirectory.isDirectory() || !sceneDirectory.isDirectory()
 				|| !skinDirectory.isDirectory() || !slimSkinDirectory.isDirectory())
 		{
-			if (commandSource != null) { Utils.sendFailure(commandSource, "mocap.error.failed_to_init_directories"); }
+			commandOutput.sendFailure("mocap.error.failed_to_init_directories");
 			return false;
 		}
 
@@ -72,17 +72,14 @@ public class Files
 		directoriesInitialized = false;
 	}
 
-	public static boolean checkIfProperName(@Nullable CommandSource commandSource, String name)
+	public static boolean checkIfProperName(CommandOutput commandOutput, String name)
 	{
 		if (name.length() < 1) { return false; }
 
 		if (name.charAt(0) == '.')
 		{
-			if (commandSource != null)
-			{
-				Utils.sendFailure(commandSource, "mocap.error.improper_name");
-				Utils.sendFailure(commandSource, "mocap.error.improper_name.dot_first");
-			}
+			commandOutput.sendFailure("mocap.error.improper_name");
+			commandOutput.sendFailure("mocap.error.improper_name.dot_first");
 			return false;
 		}
 
@@ -90,11 +87,8 @@ public class Files
 		{
 			if (!isAllowedInInputName(c))
 			{
-				if (commandSource != null)
-				{
-					Utils.sendFailure(commandSource, "mocap.error.improper_name");
-					Utils.sendFailure(commandSource, "mocap.error.improper_name.character");
-				}
+				commandOutput.sendFailure("mocap.error.improper_name");
+				commandOutput.sendFailure("mocap.error.improper_name.character");
 				return false;
 			}
 		}
@@ -121,22 +115,22 @@ public class Files
 		return data;
 	}
 
-	public static @Nullable File getSettingsFile(CommandSource commandSource)
+	public static @Nullable File getSettingsFile(CommandInfo commandInfo)
 	{
-		if (!initDirectories(commandSource)) { return null; }
+		if (!initDirectories(commandInfo)) { return null; }
 		return new File(mocapDirectory, CONFIG_FILE_NAME);
 	}
 
-	public static @Nullable File getRecordingFile(CommandSource commandSource, String name)
+	public static @Nullable File getRecordingFile(CommandInfo commandInfo, String name)
 	{
-		if (!initAndCheck(commandSource, name)) { return null; }
+		if (!initAndCheck(commandInfo, name)) { return null; }
 		return new File(recordingsDirectory, name + RECORDING_EXTENSION);
 	}
 
-	public static @Nullable File getSceneFile(CommandSource commandSource, String name)
+	public static @Nullable File getSceneFile(CommandInfo commandInfo, String name)
 	{
 		if (name.charAt(0) == '.') { name = name.substring(1); }
-		if (!initAndCheck(commandSource, name)) { return null; }
+		if (!initAndCheck(commandInfo, name)) { return null; }
 		return new File(sceneDirectory, name + SCENE_EXTENSION);
 	}
 
@@ -156,13 +150,13 @@ public class Files
 	public static boolean isRecordingFile(String name)
 	{
 		File file = new File(name);
-		return !file.isDirectory() && name.endsWith(RECORDING_EXTENSION) && checkIfProperName(null, name);
+		return !file.isDirectory() && name.endsWith(RECORDING_EXTENSION) && checkIfProperName(CommandOutput.DUMMY, name);
 	}
 
 	public static boolean isSceneFile(String name)
 	{
 		File file = new File(name);
-		return !file.isDirectory() && name.endsWith(SCENE_EXTENSION) && checkIfProperName(null, name);
+		return !file.isDirectory() && name.endsWith(SCENE_EXTENSION) && checkIfProperName(CommandOutput.DUMMY, name);
 	}
 
 	public static boolean isAllowedInInputName(char c)

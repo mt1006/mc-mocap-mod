@@ -1,5 +1,6 @@
 package com.mt1006.mocap.mocap.playing;
 
+import com.mt1006.mocap.command.CommandInfo;
 import com.mt1006.mocap.mocap.actions.Action;
 import com.mt1006.mocap.mocap.actions.BlockAction;
 import com.mt1006.mocap.mocap.actions.NextTick;
@@ -7,11 +8,8 @@ import com.mt1006.mocap.mocap.files.Files;
 import com.mt1006.mocap.mocap.files.RecordingFiles;
 import com.mt1006.mocap.mocap.settings.Settings;
 import com.mt1006.mocap.utils.EntityData;
-import com.mt1006.mocap.utils.Utils;
-import net.minecraft.command.CommandSource;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.management.PlayerList;
 import net.minecraft.util.math.vector.Vector3i;
 
 import java.util.ArrayList;
@@ -28,22 +26,22 @@ public class RecordingData
 	public long fileSize = 0;
 	public long tickCount = 0;
 
-	public boolean load(CommandSource commandSource, String name)
+	public boolean load(CommandInfo commandInfo, String name)
 	{
-		byte[] data = Files.loadFile(Files.getRecordingFile(commandSource, name));
+		byte[] data = Files.loadFile(Files.getRecordingFile(commandInfo, name));
 		if (data == null) { return false; }
-		return load(commandSource, new RecordingFiles.FileReader(data));
+		return load(commandInfo, new RecordingFiles.FileReader(data));
 	}
 
-	public boolean load(CommandSource commandSource, RecordingFiles.FileReader reader)
+	public boolean load(CommandInfo commandInfo, RecordingFiles.FileReader reader)
 	{
 		fileSize = reader.getSize();
 		version = reader.readByte();
 
 		if (version > RecordingFiles.RECORDING_VERSION)
 		{
-			Utils.sendFailure(commandSource, "mocap.playing.start.error");
-			Utils.sendFailure(commandSource, "mocap.playing.start.error.load_header");
+			commandInfo.sendFailure("mocap.playing.start.error");
+			commandInfo.sendFailure("mocap.playing.start.error.load_header");
 			return false;
 		}
 
@@ -90,7 +88,7 @@ public class RecordingData
 	public Action.Result executeNext(PlayingContext ctx, int pos)
 	{
 		if (pos >= actions.size()) { return Action.Result.END; }
-		if (pos == 0) { firstExecute(ctx.packetTargets, ctx.entity); }
+		if (pos == 0) { firstExecute(ctx.entity); }
 
 		try
 		{
@@ -105,11 +103,12 @@ public class RecordingData
 		}
 	}
 
-	private void firstExecute(PlayerList packetTargets, Entity entity)
+	private void firstExecute(Entity entity)
 	{
 		if (entity instanceof PlayerEntity)
 		{
-			new EntityData(entity, EntityData.PLAYER_SKIN_PARTS, (byte)0b01111111).broadcast(packetTargets);
+			//TODO: recording skin parts
+			EntityData.PLAYER_SKIN_PARTS.set(entity, (byte)0b01111111);
 		}
 	}
 }

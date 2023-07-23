@@ -1,9 +1,8 @@
 package com.mt1006.mocap.mocap.playing;
 
+import com.mt1006.mocap.command.CommandInfo;
+import com.mt1006.mocap.command.CommandOutput;
 import com.mt1006.mocap.mocap.settings.Settings;
-import com.mt1006.mocap.utils.Utils;
-import net.minecraft.command.CommandSource;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,48 +17,48 @@ public class Playing
 	private static double timer = 0.0;
 	private static double previousPlayingSpeed = 0.0;
 
-	public static int start(CommandSource commandSource, String name, PlayerData playerData)
+	public static boolean start(CommandInfo commandInfo, String name, PlayerData playerData)
 	{
-		if (!Settings.loaded) { Settings.load(commandSource); }
+		if (!Settings.loaded) { Settings.load(commandInfo); }
 
 		PlayedScene scene = new PlayedScene();
-		if (!scene.start(commandSource, name, playerData, getNextID())) { return 0; }
+		if (!scene.start(commandInfo, name, playerData, getNextID())) { return false; }
 		playedScenes.add(scene);
 
-		Utils.sendSuccess(commandSource, "mocap.playing.start.success");
-		return 1;
+		commandInfo.sendSuccess("mocap.playing.start.success");
+		return true;
 	}
 
-	public static void stop(CommandSource commandSource, int id)
+	public static void stop(CommandInfo commandInfo, int id)
 	{
 		for (PlayedScene scene : playedScenes)
 		{
 			if (scene.getID() == id)
 			{
 				scene.stop();
-				Utils.sendSuccess(commandSource, "mocap.playing.stop.success");
+				commandInfo.sendSuccess("mocap.playing.stop.success");
 				return;
 			}
 		}
 
-		Utils.sendFailure(commandSource, "mocap.playing.stop.unable_to_find_scene");
-		Utils.sendFailure(commandSource, "mocap.playing.stop.unable_to_find_scene.tip");
+		commandInfo.sendFailure("mocap.playing.stop.unable_to_find_scene");
+		commandInfo.sendFailure("mocap.playing.stop.unable_to_find_scene.tip");
 	}
 
-	public static boolean stopAll(@Nullable CommandSource commandSource)
+	public static boolean stopAll(CommandOutput commandOutput)
 	{
 		playedScenes.forEach(PlayedScene::stop);
-		if (commandSource != null) { Utils.sendSuccess(commandSource, "mocap.playing.stop_all.success"); }
+		commandOutput.sendSuccess("mocap.playing.stop_all.success");
 		return true;
 	}
 
-	public static boolean list(CommandSource commandSource)
+	public static boolean list(CommandInfo commandInfo)
 	{
-		Utils.sendSuccess(commandSource, "mocap.playing.list");
+		commandInfo.sendSuccess("mocap.playing.list");
 
 		for (PlayedScene scene : playedScenes)
 		{
-			Utils.sendSuccessLiteral(commandSource, "[%d] %s", scene.getID(), scene.getName());
+			commandInfo.sendSuccessLiteral("[%d] %s", scene.getID(), scene.getName());
 		}
 		return true;
 	}

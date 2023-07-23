@@ -1,13 +1,8 @@
 package com.mt1006.mocap.mocap.settings;
 
-import com.mojang.brigadier.arguments.BoolArgumentType;
-import com.mojang.brigadier.arguments.DoubleArgumentType;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
-import com.mojang.brigadier.context.CommandContext;
-import com.mt1006.mocap.command.CommandUtils;
+import com.mt1006.mocap.command.CommandInfo;
 import com.mt1006.mocap.mocap.files.Files;
 import com.mt1006.mocap.utils.Utils;
-import net.minecraft.command.CommandSource;
 import net.minecraft.util.text.ITextComponent;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,11 +33,13 @@ public class Settings
 	public static final Setting<Integer> ENTITIES_AFTER_PLAYBACK = new Setting<>("entitiesAfterPlayback", 1);
 	public static final Setting<Boolean> PREVENT_SAVING_ENTITIES = new Setting<>("preventSavingEntities", true);
 	public static final Setting<Boolean> RECORD_PLAYER_DEATH = new Setting<>("recordPlayerDeath", true);
+	public static final Setting<Double> FLUENT_MOVEMENTS = new Setting<>("fluentMovements", 32.0);
+	//TODO: add projectiles tracking/playing setting
 
 	public static Map<String, Setting<?>> settingsMap = new LinkedHashMap<>();
 	public static boolean loaded = false;
 
-	public static void load(CommandSource commandSource)
+	public static void load(CommandInfo commandInfo)
 	{
 		settingsMap.put(PLAYING_SPEED.name, PLAYING_SPEED);
 		settingsMap.put(RECORDING_SYNC.name, RECORDING_SYNC);
@@ -63,12 +60,13 @@ public class Settings
 		settingsMap.put(ENTITIES_AFTER_PLAYBACK.name, ENTITIES_AFTER_PLAYBACK);
 		settingsMap.put(PREVENT_SAVING_ENTITIES.name, PREVENT_SAVING_ENTITIES);
 		settingsMap.put(RECORD_PLAYER_DEATH.name, RECORD_PLAYER_DEATH);
+		settingsMap.put(FLUENT_MOVEMENTS.name, FLUENT_MOVEMENTS);
 
 		settingsMap.values().forEach(Setting::reset);
 
 		try
 		{
-			File settingsFile = Files.getSettingsFile(commandSource);
+			File settingsFile = Files.getSettingsFile(commandInfo);
 
 			if (settingsFile != null)
 			{
@@ -104,11 +102,11 @@ public class Settings
 		loaded = true;
 	}
 
-	public static void save(CommandSource commandSource)
+	public static void save(CommandInfo commandInfo)
 	{
 		try
 		{
-			File settingsFile = Files.getSettingsFile(commandSource);
+			File settingsFile = Files.getSettingsFile(commandInfo);
 			if (settingsFile == null) { return; }
 
 			PrintWriter printWriter = new PrintWriter(settingsFile);
@@ -130,76 +128,73 @@ public class Settings
 		loaded = false;
 	}
 
-	public static int list(CommandContext<CommandSource> ctx)
+	public static boolean list(CommandInfo commandInfo)
 	{
-		CommandSource commandSource = ctx.getSource();
-		if (!loaded) { load(commandSource); }
+		if (!loaded) { load(commandInfo); }
 
-		Utils.sendSuccess(commandSource, "mocap.settings.list");
+		commandInfo.sendSuccess("mocap.settings.list");
 		for (Setting<?> setting : settingsMap.values())
 		{
-			Utils.sendSuccessComponent(commandSource, setting.getInfo(commandSource));
+			commandInfo.sendSuccessComponent(setting.getInfo(commandInfo));
 		}
-		return 1;
+		return true;
 	}
 
-	public static int info(CommandContext<CommandSource> ctx)
+	public static boolean info(CommandInfo commandInfo)
 	{
-		CommandSource commandSource = ctx.getSource();
-		if (!loaded) { load(commandSource); }
+		if (!loaded) { load(commandInfo); }
 
 		String settingName;
 		try
 		{
-			settingName = ctx.getNodes().get(ctx.getNodes().size() - 1).getNode().getName();
+			settingName = commandInfo.ctx.getNodes().get(commandInfo.ctx.getNodes().size() - 1).getNode().getName();
 		}
 		catch (Exception exception)
 		{
-			Utils.sendException(exception, commandSource, "mocap.error.unable_to_get_argument");
-			return 0;
-		}
-
-		Setting<?> setting = settingsMap.get(settingName);
-		if (setting == null)
-		{
-			Utils.sendFailure(commandSource, "mocap.settings.error");
-			return 0;
-		}
-
-		Utils.sendSuccess(commandSource, "mocap.settings.info.name", settingName);
-		Utils.sendSuccess(commandSource, "mocap.settings.info.about." + settingName);
-		Utils.sendSuccess(commandSource, "mocap.settings.info.val", setting.val.toString());
-		Utils.sendSuccess(commandSource, "mocap.settings.info.def_val", setting.defVal.toString());
-		return 1;
-	}
-
-	public static boolean set(CommandContext<CommandSource> ctx)
-	{
-		CommandSource commandSource = ctx.getSource();
-		if (!loaded) { load(commandSource); }
-
-		String settingName = CommandUtils.getCommandNode(ctx, -2);
-		if (settingName == null)
-		{
-			Utils.sendFailure(commandSource, "mocap.error.unable_to_get_argument");
+			commandInfo.sendException(exception, "mocap.error.unable_to_get_argument");
 			return false;
 		}
 
 		Setting<?> setting = settingsMap.get(settingName);
 		if (setting == null)
 		{
-			Utils.sendFailure(commandSource, "mocap.settings.error");
+			commandInfo.sendFailure("mocap.settings.error");
+			return false;
+		}
+
+		commandInfo.sendSuccess("mocap.settings.info.name", settingName);
+		commandInfo.sendSuccess("mocap.settings.info.about." + settingName);
+		commandInfo.sendSuccess("mocap.settings.info.val", setting.val.toString());
+		commandInfo.sendSuccess("mocap.settings.info.def_val", setting.defVal.toString());
+		return true;
+	}
+
+	public static boolean set(CommandInfo commandInfo)
+	{
+		if (!loaded) { load(commandInfo); }
+
+		String settingName = commandInfo.getNode(-2);
+		if (settingName == null)
+		{
+			commandInfo.sendFailure("mocap.error.unable_to_get_argument");
+			return false;
+		}
+
+		Setting<?> setting = settingsMap.get(settingName);
+		if (setting == null)
+		{
+			commandInfo.sendFailure("mocap.settings.error");
 			return false;
 		}
 
 		String oldValue = setting.val.toString();
-		if (!setting.fromCommand(ctx))
+		if (!setting.fromCommand(commandInfo))
 		{
-			Utils.sendFailure(commandSource, "mocap.settings.set.error");
+			commandInfo.sendFailure("mocap.settings.set.error");
 		}
 
-		Utils.sendSuccess(commandSource, "mocap.settings.set", oldValue, setting.val.toString());
-		save(commandSource);
+		commandInfo.sendSuccess("mocap.settings.set", oldValue, setting.val.toString());
+		save(commandInfo);
 		return true;
 	}
 
@@ -221,15 +216,15 @@ public class Settings
 			val = defVal;
 		}
 
-		public ITextComponent getInfo(CommandSource commandSource)
+		public ITextComponent getInfo(CommandInfo commandInfo)
 		{
 			if (val.equals(defVal))
 			{
-				return Utils.getTranslatableComponent(commandSource.getEntity(), "mocap.settings.list.info_def", name, val.toString());
+				return Utils.getTranslatableComponent(commandInfo.source.getEntity(), "mocap.settings.list.info_def", name, val.toString());
 			}
 			else
 			{
-				return Utils.getTranslatableComponent(commandSource.getEntity(), "mocap.settings.list.info", name, val.toString());
+				return Utils.getTranslatableComponent(commandInfo.source.getEntity(), "mocap.settings.list.info", name, val.toString());
 			}
 		}
 
@@ -240,26 +235,28 @@ public class Settings
 				if (defVal instanceof Double) { val = (T)Double.valueOf(Double.parseDouble(str)); }
 				else if (defVal instanceof Integer) { val = (T)Integer.valueOf(Integer.parseInt(str)); }
 				else if (defVal instanceof Boolean) { val = (T)Boolean.valueOf(Boolean.parseBoolean(str)); }
-				else { val = defVal; } //TODO: add warning (1.3.1)
+				else { throw new RuntimeException(); }
 			}
 			catch (Exception exception)
 			{
+				Utils.exception(exception, "Failed to load settings from string");
 				val = defVal;
 			}
 		}
 
-		public boolean fromCommand(CommandContext<CommandSource> ctx)
+		public boolean fromCommand(CommandInfo commandInfo)
 		{
 			try
 			{
-				if (defVal instanceof Double) { val = (T)Double.valueOf(DoubleArgumentType.getDouble(ctx, "newValue")); }
-				else if (defVal instanceof Integer) { val = (T)Integer.valueOf(IntegerArgumentType.getInteger(ctx, "newValue")); }
-				else if (defVal instanceof Boolean) { val = (T)Boolean.valueOf(BoolArgumentType.getBool(ctx, "newValue")); }
-				else { val = defVal; } //TODO: add error message (1.3.1)
+				if (defVal instanceof Double) { val = (T)Double.valueOf(commandInfo.getDouble("newValue")); }
+				else if (defVal instanceof Integer) { val = (T)Integer.valueOf(commandInfo.getInteger("newValue")); }
+				else if (defVal instanceof Boolean) { val = (T)Boolean.valueOf(commandInfo.getBool("newValue")); }
+				else { throw new RuntimeException(); }
 				return true;
 			}
 			catch (Exception exception)
 			{
+				Utils.exception(exception, "Failed to load settings from command");
 				val = defVal;
 				return false;
 			}
@@ -275,10 +272,11 @@ public class Settings
 				if (val instanceof Double) { str.append(val); }
 				else if (val instanceof Integer) { str.append(val); }
 				else if (val instanceof Boolean) { str.append(val); }
-				else { return null; }  //TODO: add warning (1.3.1)
+				else { throw new RuntimeException(); }
 			}
 			catch (Exception exception)
 			{
+				Utils.exception(exception, "Failed to save settings");
 				return null;
 			}
 

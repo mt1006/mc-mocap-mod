@@ -99,8 +99,7 @@ public class Movement implements ComparableAction
 
 		ctx.entity.setOnGround(isOnGround);
 		((EntityMixin)ctx.entity).callCheckInsideBlocks();
-
-		ctx.broadcast(new SEntityTeleportPacket(ctx.entity));
+		ctx.fluentMovement(() -> new SEntityTeleportPacket(ctx.entity));
 		return Result.OK;
 	}
 }

@@ -29,20 +29,11 @@ public class InputArgument
 
 	public static @Nullable CompletableFuture<Suggestions> getSuggestions(CommandContextBuilder<?> rootCtx, String fullCommand, int cursor)
 	{
-		//TODO: check (fullCommand instead of command)
-		/*String command = getCommandNode(ctx, 0);
-
-		if (command == null || !(command.equals("mocap") || command.equals("mocap:mocap")))
-		{
-			if (ctx.getChild() != null) { return getSuggestions(ctx.getChild(), fullCommand, cursor); }
-			return null;
-		}*/
-
 		CommandContextBuilder<?> ctx = CommandUtils.getFinalCommandContext(rootCtx);
 		if (ctx == null) { return null; }
 
-		String subcommand1 = CommandUtils.getCommandNode(ctx, 1);
-		String subcommand2 = CommandUtils.getCommandNode(ctx, 2);
+		String subcommand1 = CommandUtils.getNode(ctx, 1);
+		String subcommand2 = CommandUtils.getNode(ctx, 2);
 		if (subcommand1 == null || subcommand2 == null) { return null; }
 
 		String subcommand = String.format("%s/%s", subcommand1, subcommand2);
@@ -79,7 +70,7 @@ public class InputArgument
 
 		if (subcommand.equals("scenes/modify"))
 		{
-			String paramToModify = CommandUtils.getCommandNode(ctx, 5);
+			String paramToModify = CommandUtils.getNode(ctx, 5);
 			if (paramToModify == null || !paramToModify.equals("subsceneName")) { args = ImmutableList.of(new Pair<>(3, SCENES)); }
 			else { args = ImmutableList.of(new Pair<>(3, SCENES), new Pair<>(6, PLAYABLE)); }
 		}
@@ -132,23 +123,23 @@ public class InputArgument
 	{
 		serverInputSet.clear();
 
-		List<String> recordingList = RecordingFiles.list(server, null);
+		List<String> recordingList = RecordingFiles.list(server, CommandOutput.DUMMY);
 		if (recordingList != null) { serverInputSet.addAll(recordingList); }
 
-		List<String> sceneList = SceneFiles.list(server, null);
+		List<String> sceneList = SceneFiles.list(server, CommandOutput.DUMMY);
 		if (sceneList != null) { serverInputSet.addAll(sceneList); }
 	}
 
 	public static void addServerInput(String name)
 	{
 		serverInputSet.add(name);
-		PlayerConnectionEvent.players.forEach(player -> MocapPacketS2C.sendInputSuggestionsAdd(player, ImmutableList.of(name)));
+		PlayerConnectionEvent.players.forEach((player) -> MocapPacketS2C.sendInputSuggestionsAdd(player, ImmutableList.of(name)));
 	}
 
 	public static void removeServerInput(String name)
 	{
 		serverInputSet.remove(name);
-		PlayerConnectionEvent.players.forEach(player -> MocapPacketS2C.sendInputSuggestionsRemove(player, ImmutableList.of(name)));
+		PlayerConnectionEvent.players.forEach((player) -> MocapPacketS2C.sendInputSuggestionsRemove(player, ImmutableList.of(name)));
 	}
 
 	private static @Nullable StringRange getStringRange(CommandContextBuilder<?> ctx, int pos)

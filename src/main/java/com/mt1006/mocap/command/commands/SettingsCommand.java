@@ -1,17 +1,22 @@
 package com.mt1006.mocap.command.commands;
 
+import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.mojang.brigadier.context.CommandContext;
+import com.mt1006.mocap.command.CommandInfo;
+import com.mt1006.mocap.command.CommandUtils;
 import com.mt1006.mocap.mocap.settings.Settings;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
 
 public class SettingsCommand
 {
+	private static final Command<CommandSource> COMMAND_INFO = CommandUtils.command(Settings::info);
+	private static final Command<CommandSource> COMMAND_SET = CommandUtils.command(SettingsCommand::set);
+
 	public static LiteralArgumentBuilder<CommandSource> getArgumentBuilder()
 	{
 		LiteralArgumentBuilder<CommandSource> commandBuilder = Commands.literal("settings");
@@ -36,18 +41,18 @@ public class SettingsCommand
 		commandBuilder.then(settingArgument("entitiesAfterPlayback", IntegerArgumentType.integer()));
 		commandBuilder.then(settingArgument("preventSavingEntities", BoolArgumentType.bool()));
 		commandBuilder.then(settingArgument("recordPlayerDeath", BoolArgumentType.bool()));
+		commandBuilder.then(settingArgument("fluentMovements", DoubleArgumentType.doubleArg(-1)));
 
 		return commandBuilder;
 	}
 
-	private static int set(CommandContext<CommandSource> ctx)
+	private static boolean set(CommandInfo commandInfo)
 	{
-		return Settings.set(ctx) ? 1 : 0;
+		return Settings.set(commandInfo);
 	}
 
 	private static LiteralArgumentBuilder<CommandSource> settingArgument(String name, ArgumentType<?> argumentType)
 	{
-		return Commands.literal(name).executes(Settings::info)
-				.then(Commands.argument("newValue", argumentType).executes(SettingsCommand::set));
+		return Commands.literal(name).executes(COMMAND_INFO).then(Commands.argument("newValue", argumentType).executes(COMMAND_SET));
 	}
 }

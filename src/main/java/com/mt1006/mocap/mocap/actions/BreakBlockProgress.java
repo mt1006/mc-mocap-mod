@@ -3,7 +3,6 @@ package com.mt1006.mocap.mocap.actions;
 import com.mt1006.mocap.mocap.files.RecordingFiles;
 import com.mt1006.mocap.mocap.playing.PlayingContext;
 import net.minecraft.entity.Entity;
-import net.minecraft.network.play.server.SAnimateBlockBreakPacket;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3i;
 
@@ -38,7 +37,7 @@ public class BreakBlockProgress implements BlockAction
 
 	@Override public Result execute(PlayingContext ctx)
 	{
-		ctx.broadcast(new SAnimateBlockBreakPacket(ctx.entity.getId(), blockPos.offset(ctx.blockOffset), progress));
+		ctx.level.destroyBlockProgress(ctx.entity.getId(), blockPos.offset(ctx.blockOffset), progress);
 		return Result.OK;
 	}
 }

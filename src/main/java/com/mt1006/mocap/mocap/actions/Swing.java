@@ -4,7 +4,6 @@ import com.mt1006.mocap.mocap.files.RecordingFiles;
 import com.mt1006.mocap.mocap.playing.PlayingContext;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.network.play.server.SAnimateHandPacket;
 import net.minecraft.util.Hand;
 import org.jetbrains.annotations.Nullable;
 
@@ -12,7 +11,7 @@ public class Swing implements ComparableAction
 {
 	private final boolean swinging;
 	private final int swingingTime;
-	private final boolean offHand;
+	private final Hand hand;
 
 	public Swing(Entity entity)
 	{
@@ -21,13 +20,13 @@ public class Swing implements ComparableAction
 			LivingEntity livingEntity = (LivingEntity)entity;
 			swinging = livingEntity.swinging;
 			swingingTime = livingEntity.swingTime;
-			offHand = livingEntity.swingingArm == Hand.OFF_HAND;
+			hand = livingEntity.swingingArm;
 		}
 		else
 		{
 			swinging = false;
 			swingingTime = 0;
-			offHand = false;
+			hand = Hand.MAIN_HAND;
 		}
 	}
 
@@ -35,7 +34,7 @@ public class Swing implements ComparableAction
 	{
 		swinging = true;
 		swingingTime = 0;
-		offHand = reader.readBoolean();
+		hand = reader.readBoolean() ? Hand.OFF_HAND : Hand.MAIN_HAND;
 	}
 
 	@Override public boolean differs(ComparableAction action)
@@ -48,14 +47,14 @@ public class Swing implements ComparableAction
 		if (swinging && (action == null || !((Swing)action).swinging || ((Swing)action).swingingTime > swingingTime))
 		{
 			writer.addByte(Type.SWING.id);
-			writer.addBoolean(offHand);
+			writer.addBoolean(hand == Hand.OFF_HAND);
 		}
 	}
 
 	@Override public Result execute(PlayingContext ctx)
 	{
-		if (!(ctx.entity instanceof LivingEntity)) { return Result.IGNORED; } //TODO: check if check not present
-		ctx.broadcast(new SAnimateHandPacket(ctx.entity, offHand ? 3 : 0));
+		if (!(ctx.entity instanceof LivingEntity)) { return Result.IGNORED; }
+		((LivingEntity)ctx.entity).swing(hand);
 		return Result.OK;
 	}
 }

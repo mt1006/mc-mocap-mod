@@ -55,14 +55,14 @@ public class MocapPacketC2S
 
 	public void handle(Supplier<NetworkEvent.Context> ctx)
 	{
-		if (version < MocapPackets.CURRENT_VERSION) { return; }
+		if (version != MocapPackets.CURRENT_VERSION) { return; }
 		ServerPlayerEntity sender = ctx.get().getSender();
 
 		switch (op)
 		{
 			case ACCEPT_SERVER:
 				PlayerConnectionEvent.addPlayer(sender);
-				if (sender != null) { MocapPacketS2C.sendInputSuggestionsAdd(sender, InputArgument.serverInputSet); }
+				if (sender != null) { MocapPacketS2C.sendInputSuggestionsAddOnLogin(sender, InputArgument.serverInputSet); }
 				break;
 
 			case REQUEST_CUSTOM_SKIN:
@@ -73,7 +73,7 @@ public class MocapPacketC2S
 
 	public static void sendAcceptServer()
 	{
-		send(ACCEPT_SERVER, null);
+		respond(ACCEPT_SERVER, null);
 	}
 
 	public static void sendRequestCustomSkin(String name)
@@ -83,6 +83,13 @@ public class MocapPacketC2S
 
 	private static void send(int op, Object object)
 	{
+		MocapPacketC2S packet = new MocapPacketC2S(MocapPackets.CURRENT_VERSION, op, object);
+		MocapPackets.INSTANCE.send(PacketDistributor.SERVER.with(() -> null), packet);
+	}
+
+	private static void respond(int op, Object object)
+	{
+		// same as "send", used to prevent bugs when porting to Fabric
 		MocapPacketC2S packet = new MocapPacketC2S(MocapPackets.CURRENT_VERSION, op, object);
 		MocapPackets.INSTANCE.send(PacketDistributor.SERVER.with(() -> null), packet);
 	}

@@ -4,6 +4,7 @@
   "compatibilityLevel": "JAVA_8",
   "mixins":
   [
+    "EntityMixin",
     "LivingEntityMethodMixin",
     "ServerLevelMixin",
     "SkinManagerMixin",
@@ -15,7 +16,7 @@
     "fields.PigMixin",
     "fields.BoatMixin",
     "fields.HorseMixin",
-    "fields.ServerLevelEntitiesMixin"
+    "fields.LevelMixin"
   ],
   "client":
   [

@@ -2,13 +2,10 @@ package com.mt1006.mocap.mocap.actions;
 
 import com.mt1006.mocap.mocap.files.RecordingFiles;
 import com.mt1006.mocap.mocap.playing.PlayingContext;
-import com.mt1006.mocap.utils.EntityData;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Optional;
 
 public class Sleep implements ComparableAction
 {
@@ -54,7 +51,9 @@ public class Sleep implements ComparableAction
 	@Override public Result execute(PlayingContext ctx)
 	{
 		if (!(ctx.entity instanceof LivingEntity)) { return Result.IGNORED; }
-		new EntityData(ctx.entity, EntityData.LIVING_ENTITY_BED_POS, Optional.ofNullable(bedPostion)).broadcast(ctx);
+
+		if (bedPostion != null) { ((LivingEntity)ctx.entity).setSleepingPos(bedPostion); }
+		else { ((LivingEntity)ctx.entity).clearSleepingPos(); }
 		return Result.OK;
 	}
 }

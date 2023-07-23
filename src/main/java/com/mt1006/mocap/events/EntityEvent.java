@@ -22,7 +22,7 @@ public class EntityEvent
 		{
 			if (Recording.isRecordedPlayer(attackEvent.getEntity()))
 			{
-				new Hurt().write(Recording.writer);
+				Hurt.write(Recording.writer);
 			}
 			else
 			{

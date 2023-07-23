@@ -1,10 +1,11 @@
-package com.mt1006.mocap.mocap.playing;
+package com.mt1006.mocap.mocap.recording;
 
 import com.mt1006.mocap.mocap.actions.ComparableAction;
 import com.mt1006.mocap.mocap.actions.EntityAction;
 import com.mt1006.mocap.mocap.actions.Movement;
 import com.mt1006.mocap.mocap.actions.NextTick;
 import com.mt1006.mocap.mocap.files.RecordingFiles;
+import com.mt1006.mocap.mocap.playing.RecordingData;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.vector.Vector3d;
 import org.jetbrains.annotations.Nullable;
@@ -14,7 +15,6 @@ import java.util.List;
 
 public class EntityState
 {
-	public static int endsWithDeathPos = -1; //TODO: move it (1.3.1)
 	public final List<ComparableAction> actions;
 
 	public EntityState(Entity entity)
@@ -46,7 +46,7 @@ public class EntityState
 		{
 			writer.addByte(RecordingFiles.RECORDING_VERSION);
 			find(Movement.class).writeAsHeader(writer);
-			endsWithDeathPos = writer.addMutableBoolean(false);
+			Recording.endsWithDeathPos = writer.addMutableBoolean(false);
 
 			actions.forEach((action) -> action.write(writer, null));
 		}

@@ -2,10 +2,9 @@ package com.mt1006.mocap.command.commands;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.mojang.brigadier.context.CommandContext;
+import com.mt1006.mocap.command.CommandInfo;
 import com.mt1006.mocap.command.CommandUtils;
 import com.mt1006.mocap.mocap.recording.Recording;
-import com.mt1006.mocap.utils.Utils;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
 import net.minecraft.command.arguments.GameProfileArgument;
@@ -20,63 +19,60 @@ public class RecordingCommand
 	{
 		LiteralArgumentBuilder<CommandSource> commandBuilder = Commands.literal("recording");
 
-		commandBuilder.then(Commands.literal("start").executes(RecordingCommand::start).
-			then(Commands.argument("player", GameProfileArgument.gameProfile()).executes(RecordingCommand::start)));
-		commandBuilder.then(Commands.literal("stop").executes(RecordingCommand::stop));
+		commandBuilder.then(Commands.literal("start").executes(CommandUtils.command(RecordingCommand::start)).
+			then(Commands.argument("player", GameProfileArgument.gameProfile()).executes(CommandUtils.command(RecordingCommand::start))));
+		commandBuilder.then(Commands.literal("stop").executes(CommandUtils.command(RecordingCommand::stop)));
 		commandBuilder.then(Commands.literal("save").then(CommandUtils.withStringArgument(Recording::save, "name")));
-		commandBuilder.then(Commands.literal("state").executes(RecordingCommand::state));
+		commandBuilder.then(Commands.literal("state").executes(CommandUtils.command(RecordingCommand::state)));
 
 		return commandBuilder;
 	}
 
-	private static int start(CommandContext<CommandSource> ctx)
+	private static boolean start(CommandInfo commandInfo)
 	{
-		ServerPlayerEntity serverPlayer;
+		ServerPlayerEntity serverPlayer = null;
 
 		try
 		{
-			Collection<GameProfile> gameProfiles = GameProfileArgument.getGameProfiles(ctx, "player");
+			Collection<GameProfile> gameProfiles = commandInfo.getGameProfiles("player");
 
-			if (gameProfiles.size() != 1)
+			if (gameProfiles.size() == 1)
 			{
-				Utils.sendFailure(ctx.getSource(), "mocap.recording.start.player_not_found");
-				return 0;
+				String nickname = gameProfiles.iterator().next().getName();
+				serverPlayer = commandInfo.source.getServer().getPlayerList().getPlayerByName(nickname);
 			}
 
-			String nickname = gameProfiles.iterator().next().getName();
-			serverPlayer = ctx.getSource().getServer().getPlayerList().getPlayerByName(nickname);
-
-			if(serverPlayer == null)
+			if (serverPlayer == null)
 			{
-				Utils.sendFailure(ctx.getSource(), "mocap.recording.start.player_not_found");
-				return 0;
+				commandInfo.sendFailure("mocap.recording.start.player_not_found");
+				return false;
 			}
 		}
 		catch (Exception exception)
 		{
-			Entity entity = ctx.getSource().getEntity();
+			Entity entity = commandInfo.source.getEntity();
 
 			if (!(entity instanceof ServerPlayerEntity))
 			{
-				Utils.sendFailure(ctx.getSource(), "mocap.recording.start.player_not_specified");
-				Utils.sendFailure(ctx.getSource(), "mocap.recording.start.player_not_specified.tip");
-				return 0;
+				commandInfo.sendFailure("mocap.recording.start.player_not_specified");
+				commandInfo.sendFailure("mocap.recording.start.player_not_specified.tip");
+				return false;
 			}
 
 			serverPlayer = (ServerPlayerEntity)entity;
 		}
 
-		return Recording.start(ctx.getSource(), serverPlayer) ? 1 : 0;
+		return Recording.start(commandInfo, serverPlayer);
 	}
 
 	//TODO: don't replace - extend it
-	private static int stop(CommandContext<CommandSource> ctx)
+	private static boolean stop(CommandInfo commandInfo)
 	{
-		return Recording.stop(ctx.getSource()) ? 1 : 0;
+		return Recording.stop(commandInfo);
 	}
 
-	private static int state(CommandContext<CommandSource> ctx)
+	private static boolean state(CommandInfo commandInfo)
 	{
-		return Recording.state(ctx.getSource()) ? 1 : 0;
+		return Recording.state(commandInfo);
 	}
 }

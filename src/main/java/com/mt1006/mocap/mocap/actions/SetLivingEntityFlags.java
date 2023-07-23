@@ -48,7 +48,7 @@ public class SetLivingEntityFlags implements ComparableAction
 	@Override public Result execute(PlayingContext ctx)
 	{
 		if (!(ctx.entity instanceof LivingEntity)) { return Result.IGNORED; }
-		new EntityData(ctx.entity, EntityData.LIVING_ENTITY_FLAGS, livingEntityFlags).broadcast(ctx);
+		EntityData.LIVING_ENTITY_FLAGS.set(ctx.entity, livingEntityFlags);
 		return Result.OK;
 	}
 }
