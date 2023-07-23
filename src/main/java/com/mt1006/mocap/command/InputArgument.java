@@ -1,5 +1,6 @@
 package com.mt1006.mocap.command;
 
+import com.google.common.collect.ImmutableList;
 import com.mojang.brigadier.context.CommandContextBuilder;
 import com.mojang.brigadier.context.StringRange;
 import com.mojang.brigadier.suggestion.Suggestions;
@@ -12,10 +13,8 @@ import com.mt1006.mocap.network.MocapPacketS2C;
 import net.minecraft.server.MinecraftServer;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 public class InputArgument
@@ -25,42 +24,33 @@ public class InputArgument
 	private static final int CURRENTLY_RECORDED = 4;
 	private static final int PLAYABLE = RECORDINGS | SCENES | CURRENTLY_RECORDED;
 
-	public static final Set<String> serverInputSet = Collections.synchronizedSet(new HashSet<>());
-	public static final Set<String> clientInputSet = Collections.synchronizedSet(new HashSet<>());
+	public static final HashSet<String> serverInputSet = new HashSet<>();
+	public static final HashSet<String> clientInputSet = new HashSet<>();
 
 	public static @Nullable CompletableFuture<Suggestions> getSuggestions(CommandContextBuilder<?> rootCtx, String fullCommand, int cursor)
 	{
-		//TODO: check (fullCommand instead of command)
-		/*String command = getCommandNode(ctx, 0);
-
-		if (command == null || !(command.equals("mocap") || command.equals("mocap:mocap")))
-		{
-			if (ctx.getChild() != null) { return getSuggestions(ctx.getChild(), fullCommand, cursor); }
-			return null;
-		}*/
-
 		CommandContextBuilder<?> ctx = CommandUtils.getFinalCommandContext(rootCtx);
 		if (ctx == null) { return null; }
 
-		String subcommand1 = CommandUtils.getCommandNode(ctx, 1);
-		String subcommand2 = CommandUtils.getCommandNode(ctx, 2);
+		String subcommand1 = CommandUtils.getNode(ctx, 1);
+		String subcommand2 = CommandUtils.getNode(ctx, 2);
 		if (subcommand1 == null || subcommand2 == null) { return null; }
 
 		String subcommand = String.format("%s/%s", subcommand1, subcommand2);
 
-		List<Pair<Integer, Integer>> args = List.of();
+		List<Pair<Integer, Integer>> args = ImmutableList.of();
 
 		switch (subcommand)
 		{
 			case "playing/start":
-				args = List.of(new Pair<>(3, PLAYABLE));
+				args = ImmutableList.of(new Pair<>(3, PLAYABLE));
 				break;
 
 			case "recordings/copy":
 			case "recordings/rename":
 			case "recordings/remove":
 			case "recordings/info":
-				args = List.of(new Pair<>(3, RECORDINGS));
+				args = ImmutableList.of(new Pair<>(3, RECORDINGS));
 				break;
 
 			case "scenes/copy":
@@ -70,19 +60,19 @@ public class InputArgument
 			case "scenes/elementInfo":
 			case "scenes/listElements":
 			case "scenes/info":
-				args = List.of(new Pair<>(3, SCENES));
+				args = ImmutableList.of(new Pair<>(3, SCENES));
 				break;
 
 			case "scenes/addTo":
-				args = List.of(new Pair<>(3, SCENES), new Pair<>(4, PLAYABLE));
+				args = ImmutableList.of(new Pair<>(3, SCENES), new Pair<>(4, PLAYABLE));
 				break;
 		}
 
 		if (subcommand.equals("scenes/modify"))
 		{
-			String paramToModify = CommandUtils.getCommandNode(ctx, 5);
-			if (paramToModify == null || !paramToModify.equals("subsceneName")) { args = List.of(new Pair<>(3, SCENES)); }
-			else { args = List.of(new Pair<>(3, SCENES), new Pair<>(6, PLAYABLE)); }
+			String paramToModify = CommandUtils.getNode(ctx, 5);
+			if (paramToModify == null || !paramToModify.equals("subsceneName")) { args = ImmutableList.of(new Pair<>(3, SCENES)); }
+			else { args = ImmutableList.of(new Pair<>(3, SCENES), new Pair<>(6, PLAYABLE)); }
 		}
 
 		int suggestionFlags = 0;
@@ -133,23 +123,23 @@ public class InputArgument
 	{
 		serverInputSet.clear();
 
-		List<String> recordingList = RecordingFiles.list(server, null);
+		List<String> recordingList = RecordingFiles.list(server, CommandOutput.DUMMY);
 		if (recordingList != null) { serverInputSet.addAll(recordingList); }
 
-		List<String> sceneList = SceneFiles.list(server, null);
+		List<String> sceneList = SceneFiles.list(server, CommandOutput.DUMMY);
 		if (sceneList != null) { serverInputSet.addAll(sceneList); }
 	}
 
 	public static void addServerInput(String name)
 	{
 		serverInputSet.add(name);
-		PlayerConnectionEvent.players.forEach(player -> MocapPacketS2C.sendInputSuggestionsAdd(player, List.of(name)));
+		PlayerConnectionEvent.players.forEach((player) -> MocapPacketS2C.sendInputSuggestionsAdd(player, ImmutableList.of(name)));
 	}
 
 	public static void removeServerInput(String name)
 	{
 		serverInputSet.remove(name);
-		PlayerConnectionEvent.players.forEach(player -> MocapPacketS2C.sendInputSuggestionsRemove(player, List.of(name)));
+		PlayerConnectionEvent.players.forEach((player) -> MocapPacketS2C.sendInputSuggestionsRemove(player, ImmutableList.of(name)));
 	}
 
 	private static @Nullable StringRange getStringRange(CommandContextBuilder<?> ctx, int pos)

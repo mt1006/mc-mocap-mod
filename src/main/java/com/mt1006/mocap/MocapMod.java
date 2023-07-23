@@ -1,7 +1,10 @@
 package com.mt1006.mocap;
 
 import com.mt1006.mocap.command.RegisterCommand;
-import com.mt1006.mocap.events.*;
+import com.mt1006.mocap.events.BlockInteractionEvent;
+import com.mt1006.mocap.events.PlayerConnectionEvent;
+import com.mt1006.mocap.events.ServerTickEvent;
+import com.mt1006.mocap.events.WorldLoadEvent;
 import com.mt1006.mocap.mocap.actions.Action;
 import com.mt1006.mocap.network.MocapPackets;
 import com.mt1006.mocap.utils.Fields;
@@ -19,7 +22,7 @@ import org.apache.logging.log4j.Logger;
 public class MocapMod implements ModInitializer
 {
 	public static final String MOD_ID = "mocap";
-	public static final String VERSION = "1.3";
+	public static final String VERSION = "1.3.1";
 	public static final String FOR_VERSION = "1.18.2";
 	public static final String FOR_LOADER = "Fabric";
 	public static final Logger LOGGER = LogManager.getLogger();

@@ -18,7 +18,6 @@ import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Set;
 
 // FakePlayer class from Forge
@@ -39,7 +38,6 @@ public class FakePlayer extends ServerPlayer
 	@Override public void tick() { }
 	@Override public void updateOptions(@NotNull ServerboundClientInformationPacket packet) { }
 
-	@ParametersAreNonnullByDefault
 	private static class FakePlayerNetHandler extends ServerGamePacketListenerImpl
 	{
 		private static final Connection DUMMY_CONNECTION = new Connection(PacketFlow.CLIENTBOUND);

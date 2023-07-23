@@ -37,7 +37,7 @@ public interface BlockAction extends Action
 		public void place(Entity entity, BlockPos blockPos)
 		{
 			BlockState blockState = Block.stateById(blockID);
-			Level level = entity.getLevel();
+			Level level = entity.level;
 
 			if (blockState.isAir())
 			{
@@ -47,7 +47,6 @@ public interface BlockAction extends Action
 			{
 				level.setBlock(blockPos, blockState, 3);
 
-				if (!(entity instanceof Player)) { return; }
 				SoundType soundType = blockState.getSoundType();
 				level.playSound((Player)entity, blockPos, blockState.getSoundType().getPlaceSound(),
 						SoundSource.BLOCKS, (soundType.getVolume() + 1.0F) / 2.0F, soundType.getPitch() * 0.8F);
@@ -56,7 +55,7 @@ public interface BlockAction extends Action
 
 		public void placeSilently(Entity entity, BlockPos blockPos)
 		{
-			entity.getLevel().setBlock(blockPos, Block.stateById(blockID), 3);
+			entity.level.setBlock(blockPos, Block.stateById(blockID), 3);
 		}
 	}
 }

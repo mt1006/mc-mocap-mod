@@ -6,7 +6,6 @@ import com.mt1006.mocap.mocap.playing.Playing;
 import com.mt1006.mocap.mocap.recording.Recording;
 import com.mt1006.mocap.mocap.recording.TrackedEntity;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 
 public class EntityEvent
@@ -17,7 +16,7 @@ public class EntityEvent
 		{
 			if (Recording.isRecordedPlayer(entity))
 			{
-				new Hurt().write(Recording.writer);
+				Hurt.write(Recording.writer);
 			}
 			else
 			{

@@ -63,7 +63,7 @@ public class MocapPacketC2S
 		{
 			case ACCEPT_SERVER:
 				PlayerConnectionEvent.addPlayer(player);
-				if (sender != null) { MocapPacketS2C.sendInputSuggestionsAdd(sender, InputArgument.serverInputSet); }
+				if (sender != null) { MocapPacketS2C.sendInputSuggestionsAddOnLogin(sender, InputArgument.serverInputSet); }
 				break;
 
 			case REQUEST_CUSTOM_SKIN:
@@ -74,7 +74,7 @@ public class MocapPacketC2S
 
 	public static void sendAcceptServer(PacketSender sender)
 	{
-		sendToSender(sender, ACCEPT_SERVER, null);
+		respond(sender, ACCEPT_SERVER, null);
 	}
 
 	public static void sendRequestCustomSkin(String name)
@@ -88,7 +88,7 @@ public class MocapPacketC2S
 		ClientPlayNetworking.send(MocapPackets.CHANNEL_NAME, packet.encode(PacketByteBufs.create()));
 	}
 
-	private static void sendToSender(PacketSender sender, int op, Object object)
+	private static void respond(PacketSender sender, int op, Object object)
 	{
 		MocapPacketC2S packet = new MocapPacketC2S(MocapPackets.CURRENT_VERSION, op, object);
 		sender.sendPacket(MocapPackets.CHANNEL_NAME, packet.encode(PacketByteBufs.create()));
@@ -96,6 +96,7 @@ public class MocapPacketC2S
 
 	public static void receive(MinecraftServer server, ServerPlayer player, ServerGamePacketListenerImpl handler, FriendlyByteBuf buf, PacketSender sender)
 	{
-		new MocapPacketC2S(buf).handle(player, sender);
+		FriendlyByteBuf bufCopy = new FriendlyByteBuf(buf.copy());
+		server.execute(() -> new MocapPacketC2S(bufCopy).handle(player, sender));
 	}
 }

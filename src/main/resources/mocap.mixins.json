@@ -17,9 +17,9 @@
     "fields.PigMixin",
     "fields.BoatMixin",
     "fields.HorseMixin",
+    "fields.LevelMixin",
     "fabric.BlockItemMixin",
     "fabric.EntityIdMixin",
-    "fabric.ServerLevelEntitiesMixin",
     "fabric.BedItemMixin",
     "fabric.DoubleHighBlockItemMixin"
   ],
