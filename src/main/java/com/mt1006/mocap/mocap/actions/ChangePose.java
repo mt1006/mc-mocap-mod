@@ -2,7 +2,6 @@ package com.mt1006.mocap.mocap.actions;
 
 import com.mt1006.mocap.mocap.files.RecordingFiles;
 import com.mt1006.mocap.mocap.playing.PlayingContext;
-import com.mt1006.mocap.utils.EntityData;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Pose;
 import org.jetbrains.annotations.Nullable;
@@ -57,7 +56,7 @@ public class ChangePose implements ComparableAction
 
 	@Override public Result execute(PlayingContext ctx)
 	{
-		new EntityData(ctx.entity, EntityData.ENTITY_POSE, pose).broadcast(ctx);
+		ctx.entity.setPose(pose);
 		return Result.OK;
 	}
 }

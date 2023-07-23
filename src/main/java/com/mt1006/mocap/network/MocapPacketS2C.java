@@ -101,7 +101,7 @@ public class MocapPacketS2C
 
 	public void handle(Supplier<NetworkEvent.Context> ctx)
 	{
-		if (version > MocapPackets.CURRENT_VERSION) { return; }
+		if (version != MocapPackets.CURRENT_VERSION) { return; }
 
  		switch (op)
 		{
@@ -116,7 +116,7 @@ public class MocapPacketS2C
 
 	public static void sendOnLogin(ServerPlayer serverPlayer)
 	{
-		send(serverPlayer, ON_LOGIN, null);
+		respond(serverPlayer, ON_LOGIN, null);
 	}
 
 	public static void sendNocolPlayerAdd(ServerPlayer serverPlayer, UUID player)
@@ -134,6 +134,11 @@ public class MocapPacketS2C
 		send(serverPlayer, INPUT_SUGGESTIONS_ADD, strings);
 	}
 
+	public static void sendInputSuggestionsAddOnLogin(ServerPlayer serverPlayer, Collection<String> strings)
+	{
+		respond(serverPlayer, INPUT_SUGGESTIONS_ADD, strings);
+	}
+
 	public static void sendInputSuggestionsRemove(ServerPlayer serverPlayer, Collection<String> strings)
 	{
 		send(serverPlayer, INPUT_SUGGESTIONS_REMOVE, strings);
@@ -146,6 +151,13 @@ public class MocapPacketS2C
 
 	private static void send(ServerPlayer serverPlayer, int op, Object object)
 	{
+		MocapPacketS2C packet = new MocapPacketS2C(MocapPackets.CURRENT_VERSION, op, object);
+		MocapPackets.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), packet);
+	}
+
+	private static void respond(ServerPlayer serverPlayer, int op, Object object)
+	{
+		// same as "send", used to prevent bugs when porting to Fabric
 		MocapPacketS2C packet = new MocapPacketS2C(MocapPackets.CURRENT_VERSION, op, object);
 		MocapPackets.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), packet);
 	}

@@ -10,5 +10,4 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 public interface PlayerMixin
 {
 	@Accessor static @Nullable EntityDataAccessor<Byte> getDATA_PLAYER_MODE_CUSTOMISATION() { return null; }
-	@Accessor static @Nullable EntityDataAccessor<Byte> getDATA_PLAYER_MAIN_HAND() { return null; }
 }

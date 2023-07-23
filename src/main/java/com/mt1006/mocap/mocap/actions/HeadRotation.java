@@ -34,7 +34,8 @@ public class HeadRotation implements ComparableAction
 
 	@Override public Result execute(PlayingContext ctx)
 	{
-		ctx.broadcast(new ClientboundRotateHeadPacket(ctx.entity, (byte)Math.floor(headRotY * 256.0f / 360.0f)));
+		ctx.entity.setYHeadRot(headRotY);
+		ctx.fluentMovement(() -> new ClientboundRotateHeadPacket(ctx.entity, (byte)Math.floor(headRotY * 256.0f / 360.0f)));
 		return Result.OK;
 	}
 }
