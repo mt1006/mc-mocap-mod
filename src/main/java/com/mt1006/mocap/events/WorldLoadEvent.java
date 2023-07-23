@@ -1,5 +1,6 @@
 package com.mt1006.mocap.events;
 
+import com.mt1006.mocap.command.CommandOutput;
 import com.mt1006.mocap.command.InputArgument;
 import com.mt1006.mocap.mocap.files.Files;
 import com.mt1006.mocap.mocap.playing.CustomClientSkinManager;
@@ -18,7 +19,7 @@ public class WorldLoadEvent
 
 	public static void onServerWorldUnload(MinecraftServer server, ServerLevel world)
 	{
-		Playing.stopAll(null);
+		Playing.stopAll(CommandOutput.DUMMY);
 		Settings.unload();
 		Files.deinitDirectories();
 	}

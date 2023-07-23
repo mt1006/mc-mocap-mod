@@ -17,7 +17,7 @@ public class EntityEvent
 		{
 			if (Recording.isRecordedPlayer(entity))
 			{
-				new Hurt().write(Recording.writer);
+				Hurt.write(Recording.writer);
 			}
 			else
 			{

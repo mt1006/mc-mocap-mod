@@ -1,9 +1,9 @@
 package com.mt1006.mocap.mocap.playing;
 
+import com.mt1006.mocap.command.CommandInfo;
 import com.mt1006.mocap.mocap.files.Files;
 import com.mt1006.mocap.mocap.files.SceneFiles;
 import com.mt1006.mocap.utils.Utils;
-import net.minecraft.commands.CommandSourceStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.ByteArrayInputStream;
@@ -17,14 +17,14 @@ public class SceneData
 	public int version = 0;
 	public long fileSize = 0;
 
-	public boolean load(CommandSourceStack commandSource, String name)
+	public boolean load(CommandInfo commandInfo, String name)
 	{
-		byte[] data = Files.loadFile(Files.getSceneFile(commandSource, name));
+		byte[] data = Files.loadFile(Files.getSceneFile(commandInfo, name));
 		if (data == null) { return false; }
-		return load(commandSource, data);
+		return load(commandInfo, data);
 	}
 
-	public boolean load(CommandSourceStack commandSource, byte[] scene)
+	public boolean load(CommandInfo commandInfo, byte[] scene)
 	{
 		fileSize = scene.length;
 
@@ -33,8 +33,8 @@ public class SceneData
 			version = Integer.parseInt(scanner.next());
 			if (version > SceneFiles.SCENE_VERSION)
 			{
-				Utils.sendFailure(commandSource, "mocap.error.failed_to_load_scene");
-				Utils.sendFailure(commandSource, "mocap.error.failed_to_load_scene.not_supported");
+				commandInfo.sendFailure("mocap.error.failed_to_load_scene");
+				commandInfo.sendFailure("mocap.error.failed_to_load_scene.not_supported");
 				scanner.close();
 				return false;
 			}
@@ -49,7 +49,7 @@ public class SceneData
 		}
 		catch (Exception exception)
 		{
-			Utils.sendException(exception, commandSource, "mocap.error.failed_to_load_scene");
+			commandInfo.sendException(exception, "mocap.error.failed_to_load_scene");
 			return false;
 		}
 	}

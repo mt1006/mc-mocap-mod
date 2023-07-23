@@ -2,13 +2,17 @@ package com.mt1006.mocap.mocap.playing;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.PropertyMap;
+import com.mt1006.mocap.command.CommandInfo;
 import com.mt1006.mocap.events.PlayerConnectionEvent;
 import com.mt1006.mocap.mocap.actions.Action;
+import com.mt1006.mocap.mocap.recording.EntityState;
 import com.mt1006.mocap.mocap.recording.Recording;
 import com.mt1006.mocap.mocap.settings.Settings;
 import com.mt1006.mocap.network.MocapPacketS2C;
-import com.mt1006.mocap.utils.*;
-import net.minecraft.commands.CommandSourceStack;
+import com.mt1006.mocap.utils.EntityData;
+import com.mt1006.mocap.utils.FakePlayer;
+import com.mt1006.mocap.utils.Fields;
+import com.mt1006.mocap.utils.ProfileUtils;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.protocol.game.ClientboundAddPlayerPacket;
@@ -22,6 +26,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,47 +58,42 @@ public class PlayedScene
 	private PlayingContext ctx;
 	private int pos = 0;
 
-	public boolean start(CommandSourceStack commandSource, String name, PlayerData playerData, int id)
+	public boolean start(CommandInfo commandInfo, String name, PlayerData playerData, int id)
 	{
 		this.root = true;
 		this.id = id;
 		this.name = name;
-		this.level = commandSource.getLevel();
-
 		this.playerData = playerData;
-
-		if (name.charAt(0) == '.') { type = SceneType.SCENE; }
-		else { type = SceneType.RECORDING; }
+		this.type = name.charAt(0) == '.' ? SceneType.SCENE : SceneType.RECORDING;
+		this.level = commandInfo.source.getLevel();
 
 		DataManager data = new DataManager();
-		if (!data.load(commandSource, name))
+		if (!data.load(commandInfo, name))
 		{
 			if (!data.knownError)
 			{
-				Utils.sendFailure(commandSource, "mocap.playing.start.error");
-				Utils.sendFailure(commandSource, "mocap.playing.start.error.load");
+				commandInfo.sendFailure("mocap.playing.start.error");
+				commandInfo.sendFailure("mocap.playing.start.error.load");
 			}
-			Utils.sendFailure(commandSource, "mocap.playing.start.error.load.path", data.getResourcePath());
+			commandInfo.sendFailure("mocap.playing.start.error.load.path", data.getResourcePath());
 			return false;
 		}
 
 		switch (type)
 		{
-			case RECORDING: return startPlayingRecording(commandSource, data);
-			case SCENE: return startPlayingScene(commandSource, data);
+			case RECORDING: return startPlayingRecording(commandInfo, data);
+			case SCENE: return startPlayingScene(commandInfo, data);
 			default: return false;
 		}
 	}
 
-	private boolean startSubscene(CommandSourceStack commandSource, PlayedScene parent, SceneData.Subscene info, DataManager data)
+	private boolean startSubscene(CommandInfo commandInfo, PlayedScene parent, SceneData.Subscene info, DataManager data)
 	{
-		root = false;
-		id = 0;
-		name = info.name;
-		level = commandSource.getLevel();
-
-		if (name.charAt(0) == '.') { type = SceneType.SCENE; }
-		else { type = SceneType.RECORDING; }
+		this.root = false;
+		this.id = 0;
+		this.name = info.name;
+		this.level = commandInfo.source.getLevel();
+		this.type = name.charAt(0) == '.' ? SceneType.SCENE : SceneType.RECORDING;
 
 		playerData = info.playerData.mergeWithParent(parent.playerData);
 		playerAsEntityID = info.playerAsEntityID != null ? info.playerAsEntityID : parent.playerAsEntityID;
@@ -102,13 +102,13 @@ public class PlayedScene
 
 		switch (type)
 		{
-			case RECORDING: return startPlayingRecording(commandSource, data);
-			case SCENE: return startPlayingScene(commandSource, data);
+			case RECORDING: return startPlayingRecording(commandInfo, data);
+			case SCENE: return startPlayingScene(commandInfo, data);
 			default: return false;
 		}
 	}
 
-	private boolean startPlayingScene(CommandSourceStack commandSource, DataManager data)
+	private boolean startPlayingScene(CommandInfo commandInfo, DataManager data)
 	{
 		SceneData sceneData = data.getScene(name);
 		if (sceneData == null) { return false; }
@@ -116,19 +116,19 @@ public class PlayedScene
 		for (SceneData.Subscene subscene : sceneData.subscenes)
 		{
 			PlayedScene newScene = new PlayedScene();
-			if (!newScene.startSubscene(commandSource, this, subscene, data)) { return false; }
+			if (!newScene.startSubscene(commandInfo, this, subscene, data)) { return false; }
 			subscenes.add(newScene);
 		}
 		return true;
 	}
 
-	private boolean startPlayingRecording(CommandSourceStack commandSource, DataManager data)
+	private boolean startPlayingRecording(CommandInfo commandInfo, DataManager data)
 	{
-		GameProfile profile = getGameProfile(commandSource);
+		GameProfile profile = getGameProfile(commandInfo);
 		if (profile == null)
 		{
-			Utils.sendFailure(commandSource, "mocap.playing.start.error");
-			Utils.sendFailure(commandSource, "mocap.playing.start.error.profile");
+			commandInfo.sendFailure("mocap.playing.start.error");
+			commandInfo.sendFailure("mocap.playing.start.error.profile");
 			return false;
 		}
 
@@ -139,7 +139,7 @@ public class PlayedScene
 			PropertyMap newPropertyMap = (PropertyMap)Fields.gameProfileProperties.get(newProfile);
 
 			newPropertyMap.putAll(oldPropertyMap);
-			playerData.addSkinToPropertyMap(commandSource, newPropertyMap);
+			playerData.addSkinToPropertyMap(commandInfo, newPropertyMap);
 		}
 		catch (Exception ignore) {}
 
@@ -174,18 +174,18 @@ public class PlayedScene
 				}
 			}
 
-			new EntityData(fakePlayer, EntityData.PLAYER_SKIN_PARTS, (byte)0b01111111).broadcast(packetTargets);
+			EntityData.PLAYER_SKIN_PARTS.set(fakePlayer,(byte)0b01111111);
 		}
 		else
 		{
 			ResourceLocation entityRes = new ResourceLocation(playerAsEntityID);
 			EntityType<?> entityType = BuiltInRegistries.ENTITY_TYPE.get(entityRes);
-			entity = (BuiltInRegistries.ENTITY_TYPE.containsKey(entityRes)) ? entityType.create(level) : null;
+			entity = BuiltInRegistries.ENTITY_TYPE.containsKey(entityRes) ? entityType.create(level) : null;
 
 			if (entity == null)
 			{
 				//TODO: better message (and fall back to FakePlayer)
-				Utils.sendFailure(commandSource, "mocap.playing.start.warning.unknown_entity");
+				commandInfo.sendFailure("mocap.playing.start.warning.unknown_entity");
 				return false;
 			}
 
@@ -289,27 +289,20 @@ public class PlayedScene
 		return finished && dyingTicks == 0;
 	}
 
-	private @Nullable GameProfile getGameProfile(CommandSourceStack commandSource)
+	private @Nullable GameProfile getGameProfile(CommandInfo commandInfo)
 	{
 		String profileName = playerData.name;
+		Entity entity = commandInfo.source.getEntity();
+		Level level = commandInfo.source.getLevel();
 
 		if (profileName == null)
 		{
-			if (commandSource.getEntity() instanceof ServerPlayer)
-			{
-				profileName = ((ServerPlayer)commandSource.getEntity()).getGameProfile().getName();
-			}
-			else if (!commandSource.getLevel().players().isEmpty())
-			{
-				profileName = commandSource.getLevel().players().get(0).getGameProfile().getName();
-			}
-			else
-			{
-				profileName = "Player";
-			}
+			if (entity instanceof ServerPlayer) { profileName = ((ServerPlayer)entity).getGameProfile().getName(); }
+			else if (!level.players().isEmpty()) { profileName = level.players().get(0).getGameProfile().getName(); }
+			else { profileName = "Player"; }
 		}
 
-		return ProfileUtils.getGameProfile(commandSource.getServer(), profileName);
+		return ProfileUtils.getGameProfile(commandInfo.source.getServer(), profileName);
 	}
 
 	private enum SceneType

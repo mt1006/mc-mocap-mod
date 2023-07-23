@@ -2,7 +2,6 @@ package com.mt1006.mocap.mocap.recording;
 
 import com.mt1006.mocap.mocap.actions.EntityUpdate;
 import com.mt1006.mocap.mocap.files.RecordingFiles;
-import com.mt1006.mocap.mocap.playing.EntityState;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.Nullable;

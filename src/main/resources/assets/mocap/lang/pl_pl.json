@@ -149,6 +149,7 @@
   "mocap.settings.info.about.entitiesAfterPlayback": "§lO ustawieniu:§r Określa co się stanie z bytami po odtwarzaniu (-1 - uwolnij jako normalne byty; 0 - zostaw bez zmian; 1 - usuń; 2 - zabij z animacją)",
   "mocap.settings.info.about.preventSavingEntities": "§lO ustawieniu:§r Zapobiega zapisaniu odtwarzanych bytów np. w przypadku wyjścia z gry",
   "mocap.settings.info.about.recordPlayerDeath": "§lO ustawieniu:§r Włącza nagrywanie śmierci gracza i zatrzymuje nagranie w tym momencie",
+  "mocap.settings.info.about.fluentMovements": "§lAbout:§r Określa dystans od odtwarzanego bytu do gracza, aby ten otrzymywał dodatkowe pakiety w celu uzyskania płynniejszych ruchów (>0 - dystans w blokach; 0 - wyłącz płynne ruchy; -1 - bez limitu)",
   "mocap.settings.info.val": "§lObecna wartość:§r %s",
   "mocap.settings.info.def_val": "§lDomyślna wartość:§r %s",
 
