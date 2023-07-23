@@ -7,6 +7,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.item.BedItem;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.block.BedBlock;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BedPart;
 import org.spongepowered.asm.mixin.Mixin;

@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Pair;
 import com.mt1006.mocap.command.InputArgument;
 import com.mt1006.mocap.events.PlayerConnectionEvent;
 import com.mt1006.mocap.mocap.playing.CustomClientSkinManager;
+import io.netty.buffer.ByteBuf;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -15,6 +16,7 @@ import net.minecraft.server.level.ServerPlayer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 public class MocapPacketS2C
 {
@@ -106,7 +108,7 @@ public class MocapPacketS2C
 	{
 		if (version != MocapPackets.CURRENT_VERSION) { return; }
 
-		switch (op)
+ 		switch (op)
 		{
 			case ON_LOGIN: MocapPacketC2S.sendAcceptServer(sender); break;
 			case NOCOL_PLAYER_ADD: PlayerConnectionEvent.addNocolPlayer((UUID)object); break;
@@ -119,7 +121,7 @@ public class MocapPacketS2C
 
 	public static void sendOnLogin(PacketSender sender)
 	{
-		sendToSender(sender, ON_LOGIN, null);
+		respond(sender, ON_LOGIN, null);
 	}
 
 	public static void sendNocolPlayerAdd(ServerPlayer serverPlayer, UUID player)
@@ -137,9 +139,9 @@ public class MocapPacketS2C
 		send(serverPlayer, INPUT_SUGGESTIONS_ADD, strings);
 	}
 
-	public static void sendInputSuggestionsAdd(PacketSender sender, Collection<String> strings)
+	public static void sendInputSuggestionsAddOnLogin(PacketSender sender, Collection<String> strings)
 	{
-		sendToSender(sender, INPUT_SUGGESTIONS_ADD, strings);
+		respond(sender, INPUT_SUGGESTIONS_ADD, strings);
 	}
 
 	public static void sendInputSuggestionsRemove(ServerPlayer serverPlayer, Collection<String> strings)
@@ -152,13 +154,13 @@ public class MocapPacketS2C
 		send(serverPlayer, CUSTOM_SKIN_DATA, new Pair<>(name, byteArray));
 	}
 
-	private static void send(ServerPlayer player, int op, Object object)
+	private static void send(ServerPlayer serverPlayer, int op, Object object)
 	{
 		MocapPacketS2C packet = new MocapPacketS2C(MocapPackets.CURRENT_VERSION, op, object);
-		ServerPlayNetworking.send(player, MocapPackets.CHANNEL_NAME, packet.encode(PacketByteBufs.create()));
+		ServerPlayNetworking.send(serverPlayer, MocapPackets.CHANNEL_NAME, packet.encode(PacketByteBufs.create()));
 	}
 
-	private static void sendToSender(PacketSender sender, int op, Object object)
+	private static void respond(PacketSender sender, int op, Object object)
 	{
 		MocapPacketS2C packet = new MocapPacketS2C(MocapPackets.CURRENT_VERSION, op, object);
 		sender.sendPacket(MocapPackets.CHANNEL_NAME, packet.encode(PacketByteBufs.create()));
@@ -166,6 +168,7 @@ public class MocapPacketS2C
 
 	public static void receive(Minecraft client, ClientPacketListener handler, FriendlyByteBuf buf, PacketSender sender)
 	{
-		new MocapPacketS2C(buf).handle(sender);
+		FriendlyByteBuf bufCopy = new FriendlyByteBuf(buf.copy());
+		client.execute(() -> new MocapPacketS2C(bufCopy).handle(sender));
 	}
 }

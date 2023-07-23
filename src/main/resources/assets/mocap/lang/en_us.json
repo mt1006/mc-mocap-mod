@@ -149,6 +149,7 @@
   "mocap.settings.info.about.entitiesAfterPlayback": "§lAbout:§r Determines what will happen with entities after playback (-1 - release it as a normal entity; 0 - left untouched; 1 - remove; 2 - kill with animation)",
   "mocap.settings.info.about.preventSavingEntities": "§lAbout:§r Prevents game from saving played entities in case of for example leaving game",
   "mocap.settings.info.about.recordPlayerDeath": "§lAbout:§r Enables recording player death and stops recording at that moment",
+  "mocap.settings.info.about.fluentMovements": "§lAbout:§r Sets distance to played entity for player to receive additional packets for more fluent movements (>0 - distance in blocks; 0 - disable fluent movements; -1 - no limit)",
   "mocap.settings.info.val": "§lCurrent value:§r %s",
   "mocap.settings.info.def_val": "§lDefault value:§r %s",
 

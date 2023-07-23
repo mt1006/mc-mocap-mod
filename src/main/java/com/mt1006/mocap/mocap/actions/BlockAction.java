@@ -36,7 +36,7 @@ public interface BlockAction extends Action
 		public void place(Entity entity, BlockPos blockPos)
 		{
 			BlockState blockState = Block.stateById(blockID);
-			Level level = entity.getLevel();
+			Level level = entity.level;
 
 			if (blockState.isAir())
 			{
@@ -54,7 +54,7 @@ public interface BlockAction extends Action
 
 		public void placeSilently(Entity entity, BlockPos blockPos)
 		{
-			entity.getLevel().setBlock(blockPos, Block.stateById(blockID), 3);
+			entity.level.setBlock(blockPos, Block.stateById(blockID), 3);
 		}
 	}
 }
