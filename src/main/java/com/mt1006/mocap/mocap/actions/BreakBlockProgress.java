@@ -4,7 +4,6 @@ import com.mt1006.mocap.mocap.files.RecordingFiles;
 import com.mt1006.mocap.mocap.playing.PlayingContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
-import net.minecraft.network.protocol.game.ClientboundBlockDestructionPacket;
 import net.minecraft.world.entity.Entity;
 
 public class BreakBlockProgress implements BlockAction
@@ -38,7 +37,7 @@ public class BreakBlockProgress implements BlockAction
 
 	@Override public Result execute(PlayingContext ctx)
 	{
-		ctx.broadcast(new ClientboundBlockDestructionPacket(ctx.entity.getId(), blockPos.offset(ctx.blockOffset), progress));
+		ctx.level.destroyBlockProgress(ctx.entity.getId(), blockPos.offset(ctx.blockOffset), progress);
 		return Result.OK;
 	}
 }

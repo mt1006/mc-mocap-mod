@@ -1,9 +1,9 @@
 {
-    "pack":
-    {
-        "description": "mocap resources",
-        "pack_format": 12,
-        "forge:resource_pack_format": 12,
-        "forge:data_pack_format": 10
-    }
+	"pack":
+	{
+		"description": "${mod_id} resources",
+		"pack_format": 12,
+		"forge:resource_pack_format": 12,
+		"forge:data_pack_format": 10
+	}
 }
