@@ -12,9 +12,8 @@ import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.MemoryUtil;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -68,19 +67,42 @@ public class CustomClientSkinManager
 		Boolean accessible = clientMap.get(name);
 		if (accessible == null || accessible) { return; }
 
+		ByteBuffer byteBuffer = null;
+
 		try
 		{
-			MemoryStack memoryStack = MemoryStack.stackPush();
-			ByteBuffer byteBuffer = memoryStack.malloc(array.length);
-			byteBuffer.put(array);
-			byteBuffer.rewind();
+			NativeImage nativeImage;
 
-			Minecraft.getInstance().getTextureManager().register(resFromName(name), new DynamicTexture(NativeImage.read(byteBuffer)));
+			byteBuffer = MemoryUtil.memAlloc(array.length);
+			try
+			{
+				byteBuffer.put(array);
+				byteBuffer.rewind();
+				nativeImage = NativeImage.read(byteBuffer);
+			}
+			catch (Exception exception)
+			{
+				Utils.exception(exception, "Failed to load skin texture into buffer!");
+				MemoryUtil.memFree(byteBuffer);
+				return;
+			}
+			MemoryUtil.memFree(byteBuffer);
+			byteBuffer = null;
 
-			memoryStack.close();
+			if (nativeImage.getWidth() > 4096 || nativeImage.getHeight() > 4096)
+			{
+				MocapMod.LOGGER.error("Skin texture too big!");
+				return;
+			}
+
+			Minecraft.getInstance().getTextureManager().register(resFromName(name), new DynamicTexture(nativeImage));
 			clientMap.put(name, true);
 		}
-		catch (IOException ignore) {}
+		catch (Exception exception)
+		{
+			Utils.exception(exception, "Failed to read skin texture!");
+			MemoryUtil.memFree(byteBuffer);
+		}
 	}
 
 	public static void clearCache()

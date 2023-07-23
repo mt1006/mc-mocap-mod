@@ -1,11 +1,10 @@
 package com.mt1006.mocap.mocap.playing;
 
+import com.mt1006.mocap.command.CommandOutput;
 import com.mt1006.mocap.mocap.files.Files;
 import com.mt1006.mocap.network.MocapPacketS2C;
 import net.minecraft.Util;
-import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.level.ServerPlayer;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -24,7 +23,7 @@ public class CustomSkinManager
 
 	public static void sendSkinToClientThread(ServerPlayer player, String name)
 	{
-		if (!checkIfProperName(null, name)) { return; }
+		if (!checkIfProperName(CommandOutput.DUMMY, name)) { return; }
 		byte[] array = Files.loadFile(Files.getSkinFile(player.getServer(), name));
 
 		if (array != null)
@@ -34,8 +33,8 @@ public class CustomSkinManager
 		}
 	}
 
-	public static boolean checkIfProperName(@Nullable CommandSourceStack commandSource, String name)
+	public static boolean checkIfProperName(CommandOutput commandOutput, String name)
 	{
-		return Files.checkIfProperName(commandSource, name.startsWith("slim/") ? name.substring(5) : name);
+		return Files.checkIfProperName(commandOutput, name.startsWith("slim/") ? name.substring(5) : name);
 	}
 }

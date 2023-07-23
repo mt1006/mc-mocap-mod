@@ -2,6 +2,7 @@ package com.mt1006.mocap.mixin;
 
 import com.mt1006.mocap.mocap.playing.Playing;
 import com.mt1006.mocap.mocap.settings.Settings;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -16,12 +17,11 @@ public abstract class EntityMixin
 {
 	@Shadow public abstract Set<String> getTags();
 
-	@Inject(method = "shouldBeSaved", at = @At(value = "HEAD"), cancellable = true)
-	private void atShouldBeSaved(CallbackInfoReturnable<Boolean> cir)
+	@Inject(method = "save", at = @At(value = "HEAD"), cancellable = true)
+	private void atSave(CompoundTag compoundTag, CallbackInfoReturnable<Boolean> cir)
 	{
 		if (Playing.playedScenes.size() > 0 && Settings.PREVENT_SAVING_ENTITIES.val && getTags().contains(Playing.MOCAP_ENTITY_TAG))
 		{
-			//TODO: check
 			cir.setReturnValue(false);
 			cir.cancel();
 		}
