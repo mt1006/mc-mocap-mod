@@ -47,7 +47,6 @@ public interface BlockAction extends Action
 			{
 				level.setBlock(blockPos, blockState, 3);
 
-				if (!(entity instanceof Player)) { return; }
 				SoundType soundType = blockState.getSoundType();
 				level.playSound((Player)entity, blockPos, blockState.getSoundType().getPlaceSound(),
 						SoundSource.BLOCKS, (soundType.getVolume() + 1.0F) / 2.0F, soundType.getPitch() * 0.8F);

@@ -1,9 +1,9 @@
 package com.mt1006.mocap.mocap.files;
 
+import com.mt1006.mocap.command.CommandInfo;
+import com.mt1006.mocap.command.CommandOutput;
 import com.mt1006.mocap.command.InputArgument;
 import com.mt1006.mocap.mocap.playing.RecordingData;
-import com.mt1006.mocap.utils.Utils;
-import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.MinecraftServer;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.Nullable;
@@ -21,17 +21,17 @@ public class RecordingFiles
 {
 	public static final byte RECORDING_VERSION = 3;
 
-	public static boolean save(CommandSourceStack commandSource, String name, RecordingFiles.Writer writer)
+	public static boolean save(CommandInfo commandInfo, String name, RecordingFiles.Writer writer)
 	{
-		File recordingFile = Files.getRecordingFile(commandSource, name);
+		File recordingFile = Files.getRecordingFile(commandInfo, name);
 		if (recordingFile == null) { return false; }
 
 		try
 		{
 			if (recordingFile.exists())
 			{
-				Utils.sendFailure(commandSource, "mocap.recording.save.file_already_exist");
-				Utils.sendFailure(commandSource, "mocap.recording.save.file_already_exist.tip");
+				commandInfo.sendFailure("mocap.recording.save.file_already_exist");
+				commandInfo.sendFailure("mocap.recording.save.file_already_exist.tip");
 				return false;
 			}
 
@@ -45,122 +45,122 @@ public class RecordingFiles
 		}
 		catch (IOException exception)
 		{
-			Utils.sendException(exception, commandSource, "mocap.recording.save.exception");
+			commandInfo.sendException(exception, "mocap.recording.save.exception");
 			return false;
 		}
 
 		InputArgument.addServerInput(name);
-		Utils.sendSuccess(commandSource, "mocap.recording.save.success");
+		commandInfo.sendSuccess("mocap.recording.save.success");
 		return true;
 	}
 
-	public static boolean copy(CommandSourceStack commandSource, String srcName, String destName)
+	public static boolean copy(CommandInfo commandInfo, String srcName, String destName)
 	{
-		File srcFile = Files.getRecordingFile(commandSource, srcName);
+		File srcFile = Files.getRecordingFile(commandInfo, srcName);
 		if (srcFile == null) { return false; }
 
-		File destFile = Files.getRecordingFile(commandSource, destName);
+		File destFile = Files.getRecordingFile(commandInfo, destName);
 		if (destFile == null) { return false; }
 
 		try { FileUtils.copyFile(srcFile, destFile); }
 		catch (IOException exception)
 		{
-			Utils.sendException(exception, commandSource, "mocap.recordings.copy.failed");
+			commandInfo.sendException(exception, "mocap.recordings.copy.failed");
 			return false;
 		}
 
 		InputArgument.addServerInput(destName);
-		Utils.sendSuccess(commandSource, "mocap.recordings.copy.success");
+		commandInfo.sendSuccess("mocap.recordings.copy.success");
 		return true;
 	}
 
-	public static boolean rename(CommandSourceStack commandSource, String oldName, String newName)
+	public static boolean rename(CommandInfo commandInfo, String oldName, String newName)
 	{
-		File oldFile = Files.getRecordingFile(commandSource, oldName);
+		File oldFile = Files.getRecordingFile(commandInfo, oldName);
 		if (oldFile == null) { return false; }
 
-		File newFile = Files.getRecordingFile(commandSource, newName);
+		File newFile = Files.getRecordingFile(commandInfo, newName);
 		if (newFile == null) { return false; }
 
 		if (!oldFile.renameTo(newFile))
 		{
-			Utils.sendFailure(commandSource, "mocap.recordings.rename.failed");
+			commandInfo.sendFailure("mocap.recordings.rename.failed");
 			return false;
 		}
 
 		InputArgument.removeServerInput(oldName);
 		InputArgument.addServerInput(newName);
-		Utils.sendSuccess(commandSource, "mocap.recordings.rename.success");
+		commandInfo.sendSuccess("mocap.recordings.rename.success");
 		return true;
 	}
 
-	public static boolean remove(CommandSourceStack commandSource, String name)
+	public static boolean remove(CommandInfo commandInfo, String name)
 	{
-		File recordingFile = Files.getRecordingFile(commandSource, name);
+		File recordingFile = Files.getRecordingFile(commandInfo, name);
 		if (recordingFile == null) { return false; }
 
 		if (!recordingFile.delete())
 		{
-			Utils.sendFailure(commandSource, "mocap.recordings.remove.failed");
+			commandInfo.sendFailure("mocap.recordings.remove.failed");
 			return false;
 		}
 
 		InputArgument.removeServerInput(name);
-		Utils.sendSuccess(commandSource, "mocap.recordings.remove.success");
+		commandInfo.sendSuccess("mocap.recordings.remove.success");
 		return true;
 	}
 
-	public static boolean info(CommandSourceStack commandSource, String name)
+	public static boolean info(CommandInfo commandInfo, String name)
 	{
 		RecordingData recordingData = new RecordingData();
 
-		if (!recordingData.load(commandSource, name) && recordingData.version <= RECORDING_VERSION)
+		if (!recordingData.load(commandInfo, name) && recordingData.version <= RECORDING_VERSION)
 		{
-			Utils.sendFailure(commandSource, "mocap.recordings.info.failed");
+			commandInfo.sendFailure("mocap.recordings.info.failed");
 			return false;
 		}
 
-		Utils.sendSuccess(commandSource, "mocap.recordings.info.info");
-		Utils.sendSuccess(commandSource, "mocap.file.info.name", name);
+		commandInfo.sendSuccess("mocap.recordings.info.info");
+		commandInfo.sendSuccess("mocap.file.info.name", name);
 
 		if (recordingData.version <= RECORDING_VERSION)
 		{
 			if (recordingData.version == RECORDING_VERSION)
 			{
-				Utils.sendSuccess(commandSource, "mocap.file.info.version.current", recordingData.version);
+				commandInfo.sendSuccess("mocap.file.info.version.current", recordingData.version);
 			}
 			else if (recordingData.version > 0)
 			{
-				Utils.sendSuccess(commandSource, "mocap.file.info.version.old", recordingData.version);
+				commandInfo.sendSuccess("mocap.file.info.version.old", recordingData.version);
 			}
 			else
 			{
-				Utils.sendSuccess(commandSource, "mocap.file.info.version.unknown", recordingData.version);
+				commandInfo.sendSuccess("mocap.file.info.version.unknown", recordingData.version);
 			}
 
-			Utils.sendSuccess(commandSource, "mocap.recordings.info.length",
+			commandInfo.sendSuccess("mocap.recordings.info.length",
 					String.format("%.2f", recordingData.tickCount / 20.0), recordingData.tickCount);
 
-			Utils.sendSuccess(commandSource, "mocap.recordings.info.size",
+			commandInfo.sendSuccess("mocap.recordings.info.size",
 					String.format("%.2f", recordingData.fileSize / 1024.0), recordingData.actions.size() - recordingData.tickCount);
 
-			Utils.sendSuccess(commandSource, "mocap.recordings.info.start_pos",
+			commandInfo.sendSuccess("mocap.recordings.info.start_pos",
 					String.format("%.2f", recordingData.startPos[0]),
 					String.format("%.2f", recordingData.startPos[1]),
 					String.format("%.2f", recordingData.startPos[2]));
 
-			//TODO: add info about rotation and death at the end (1.4)
+			//TODO: add info about rotation and death at the end
 		}
 		else
 		{
-			Utils.sendSuccess(commandSource, "mocap.file.info.version.not_supported", recordingData.version);
+			commandInfo.sendSuccess("mocap.file.info.version.not_supported", recordingData.version);
 		}
 		return true;
 	}
 
-	public static @Nullable ArrayList<String> list(MinecraftServer server, @Nullable CommandSourceStack commandSource)
+	public static @Nullable ArrayList<String> list(MinecraftServer server, CommandOutput commandOutput)
 	{
-		if (!Files.initDirectories(server, commandSource)) { return null; }
+		if (!Files.initDirectories(server, commandOutput)) { return null; }
 		ArrayList<String> recordings = new ArrayList<>();
 
 		String[] filesList = Files.recordingsDirectory.list();
@@ -195,7 +195,7 @@ public class RecordingFiles
 
 		public void addFloat(float val)
 		{
-			for (byte b : Utils.floatToByteArray(val))
+			for (byte b : floatToByteArray(val))
 			{
 				recording.add(b);
 			}
@@ -203,7 +203,7 @@ public class RecordingFiles
 
 		public void addDouble(double val)
 		{
-			for (byte b : Utils.doubleToByteArray(val))
+			for (byte b : doubleToByteArray(val))
 			{
 				recording.add(b);
 			}
@@ -249,6 +249,19 @@ public class RecordingFiles
 		{
 			return recording;
 		}
+
+		private static byte[] floatToByteArray(float val)
+		{
+			int bits = Float.floatToIntBits(val);
+			return new byte[] { (byte)(bits >> 24), (byte)(bits >> 16), (byte)(bits >> 8), (byte)bits };
+		}
+
+		private static byte[] doubleToByteArray(double val)
+		{
+			long bits = Double.doubleToLongBits(val);
+			return new byte[] { (byte)(bits >> 56), (byte)(bits >> 48), (byte)(bits >> 40), (byte)(bits >> 32),
+					(byte)(bits >> 24), (byte)(bits >> 16), (byte)(bits >> 8), (byte)bits };
+		}
 	}
 
 	public interface Reader
@@ -290,14 +303,14 @@ public class RecordingFiles
 		}
 		@Override public float readFloat()
 		{
-			float retVal = Utils.byteArrayToFloat(Arrays.copyOfRange(recording, offset, offset + 4));
+			float retVal = byteArrayToFloat(Arrays.copyOfRange(recording, offset, offset + 4));
 			offset += 4;
 			return retVal;
 		}
 
 		@Override public double readDouble()
 		{
-			double retVal = Utils.byteArrayToDouble(Arrays.copyOfRange(recording, offset, offset + 8));
+			double retVal = byteArrayToDouble(Arrays.copyOfRange(recording, offset, offset + 8));
 			offset += 8;
 			return retVal;
 		}
@@ -324,6 +337,19 @@ public class RecordingFiles
 		{
 			return recording.length;
 		}
+
+		private static float byteArrayToFloat(byte[] bytes)
+		{
+			int bits = (((int)bytes[0] & 0xFF) << 24) | (((int)bytes[1] & 0xFF) << 16) | (((int)bytes[2] & 0xFF) << 8) | ((int)bytes[3] & 0xFF);
+			return Float.intBitsToFloat(bits);
+		}
+
+		private static double byteArrayToDouble(byte[] bytes)
+		{
+			long bits = (((long)bytes[0] & 0xFF) << 56) | (((long)bytes[1] & 0xFF) << 48) | (((long)bytes[2] & 0xFF) << 40) | (((long)bytes[3] & 0xFF) << 32) |
+					(((long)bytes[4] & 0xFF) << 24) | (((long)bytes[5] & 0xFF) << 16) | (((long)bytes[6] & 0xFF) << 8) | ((long)bytes[7] & 0xFF);
+			return Double.longBitsToDouble(bits);
+		}
 	}
 
 	public static class DummyReader implements Reader
@@ -339,6 +365,7 @@ public class RecordingFiles
 		{
 			return 0;
 		}
+
 		@Override public float readFloat()
 		{
 			return 0.0f;

@@ -1,4 +1,4 @@
-package com.mt1006.mocap.mixin.fabric;
+package com.mt1006.mocap.mixin.fields;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @Mixin(ServerLevel.class)
-public interface ServerLevelEntitiesMixin
+public interface LevelMixin
 {
 	@Accessor Map<UUID, Entity> getEntitiesByUuid();
 }

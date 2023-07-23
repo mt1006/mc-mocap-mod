@@ -2,7 +2,6 @@ package com.mt1006.mocap.mocap.actions;
 
 import com.mt1006.mocap.mocap.files.RecordingFiles;
 import com.mt1006.mocap.mocap.playing.PlayingContext;
-import com.mt1006.mocap.utils.EntityData;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.Nullable;
@@ -50,11 +49,8 @@ public class SetArrowCount implements ComparableAction
 	@Override public Result execute(PlayingContext ctx)
 	{
 		if (!(ctx.entity instanceof LivingEntity)) { return Result.IGNORED; }
-
-		EntityData entityData = new EntityData(ctx.entity);
-		entityData.add(EntityData.LIVING_ENTITY_ARROW_COUNT, arrowCount);
-		entityData.add(EntityData.LIVING_ENTITY_STINGER_COUNT, beeStingerCount);
-		entityData.broadcast(ctx);
+		((LivingEntity)ctx.entity).setArrowCount(arrowCount);
+		((LivingEntity)ctx.entity).setStingerCount(beeStingerCount);
 		return Result.OK;
 	}
 }

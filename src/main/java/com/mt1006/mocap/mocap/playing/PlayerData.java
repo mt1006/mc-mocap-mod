@@ -3,11 +3,11 @@ package com.mt1006.mocap.mocap.playing;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
+import com.mt1006.mocap.command.CommandInfo;
 import com.mt1006.mocap.mocap.settings.Settings;
 import com.mt1006.mocap.utils.Fields;
 import com.mt1006.mocap.utils.ProfileUtils;
 import com.mt1006.mocap.utils.Utils;
-import net.minecraft.commands.CommandSourceStack;
 import org.jetbrains.annotations.Nullable;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -66,18 +66,18 @@ public class PlayerData
 		return String.format("%s %s %d", Utils.toNotNullStr(name), skinPath, skinSource.id);
 	}
 
-	public void addSkinToPropertyMap(CommandSourceStack commandSource, PropertyMap propertyMap)
+	public void addSkinToPropertyMap(CommandInfo commandInfo, PropertyMap propertyMap)
 			throws IllegalArgumentException, IllegalAccessException
 	{
 		switch (skinSource)
 		{
 			case FROM_PLAYER:
-				GameProfile tempProfile = ProfileUtils.getGameProfile(commandSource.getServer(), skinPath);
+				GameProfile tempProfile = ProfileUtils.getGameProfile(commandInfo.source.getServer(), skinPath);
 				PropertyMap tempPropertyMap = (PropertyMap)Fields.gameProfileProperties.get(tempProfile);
 
 				if (!tempPropertyMap.containsKey("textures"))
 				{
-					Utils.sendFailure(commandSource, "mocap.playing.start.warning.skin.profile");
+					commandInfo.sendFailure("mocap.playing.start.warning.skin.profile");
 					break;
 				}
 
@@ -95,7 +95,7 @@ public class PlayerData
 
 				if (skinProperty == null)
 				{
-					Utils.sendFailure(commandSource, "mocap.playing.start.warning.skin.mineskin");
+					commandInfo.sendFailure("mocap.playing.start.warning.skin.mineskin");
 					break;
 				}
 
@@ -122,7 +122,6 @@ public class PlayerData
 
 			URLConnection connection = url.openConnection();
 			if (!(connection instanceof HttpsURLConnection)) { return null; }
-
 			HttpsURLConnection httpsConnection = (HttpsURLConnection)connection;
 
 			httpsConnection.setUseCaches(false);

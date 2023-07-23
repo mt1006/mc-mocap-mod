@@ -2,7 +2,6 @@ package com.mt1006.mocap.mocap.actions;
 
 import com.mt1006.mocap.mocap.files.RecordingFiles;
 import com.mt1006.mocap.mocap.playing.PlayingContext;
-import com.mt1006.mocap.utils.EntityData;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
@@ -12,24 +11,16 @@ import org.jetbrains.annotations.Nullable;
 
 public class SetMainHand implements ComparableAction
 {
-	private final byte mainHand;
+	private final HumanoidArm mainHand;
 
 	public SetMainHand(Entity entity)
 	{
-		if (entity instanceof LivingEntity)
-		{
-			if (((LivingEntity)entity).getMainArm() == HumanoidArm.LEFT) { mainHand = 0; }
-			else { mainHand = 1; }
-		}
-		else
-		{
-			mainHand = 1;
-		}
+		mainHand = entity instanceof LivingEntity ? ((LivingEntity)entity).getMainArm() : HumanoidArm.RIGHT;
 	}
 
 	public SetMainHand(RecordingFiles.Reader reader)
 	{
-		mainHand = reader.readByte();
+		mainHand = reader.readBoolean() ? HumanoidArm.RIGHT : HumanoidArm.LEFT;
 	}
 
 	@Override public boolean differs(ComparableAction action)
@@ -41,13 +32,14 @@ public class SetMainHand implements ComparableAction
 	{
 		if (action != null && !differs(action)) { return; }
 		writer.addByte(Type.SET_MAIN_HAND.id);
-		writer.addByte(mainHand);
+		writer.addBoolean(mainHand == HumanoidArm.RIGHT);
 	}
 
 	@Override public Result execute(PlayingContext ctx)
 	{
-		if (ctx.entity instanceof Player) { new EntityData(ctx.entity, EntityData.PLAYER_MAIN_HAND, mainHand).broadcast(ctx); }
-		else if (ctx.entity instanceof Mob) { ((Mob)ctx.entity).setLeftHanded(mainHand == 0); }
+
+		if (ctx.entity instanceof Player) { ((Player)ctx.entity).setMainArm(mainHand); }
+		else if (ctx.entity instanceof Mob) { ((Mob)ctx.entity).setLeftHanded(mainHand == HumanoidArm.LEFT); }
 		else { return Result.IGNORED; }
 		return Result.OK;
 	}

@@ -16,6 +16,7 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 public class PlayingContext
 {
@@ -43,6 +44,28 @@ public class PlayingContext
 	public void broadcast(Packet<?> packet)
 	{
 		packetTargets.broadcastAll(packet);
+	}
+
+	public void fluentMovement(Supplier<Packet<?>> packetSupplier)
+	{
+		if (Settings.FLUENT_MOVEMENTS.val == 0.0) { return; }
+		Packet<?> packet = packetSupplier.get();
+
+		if (Settings.FLUENT_MOVEMENTS.val > 0.0)
+		{
+			Vec3 pos = entity.position();
+			double maxDistSqr = Settings.FLUENT_MOVEMENTS.val * Settings.FLUENT_MOVEMENTS.val;
+
+			for (ServerPlayer player : packetTargets.getPlayers())
+			{
+				if (player.distanceToSqr(pos) > maxDistSqr) { continue; }
+				player.connection.send(packet);
+			}
+		}
+		else
+		{
+			packetTargets.broadcastAll(packet);
+		}
 	}
 
 	public void removeEntities()

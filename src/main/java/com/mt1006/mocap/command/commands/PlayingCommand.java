@@ -3,11 +3,10 @@ package com.mt1006.mocap.command.commands;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.mojang.brigadier.context.CommandContext;
+import com.mt1006.mocap.command.CommandInfo;
 import com.mt1006.mocap.command.CommandUtils;
 import com.mt1006.mocap.mocap.playing.PlayerData;
 import com.mt1006.mocap.mocap.playing.Playing;
-import com.mt1006.mocap.utils.Utils;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 
@@ -18,50 +17,50 @@ public class PlayingCommand
 		LiteralArgumentBuilder<CommandSourceStack> commandBuilder = Commands.literal("playing");
 
 		commandBuilder.then(Commands.literal("start").
-			then(Commands.argument("name", StringArgumentType.string()).executes(PlayingCommand::start).
-			then(CommandUtils.withPlayerArguments(PlayingCommand::start))));
+			then(Commands.argument("name", StringArgumentType.string()).executes(CommandUtils.command(PlayingCommand::start)).
+			then(CommandUtils.withPlayerArguments(CommandUtils.command(PlayingCommand::start)))));
 		commandBuilder.then(Commands.literal("stop").
-			then(Commands.argument("id", IntegerArgumentType.integer()).executes(PlayingCommand::stop)));
-		commandBuilder.then(Commands.literal("stopAll").executes(CommandUtils.simpleCommand(Playing::stopAll)));
-		commandBuilder.then(Commands.literal("list").executes(CommandUtils.simpleCommand(Playing::list)));
+			then(Commands.argument("id", IntegerArgumentType.integer()).executes(CommandUtils.command(PlayingCommand::stop))));
+		commandBuilder.then(Commands.literal("stopAll").executes(CommandUtils.command(Playing::stopAll)));
+		commandBuilder.then(Commands.literal("list").executes(CommandUtils.command(Playing::list)));
 
 		return commandBuilder;
 	}
 
-	private static int start(CommandContext<CommandSourceStack> ctx)
+	private static boolean start(CommandInfo commandInfo)
 	{
-		String name = CommandUtils.getString(ctx, "name");
-		PlayerData playerData = CommandUtils.getPlayerData(ctx);
+		String name = commandInfo.getNullableString("name");
+		PlayerData playerData = commandInfo.getPlayerData();
 
 		if (name == null)
 		{
-			Utils.sendFailure(ctx.getSource(), "mocap.error.unable_to_get_argument");
-			return 0;
+			commandInfo.sendFailure("mocap.error.unable_to_get_argument");
+			return false;
 		}
 
 		try
 		{
-			return Playing.start(ctx.getSource(), name, playerData);
+			return Playing.start(commandInfo, name, playerData);
 		}
 		catch (Exception exception)
 		{
-			Utils.sendException(exception, ctx.getSource(), "mocap.playing.start.error");
-			return 0;
+			commandInfo.sendException(exception, "mocap.playing.start.error");
+			return false;
 		}
 	}
 
-	private static int stop(CommandContext<CommandSourceStack> ctx)
+	private static boolean stop(CommandInfo commandInfo)
 	{
 		try
 		{
-			int id = IntegerArgumentType.getInteger(ctx, "id");
-			Playing.stop(ctx.getSource(), id);
+			int id = commandInfo.getInteger("id");
+			Playing.stop(commandInfo, id);
 		}
 		catch (Exception exception)
 		{
-			Utils.sendException(exception, ctx.getSource(), "mocap.error.unable_to_get_argument");
-			return 0;
+			commandInfo.sendException(exception, "mocap.error.unable_to_get_argument");
+			return false;
 		}
-		return 1;
+		return true;
 	}
 }

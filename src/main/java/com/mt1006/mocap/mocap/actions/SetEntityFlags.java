@@ -43,7 +43,7 @@ public class SetEntityFlags implements ComparableAction
 
 	@Override public Result execute(PlayingContext ctx)
 	{
-		new EntityData(ctx.entity, EntityData.ENTITY_FLAGS, entityFlags).broadcast(ctx);
+		EntityData.ENTITY_FLAGS.set(ctx.entity, entityFlags);
 		return Result.OK;
 	}
 }

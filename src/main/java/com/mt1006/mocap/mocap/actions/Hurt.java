@@ -10,8 +10,6 @@ public class Hurt implements Action
 {
 	public static final byte DUMMY = 0; // for future uses
 
-	public Hurt() {}
-
 	public Hurt(RecordingFiles.Reader reader)
 	{
 		reader.readByte();
@@ -30,7 +28,7 @@ public class Hurt implements Action
 		entity.setInvulnerable(true);
 	}
 
-	public void write(RecordingFiles.Writer writer)
+	public static void write(RecordingFiles.Writer writer)
 	{
 		writer.addByte(Type.HURT.id);
 		writer.addByte(DUMMY);
