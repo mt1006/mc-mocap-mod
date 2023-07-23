@@ -15,12 +15,11 @@ public class PlayerConnectionEvent
 	private static final int MAX_PLAYER_COUNT = 2048;
 	private static final int MAX_NOCOL_PLAYER_COUNT = 4096;
 
-	public static final Set<ServerPlayer> players = Collections.synchronizedSet(Collections.newSetFromMap(new IdentityHashMap<>()));
-	public static final Set<UUID> nocolPlayers = Collections.synchronizedSet(new HashSet<>());
+	public static final Set<ServerPlayer> players = Collections.newSetFromMap(new IdentityHashMap<>());
+	public static final Set<UUID> nocolPlayers = new HashSet<>();
 
 	public static void onPlayerJoin(ServerGamePacketListenerImpl handler, PacketSender sender, MinecraftServer server)
 	{
-
 		MocapPacketS2C.sendOnLogin(sender);
 	}
 

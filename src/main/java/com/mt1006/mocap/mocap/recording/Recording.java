@@ -1,13 +1,12 @@
 package com.mt1006.mocap.mocap.recording;
 
-import com.mt1006.mocap.mixin.fabric.ServerLevelEntitiesMixin;
+import com.mt1006.mocap.command.CommandInfo;
+import com.mt1006.mocap.mixin.fields.LevelMixin;
 import com.mt1006.mocap.mocap.actions.EntityUpdate;
 import com.mt1006.mocap.mocap.files.RecordingFiles;
-import com.mt1006.mocap.mocap.playing.EntityState;
 import com.mt1006.mocap.mocap.playing.Playing;
 import com.mt1006.mocap.mocap.settings.Settings;
 import com.mt1006.mocap.utils.Utils;
-import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Saddleable;
@@ -42,119 +41,120 @@ public class Recording
 	private static int trackedEntityCounter = 0;
 	private static int trackingTick = 0;
 	private static Entity playerVehicle;
+	public static int endsWithDeathPos = -1;
 
-	public static boolean start(CommandSourceStack commandSource, ServerPlayer serverPlayer)
+	public static boolean start(CommandInfo commandInfo, ServerPlayer serverPlayer)
 	{
 		switch (state)
 		{
 			case NOT_RECORDING:
-				commandSourcePlayer = commandSource.getPlayer();
+				commandSourcePlayer = commandInfo.source != null ? commandInfo.source.getPlayer() : null;
 				player = serverPlayer;
-				Utils.sendSuccess(commandSource, "mocap.recording.start.waiting_for_action");
+				commandInfo.sendSuccess("mocap.recording.start.waiting_for_action");
 				state = State.WAITING_FOR_ACTION;
 				break;
 
 			case WAITING_FOR_ACTION:
 				if (serverPlayer != player)
 				{
-					Utils.sendFailure(commandSource, "mocap.recording.start.different_player");
-					Utils.sendFailure(commandSource, "mocap.recording.start.different_player.tip");
+					commandInfo.sendFailure("mocap.recording.start.different_player");
+					commandInfo.sendFailure("mocap.recording.start.different_player.tip");
 					return false;
 				}
 
 				previousPlayerState = null;
 				state = State.RECORDING;
-				Utils.sendSuccess(commandSource, "mocap.recording.start.recording_started");
+				commandInfo.sendSuccess("mocap.recording.start.recording_started");
 				break;
 
 			case RECORDING:
-				Utils.sendFailure(commandSource, "mocap.recording.start.already_recording");
-				Utils.sendFailure(commandSource, "mocap.recording.start.already_recording.tip");
+				commandInfo.sendFailure("mocap.recording.start.already_recording");
+				commandInfo.sendFailure("mocap.recording.start.already_recording.tip");
 				return false;
 
 			case WAITING_FOR_DECISION:
-				Utils.sendFailure(commandSource, "mocap.recording.stop.waiting_for_decision");
+				commandInfo.sendFailure("mocap.recording.stop.waiting_for_decision");
 				return false;
 		}
 		return true;
 	}
 
-	public static boolean stop(CommandSourceStack commandSource)
+	public static boolean stop(CommandInfo commandInfo)
 	{
-		if (Settings.RECORDING_SYNC.val) { Playing.stopAll(commandSource); }
+		if (Settings.RECORDING_SYNC.val) { Playing.stopAll(commandInfo); }
 
 		switch (state)
 		{
 			case NOT_RECORDING:
-				Utils.sendFailure(commandSource, "mocap.recording.stop.server_not_recording");
+				commandInfo.sendFailure("mocap.recording.stop.server_not_recording");
 				return false;
 
 			case WAITING_FOR_ACTION:
-				Utils.sendSuccess(commandSource, "mocap.recording.stop.stop_waiting_for_action");
+				commandInfo.sendSuccess("mocap.recording.stop.stop_waiting_for_action");
 				state = State.NOT_RECORDING;
 				break;
 
 			case RECORDING:
-				Utils.sendSuccess(commandSource, "mocap.recording.stop.waiting_for_decision");
+				commandInfo.sendSuccess("mocap.recording.stop.waiting_for_decision");
 				state = State.WAITING_FOR_DECISION;
 				break;
 
 			case WAITING_FOR_DECISION:
 				writer.clear();
-				Utils.sendSuccess(commandSource, "mocap.recording.stop.recording_discarded");
+				commandInfo.sendSuccess("mocap.recording.stop.recording_discarded");
 				state = State.NOT_RECORDING;
 				break;
 		}
 		return true;
 	}
 
-	public static boolean save(CommandSourceStack commandSource, String name)
+	public static boolean save(CommandInfo commandInfo, String name)
 	{
 		switch (state)
 		{
 			case NOT_RECORDING:
-				Utils.sendFailure(commandSource, "mocap.recording.save.nothing_to_save");
-				Utils.sendFailure(commandSource, "mocap.recording.save.nothing_to_save.tip");
+				commandInfo.sendFailure("mocap.recording.save.nothing_to_save");
+				commandInfo.sendFailure("mocap.recording.save.nothing_to_save.tip");
 				return false;
 
 			case WAITING_FOR_ACTION:
-				Utils.sendFailure(commandSource, "mocap.recording.save.waiting_for_action");
-				Utils.sendFailure(commandSource, "mocap.recording.save.waiting_for_action.tip");
+				commandInfo.sendFailure("mocap.recording.save.waiting_for_action");
+				commandInfo.sendFailure("mocap.recording.save.waiting_for_action.tip");
 				return false;
 
 			case RECORDING:
-				Utils.sendFailure(commandSource, "mocap.recording.save.recording_not_stopped");
-				Utils.sendFailure(commandSource, "mocap.recording.save.recording_not_stopped.tip");
+				commandInfo.sendFailure("mocap.recording.save.recording_not_stopped");
+				commandInfo.sendFailure("mocap.recording.save.recording_not_stopped.tip");
 				return false;
 
 			case WAITING_FOR_DECISION:
-				if (RecordingFiles.save(commandSource, name, writer)) { state = State.NOT_RECORDING; }
+				if (RecordingFiles.save(commandInfo, name, writer)) { state = State.NOT_RECORDING; }
 				else { return false; }
 				break;
 		}
 		return true;
 	}
 
-	public static boolean state(CommandSourceStack commandSource)
+	public static boolean state(CommandInfo commandInfo)
 	{
 		switch (state)
 		{
 			case NOT_RECORDING:
-				Utils.sendSuccess(commandSource, "mocap.recording.state.not_recording");
+				commandInfo.sendSuccess("mocap.recording.state.not_recording");
 				break;
 
 			case WAITING_FOR_ACTION:
-				Utils.sendSuccess(commandSource, "mocap.recording.state.waiting_for_action");
-				Utils.sendSuccess(commandSource, "mocap.recording.state.player_name");
+				commandInfo.sendSuccess("mocap.recording.state.waiting_for_action");
+				commandInfo.sendSuccess("mocap.recording.state.player_name");
 				break;
 
 			case RECORDING:
-				Utils.sendSuccess(commandSource, "mocap.recording.state.recording");
-				Utils.sendSuccess(commandSource, "mocap.recording.state.player_name", player.getName());
+				commandInfo.sendSuccess("mocap.recording.state.recording");
+				commandInfo.sendSuccess("mocap.recording.state.player_name", player.getName());
 				break;
 
 			case WAITING_FOR_DECISION:
-				Utils.sendSuccess(commandSource, "mocap.recording.state.waiting_for_decision");
+				commandInfo.sendSuccess("mocap.recording.state.waiting_for_decision");
 				break;
 		}
 		return true;
@@ -191,7 +191,7 @@ public class Recording
 
 			if (player.isDeadOrDying() && Settings.RECORD_PLAYER_DEATH.val)
 			{
-				writer.modifyBoolean(EntityState.endsWithDeathPos, true);
+				writer.modifyBoolean(endsWithDeathPos, true);
 				Utils.sendSystemMessage(commandSourcePlayer, "mocap.recording.stop.waiting_for_decision");
 				state = State.WAITING_FOR_DECISION;
 				return;
@@ -211,9 +211,8 @@ public class Recording
 			boolean limitDistance = Settings.ENTITY_TRACKING_DISTANCE.val > 0.0;
 			double maxDistanceSqr = Settings.ENTITY_TRACKING_DISTANCE.val * Settings.ENTITY_TRACKING_DISTANCE.val;
 
-			for (Entity entity : ((ServerLevelEntitiesMixin)player.getLevel()).callGetEntities().getAll())
+			for (Entity entity : ((LevelMixin)player.level).callGetEntities().getAll())
 			{
-				//TODO: check
 				if (limitDistance && player.distanceToSqr(entity) > maxDistanceSqr || entity instanceof Player
 						|| (!Settings.TRACK_PLAYED_ENTITIES.val && entity.getTags().contains(Playing.MOCAP_ENTITY_TAG)))
 				{

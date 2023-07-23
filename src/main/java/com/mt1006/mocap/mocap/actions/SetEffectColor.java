@@ -50,11 +50,8 @@ public class SetEffectColor implements ComparableAction
 	@Override public Result execute(PlayingContext ctx)
 	{
 		if (!(ctx.entity instanceof LivingEntity)) { return Result.IGNORED; }
-
-		EntityData entityData = new EntityData(ctx.entity);
-		entityData.add(EntityData.LIVING_ENTITY_EFFECT_COLOR, potionEffectColor);
-		entityData.add(EntityData.LIVING_ENTITY_EFFECT_AMBIENCE, effectAmbience);
-		entityData.broadcast(ctx);
+		EntityData.LIVING_ENTITY_EFFECT_COLOR.set(ctx.entity, potionEffectColor);
+		EntityData.LIVING_ENTITY_EFFECT_AMBIENCE.set(ctx.entity, effectAmbience);
 		return Result.OK;
 	}
 }
