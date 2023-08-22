@@ -38,8 +38,8 @@ CurseForge page: https://www.curseforge.com/minecraft/mc-mods/motion-capture-mod
 
 Simple example of one recording used 4 times in a scene with time and position offset
 
-![](screenshots/example1.png)
+![](https://raw.githubusercontent.com/mt1006/mc-mocap-mod/_common/screenshots/example1.png)
 
 One recording of climbing stairs used multiple times in a scene with start delay
 
-![](screenshots/example2.png)
+![](https://raw.githubusercontent.com/mt1006/mc-mocap-mod/_common/screenshots/example2.png)
