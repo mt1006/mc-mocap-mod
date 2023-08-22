@@ -21,7 +21,8 @@
     "fabric.BlockItemMixin",
     "fabric.EntityIdMixin",
     "fabric.BedItemMixin",
-    "fabric.DoubleHighBlockItemMixin"
+    "fabric.DoubleHighBlockItemMixin",
+    "fabric.FlintAndSteelItemMixin"
   ],
   "client":
   [
