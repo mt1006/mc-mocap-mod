@@ -155,6 +155,7 @@ public class PlayedScene
 			FakePlayer fakePlayer = new FakePlayer(level, newProfile);
 			entity = fakePlayer;
 
+			EntityData.PLAYER_SKIN_PARTS.set(fakePlayer, (byte)0b01111111);
 			fakePlayer.gameMode.changeGameModeForPlayer(Settings.USE_CREATIVE_GAME_MODE.val ? GameType.CREATIVE : GameType.SURVIVAL);
 			EntityState.initEntity(fakePlayer, recording, offset);
 
