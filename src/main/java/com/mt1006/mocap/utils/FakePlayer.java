@@ -1,11 +1,13 @@
 package com.mt1006.mocap.utils;
 
 import com.mojang.authlib.GameProfile;
+import io.netty.channel.*;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.network.INetHandler;
 import net.minecraft.network.IPacket;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.PacketDirection;
@@ -18,9 +20,11 @@ import net.minecraft.stats.Stat;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.server.ServerWorld;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.net.SocketAddress;
 import java.util.Set;
 import java.util.UUID;
 
@@ -46,10 +50,11 @@ public class FakePlayer extends ServerPlayerEntity
 	@ParametersAreNonnullByDefault
 	private static class FakePlayerNetHandler extends ServerPlayNetHandler
 	{
-		private static final NetworkManager DUMMY_NETWORK_MANAGER = new NetworkManager(PacketDirection.CLIENTBOUND);
+		private static final NetworkManager DUMMY_CONNECTION = new DummyConnection(PacketDirection.CLIENTBOUND);
 
-		public FakePlayerNetHandler(MinecraftServer server, ServerPlayerEntity player) {
-			super(server, DUMMY_NETWORK_MANAGER, player);
+		public FakePlayerNetHandler(MinecraftServer server, ServerPlayerEntity player)
+		{
+			super(server, DUMMY_CONNECTION, player);
 		}
 
 		@Override public void tick() { }
@@ -105,5 +110,46 @@ public class FakePlayer extends ServerPlayerEntity
 		@Override public void handleCustomPayload(CCustomPayloadPacket packet) { }
 		@Override public void handleChangeDifficulty(CSetDifficultyPacket packet) { }
 		@Override public void handleLockDifficulty(CLockDifficultyPacket packet) { }
+	}
+
+	@ParametersAreNonnullByDefault
+	private static class DummyConnection extends NetworkManager
+	{
+		private static final Channel DUMMY_CHANNEL = new DummyChannel();
+
+		public DummyConnection(PacketDirection packetFlow)
+		{
+			super(packetFlow);
+		}
+		@Override public void setListener(INetHandler packetListener) {}
+		@Override public @NotNull Channel channel() { return DUMMY_CHANNEL; }
+	}
+
+	// based on FailedChannel code
+	private static class DummyChannel extends AbstractChannel
+	{
+		private static final ChannelMetadata METADATA = new ChannelMetadata(false);
+		private final ChannelConfig config = new DefaultChannelConfig(this);
+
+		DummyChannel() { super(null); }
+
+		@Override protected AbstractUnsafe newUnsafe() { return new FailedChannelUnsafe(); }
+		@Override protected boolean isCompatible(EventLoop loop) { return false; }
+		@Override protected SocketAddress localAddress0() { return null; }
+		@Override protected SocketAddress remoteAddress0() { return null; }
+		@Override protected void doBind(SocketAddress localAddress) {}
+		@Override protected void doDisconnect() {}
+		@Override protected void doClose() {}
+		@Override protected void doBeginRead() {}
+		@Override protected void doWrite(ChannelOutboundBuffer in) {}
+		@Override public ChannelConfig config() { return config; }
+		@Override public boolean isOpen() { return false; }
+		@Override public boolean isActive() { return false; }
+		@Override public ChannelMetadata metadata() { return METADATA; }
+
+		private final class FailedChannelUnsafe extends AbstractUnsafe
+		{
+			@Override public void connect(SocketAddress remoteAddress, SocketAddress localAddress, ChannelPromise promise) {}
+		}
 	}
 }
