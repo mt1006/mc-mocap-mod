@@ -13,6 +13,8 @@ After you save recording, you can create a scene, to which you can add multiple 
 
 CurseForge page: https://www.curseforge.com/minecraft/mc-mods/motion-capture-mod-mocap
 
+Modrinth page: https://modrinth.com/mod/motion-capture
+
 # How to use
 
 - First, you need to start recording using ```/mocap recording start```. It will record all your movements or movements of a player given as an argument. 

@@ -7,7 +7,6 @@
     "EntityMixin",
     "LivingEntityMethodMixin",
     "ServerLevelMixin",
-    "SkinManagerMixin",
     "fields.EntityMixin",
     "fields.LivingEntityMixin",
     "fields.PlayerMixin",
@@ -21,8 +20,7 @@
   "client":
   [
     "CommandSuggestionsMixin",
-    "AbstractClientPlayerMixin",
-    "fields.PlayerInfoMixin"
+    "AbstractClientPlayerMixin"
   ],
   "injectors": { "defaultRequire": 1 },
   "refmap": "mixins.mocap.refmap.json"

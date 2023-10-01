@@ -2,15 +2,13 @@ package com.mt1006.mocap.network;
 
 import com.mt1006.mocap.MocapMod;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.network.ChannelBuilder;
 import net.minecraftforge.network.NetworkDirection;
-import net.minecraftforge.network.NetworkRegistry;
-import net.minecraftforge.network.simple.SimpleChannel;
+import net.minecraftforge.network.SimpleChannel;
 
 public class MocapPackets
 {
-	private static final String PROTOCOL_VERSION = "1";
-	public static final SimpleChannel INSTANCE = NetworkRegistry.newSimpleChannel(
-			new ResourceLocation(MocapMod.MOD_ID, "forge"), () -> PROTOCOL_VERSION, (str) -> true, (str) -> true);
+	public static final SimpleChannel INSTANCE = ChannelBuilder.named(new ResourceLocation(MocapMod.MOD_ID, "forge")).simpleChannel();
 	public static final int CURRENT_VERSION = 3;
 
 	public static void register()

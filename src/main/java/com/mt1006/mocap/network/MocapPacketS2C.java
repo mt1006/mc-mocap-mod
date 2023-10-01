@@ -6,7 +6,7 @@ import com.mt1006.mocap.events.PlayerConnectionEvent;
 import com.mt1006.mocap.mocap.playing.CustomClientSkinManager;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraftforge.event.network.CustomPayloadEvent;
 import net.minecraftforge.network.PacketDistributor;
 
 import java.util.ArrayList;
@@ -99,7 +99,7 @@ public class MocapPacketS2C
 		}
 	}
 
-	public void handle(Supplier<NetworkEvent.Context> ctx)
+	public void handle(CustomPayloadEvent.Context ctx)
 	{
 		if (version != MocapPackets.CURRENT_VERSION) { return; }
 
@@ -152,13 +152,13 @@ public class MocapPacketS2C
 	private static void send(ServerPlayer serverPlayer, int op, Object object)
 	{
 		MocapPacketS2C packet = new MocapPacketS2C(MocapPackets.CURRENT_VERSION, op, object);
-		MocapPackets.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), packet);
+		MocapPackets.INSTANCE.send(packet, PacketDistributor.PLAYER.with(serverPlayer));
 	}
 
 	private static void respond(ServerPlayer serverPlayer, int op, Object object)
 	{
 		// same as "send", used to prevent bugs when porting to Fabric
 		MocapPacketS2C packet = new MocapPacketS2C(MocapPackets.CURRENT_VERSION, op, object);
-		MocapPackets.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), packet);
+		MocapPackets.INSTANCE.send(packet, PacketDistributor.PLAYER.with(serverPlayer));
 	}
 }
