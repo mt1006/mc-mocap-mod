@@ -1,7 +1,9 @@
 package com.mt1006.mocap.utils;
 
 import com.mojang.authlib.GameProfile;
+import io.netty.channel.*;
 import net.minecraft.network.Connection;
+import net.minecraft.network.PacketListener;
 import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
@@ -22,6 +24,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.net.SocketAddress;
 import java.util.Set;
 
 // FakePlayer class from Forge
@@ -46,9 +49,10 @@ public class FakePlayer extends ServerPlayer
 	@ParametersAreNonnullByDefault
 	private static class FakePlayerNetHandler extends ServerGamePacketListenerImpl
 	{
-		private static final Connection DUMMY_CONNECTION = new Connection(PacketFlow.CLIENTBOUND);
+		private static final Connection DUMMY_CONNECTION = new DummyConnection(PacketFlow.CLIENTBOUND);
 
-		public FakePlayerNetHandler(MinecraftServer server, ServerPlayer player) {
+		public FakePlayerNetHandler(MinecraftServer server, ServerPlayer player)
+		{
 			super(server, DUMMY_CONNECTION, player);
 		}
 
@@ -111,5 +115,46 @@ public class FakePlayer extends ServerPlayer
 		@Override public void sendPlayerChatMessage(PlayerChatMessage message, ChatType.Bound boundChatType) { }
 		@Override public void sendDisguisedChatMessage(Component content, ChatType.Bound boundChatType) { }
 		@Override public void handleChatSessionUpdate(ServerboundChatSessionUpdatePacket packet) { }
+	}
+
+	@ParametersAreNonnullByDefault
+	private static class DummyConnection extends Connection
+	{
+		private static final Channel DUMMY_CHANNEL = new DummyChannel();
+
+		public DummyConnection(PacketFlow packetFlow)
+		{
+			super(packetFlow);
+		}
+		@Override public void setListener(PacketListener packetListener) {}
+		@Override public @NotNull Channel channel() { return DUMMY_CHANNEL; }
+	}
+
+	// based on FailedChannel code
+	private static class DummyChannel extends AbstractChannel
+	{
+		private static final ChannelMetadata METADATA = new ChannelMetadata(false);
+		private final ChannelConfig config = new DefaultChannelConfig(this);
+
+		DummyChannel() { super(null); }
+
+		@Override protected AbstractUnsafe newUnsafe() { return new FailedChannelUnsafe(); }
+		@Override protected boolean isCompatible(EventLoop loop) { return false; }
+		@Override protected SocketAddress localAddress0() { return null; }
+		@Override protected SocketAddress remoteAddress0() { return null; }
+		@Override protected void doBind(SocketAddress localAddress) {}
+		@Override protected void doDisconnect() {}
+		@Override protected void doClose() {}
+		@Override protected void doBeginRead() {}
+		@Override protected void doWrite(ChannelOutboundBuffer in) {}
+		@Override public ChannelConfig config() { return config; }
+		@Override public boolean isOpen() { return false; }
+		@Override public boolean isActive() { return false; }
+		@Override public ChannelMetadata metadata() { return METADATA; }
+
+		private final class FailedChannelUnsafe extends AbstractUnsafe
+		{
+			@Override public void connect(SocketAddress remoteAddress, SocketAddress localAddress, ChannelPromise promise) {}
+		}
 	}
 }
