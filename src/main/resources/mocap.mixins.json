@@ -8,7 +8,6 @@
     "EntityMixin",
     "LivingEntityMethodMixin",
     "ServerLevelMixin",
-    "SkinManagerMixin",
     "fields.EntityMixin",
     "fields.LivingEntityMixin",
     "fields.PlayerMixin",
@@ -28,7 +27,6 @@
   [
     "CommandSuggestionsMixin",
     "AbstractClientPlayerMixin",
-    "fields.PlayerInfoMixin",
     "fabric.MinecraftMixin"
   ],
   "injectors": { "defaultRequire": 1 }

@@ -5,9 +5,11 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.properties.Property;
+import com.mojang.authlib.yggdrasil.ProfileResult;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import com.mt1006.mocap.MocapMod;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.players.GameProfileCache;
 
@@ -40,23 +42,25 @@ public class ProfileUtils
 			}
 		}
 
-		Optional<GameProfile> optional = profileCache.get(playerName);
-		GameProfile gameprofile = optional.orElseGet(() -> sessionService.fillProfileProperties(new GameProfile(null, playerName), true));
+		UUID offlineUUID = UUIDUtil.createOfflinePlayerUUID(playerName);
 
-		Property property = Iterables.getFirst(gameprofile.getProperties().get("textures"), null);
-		if (property == null)
+		Optional<GameProfile> optional = profileCache != null ? profileCache.get(playerName) : Optional.empty();
+		GameProfile gameProfile = optional.orElse(new GameProfile(offlineUUID, playerName));
+
+		Property property = Iterables.getFirst(gameProfile.getProperties().get("textures"), null);
+		if (property == null && !gameProfile.getId().equals(offlineUUID))
 		{
-			gameprofile = sessionService.fillProfileProperties(gameprofile, true);
+			ProfileResult profileResult = sessionService.fetchProfile(gameProfile.getId(), true);
+			if (profileResult != null) { gameProfile = profileResult.profile(); }
 		}
 
-		gameProfileCache.put(gameprofile.getName(), gameprofile);
-		return gameprofile;
+		gameProfileCache.put(gameProfile.getName(), gameProfile);
+		return gameProfile;
 	}
 
 	private static void setClientProfileLookupObjects()
 	{
-		YggdrasilAuthenticationService yggdrasilauthenticationservice =
-				new YggdrasilAuthenticationService(Minecraft.getInstance().getProxy(), UUID.randomUUID().toString());
+		YggdrasilAuthenticationService yggdrasilauthenticationservice = new YggdrasilAuthenticationService(Minecraft.getInstance().getProxy());
 		sessionService = yggdrasilauthenticationservice.createMinecraftSessionService();
 		GameProfileRepository gameprofilerepository = yggdrasilauthenticationservice.createProfileRepository();
 		profileCache = new GameProfileCache(gameprofilerepository, new File(Minecraft.getInstance().gameDirectory, USERID_CACHE_FILE));
