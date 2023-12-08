@@ -61,12 +61,12 @@ public class SceneFiles
 		try { FileUtils.copyFile(srcFile, destFile); }
 		catch (IOException exception)
 		{
-			commandInfo.sendException(exception, "mocap.scene.copy.failed");
+			commandInfo.sendException(exception, "mocap.scenes.copy.failed");
 			return false;
 		}
 
 		InputArgument.addServerInput(nameWithDot(destName));
-		commandInfo.sendSuccess("mocap.scene.copy.success");
+		commandInfo.sendSuccess("mocap.scenes.copy.success");
 		return true;
 	}
 
@@ -80,13 +80,13 @@ public class SceneFiles
 
 		if (!oldFile.renameTo(newFile))
 		{
-			commandInfo.sendFailure("mocap.scene.rename.failed");
+			commandInfo.sendFailure("mocap.scenes.rename.failed");
 			return false;
 		}
 
 		InputArgument.removeServerInput(nameWithDot(oldName));
 		InputArgument.addServerInput(nameWithDot(newName));
-		commandInfo.sendSuccess("mocap.scene.rename.success");
+		commandInfo.sendSuccess("mocap.scenes.rename.success");
 		return true;
 	}
 

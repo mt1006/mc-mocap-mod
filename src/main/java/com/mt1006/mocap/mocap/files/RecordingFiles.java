@@ -216,8 +216,9 @@ public class RecordingFiles
 
 		public void addString(String val)
 		{
-			addInt(val.length());
-			for (byte b : val.getBytes(StandardCharsets.UTF_8))
+			byte[] bytes = val.getBytes(StandardCharsets.UTF_8);
+			addInt(bytes.length);
+			for (byte b : bytes)
 			{
 				recording.add(b);
 			}
