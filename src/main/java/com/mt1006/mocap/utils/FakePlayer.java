@@ -1,7 +1,6 @@
 package com.mt1006.mocap.utils;
 
 import com.mojang.authlib.GameProfile;
-import io.netty.channel.*;
 import net.minecraft.network.Connection;
 import net.minecraft.network.PacketListener;
 import net.minecraft.network.PacketSendListener;
@@ -24,7 +23,6 @@ import net.minecraft.world.entity.RelativeMovement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.net.SocketAddress;
 import java.util.Set;
 
 // FakePlayer class from Forge
