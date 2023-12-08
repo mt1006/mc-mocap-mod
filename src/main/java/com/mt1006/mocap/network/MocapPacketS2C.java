@@ -12,7 +12,6 @@ import net.minecraftforge.network.PacketDistributor;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
-import java.util.function.Supplier;
 
 public class MocapPacketS2C
 {

@@ -8,8 +8,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.event.network.CustomPayloadEvent;
 import net.minecraftforge.network.PacketDistributor;
 
-import java.util.function.Supplier;
-
 public class MocapPacketC2S
 {
 	public static final int ACCEPT_SERVER = 0;
