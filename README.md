@@ -8,6 +8,8 @@ It records:
 - using items
 - items in hands and armor
 - states like being on fire, being invisible, or glowing
+- placing, breaking and interacting with blocks
+- nearby entities and riding them
 
 After you save recording, you can create a scene, to which you can add multiple recordings or other scenes, with parameters like player name, position offset, or start delay.
 
