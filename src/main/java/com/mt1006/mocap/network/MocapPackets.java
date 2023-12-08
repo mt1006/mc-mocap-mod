@@ -4,7 +4,6 @@ import com.mt1006.mocap.MocapMod;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.MinecraftServer;
 
 public class MocapPackets
 {
