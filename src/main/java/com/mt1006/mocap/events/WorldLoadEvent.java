@@ -4,7 +4,6 @@ import com.mt1006.mocap.command.CommandOutput;
 import com.mt1006.mocap.command.InputArgument;
 import com.mt1006.mocap.mocap.files.Files;
 import com.mt1006.mocap.mocap.playing.CustomClientSkinManager;
-import com.mt1006.mocap.mocap.playing.CustomSkinManager;
 import com.mt1006.mocap.mocap.playing.Playing;
 import com.mt1006.mocap.mocap.settings.Settings;
 import net.minecraft.server.MinecraftServer;
