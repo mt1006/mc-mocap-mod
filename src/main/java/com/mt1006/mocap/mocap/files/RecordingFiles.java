@@ -19,7 +19,7 @@ import java.util.List;
 
 public class RecordingFiles
 {
-	public static final byte RECORDING_VERSION = 3;
+	public static final byte RECORDING_VERSION = 4;
 
 	public static boolean save(CommandInfo commandInfo, String name, RecordingFiles.Writer writer)
 	{
@@ -278,6 +278,8 @@ public class RecordingFiles
 		boolean readBoolean();
 
 		String readString();
+
+		void shift(int val);
 	}
 
 	public static class FileReader implements Reader
@@ -302,6 +304,7 @@ public class RecordingFiles
 			offset += 4;
 			return retVal;
 		}
+
 		@Override public float readFloat()
 		{
 			float retVal = byteArrayToFloat(Arrays.copyOfRange(recording, offset, offset + 4));
@@ -327,6 +330,11 @@ public class RecordingFiles
 			String retVal = new String(recording, offset, length, StandardCharsets.UTF_8);
 			offset += length;
 			return retVal;
+		}
+
+		@Override public void shift(int val)
+		{
+			offset += val;
 		}
 
 		public boolean canRead()
@@ -386,5 +394,7 @@ public class RecordingFiles
 		{
 			return "";
 		}
+
+		@Override public void shift(int val) {}
 	}
 }

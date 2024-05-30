@@ -11,6 +11,7 @@ import com.mt1006.mocap.utils.Utils;
 import org.jetbrains.annotations.Nullable;
 
 import javax.net.ssl.HttpsURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Scanner;
@@ -118,7 +119,7 @@ public class PlayerData
 
 		try
 		{
-			URL url = new URL(mineskinApiURL);
+			URL url = new URI(mineskinApiURL).toURL();
 
 			URLConnection connection = url.openConnection();
 			if (!(connection instanceof HttpsURLConnection)) { return null; }

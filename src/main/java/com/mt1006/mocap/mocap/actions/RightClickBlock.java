@@ -86,10 +86,11 @@ public class RightClickBlock implements BlockAction
 		if (!(ctx.entity instanceof Player)) { return Result.IGNORED; }
 
 		BlockState blockState = ctx.level.getBlockState(blockHitResult.getBlockPos().offset(ctx.blockOffset));
-		InteractionHand interactionHand = offHand ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
+		//InteractionHand interactionHand = offHand ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
 
+		//TODO: blockState.useItemOn (1.4)
 		if (blockState.getBlock() instanceof BedBlock) { return Result.OK; }
-		blockState.use(ctx.level, (Player)ctx.entity, interactionHand, blockHitResult);
+		blockState.useWithoutItem(ctx.level, (Player)ctx.entity, blockHitResult);
 		return Result.OK;
 	}
 }

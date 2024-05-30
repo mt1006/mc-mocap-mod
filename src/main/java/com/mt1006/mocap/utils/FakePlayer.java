@@ -56,7 +56,7 @@ public class FakePlayer extends ServerPlayer
 
 		public FakePlayerNetHandler(MinecraftServer server, ServerPlayer player, GameProfile profile)
 		{
-			super(server, DUMMY_CONNECTION, player, new CommonListenerCookie(profile, 0, DEFAULT_CLIENT_INFO));
+			super(server, DUMMY_CONNECTION, player, new CommonListenerCookie(profile, 0, DEFAULT_CLIENT_INFO, false));
 		}
 
 		@Override public void tick() { }
@@ -79,8 +79,6 @@ public class FakePlayer extends ServerPlayer
 		@Override public void handleJigsawGenerate(ServerboundJigsawGeneratePacket packet) { }
 		@Override public void handleSelectTrade(ServerboundSelectTradePacket packet) { }
 		@Override public void handleEditBook(ServerboundEditBookPacket packet) { }
-		@Override public void handleEntityTagQuery(ServerboundEntityTagQuery packet) { }
-		@Override public void handleBlockEntityTagQuery(ServerboundBlockEntityTagQuery packet) { }
 		@Override public void handleMovePlayer(ServerboundMovePlayerPacket packet) { }
 		@Override public void teleport(double x, double y, double z, float yaw, float pitch) { }
 		@Override public void handlePlayerAction(ServerboundPlayerActionPacket packet) { }
@@ -125,7 +123,6 @@ public class FakePlayer extends ServerPlayer
 		{
 			super(packetFlow);
 		}
-		@Override public void setListener(PacketListener packetListener) {}
 		@Override public @NotNull Channel channel() { return DUMMY_CHANNEL; }
 	}
 

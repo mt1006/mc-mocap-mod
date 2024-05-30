@@ -2,8 +2,8 @@ plugins
 {
 	id 'eclipse'
 	id 'idea'
-	id 'maven-publish'
-	id 'net.minecraftforge.gradle' version '[6.0.16,6.2)'
+	id 'net.minecraftforge.gradle' version '[6.0.24,6.2)'
+	id 'org.parchmentmc.librarian.forgegradle' version '1.+'
 	id 'org.spongepowered.mixin' version '0.7.+'
 }
 
@@ -12,15 +12,15 @@ group = mod_group_id
 
 base
 {
-    archivesName = "${mod_jar_name}-FORGE-${minecraft_version}"
+	archivesName = "${mod_jar_name}-FORGE-${minecraft_version}"
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
-println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
 minecraft
 {
 	mappings channel: mapping_channel, version: mapping_version
+	reobf = false
 	copyIdeResources = true
 
 	runs
@@ -42,6 +42,7 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 dependencies
 {
 	minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+    implementation('net.sf.jopt-simple:jopt-simple:5.0.4') { version { strictly '5.0.4' } }
 	annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 
@@ -65,23 +66,6 @@ tasks.named('processResources', ProcessResources).configure
 	inputs.properties replaceProperties
 
 	filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) { expand replaceProperties + [project: project] }
-}
-
-tasks.named('jar', Jar).configure
-{
-	manifest
-	{
-		attributes([
-				'Specification-Title'     : mod_id,
-				'Specification-Vendor'    : mod_authors,
-				'Specification-Version'   : '1',
-				'Implementation-Title'    : project.name,
-				'Implementation-Version'  : project.jar.archiveVersion,
-				'Implementation-Vendor'   : mod_authors
-		])
-	}
-
-	finalizedBy 'reobfJar'
 }
 
 tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }

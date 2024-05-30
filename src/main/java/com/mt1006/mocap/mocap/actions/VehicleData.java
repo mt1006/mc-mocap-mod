@@ -27,7 +27,7 @@ public class VehicleData implements ComparableAction
 	private boolean flag1 = false;  // Camel - is dashing; AbstractChestedHorse - has chest; Pig - has saddle; Boat - is left paddle turning
 	private boolean flag2 = false;  // AgeableMob - is baby; Boat - is right paddle turning
 	private int int1 = 0;           // Horse/Llama - variant; Boat - time since last hit; AbstractMinecart - shaking power
-	private int int2 = 0;           // Llama - carpet color; Boat - hit direction; AbstractMinecart - shaking direction
+	private int int2 = 0;           // Boat - hit direction; AbstractMinecart - shaking direction
 	private int int3 = 0;           // Boat - splash timer; AbstractMinecart - shaking multiplier
 	private float float1 = 0.0f;    // Boat - damage taken
 
@@ -57,12 +57,7 @@ public class VehicleData implements ComparableAction
 			else if (entity instanceof AbstractChestedHorse) { flag1 = ((AbstractChestedHorse)entity).hasChest(); }
 			else if (entity instanceof Horse) { int1 = ((HorseMixin)entity).callGetTypeVariant(); }
 
-			if (entity instanceof Llama)
-			{
-				DyeColor carpetColor = ((Llama)entity).getSwag();
-				int1 = ((Llama)entity).getVariant().getId();
-				int2 = carpetColor != null ? carpetColor.getId() : -1;
-			}
+			if (entity instanceof Llama) { int1 = ((Llama)entity).getVariant().getId(); }
 		}
 		else if (entity instanceof Pig)
 		{
@@ -159,11 +154,7 @@ public class VehicleData implements ComparableAction
 			else if (ctx.entity instanceof AbstractChestedHorse) { ((AbstractChestedHorse)ctx.entity).setChest(flag1); }
 			else if (ctx.entity instanceof Horse) { ((HorseMixin)ctx.entity).callSetTypeVariant(int1); }
 
-			if (ctx.entity instanceof Llama)
-			{
-				((Llama)ctx.entity).setVariant(Llama.Variant.byId(int1));
-				((LlamaMixin)ctx.entity).callSetSwag(int2 != -1 ? DyeColor.byId(int2) : null);
-			}
+			if (ctx.entity instanceof Llama) { ((Llama)ctx.entity).setVariant(Llama.Variant.byId(int1)); }
 		}
 		else if (ctx.entity instanceof Pig)
 		{
