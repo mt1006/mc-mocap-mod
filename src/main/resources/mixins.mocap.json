@@ -22,6 +22,5 @@
     "CommandSuggestionsMixin",
     "AbstractClientPlayerMixin"
   ],
-  "injectors": { "defaultRequire": 1 },
-  "refmap": "mixins.mocap.refmap.json"
+  "injectors": { "defaultRequire": 1 }
 }

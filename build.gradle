@@ -3,8 +3,8 @@ plugins
 	id 'eclipse'
 	id 'idea'
 	id 'net.minecraftforge.gradle' version '[6.0.24,6.2)'
-	id 'org.parchmentmc.librarian.forgegradle' version '1.+'
 	id 'org.spongepowered.mixin' version '0.7.+'
+	id 'org.parchmentmc.librarian.forgegradle' version '1.+'
 }
 
 version = mod_version
@@ -42,13 +42,12 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 dependencies
 {
 	minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
-    implementation('net.sf.jopt-simple:jopt-simple:5.0.4') { version { strictly '5.0.4' } }
+	implementation('net.sf.jopt-simple:jopt-simple:5.0.4') { version { strictly '5.0.4' } }
 	annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 
 mixin
 {
-	add sourceSets.main, "mixins.${mod_id}.refmap.json"
 	config "mixins.${mod_id}.json"
 }
 
@@ -66,6 +65,14 @@ tasks.named('processResources', ProcessResources).configure
 	inputs.properties replaceProperties
 
 	filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) { expand replaceProperties + [project: project] }
+}
+
+tasks.named('jar', Jar).configure
+{
+	manifest
+	{
+		attributes(["MixinConfigs": "mixins.${mod_id}.json"])
+	}
 }
 
 tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
