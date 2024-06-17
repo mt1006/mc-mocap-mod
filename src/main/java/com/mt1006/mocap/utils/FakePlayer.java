@@ -17,7 +17,6 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.stats.Stat;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraftforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,7 +41,6 @@ public class FakePlayer extends ServerPlayer
 	@Override public void die(@NotNull DamageSource source) { }
 	@Override public void tick() { }
 	@Override public void updateOptions(@NotNull ServerboundClientInformationPacket packet) { }
-	@Override public @Nullable MinecraftServer getServer() { return ServerLifecycleHooks.getCurrentServer(); }
 
 	@ParametersAreNonnullByDefault
 	private static class FakePlayerNetHandler extends ServerGamePacketListenerImpl
