@@ -14,7 +14,6 @@ import com.mt1006.mocap.utils.FakePlayer;
 import com.mt1006.mocap.utils.Fields;
 import com.mt1006.mocap.utils.ProfileUtils;
 import net.minecraft.core.Vec3i;
-import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -162,7 +161,6 @@ public class PlayedScene
 			recording.preExecute(fakePlayer, blockOffset);
 
 			packetTargets.broadcastAll(new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER, fakePlayer));
-			packetTargets.broadcastAll(new ClientboundAddEntityPacket(fakePlayer));
 
 			level.addNewPlayer(fakePlayer);
 
@@ -179,7 +177,7 @@ public class PlayedScene
 		}
 		else
 		{
-			ResourceLocation entityRes = new ResourceLocation(playerAsEntityID);
+			ResourceLocation entityRes = ResourceLocation.parse(playerAsEntityID);
 			EntityType<?> entityType = ForgeRegistries.ENTITY_TYPES.getValue(entityRes);
 			entity = (ForgeRegistries.ENTITY_TYPES.containsKey(entityRes) && entityType != null) ? entityType.create(level) : null;
 

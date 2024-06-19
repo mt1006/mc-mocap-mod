@@ -8,7 +8,7 @@ import net.minecraftforge.network.SimpleChannel;
 
 public class MocapPackets
 {
-	public static final SimpleChannel INSTANCE = ChannelBuilder.named(new ResourceLocation(MocapMod.MOD_ID, "forge")).simpleChannel();
+	public static final SimpleChannel INSTANCE = ChannelBuilder.named(ResourceLocation.fromNamespaceAndPath(MocapMod.MOD_ID, "forge")).simpleChannel();
 	public static final int CURRENT_VERSION = 3;
 
 	public static void register()

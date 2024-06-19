@@ -124,6 +124,6 @@ public class CustomClientSkinManager
 
 	private static ResourceLocation resFromName(String name)
 	{
-		return new ResourceLocation(MocapMod.MOD_ID, SKIN_RES_PREFIX + name);
+		return ResourceLocation.fromNamespaceAndPath(MocapMod.MOD_ID, SKIN_RES_PREFIX + name);
 	}
 }

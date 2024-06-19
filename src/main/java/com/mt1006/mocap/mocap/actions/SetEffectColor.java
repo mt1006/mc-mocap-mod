@@ -5,7 +5,6 @@ import com.mt1006.mocap.mocap.playing.PlayingContext;
 import com.mt1006.mocap.utils.EntityData;
 import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
-import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.util.FastColor;
 import net.minecraft.world.entity.Entity;

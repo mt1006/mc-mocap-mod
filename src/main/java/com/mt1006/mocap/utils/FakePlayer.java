@@ -3,7 +3,6 @@ package com.mt1006.mocap.utils;
 import com.mojang.authlib.GameProfile;
 import io.netty.channel.*;
 import net.minecraft.network.Connection;
-import net.minecraft.network.PacketListener;
 import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
@@ -21,6 +20,7 @@ import net.minecraft.stats.Stat;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.RelativeMovement;
+import net.minecraft.world.level.portal.DimensionTransition;
 import net.minecraftforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -41,7 +41,7 @@ public class FakePlayer extends ServerPlayer
 		setInvulnerable(true);
 	}
 
-	@Override public Entity changeDimension(@NotNull ServerLevel p_20118_) { return null; }
+	@Override public Entity changeDimension(@NotNull DimensionTransition dimensionTransition) { return null; }
 
 	@Override public void displayClientMessage(@NotNull Component chatComponent, boolean actionBar) { }
 	@Override public void awardStat(@NotNull Stat stat, int amount) { }
@@ -86,7 +86,6 @@ public class FakePlayer extends ServerPlayer
 		@Override public void handleUseItem(ServerboundUseItemPacket packet) { }
 		@Override public void handleTeleportToEntityPacket(ServerboundTeleportToEntityPacket packet) { }
 		@Override public void handlePaddleBoat(ServerboundPaddleBoatPacket packet) { }
-		@Override public void onDisconnect(Component message) { }
 		@Override public void send(Packet<?> packet) { }
 		@Override public void send(Packet<?> packet, @Nullable PacketSendListener sendListener) { }
 		@Override public void handleSetCarriedItem(ServerboundSetCarriedItemPacket packet) { }
