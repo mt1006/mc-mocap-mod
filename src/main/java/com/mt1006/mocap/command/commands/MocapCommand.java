@@ -30,7 +30,7 @@ public class MocapCommand
 	{
 		CommandInfo commandInfo = new CommandInfo(ctx);
 		commandInfo.sendSuccessLiteral(MocapMod.getFullName());
-		commandInfo.sendSuccessLiteral("Author: mt1006 (mt1006x)");
+		commandInfo.sendSuccessLiteral("Author: mt1006");
 		return 1;
 	}
 
