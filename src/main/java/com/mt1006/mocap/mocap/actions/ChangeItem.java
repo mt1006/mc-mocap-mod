@@ -1,7 +1,6 @@
 package com.mt1006.mocap.mocap.actions;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mt1006.mocap.MocapMod;
 import com.mt1006.mocap.mixin.fields.LivingEntityMixin;
 import com.mt1006.mocap.mocap.files.RecordingFiles;
 import com.mt1006.mocap.mocap.playing.PlayingContext;
