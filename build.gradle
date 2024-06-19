@@ -22,7 +22,7 @@ dependencies
 	mappings loom.layered()
 	{
 		officialMojangMappings()
-		parchment("org.parchmentmc.data:parchment-${project.minecraft_version}:${project.mappings_version}@zip")
+		parchment("org.parchmentmc.data:parchment-${project.mappings_version}@zip")
 	}
 
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
@@ -43,9 +43,4 @@ java
 
 	sourceCompatibility = JavaVersion.VERSION_21
 	targetCompatibility = JavaVersion.VERSION_21
-}
-
-jar
-{
-	from("LICENSE")
 }

@@ -1,6 +1,9 @@
 package com.mt1006.mocap.mocap.actions;
 
-import com.mt1006.mocap.mixin.fields.*;
+import com.mt1006.mocap.mixin.fields.AbstractHorseMixin;
+import com.mt1006.mocap.mixin.fields.BoatMixin;
+import com.mt1006.mocap.mixin.fields.HorseMixin;
+import com.mt1006.mocap.mixin.fields.PigMixin;
 import com.mt1006.mocap.mocap.files.RecordingFiles;
 import com.mt1006.mocap.mocap.playing.PlayingContext;
 import com.mt1006.mocap.utils.EntityData;
@@ -15,7 +18,6 @@ import net.minecraft.world.entity.animal.horse.Llama;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.AbstractMinecart;
 import net.minecraft.world.entity.vehicle.Boat;
-import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.Nullable;

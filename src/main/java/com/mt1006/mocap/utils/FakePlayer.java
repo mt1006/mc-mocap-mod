@@ -2,7 +2,6 @@ package com.mt1006.mocap.utils;
 
 import com.mojang.authlib.GameProfile;
 import net.minecraft.network.Connection;
-import net.minecraft.network.PacketListener;
 import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
