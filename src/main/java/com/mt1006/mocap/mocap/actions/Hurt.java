@@ -21,7 +21,7 @@ public class Hurt implements Action
 		entity.setInvulnerable(false);
 		if (livingEntity != null) { livingEntity.setHealth(livingEntity.getMaxHealth()); }
 
-		// "out_of_world" damage type is used as it bypasses spawn invulnerability
+		entity.invulnerableTime = 0;
 		entity.hurt(new DamageSource(entity.level().damageSources().fellOutOfWorld().typeHolder()), 1.0f);
 
 		if (livingEntity != null) { livingEntity.setHealth(livingEntity.getMaxHealth()); }
