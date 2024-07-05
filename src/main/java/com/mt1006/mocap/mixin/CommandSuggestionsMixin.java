@@ -14,7 +14,7 @@ import java.util.concurrent.CompletableFuture;
 @Mixin(CommandSuggestions.class)
 public class CommandSuggestionsMixin
 {
-	@Redirect(method = "updateCommandInfo", at = @At(value = "INVOKE", target = "Lcom/mojang/brigadier/CommandDispatcher;getCompletionSuggestions(Lcom/mojang/brigadier/ParseResults;I)Ljava/util/concurrent/CompletableFuture;"))
+	@Redirect(method = "updateCommandInfo", at = @At(value = "INVOKE", target = "Lcom/mojang/brigadier/CommandDispatcher;getCompletionSuggestions(Lcom/mojang/brigadier/ParseResults;I)Ljava/util/concurrent/CompletableFuture;", remap = false))
 	private <S> CompletableFuture<Suggestions> atListSuggestions(CommandDispatcher<S> dispatcher, final ParseResults<S> parse, int cursor)
 	{
 		CompletableFuture<Suggestions> suggestions = InputArgument.getSuggestions(parse.getContext(), parse.getReader().getString(), cursor);

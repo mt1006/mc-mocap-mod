@@ -22,7 +22,7 @@ import org.apache.logging.log4j.Logger;
 public class MocapMod implements ModInitializer
 {
 	public static final String MOD_ID = "mocap";
-	public static final String VERSION = "1.3.4";
+	public static final String VERSION = "1.3.8";
 	public static final String FOR_VERSION = "1.18.2";
 	public static final String FOR_LOADER = "Fabric";
 	public static final Logger LOGGER = LogManager.getLogger();
@@ -39,7 +39,6 @@ public class MocapMod implements ModInitializer
 		ServerPlayConnectionEvents.DISCONNECT.register(PlayerConnectionEvent::onPlayerLeave);
 
 		RegisterCommand.registerCommands();
-		MocapMod.LOGGER.info(getFullName() + " - Author: mt1006 (mt1006x)");
 		Fields.init();
 		MocapPackets.register();
 		Action.init();
@@ -47,11 +46,11 @@ public class MocapMod implements ModInitializer
 
 	public static String getName()
 	{
-		return "MocapMod v" + VERSION;
+		return "Mocap v" + VERSION;
 	}
 
 	public static String getFullName()
 	{
-		return "MocapMod v" + VERSION + " for Minecraft " + FOR_VERSION + " [" + FOR_LOADER + "]";
+		return "Mocap v" + VERSION + " for Minecraft " + FOR_VERSION + " [" + FOR_LOADER + "]";
 	}
 }
