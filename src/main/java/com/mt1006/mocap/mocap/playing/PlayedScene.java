@@ -19,7 +19,6 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.play.server.SPlayerListItemPacket;
-import net.minecraft.network.play.server.SSpawnPlayerPacket;
 import net.minecraft.server.management.PlayerList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.vector.Vector3d;
@@ -162,7 +161,6 @@ public class PlayedScene
 			recording.preExecute(fakePlayer, blockOffset);
 
 			packetTargets.broadcastAll(new SPlayerListItemPacket(SPlayerListItemPacket.Action.ADD_PLAYER, fakePlayer));
-			packetTargets.broadcastAll(new SSpawnPlayerPacket(fakePlayer));
 
 			level.addNewPlayer(fakePlayer);
 
