@@ -1,19 +1,25 @@
 package com.mt1006.mocap.network;
 
 import com.mojang.datafixers.util.Pair;
+import com.mt1006.mocap.MocapMod;
 import com.mt1006.mocap.command.InputArgument;
 import com.mt1006.mocap.events.PlayerConnectionEvent;
 import com.mt1006.mocap.mocap.playing.CustomClientSkinManager;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.event.network.CustomPayloadEvent;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
 
-public class MocapPacketS2C
+public class MocapPacketS2C implements CustomPacketPayload
 {
 	public static final int ON_LOGIN = 0;
 	public static final int NOCOL_PLAYER_ADD = 1;
@@ -25,6 +31,24 @@ public class MocapPacketS2C
 	private final int version;
 	private final int op;
 	private final Object object;
+
+
+	public static final CustomPacketPayload.Type<MocapPacketS2C> TYPE =
+			new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(MocapMod.MOD_ID, "neoforge_s2c"));
+
+	public static final StreamCodec<ByteBuf, MocapPacketS2C> STREAM_CODEC = StreamCodec.of(
+			(buf, packet) -> packet.encode(new FriendlyByteBuf(buf)), (buf) -> new MocapPacketS2C(new FriendlyByteBuf(buf)));
+
+	public static void handle(MocapPacketS2C packet, IPayloadContext ctx)
+	{
+		packet.handle();
+	}
+
+	@Override public @NotNull Type<? extends CustomPacketPayload> type()
+	{
+		return TYPE;
+	}
+
 
 	public MocapPacketS2C(int version, int op, Object object)
 	{
@@ -98,7 +122,7 @@ public class MocapPacketS2C
 		}
 	}
 
-	public void handle(CustomPayloadEvent.Context ctx)
+	public void handle()
 	{
 		if (version != MocapPackets.CURRENT_VERSION) { return; }
 
@@ -151,13 +175,13 @@ public class MocapPacketS2C
 	private static void send(ServerPlayer serverPlayer, int op, Object object)
 	{
 		MocapPacketS2C packet = new MocapPacketS2C(MocapPackets.CURRENT_VERSION, op, object);
-		MocapPackets.INSTANCE.send(packet, PacketDistributor.PLAYER.with(serverPlayer));
+		PacketDistributor.sendToPlayer(serverPlayer, packet);
 	}
 
 	private static void respond(ServerPlayer serverPlayer, int op, Object object)
 	{
 		// same as "send", used to prevent bugs when porting to Fabric
 		MocapPacketS2C packet = new MocapPacketS2C(MocapPackets.CURRENT_VERSION, op, object);
-		MocapPackets.INSTANCE.send(packet, PacketDistributor.PLAYER.with(serverPlayer));
+		PacketDistributor.sendToPlayer(serverPlayer, packet);
 	}
 }

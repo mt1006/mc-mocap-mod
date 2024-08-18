@@ -1,28 +1,25 @@
 package com.mt1006.mocap.network;
 
 import com.mt1006.mocap.MocapMod;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.network.ChannelBuilder;
-import net.minecraftforge.network.NetworkDirection;
-import net.minecraftforge.network.SimpleChannel;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
+@EventBusSubscriber(modid = MocapMod.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
 public class MocapPackets
 {
-	public static final SimpleChannel INSTANCE = ChannelBuilder.named(ResourceLocation.fromNamespaceAndPath(MocapMod.MOD_ID, "forge")).simpleChannel();
+	public static final CustomPacketPayload.Type<CustomPacketPayload> INSTANCE =
+			new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(MocapMod.MOD_ID, "neoforge"));
 	public static final int CURRENT_VERSION = 3;
 
-	public static void register()
+	@SubscribeEvent
+	public static void register(RegisterPayloadHandlersEvent event)
 	{
-		INSTANCE.messageBuilder(MocapPacketS2C.class, 0, NetworkDirection.PLAY_TO_CLIENT)
-				.decoder(MocapPacketS2C::new)
-				.encoder(MocapPacketS2C::encode)
-				.consumerMainThread(MocapPacketS2C::handle)
-				.add();
-
-		INSTANCE.messageBuilder(MocapPacketC2S.class, 1, NetworkDirection.PLAY_TO_SERVER)
-				.decoder(MocapPacketC2S::new)
-				.encoder(MocapPacketC2S::encode)
-				.consumerMainThread(MocapPacketC2S::handle)
-				.add();
+		PayloadRegistrar registrar = event.registrar("1");
+		registrar.playToClient(MocapPacketS2C.TYPE, MocapPacketS2C.STREAM_CODEC, MocapPacketS2C::handle);
+		registrar.playToServer(MocapPacketC2S.TYPE, MocapPacketC2S.STREAM_CODEC, MocapPacketC2S::handle);
 	}
 }

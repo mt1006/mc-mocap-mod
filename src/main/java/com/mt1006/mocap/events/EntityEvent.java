@@ -7,26 +7,26 @@ import com.mt1006.mocap.mocap.playing.Playing;
 import com.mt1006.mocap.mocap.recording.Recording;
 import com.mt1006.mocap.mocap.recording.TrackedEntity;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraftforge.event.entity.living.LivingAttackEvent;
-import net.minecraftforge.event.entity.living.LivingDropsEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 
-@Mod.EventBusSubscriber(modid = MocapMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = MocapMod.MOD_ID, bus = EventBusSubscriber.Bus.GAME)
 public class EntityEvent
 {
 	@SubscribeEvent
-	public static void onEntityHurt(LivingAttackEvent attackEvent)
+	public static void onEntityHurt(LivingDamageEvent.Post damageEvent)
 	{
-		if (Recording.state == Recording.State.RECORDING && attackEvent.getEntity().level() instanceof ServerLevel)
+		if (Recording.state == Recording.State.RECORDING && damageEvent.getEntity().level() instanceof ServerLevel)
 		{
-			if (Recording.isRecordedPlayer(attackEvent.getEntity()))
+			if (Recording.isRecordedPlayer(damageEvent.getEntity()))
 			{
 				Hurt.write(Recording.writer);
 			}
 			else
 			{
-				TrackedEntity trackedEntity = Recording.getTrackedEntity(attackEvent.getEntity());
+				TrackedEntity trackedEntity = Recording.getTrackedEntity(damageEvent.getEntity());
 				if (trackedEntity != null) { new EntityUpdate(EntityUpdate.HURT, trackedEntity.id).write(Recording.writer); }
 			}
 		}

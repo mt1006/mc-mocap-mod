@@ -9,13 +9,13 @@ import com.mt1006.mocap.mocap.recording.Recording;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.common.util.BlockSnapshot;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.level.BlockEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.common.util.BlockSnapshot;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.event.level.BlockEvent;
 
-@Mod.EventBusSubscriber(modid = MocapMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = MocapMod.MOD_ID, bus = EventBusSubscriber.Bus.GAME)
 public class BlockInteractionEvent
 {
 	@SubscribeEvent
@@ -32,7 +32,7 @@ public class BlockInteractionEvent
 	{
 		if (Recording.state == Recording.State.RECORDING && Recording.isRecordedPlayer(placeEvent.getEntity()))
 		{
-			new PlaceBlock(placeEvent.getBlockSnapshot().getReplacedBlock(),
+			new PlaceBlock(placeEvent.getBlockSnapshot().getState(),
 					placeEvent.getPlacedBlock(), placeEvent.getPos()).write(Recording.writer);
 		}
 	}
@@ -46,7 +46,7 @@ public class BlockInteractionEvent
 			for (BlockSnapshot snapshot : multiPlaceEvent.getReplacedBlockSnapshots())
 			{
 				if (snapshot.getPos().equals(mainSnapshot.getPos())) { continue; }
-				new PlaceBlockSilently(snapshot.getReplacedBlock(), snapshot.getCurrentBlock(), snapshot.getPos()).write(Recording.writer);
+				new PlaceBlockSilently(snapshot.getState(), snapshot.getCurrentState(), snapshot.getPos()).write(Recording.writer);
 			}
 		}
 	}

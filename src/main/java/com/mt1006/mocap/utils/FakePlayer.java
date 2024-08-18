@@ -21,7 +21,6 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.RelativeMovement;
 import net.minecraft.world.level.portal.DimensionTransition;
-import net.minecraftforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -47,7 +46,7 @@ public class FakePlayer extends ServerPlayer
 	@Override public void awardStat(@NotNull Stat stat, int amount) { }
 	@Override public void die(@NotNull DamageSource source) { }
 	@Override public void tick() { }
-	@Override public @Nullable MinecraftServer getServer() { return ServerLifecycleHooks.getCurrentServer(); }
+	@Override public @Nullable MinecraftServer getServer() { return level().getServer(); }
 
 	@ParametersAreNonnullByDefault
 	private static class FakePlayerNetHandler extends ServerGamePacketListenerImpl

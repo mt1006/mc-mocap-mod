@@ -8,11 +8,11 @@ import com.mt1006.mocap.mocap.playing.CustomClientSkinManager;
 import com.mt1006.mocap.mocap.playing.Playing;
 import com.mt1006.mocap.mocap.settings.Settings;
 import net.minecraft.server.MinecraftServer;
-import net.minecraftforge.event.level.LevelEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.level.LevelEvent;
 
-@Mod.EventBusSubscriber(modid = MocapMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = MocapMod.MOD_ID, bus = EventBusSubscriber.Bus.GAME)
 public class WorldLoadEvent
 {
 	@SubscribeEvent

@@ -14,6 +14,7 @@ import com.mt1006.mocap.utils.FakePlayer;
 import com.mt1006.mocap.utils.Fields;
 import com.mt1006.mocap.utils.ProfileUtils;
 import net.minecraft.core.Vec3i;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -26,7 +27,6 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -178,8 +178,8 @@ public class PlayedScene
 		else
 		{
 			ResourceLocation entityRes = ResourceLocation.parse(playerAsEntityID);
-			EntityType<?> entityType = ForgeRegistries.ENTITY_TYPES.getValue(entityRes);
-			entity = (ForgeRegistries.ENTITY_TYPES.containsKey(entityRes) && entityType != null) ? entityType.create(level) : null;
+			EntityType<?> entityType = BuiltInRegistries.ENTITY_TYPE.get(entityRes);
+			entity = (BuiltInRegistries.ENTITY_TYPE.containsKey(entityRes) && entityType != null) ? entityType.create(level) : null;
 
 			if (entity == null)
 			{
