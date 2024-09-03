@@ -49,7 +49,8 @@ public interface BlockAction extends Action
 
 				if (!(entity instanceof PlayerEntity)) { return; }
 				SoundType soundType = blockState.getSoundType(level, blockPos, entity);
-				level.playSound((PlayerEntity)entity, blockPos, blockState.getSoundType(level, blockPos, entity).getPlaceSound(),
+				PlayerEntity player = entity instanceof PlayerEntity ? (PlayerEntity)entity : null;
+				level.playSound(player, blockPos, blockState.getSoundType(level, blockPos, entity).getPlaceSound(),
 						SoundCategory.BLOCKS, (soundType.getVolume() + 1.0F) / 2.0F, soundType.getPitch() * 0.8F);
 			}
 		}
