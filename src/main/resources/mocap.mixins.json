@@ -28,6 +28,7 @@
   [
     "CommandSuggestionsMixin",
     "AbstractClientPlayerMixin",
+    "PlayerInfoMixin2",
     "fields.PlayerInfoMixin",
     "fabric.MinecraftMixin"
   ],
