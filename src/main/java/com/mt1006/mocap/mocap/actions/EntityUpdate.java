@@ -6,10 +6,7 @@ import com.mt1006.mocap.mocap.playing.PlayingContext;
 import com.mt1006.mocap.mocap.settings.Settings;
 import com.mt1006.mocap.utils.Utils;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.Saddleable;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.entity.vehicle.Minecart;
@@ -119,7 +116,7 @@ public class EntityUpdate implements Action
  			try { nbt = Utils.nbtFromString(nbtString); }
 			catch (Exception exception) { return Result.ERROR; }
 
-			Entity entity = EntityType.create(nbt, ctx.level).orElse(null);
+			Entity entity = EntityType.create(nbt, ctx.level, EntitySpawnReason.COMMAND).orElse(null);
 			if (entity == null) { return Result.IGNORED; }
 
 			if (entity instanceof Saddleable || entity instanceof Minecart || entity instanceof Boat)
@@ -164,7 +161,7 @@ public class EntityUpdate implements Action
 			else if (type == KILL)
 			{
 				entity.invulnerableTime = 0; // for sound effect
-				entity.kill();
+				entity.kill(ctx.level);
 				return Result.OK;
 			}
 			else if (type == HURT)

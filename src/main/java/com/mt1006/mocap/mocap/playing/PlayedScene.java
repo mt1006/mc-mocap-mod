@@ -13,6 +13,7 @@ import com.mt1006.mocap.utils.EntityData;
 import com.mt1006.mocap.utils.FakePlayer;
 import com.mt1006.mocap.utils.Fields;
 import com.mt1006.mocap.utils.ProfileUtils;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
@@ -20,10 +21,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -178,8 +176,8 @@ public class PlayedScene
 		else
 		{
 			ResourceLocation entityRes = ResourceLocation.parse(playerAsEntityID);
-			EntityType<?> entityType = BuiltInRegistries.ENTITY_TYPE.get(entityRes);
-			entity = (BuiltInRegistries.ENTITY_TYPE.containsKey(entityRes) && entityType != null) ? entityType.create(level) : null;
+			Holder.Reference<EntityType<?>> entityType = BuiltInRegistries.ENTITY_TYPE.get(entityRes).orElse(null);
+			entity = entityType != null ? entityType.value().create(level, EntitySpawnReason.COMMAND) : null;
 
 			if (entity == null)
 			{
@@ -198,7 +196,7 @@ public class PlayedScene
 			recording.preExecute(entity, blockOffset);
 		}
 
-		ctx = new PlayingContext(packetTargets, entity, offset, blockOffset);
+		ctx = new PlayingContext(packetTargets, entity, level, offset, blockOffset);
 		return true;
 	}
 
@@ -247,7 +245,7 @@ public class PlayedScene
 						{
 							if (recording.endsWithDeath)
 							{
-								ctx.entity.kill();
+								ctx.entity.kill(level);
 								if (ctx.entity instanceof LivingEntity) { dyingTicks = 20; }
 							}
 							finished = true;

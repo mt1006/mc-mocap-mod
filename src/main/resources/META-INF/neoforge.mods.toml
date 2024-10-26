@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="${loader_version_range}"
+loaderVersion="*"
 license="${mod_license}"
 issueTrackerURL="${mod_issues}"
 
@@ -19,7 +19,7 @@ config="mixins.${mod_id}.json"
 [[dependencies.${mod_id}]]
 	modId="neoforge"
 	required=true
-	versionRange="${neoforge_version_range}"
+	versionRange="*"
 	ordering="NONE"
 	side="BOTH"
 

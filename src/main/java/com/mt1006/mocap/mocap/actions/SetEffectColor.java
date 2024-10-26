@@ -6,7 +6,7 @@ import com.mt1006.mocap.utils.EntityData;
 import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.util.FastColor;
+import net.minecraft.util.ARGB;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.Nullable;
@@ -29,7 +29,7 @@ public class SetEffectColor implements ComparableAction
 				if (particle instanceof ColorParticleOption && particle.getType() == ParticleTypes.ENTITY_EFFECT)
 				{
 					ColorParticleOption colorParticle = (ColorParticleOption)particle;
-					color = FastColor.ARGB32.colorFromFloat(colorParticle.getAlpha(),
+					color = ARGB.colorFromFloat(colorParticle.getAlpha(),
 							colorParticle.getRed(), colorParticle.getGreen(), colorParticle.getBlue());
 					break;
 				}

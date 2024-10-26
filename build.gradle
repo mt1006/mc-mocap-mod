@@ -2,7 +2,7 @@ plugins
 {
 	id "eclipse"
 	id "idea"
-	id "net.neoforged.gradle.userdev" version "7.0.145"
+	id "net.neoforged.gradle.userdev" version "7.0.165"
 }
 
 version = mod_version
@@ -41,8 +41,7 @@ tasks.named("processResources", ProcessResources).configure
 	var replaceProperties =
 	[
 		minecraft_version: minecraft_version, minecraft_version_range: minecraft_version_range,
-		neoforge_version: neoforge_version, neoforge_version_range: neoforge_version_range,
-		loader_version_range: loader_version_range,
+		neoforge_version: neoforge_version,
 		mod_id: mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
 		mod_authors: mod_authors, mod_description: mod_description,
 		mod_url: mod_url, mod_issues: mod_issues, mod_credits: mod_credits

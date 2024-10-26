@@ -18,15 +18,11 @@ import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.stats.Stat;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.RelativeMovement;
-import net.minecraft.world.level.portal.DimensionTransition;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.net.SocketAddress;
-import java.util.Set;
 
 // FakePlayer class from Forge
 public class FakePlayer extends ServerPlayer
@@ -39,8 +35,6 @@ public class FakePlayer extends ServerPlayer
 		this.connection = new FakePlayerNetHandler(level.getServer(), this, profile);
 		setInvulnerable(true);
 	}
-
-	@Override public Entity changeDimension(@NotNull DimensionTransition dimensionTransition) { return null; }
 
 	@Override public void displayClientMessage(@NotNull Component chatComponent, boolean actionBar) { }
 	@Override public void awardStat(@NotNull Stat stat, int amount) { }
@@ -102,7 +96,6 @@ public class FakePlayer extends ServerPlayer
 		@Override public void handlePlayerAbilities(ServerboundPlayerAbilitiesPacket packet) { }
 		@Override public void handleChangeDifficulty(ServerboundChangeDifficultyPacket packet) { }
 		@Override public void handleLockDifficulty(ServerboundLockDifficultyPacket packet) { }
-		@Override public void teleport(double x, double y, double z, float yaw, float pitch, Set<RelativeMovement> relativeSet) { }
 		@Override public void ackBlockChangesUpTo(int sequence) { }
 		@Override public void handleChatCommand(ServerboundChatCommandPacket packet) { }
 		@Override public void handleChatAck(ServerboundChatAckPacket packet) { }
