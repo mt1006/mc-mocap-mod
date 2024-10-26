@@ -8,11 +8,11 @@ import com.mt1006.mocap.utils.FakePlayer;
 import net.minecraft.core.Vec3i;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoRemovePacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.HashMap;
@@ -23,7 +23,7 @@ public class PlayingContext
 {
 	public final PlayerList packetTargets;
 	public final Entity mainEntity;
-	public final Level level;
+	public final ServerLevel level;
 	public final Vec3 offset;
 	public final Vec3i blockOffset;
 	public final Map<Integer, Entity> entityMap = new HashMap<>();
@@ -31,11 +31,11 @@ public class PlayingContext
 	public boolean entityRemoved = false;
 	private Vec3 position;
 
-	public PlayingContext(PlayerList packetTargets, Entity entity, Vec3 offset, Vec3i blockOffset)
+	public PlayingContext(PlayerList packetTargets, Entity entity, ServerLevel level, Vec3 offset, Vec3i blockOffset)
 	{
 		this.packetTargets = packetTargets;
 		this.mainEntity = entity;
-		this.level = entity.level();
+		this.level = level;
 		this.offset = offset;
 		this.blockOffset = blockOffset;
 		this.entity = entity;
@@ -69,7 +69,7 @@ public class PlayingContext
 		}
 	}
 
-	public void removeEntities()
+	public void removeEntities(ServerLevel level)
 	{
 		if (!entityRemoved)
 		{
@@ -89,11 +89,11 @@ public class PlayingContext
 			}
 			else
 			{
-				removeEntity(entity);
+				removeEntity(entity, level);
 			}
 		}
 
-		entityMap.values().forEach(PlayingContext::removeEntity);
+		entityMap.values().forEach((e) -> removeEntity(e, level));
 		entityMap.clear();
 	}
 
@@ -103,7 +103,7 @@ public class PlayingContext
 		entity.moveTo(position.x, position.y, position.z, rotY, rotX);
 	}
 
-	private static void removeEntity(Entity entity)
+	private static void removeEntity(Entity entity, ServerLevel level)
 	{
 		switch (Settings.ENTITIES_AFTER_PLAYBACK.val)
 		{
@@ -119,7 +119,7 @@ public class PlayingContext
 
 			case 2:
 				entity.invulnerableTime = 0; // for sound effect
-				entity.kill();
+				entity.kill(level);
 				break;
 
 			default:

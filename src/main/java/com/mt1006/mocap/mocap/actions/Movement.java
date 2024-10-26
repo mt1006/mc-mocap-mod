@@ -1,14 +1,15 @@
 package com.mt1006.mocap.mocap.actions;
 
-import com.mt1006.mocap.mixin.fields.EntityMixin;
 import com.mt1006.mocap.mocap.files.RecordingFiles;
 import com.mt1006.mocap.mocap.playing.PlayingContext;
 import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.PositionMoveRotation;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.Set;
 
 public class Movement implements ComparableAction
 {
@@ -85,6 +86,7 @@ public class Movement implements ComparableAction
 	@Override public Result execute(PlayingContext ctx)
 	{
 		//TODO: switch from relative to absolute
+		Vec3 oldPos = ctx.entity.position();
 		if (ctx.entity == ctx.mainEntity)
 		{
 			ctx.shiftPosition(position[0], position[1], position[2], rotation[1], rotation[0]);
@@ -98,8 +100,8 @@ public class Movement implements ComparableAction
 		}
 
 		ctx.entity.setOnGround(isOnGround);
-		((EntityMixin)ctx.entity).callCheckInsideBlocks();
-		ctx.fluentMovement(() -> new ClientboundTeleportEntityPacket(ctx.entity));
+		ctx.entity.applyEffectsFromBlocks(oldPos, ctx.entity.position());
+		ctx.fluentMovement(() -> new ClientboundTeleportEntityPacket(ctx.entity.getId(), PositionMoveRotation.of(ctx.entity), Set.of(), isOnGround));
 		return Result.OK;
 	}
 }
