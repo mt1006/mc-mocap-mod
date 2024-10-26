@@ -38,7 +38,7 @@ public class Utils
 	public static void sendSystemMessage(@Nullable Player player, String component, Object... args)
 	{
 		if (player == null) { return; }
-		player.sendSystemMessage(getTranslatableComponent(player, component, args));
+		player.displayClientMessage(getTranslatableComponent(player, component, args), false);
 	}
 
 	public static String stringFromComponent(String component, Object... args)
