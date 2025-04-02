@@ -9,7 +9,7 @@ import com.mt1006.mocap.mocap.settings.Settings;
 import com.mt1006.mocap.utils.Utils;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.Saddleable;
+import net.minecraft.world.entity.PlayerRideable;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
@@ -219,7 +219,7 @@ public class Recording
 					continue;
 				}
 
-				if (entity instanceof Saddleable || entity instanceof Minecart || entity instanceof Boat)
+				if (entity instanceof PlayerRideable || entity instanceof Minecart || entity instanceof Boat)
 				{
 					if (!Settings.TRACK_VEHICLE_ENTITIES.val) { continue; }
 				}

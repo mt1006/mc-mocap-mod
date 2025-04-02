@@ -16,6 +16,7 @@
     "fields.BoatMixin",
     "fields.HorseMixin",
     "fields.LevelMixin",
+    "fields.LlamaMixin",
     "fabric.BlockItemMixin",
     "fabric.EntityIdMixin",
     "fabric.BedItemMixin",

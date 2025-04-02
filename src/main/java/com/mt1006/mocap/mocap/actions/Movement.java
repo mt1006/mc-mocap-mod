@@ -96,7 +96,7 @@ public class Movement implements ComparableAction
 			double x = ctx.entity.getX() + position[0];
 			double y = ctx.entity.getY() + position[1];
 			double z = ctx.entity.getZ() + position[2];
-			ctx.entity.moveTo(x, y, z, rotation[1], rotation[0]);
+			ctx.entity.snapTo(x, y, z, rotation[1], rotation[0]);
 		}
 
 		ctx.entity.setOnGround(isOnGround);

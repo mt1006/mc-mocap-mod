@@ -100,7 +100,7 @@ public class PlayingContext
 	public void shiftPosition(double x, double y, double z, float rotY, float rotX)
 	{
 		position = position.add(x, y, z);
-		entity.moveTo(position.x, position.y, position.z, rotY, rotX);
+		entity.snapTo(position.x, position.y, position.z, rotY, rotX);
 	}
 
 	private static void removeEntity(Entity entity, ServerLevel level)

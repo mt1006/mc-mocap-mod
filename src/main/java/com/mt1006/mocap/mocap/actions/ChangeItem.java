@@ -40,7 +40,10 @@ public class ChangeItem implements ComparableAction
 
 		addItem(livingEntity.getMainHandItem(), entity);
 		addItem(livingEntity.getOffhandItem(), entity);
-		livingEntity.getArmorSlots().forEach((item) -> addItem(item, entity));
+		addItem(livingEntity.getItemBySlot(EquipmentSlot.FEET), entity);
+		addItem(livingEntity.getItemBySlot(EquipmentSlot.LEGS), entity);
+		addItem(livingEntity.getItemBySlot(EquipmentSlot.CHEST), entity);
+		addItem(livingEntity.getItemBySlot(EquipmentSlot.HEAD), entity);
 		addItem(livingEntity.getItemBySlot(EquipmentSlot.BODY), entity);
 
 		int itemCounter = 0;
@@ -195,7 +198,7 @@ public class ChangeItem implements ComparableAction
 			itemId = Item.getId(itemStack.getItem());
 			Tag tag = itemStack.save(registryAccess);
 
-			if (!(tag instanceof CompoundTag) || !((CompoundTag)tag).contains("components", Tag.TAG_COMPOUND))
+			if (!(tag instanceof CompoundTag) || !((CompoundTag)tag).contains("components"))
 			{
 				type = ItemDataType.ID_ONLY;
 				data = "";

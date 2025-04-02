@@ -70,7 +70,7 @@ public class EntityState
 
 	public static void initEntity(Entity entity, RecordingData recordingData, Vec3 posOffset)
 	{
-		entity.moveTo(
+		entity.snapTo(
 				recordingData.startPos[0] + posOffset.x,
 				recordingData.startPos[1] + posOffset.y,
 				recordingData.startPos[2] + posOffset.z,
