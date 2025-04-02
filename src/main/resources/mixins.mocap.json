@@ -15,7 +15,8 @@
     "fields.PigMixin",
     "fields.BoatMixin",
     "fields.LevelMixin",
-    "fields.HorseMixin"
+    "fields.HorseMixin",
+    "fields.LlamaMixin"
   ],
   "client":
   [

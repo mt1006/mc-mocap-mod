@@ -95,7 +95,8 @@ public class CustomClientSkinManager
 				return;
 			}
 
-			Minecraft.getInstance().getTextureManager().register(resFromName(name), new DynamicTexture(nativeImage));
+			String id = MocapMod.MOD_ID + ":" + SKIN_RES_PREFIX + (long)(Math.random() * 999999999999.0);
+			Minecraft.getInstance().getTextureManager().register(resFromName(name), new DynamicTexture(() -> id, nativeImage));
 			clientMap.put(name, true);
 		}
 		catch (Exception exception)

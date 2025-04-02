@@ -3,13 +3,12 @@ package com.mt1006.mocap.mocap.actions;
 import com.mt1006.mocap.mixin.fields.AbstractHorseMixin;
 import com.mt1006.mocap.mixin.fields.BoatMixin;
 import com.mt1006.mocap.mixin.fields.HorseMixin;
-import com.mt1006.mocap.mixin.fields.PigMixin;
+import com.mt1006.mocap.mixin.fields.LlamaMixin;
 import com.mt1006.mocap.mocap.files.RecordingFiles;
 import com.mt1006.mocap.mocap.playing.PlayingContext;
 import com.mt1006.mocap.utils.EntityData;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.animal.Pig;
 import net.minecraft.world.entity.animal.camel.Camel;
 import net.minecraft.world.entity.animal.horse.AbstractChestedHorse;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
@@ -26,7 +25,7 @@ public class VehicleData implements ComparableAction
 {
 	private final boolean used;
 	private byte flags = 0;         // AbstractHorse
-	private boolean flag1 = false;  // Camel - is dashing; AbstractChestedHorse - has chest; Pig - has saddle; Boat - is left paddle turning
+	private boolean flag1 = false;  // Camel - is dashing; AbstractChestedHorse - has chest; Boat - is left paddle turning
 	private boolean flag2 = false;  // AgeableMob - is baby; Boat - is right paddle turning
 	private int int1 = 0;           // Horse/Llama - variant; Boat - time since last hit; AbstractMinecart - shaking power
 	private int int2 = 0;           // Boat - hit direction; AbstractMinecart - shaking direction
@@ -60,10 +59,6 @@ public class VehicleData implements ComparableAction
 			else if (entity instanceof Horse) { int1 = ((HorseMixin)entity).callGetTypeVariant(); }
 
 			if (entity instanceof Llama) { int1 = ((Llama)entity).getVariant().getId(); }
-		}
-		else if (entity instanceof Pig)
-		{
-			flag1 = ((Pig) entity).isSaddled();
 		}
 		else if (entity instanceof Boat)
 		{
@@ -156,11 +151,7 @@ public class VehicleData implements ComparableAction
 			else if (ctx.entity instanceof AbstractChestedHorse) { ((AbstractChestedHorse)ctx.entity).setChest(flag1); }
 			else if (ctx.entity instanceof Horse) { ((HorseMixin)ctx.entity).callSetTypeVariant(int1); }
 
-			if (ctx.entity instanceof Llama) { ((Llama)ctx.entity).setVariant(Llama.Variant.byId(int1)); }
-		}
-		else if (ctx.entity instanceof Pig)
-		{
-			((PigMixin)ctx.entity).getSteering().setSaddle(flag1);
+			if (ctx.entity instanceof Llama) { ((LlamaMixin)ctx.entity).callSetVariant(Llama.Variant.byId(int1)); }
 		}
 		else if (ctx.entity instanceof Boat)
 		{

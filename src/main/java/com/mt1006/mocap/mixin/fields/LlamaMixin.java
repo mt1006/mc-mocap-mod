@@ -1,0 +1,11 @@
+package com.mt1006.mocap.mixin.fields;
+
+import net.minecraft.world.entity.animal.horse.Llama;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.gen.Invoker;
+
+@Mixin(Llama.class)
+public interface LlamaMixin
+{
+	@Invoker void callSetVariant(Llama.Variant variant);
+}

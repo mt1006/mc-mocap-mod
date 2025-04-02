@@ -1,6 +1,5 @@
 package com.mt1006.mocap.utils;
 
-import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mt1006.mocap.MocapMod;
 import com.mt1006.mocap.events.PlayerConnectionEvent;
@@ -14,6 +13,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
+
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public class Utils
 {
@@ -55,12 +57,17 @@ public class Utils
 	public static Component getURLComponent(String url, String str, Object... args)
 	{
 		MutableComponent component = Component.literal(String.format(str, args));
-		return component.setStyle(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, url)));
+
+		URI uri;
+		try { uri = new URI(url); }
+		catch (URISyntaxException e) { uri = null; }
+
+		return uri != null ? component.setStyle(Style.EMPTY.withClickEvent(new ClickEvent.OpenUrl(uri))) : component;
 	}
 
 	public static CompoundTag nbtFromString(String nbtString) throws CommandSyntaxException
 	{
-		return new TagParser(new StringReader(nbtString)).readStruct();
+		return TagParser.parseCompoundFully(nbtString);
 	}
 
 	private static boolean supportsTranslatable(@Nullable Entity entity)

@@ -119,7 +119,7 @@ public class EntityUpdate implements Action
 			Entity entity = EntityType.create(nbt, ctx.level, EntitySpawnReason.COMMAND).orElse(null);
 			if (entity == null) { return Result.IGNORED; }
 
-			if (entity instanceof Saddleable || entity instanceof Minecart || entity instanceof Boat)
+			if (entity instanceof PlayerRideable || entity instanceof Minecart || entity instanceof Boat)
 			{
 				if (!Settings.PLAY_VEHICLE_ENTITIES.val) { return Result.IGNORED; }
 			}
