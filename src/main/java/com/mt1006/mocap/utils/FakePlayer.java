@@ -1,8 +1,7 @@
 package com.mt1006.mocap.utils;
 
 import com.mojang.authlib.GameProfile;
-import net.minecraft.network.Connection;
-import net.minecraft.network.PacketSendListener;
+import io.netty.channel.ChannelFutureListener;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.PlayerChatMessage;
@@ -39,7 +38,7 @@ public class FakePlayer extends ServerPlayer
 
 	private static class FakePlayerNetHandler extends ServerGamePacketListenerImpl
 	{
-		private static final Connection DUMMY_CONNECTION = new DummyConnection(PacketFlow.CLIENTBOUND);
+		private static final net.minecraft.network.Connection DUMMY_CONNECTION = new DummyConnection(PacketFlow.CLIENTBOUND);
 
 		public FakePlayerNetHandler(MinecraftServer server, ServerPlayer player, GameProfile profile)
 		{
@@ -76,7 +75,7 @@ public class FakePlayer extends ServerPlayer
 		@Override public void handleTeleportToEntityPacket(ServerboundTeleportToEntityPacket packet) { }
 		@Override public void handlePaddleBoat(ServerboundPaddleBoatPacket packet) { }
 		@Override public void send(Packet<?> packet) { }
-		@Override public void send(Packet<?> packet, @Nullable PacketSendListener sendListener) { }
+		@Override public void send(Packet<?> packet, @Nullable ChannelFutureListener channelFutureListener) { }
 		@Override public void handleSetCarriedItem(ServerboundSetCarriedItemPacket packet) { }
 		@Override public void handleChat(ServerboundChatPacket packet) { }
 		@Override public void handleAnimate(ServerboundSwingPacket packet) { }
@@ -100,7 +99,7 @@ public class FakePlayer extends ServerPlayer
 		@Override public void handleChatSessionUpdate(ServerboundChatSessionUpdatePacket packet) { }
 	}
 
-	private static class DummyConnection extends Connection
+	private static class DummyConnection extends net.minecraft.network.Connection
 	{
 		//TODO: check
 		public DummyConnection(PacketFlow packetFlow)

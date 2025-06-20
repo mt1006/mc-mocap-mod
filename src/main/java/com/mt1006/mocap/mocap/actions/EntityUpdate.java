@@ -7,10 +7,14 @@ import com.mt1006.mocap.mocap.playing.PlayingContext;
 import com.mt1006.mocap.mocap.settings.Settings;
 import com.mt1006.mocap.utils.Utils;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.entity.vehicle.Minecart;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.TagValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
@@ -74,12 +78,13 @@ public class EntityUpdate implements Action
 
 	public static CompoundTag serializeEntityNBT(Entity entity)
 	{
-		CompoundTag compoundTag = new CompoundTag();
+		TagValueOutput nbt = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, entity.registryAccess());
 
 		String id = ((EntityIdMixin)entity).callGetEncodeId();
-		compoundTag.putString("id", id != null ? id : "minecraft:cow");
+		nbt.putString("id", id != null ? id : "minecraft:cow");
+		entity.saveWithoutId(nbt);
 
-		entity.saveWithoutId(compoundTag);
+		CompoundTag compoundTag = nbt.buildResult();
 		compoundTag.remove("UUID");
 		compoundTag.remove("Pos");
 		compoundTag.remove("Motion");
@@ -113,9 +118,10 @@ public class EntityUpdate implements Action
 		{
 			if (nbtString == null || ctx.entityMap.containsKey(id) || isEntityPlayingDisabled()) { return Result.IGNORED; }
 
-			CompoundTag nbt;
- 			try { nbt = Utils.nbtFromString(nbtString); }
+			CompoundTag compoundTag;
+ 			try { compoundTag = Utils.nbtFromString(nbtString); }
 			catch (Exception exception) { return Result.ERROR; }
+			ValueInput nbt = TagValueInput.create(ProblemReporter.DISCARDING, ctx.entity.registryAccess(), compoundTag);
 
 			Entity entity = EntityType.create(nbt, ctx.level, EntitySpawnReason.COMMAND).orElse(null);
 			if (entity == null) { return Result.IGNORED; }
