@@ -1,16 +1,14 @@
 package com.mt1006.mocap.mocap.actions;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.serialization.DynamicOps;
 import com.mt1006.mocap.mixin.fields.LivingEntityMixin;
 import com.mt1006.mocap.mocap.files.RecordingFiles;
 import com.mt1006.mocap.mocap.playing.PlayingContext;
 import com.mt1006.mocap.utils.Utils;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.IntTag;
-import net.minecraft.nbt.StringTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.*;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -37,14 +35,15 @@ public class ChangeItem implements ComparableAction
 			return;
 		}
 		LivingEntity livingEntity = (LivingEntity)entity;
+		DynamicOps<Tag> ops = entity.registryAccess().createSerializationContext(NbtOps.INSTANCE);
 
-		addItem(livingEntity.getMainHandItem(), entity);
-		addItem(livingEntity.getOffhandItem(), entity);
-		addItem(livingEntity.getItemBySlot(EquipmentSlot.FEET), entity);
-		addItem(livingEntity.getItemBySlot(EquipmentSlot.LEGS), entity);
-		addItem(livingEntity.getItemBySlot(EquipmentSlot.CHEST), entity);
-		addItem(livingEntity.getItemBySlot(EquipmentSlot.HEAD), entity);
-		addItem(livingEntity.getItemBySlot(EquipmentSlot.BODY), entity);
+		addItem(livingEntity.getMainHandItem(), ops);
+		addItem(livingEntity.getOffhandItem(), ops);
+		addItem(livingEntity.getItemBySlot(EquipmentSlot.FEET), ops);
+		addItem(livingEntity.getItemBySlot(EquipmentSlot.LEGS), ops);
+		addItem(livingEntity.getItemBySlot(EquipmentSlot.CHEST), ops);
+		addItem(livingEntity.getItemBySlot(EquipmentSlot.HEAD), ops);
+		addItem(livingEntity.getItemBySlot(EquipmentSlot.BODY), ops);
 
 		int itemCounter = 0;
 		for (int i = 0; i < ITEM_COUNT; i++)
@@ -80,12 +79,11 @@ public class ChangeItem implements ComparableAction
 			for (int i = 0; i < itemCount; i++) { items.add(new ItemData(reader)); }
 			for (int i = itemCount; i < ITEM_COUNT; i++) { items.add(ItemData.EMPTY); }
 		}
-
 	}
 
-	private void addItem(@Nullable ItemStack itemStack, Entity entity)
+	private void addItem(@Nullable ItemStack itemStack, DynamicOps<Tag> ops)
 	{
-		items.add(ItemData.get(itemStack, entity.registryAccess()));
+		items.add(ItemData.get(itemStack, ops));
 	}
 
 	@Override public boolean differs(ComparableAction action)
@@ -120,11 +118,12 @@ public class ChangeItem implements ComparableAction
 		if (items.size() != ITEM_COUNT) { return Result.ERROR; }
 		if (!(ctx.entity instanceof LivingEntity)) { return Result.IGNORED; }
 		LivingEntity entity = (LivingEntity)ctx.entity;
+		DynamicOps<Tag> ops = entity.registryAccess().createSerializationContext(NbtOps.INSTANCE);
 
 		for (int i = 0; i < ITEM_COUNT; i++)
 		{
 			ItemData item = items.get(i);
-			ItemStack itemStack = item.getItemStack(ctx.entity.registryAccess());
+			ItemStack itemStack = item.getItemStack(ops);
 
 			switch (i)
 			{
@@ -193,10 +192,12 @@ public class ChangeItem implements ComparableAction
 			data = "";
 		}
 
-		private ItemData(ItemStack itemStack, RegistryAccess registryAccess)
+		private ItemData(ItemStack itemStack, DynamicOps<Tag> ops)
 		{
 			itemId = Item.getId(itemStack.getItem());
-			Tag tag = itemStack.save(registryAccess);
+			Tag tag;
+			try { tag = ItemStack.CODEC.encodeStart(ops, itemStack).getOrThrow(); }
+			catch (Exception exception) { tag = null; }
 
 			if (!(tag instanceof CompoundTag) || !((CompoundTag)tag).contains("components"))
 			{
@@ -224,9 +225,9 @@ public class ChangeItem implements ComparableAction
 			data = type.hasData ? reader.readString() : "";
 		}
 
-		public static ItemData get(@Nullable ItemStack itemStack, RegistryAccess registryAccess)
+		public static ItemData get(@Nullable ItemStack itemStack, DynamicOps<Tag> ops)
 		{
-			return (itemStack == null || itemStack.isEmpty()) ? EMPTY : new ItemData(itemStack, registryAccess);
+			return (itemStack == null || itemStack.isEmpty()) ? EMPTY : new ItemData(itemStack, ops);
 		}
 
 		public boolean differs(ItemData itemData)
@@ -241,7 +242,7 @@ public class ChangeItem implements ComparableAction
 			if (type.hasData) { writer.addString(data); }
 		}
 
-		public ItemStack getItemStack(RegistryAccess registryAccess)
+		public ItemStack getItemStack(DynamicOps<Tag> ops)
 		{
 			switch (type)
 			{
@@ -255,7 +256,8 @@ public class ChangeItem implements ComparableAction
 				case ID_AND_COMPONENTS:
 					CompoundTag tag = tagFromIdAndComponents();
 					if (tag == null) { return ItemStack.EMPTY; }
-					return ItemStack.parse(registryAccess, tag).orElse(ItemStack.EMPTY);
+					try { return ItemStack.CODEC.parse(ops, tag).getOrThrow(); }
+					catch (Exception exception) { return ItemStack.EMPTY; }
 			}
 			return null;
 		}

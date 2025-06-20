@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-@EventBusSubscriber(modid = MocapMod.MOD_ID, bus = EventBusSubscriber.Bus.GAME)
+@EventBusSubscriber(modid = MocapMod.MOD_ID)
 public class PlayerConnectionEvent
 {
 	private static final int MAX_PLAYER_COUNT = 2048;
