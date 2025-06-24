@@ -2,6 +2,9 @@ package net.mt1006.mocap.mocap.recording;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.mt1006.mocap.api.v1.extension.MocapActiveRecordingActions;
+import net.mt1006.mocap.api.v1.extension.actions.MocapAction;
+import net.mt1006.mocap.api.v1.extension.actions.MocapBlockAction;
 import net.mt1006.mocap.command.io.CommandOutput;
 import net.mt1006.mocap.mocap.actions.*;
 import net.mt1006.mocap.mocap.files.RecordingData;
@@ -13,12 +16,13 @@ import net.mt1006.mocap.utils.Utils;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.util.Collection;
 
-public class RecordingContext
+public class RecordingContext implements MocapActiveRecordingActions
 {
 	public final RecordingId id;
 	public ServerPlayer recordedPlayer;
-	public final @Nullable ServerPlayer sourcePlayer;
+	public final RecordingSource source;
 	public final RecordingData data = RecordingData.forWriting();
 	public State state = State.WAITING_FOR_ACTION;
 	private @Nullable RecordedEntityState entityState = null;
@@ -29,11 +33,11 @@ public class RecordingContext
 	private int tick = 0, diedOnTick = 0;
 	private boolean died = false;
 
-	public RecordingContext(RecordingId id, ServerPlayer recordedPlayer, @Nullable ServerPlayer sourcePlayer, @Nullable String instantSave)
+	public RecordingContext(RecordingId id, ServerPlayer recordedPlayer, RecordingSource source, @Nullable String instantSave)
 	{
 		this.id = id;
 		this.recordedPlayer = recordedPlayer;
-		this.sourcePlayer = sourcePlayer;
+		this.source = source;
 		this.positionTracker = new PositionTracker(recordedPlayer, false);
 		this.entityFilter = EntityFilter.FOR_RECORDING;
 		this.instantSave = instantSave;
@@ -48,7 +52,7 @@ public class RecordingContext
 	{
 		entityState = null;
 		state = State.RECORDING;
-		if (sendMessage) { Utils.sendMessage(sourcePlayer, "recording.start.recording_started"); }
+		if (sendMessage) { Utils.sendMessage(source.player, "recording.start.recording_started"); }
 	}
 
 	public void stop(CommandOutput commandOutput)
@@ -143,7 +147,7 @@ public class RecordingContext
 
 		if (recordedPlayer.isDeadOrDying())
 		{
-			addAction(new Die());
+			addAction(Die.INSTANCE);
 			died = true;
 			diedOnTick = tick;
 
@@ -174,17 +178,17 @@ public class RecordingContext
 	public void stopRecording(String message)
 	{
 		state = State.WAITING_FOR_DECISION;
-		Utils.sendMessage(sourcePlayer, message);
+		Utils.sendMessage(source.player, message);
 	}
 
 	public void splitRecording(ServerPlayer newPlayer)
 	{
 		stopRecording("recording.stop.split");
-		boolean success = Recording.start(newPlayer, sourcePlayer, null, true, false);
-		if (!success) { Utils.sendMessage(sourcePlayer, "recording.stop.split.error"); }
+		boolean success = (Recording.start(newPlayer, source, null, true, false) != null);
+		if (!success) { Utils.sendMessage(source.player, "recording.stop.split.error"); }
 	}
 
-	public void addAction(Action action)
+	@Override public void addAction(MocapAction action)
 	{
 		if (state != State.RECORDING)
 		{
@@ -193,7 +197,17 @@ public class RecordingContext
 		}
 
 		data.actions.add(action);
-		if (action instanceof BlockAction) { data.blockActions.add((BlockAction)action); }
+		if (action instanceof MocapBlockAction) { data.blockActions.add((MocapBlockAction)action); }
+	}
+
+	@Override public void addEntityAction(MocapAction action, int entityId)
+	{
+		addAction(new EntityAction(entityId, action));
+	}
+
+	@Override public Collection<? extends TrackedEntity> getTrackedEntities()
+	{
+		return entityTracker.getAll();
 	}
 
 	public void addTickAction()
@@ -201,11 +215,11 @@ public class RecordingContext
 		int lastElementPos = data.actions.size() - 1;
 		if (lastElementPos < 0)
 		{
-			addAction(new NextTick());
+			addAction(NextTick.INSTANCE);
 			return;
 		}
 
-		Action lastElement = data.actions.get(lastElementPos);
+		MocapAction lastElement = data.actions.get(lastElementPos);
 
 		if (lastElement instanceof NextTick)
 		{
@@ -217,7 +231,7 @@ public class RecordingContext
 		}
 		else
 		{
-			addAction(new NextTick());
+			addAction(NextTick.INSTANCE);
 		}
 	}
 
@@ -229,6 +243,11 @@ public class RecordingContext
 	public int getTick()
 	{
 		return tick;
+	}
+
+	public boolean isRemoved()
+	{
+		return state.removed;
 	}
 
 	public enum State

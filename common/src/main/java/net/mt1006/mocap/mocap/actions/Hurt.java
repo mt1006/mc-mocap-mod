@@ -3,19 +3,20 @@ package net.mt1006.mocap.mocap.actions;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.mt1006.mocap.mocap.files.RecordingFiles;
-import net.mt1006.mocap.mocap.playing.playback.ActionContext;
+import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
+import net.mt1006.mocap.api.v1.extension.actions.MocapAction;
+import net.mt1006.mocap.api.v1.extension.actions.MocapActionContext;
 import net.mt1006.mocap.mocap.settings.Settings;
 
-public class Hurt implements Action
+public class Hurt implements MocapAction
 {
-	public static final byte DUMMY = 0; // for future uses
+	public static final Hurt INSTANCE = new Hurt();
 
-	public Hurt() {}
+	private Hurt() {}
 
-	public Hurt(RecordingFiles.Reader reader)
+	public static Hurt fromReader(Reader ignore)
 	{
-		reader.readByte();
+		return INSTANCE;
 	}
 
 	public static void hurtEntity(Entity entity)
@@ -31,15 +32,14 @@ public class Hurt implements Action
 		entity.setInvulnerable(Settings.INVULNERABLE_PLAYBACK.val);
 	}
 
-	@Override public void write(RecordingFiles.Writer writer)
+	@Override public void write(Writer writer, MocapRecordingData data)
 	{
-		writer.addByte(Type.HURT.id);
-		writer.addByte(DUMMY);
+		writer.addByte((byte)0); // dummy value - for future uses
 	}
 
-	@Override public Result execute(ActionContext ctx)
+	@Override public Result execute(MocapActionContext ctx)
 	{
-		hurtEntity(ctx.entity);
+		hurtEntity(ctx.getEntity());
 		return Result.OK;
 	}
 }

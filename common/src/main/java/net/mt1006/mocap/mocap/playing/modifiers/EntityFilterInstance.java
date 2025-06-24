@@ -20,13 +20,19 @@ import java.util.*;
 public class EntityFilterInstance
 {
 	private static final String EMPTY_GROUP = "none";
-	private final List<Element> elements = new ArrayList<>();
 	public final String filterStr;
+	private final List<Element> elements;
 
 	private EntityFilterInstance(String str) throws FilterParserException
 	{
-		filterStr = str;
-		if (str.isEmpty()) { return; }
+		this.filterStr = str;
+		this.elements = Collections.unmodifiableList(parse(str));
+	}
+
+	private static List<Element> parse(String str) throws FilterParserException
+	{
+		List<Element> elements = new ArrayList<>();
+		if (str.isEmpty()) { return elements; }
 		String[] parts = str.split(";");
 
 		for (String part : parts)
@@ -82,6 +88,7 @@ public class EntityFilterInstance
 				if (!reuseEntitySet) { elements.add(entitySetElement); }
 			}
 		}
+		return elements;
 	}
 
 	public static @Nullable EntityFilterInstance create(String str)
@@ -94,7 +101,7 @@ public class EntityFilterInstance
 	{
 		try
 		{
-			new EntityFilterInstance(str);
+			parse(str);
 			return true;
 		}
 		catch (FilterParserException e) { return false; }
@@ -186,7 +193,7 @@ public class EntityFilterInstance
 
 	private static class EntitySetElement extends Element
 	{
-		public final Set<EntityType<?>> set = new HashSet<>();
+		public final Set<EntityType<?>> set = new HashSet<>(); //TODO: make it immutable
 
 		public EntitySetElement(boolean exclude)
 		{

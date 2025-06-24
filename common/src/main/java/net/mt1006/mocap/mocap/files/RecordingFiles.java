@@ -6,6 +6,8 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.world.phys.Vec3;
 import net.mt1006.mocap.MocapMod;
+import net.mt1006.mocap.api.v1.controller.playable.MocapSavedRecording;
+import net.mt1006.mocap.api.v1.extension.actions.MocapAction;
 import net.mt1006.mocap.command.CommandSuggestions;
 import net.mt1006.mocap.command.io.CommandOutput;
 import net.mt1006.mocap.utils.Utils;
@@ -23,6 +25,7 @@ public class RecordingFiles
 {
 	public static final byte VERSION = MocapMod.RECORDING_FORMAT_VERSION;
 	private static final int ALT_NAME_MAX_I = 128;
+	public static final MocapAction.Reader DUMMY_READER = new DummyReader();
 
 	public static boolean save(CommandOutput commandOutput, File recordingFile, String name, RecordingData data)
 	{
@@ -107,35 +110,28 @@ public class RecordingFiles
 
 	public static boolean info(CommandOutput commandOutput, String name)
 	{
-		RecordingData recording = new RecordingData();
-
-		if (!recording.load(commandOutput, name) && recording.version <= VERSION)
-		{
-			commandOutput.sendFailure("recordings.info.failed");
-			return false;
-		}
+		Info info = Info.load(commandOutput, name);
+		if (info == null) { return false; }
 
 		commandOutput.sendSuccess("recordings.info.info");
 		commandOutput.sendSuccess("file.info.name", name);
-		if (!Files.printVersionInfo(commandOutput, VERSION, recording.version, recording.experimentalVersion)) { return true; }
+		if (!Files.printVersionInfo(commandOutput, VERSION, info.version, info.experimental)) { return true; }
 
-		commandOutput.sendSuccess("recordings.info.length", String.format("%.2f", recording.tickCount / 20.0), recording.tickCount);
+		commandOutput.sendSuccess("recordings.info.length", String.format("%.2f", info.lengthInTicks / 20.0), info.lengthInTicks);
+		commandOutput.sendSuccess("recordings.info.size", String.format("%.2f", info.sizeInBytes / 1024.0), info.sizeInOps);
 
-		commandOutput.sendSuccess("recordings.info.size",
-				String.format("%.2f", recording.fileSize / 1024.0), recording.actions.size() - recording.tickCount);
-
-		String xStr = String.format(Locale.US, "%.2f", recording.startPos.x);
-		String yStr = String.format(Locale.US, "%.2f", recording.startPos.y);
-		String zStr = String.format(Locale.US, "%.2f", recording.startPos.z);
+		String xStr = String.format(Locale.US, "%.2f", info.startPos.x);
+		String yStr = String.format(Locale.US, "%.2f", info.startPos.y);
+		String zStr = String.format(Locale.US, "%.2f", info.startPos.z);
 		MutableComponent tpSuggestionComponent = Utils.getEventComponent(ClickEvent.Action.SUGGEST_COMMAND,
 				String.format("/tp @p %s %s %s", xStr, yStr, zStr), String.format("%s %s %s", xStr, yStr, zStr));
 		tpSuggestionComponent.withStyle(Style.EMPTY.withUnderlined(true));
 		commandOutput.sendSuccess("recordings.info.start_pos", tpSuggestionComponent);
 
-		if (recording.playerName != null) { commandOutput.sendSuccess("recordings.info.player_name_assigned.yes", recording.playerName); }
+		if (info.assignedPlayerName != null) { commandOutput.sendSuccess("recordings.info.player_name_assigned.yes", info.assignedPlayerName); }
 		else { commandOutput.sendSuccess("recordings.info.player_name_assigned.no"); }
 
-		commandOutput.sendSuccess(recording.endsWithDeath ? "recordings.info.dies.yes" : "recordings.info.dies.no");
+		commandOutput.sendSuccess(info.legacyEndsWithDeath ? "recordings.info.dies.yes" : "recordings.info.dies.no");
 		return true;
 	}
 
@@ -181,28 +177,53 @@ public class RecordingFiles
 		return null;
 	}
 
-	public static class Writer
+	public record Info(
+			int version,
+			boolean experimental,
+			long lengthInTicks,
+			long sizeInBytes,
+			long sizeInOps,
+			Vec3 startPos,
+			@Nullable String assignedPlayerName,
+			boolean legacyEndsWithDeath) implements MocapSavedRecording.Info
 	{
-		private final List<Byte> recording = new ArrayList<>();
-		public final RecordingData parent;
-
-		public Writer(RecordingData parent)
+		public static @Nullable RecordingFiles.Info load(CommandOutput commandOutput, String name)
 		{
-			this.parent = parent;
-		}
+			RecordingData recording = new RecordingData();
+			if (!recording.load(commandOutput, name) && recording.version <= VERSION)
+			{
+				commandOutput.sendFailure("recordings.info.failed");
+				return null;
+			}
 
-		public void addByte(byte val)
+			return new Info(
+					recording.version,
+					recording.experimentalVersion,
+					recording.tickCount,
+					recording.fileSize,
+					recording.actions.size(),
+					recording.startPos,
+					recording.playerName,
+					recording.endsWithDeath);
+		}
+	}
+
+	public static class Writer implements MocapAction.Writer
+	{
+		private final ArrayList<Byte> recording = new ArrayList<>();
+
+		@Override public void addByte(byte val)
 		{
 			recording.add(val);
 		}
 
-		public void addShort(short val)
+		@Override public void addShort(short val)
 		{
 			recording.add((byte)(val >> 8));
 			recording.add((byte)val);
 		}
 
-		public void addInt(int val)
+		@Override public void addInt(int val)
 		{
 			recording.add((byte)(val >> 24));
 			recording.add((byte)(val >> 16));
@@ -210,7 +231,7 @@ public class RecordingFiles
 			recording.add((byte)val);
 		}
 
-		public void addFloat(float val)
+		@Override public void addFloat(float val)
 		{
 			for (byte b : floatToByteArray(val))
 			{
@@ -218,7 +239,7 @@ public class RecordingFiles
 			}
 		}
 
-		public void addDouble(double val)
+		@Override public void addDouble(double val)
 		{
 			for (byte b : doubleToByteArray(val))
 			{
@@ -226,12 +247,12 @@ public class RecordingFiles
 			}
 		}
 
-		public void addBoolean(boolean val)
+		@Override public void addBoolean(boolean val)
 		{
 			recording.add(val ? (byte)1 : (byte)0);
 		}
 
-		public void addString(String val)
+		@Override public void addString(String val)
 		{
 			byte[] bytes = val.getBytes(StandardCharsets.UTF_8);
 			for (byte b : bytes)
@@ -241,25 +262,44 @@ public class RecordingFiles
 			recording.add((byte)0);
 		}
 
-		public void addVec3(Vec3 vec)
+		@Override public void addVec3(Vec3 vec)
 		{
 			addDouble(vec.x);
 			addDouble(vec.y);
 			addDouble(vec.z);
 		}
 
-		public void addBlockPos(BlockPos blockPos)
+		@Override public void addBlockPos(BlockPos blockPos)
 		{
 			addInt(blockPos.getX());
 			addInt(blockPos.getY());
 			addInt(blockPos.getZ());
 		}
 
-		public void addWriter(RecordingFiles.Writer writer)
+		@Override public void addPackedSize(int size)
 		{
-			recording.addAll(writer.recording);
+			if (size < 255)
+			{
+				addByte((byte)size);
+			}
+			else
+			{
+				addByte((byte)255);
+				addInt(size);
+			}
 		}
 
+		public void copyToWriter(MocapAction.Writer writer)
+		{
+			recording.forEach(writer::addByte);
+		}
+
+		public int getSize()
+		{
+			return recording.size();
+		}
+
+		//TODO: remove?
 		public List<Byte> getByteList()
 		{
 			return recording;
@@ -286,38 +326,15 @@ public class RecordingFiles
 		}
 	}
 
-	public interface Reader
-	{
-		Reader DUMMY = new DummyReader();
-
-		byte readByte();
-		short readShort();
-		int readInt();
-		float readFloat();
-		double readDouble();
-		boolean readBoolean();
-		String readString();
-		void shift(int val);
-		@Nullable RecordingData getParent();
-
-		default Vec3 readVec3() { return new Vec3(readDouble(), readDouble(), readDouble()); }
-		default BlockPos readBlockPos()
-		{
-			return new BlockPos(readInt(), readInt(), readInt());
-		}
-	}
-
-	public static class FileReader implements Reader
+	public static class FileReader implements MocapAction.Reader
 	{
 		private final byte[] recording;
-		private final RecordingData parent;
 		private boolean legacyString;
 		public int offset = 0;
 
-		public FileReader(RecordingData parent, byte[] recording, boolean legacyString)
+		public FileReader(byte[] recording, boolean legacyString)
 		{
 			this.recording = recording;
-			this.parent = parent;
 			this.legacyString = legacyString;
 		}
 
@@ -388,14 +405,25 @@ public class RecordingFiles
 			return str;
 		}
 
+		@Override public Vec3 readVec3()
+		{
+			return new Vec3(readDouble(), readDouble(), readDouble());
+		}
+
+		@Override public BlockPos readBlockPos()
+		{
+			return new BlockPos(readInt(), readInt(), readInt());
+		}
+
+		@Override public int readPackedSize()
+		{
+			int val = Byte.toUnsignedInt(readByte());
+			return (val == 255) ? readInt() : val;
+		}
+
 		@Override public void shift(int val)
 		{
 			offset += val;
-		}
-
-		@Override public RecordingData getParent()
-		{
-			return parent;
 		}
 
 		public void setStringMode(boolean legacyString)
@@ -427,7 +455,7 @@ public class RecordingFiles
 		}
 	}
 
-	public static class DummyReader implements Reader
+	private static class DummyReader implements MocapAction.Reader
 	{
 		@Override public byte readByte() { return 0; }
 		@Override public short readShort() { return 0; }
@@ -436,7 +464,9 @@ public class RecordingFiles
 		@Override public double readDouble() { return 0.0; }
 		@Override public boolean readBoolean() { return false; }
 		@Override public String readString() { return ""; }
+		@Override public Vec3 readVec3() { return Vec3.ZERO; }
+		@Override public BlockPos readBlockPos() { return BlockPos.ZERO; }
+		@Override public int readPackedSize() { return 0; }
 		@Override public void shift(int val) {}
-		@Override public @Nullable RecordingData getParent() { return null; }
 	}
 }

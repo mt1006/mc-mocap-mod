@@ -1,9 +1,10 @@
 package net.mt1006.mocap.mocap.actions;
 
-import net.mt1006.mocap.mocap.files.RecordingFiles;
-import net.mt1006.mocap.mocap.playing.playback.ActionContext;
+import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
+import net.mt1006.mocap.api.v1.extension.actions.MocapAction;
+import net.mt1006.mocap.api.v1.extension.actions.MocapActionContext;
 
-public class SkipTicks implements Action
+public class SkipTicks implements MocapAction
 {
 	public final int number;
 
@@ -13,7 +14,7 @@ public class SkipTicks implements Action
 		this.number = number;
 	}
 
-	public SkipTicks(RecordingFiles.Reader reader)
+	public SkipTicks(Reader reader)
 	{
 		this.number = Byte.toUnsignedInt(reader.readByte());
 	}
@@ -23,23 +24,18 @@ public class SkipTicks implements Action
 		return number < 255;
 	}
 
-	@Override public void write(RecordingFiles.Writer writer)
+	@Override public void write(Writer writer, MocapRecordingData data)
 	{
-		writer.addByte(Type.SKIP_TICKS.id);
 		writer.addByte((byte)number);
 		//TODO: test
 	}
 
-	@Override public Result execute(ActionContext ctx)
+	@Override public Result execute(MocapActionContext ctx)
 	{
-		if (ctx.skippingTicks == number)
-		{
-			ctx.skippingTicks = 0;
-			return Result.OK;
-		}
+		if (ctx.shouldStopRepeat(number)) { return Result.OK; }
 
 		//MocapMod.LOGGER.warn("SKIP TICK (ST/{})", number); //TODO: remove
-		ctx.skippingTicks++;
-		return Result.REPEAT;
+		ctx.incrementRepeatCounter();
+		return Result.REPEAT_TICK;
 	}
 }

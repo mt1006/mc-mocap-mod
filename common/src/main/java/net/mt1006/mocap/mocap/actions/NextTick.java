@@ -1,20 +1,23 @@
 package net.mt1006.mocap.mocap.actions;
 
-import net.mt1006.mocap.mocap.files.RecordingFiles;
-import net.mt1006.mocap.mocap.playing.playback.ActionContext;
+import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
+import net.mt1006.mocap.api.v1.extension.actions.MocapAction;
+import net.mt1006.mocap.api.v1.extension.actions.MocapActionContext;
 
-public class NextTick implements Action
+public class NextTick implements MocapAction
 {
-	public NextTick() {}
+	public static final NextTick INSTANCE = new NextTick();
 
-	public NextTick(RecordingFiles.Reader ignored) {}
+	private NextTick() {}
 
-	@Override public void write(RecordingFiles.Writer writer)
+	public static NextTick fromReader(Reader ignore)
 	{
-		writer.addByte(Type.NEXT_TICK.id);
+		return INSTANCE;
 	}
 
-	@Override public Result execute(ActionContext ctx)
+	@Override public void write(Writer writer, MocapRecordingData data) {}
+
+	@Override public Result execute(MocapActionContext ctx)
 	{
 		return Result.NEXT_TICK;
 	}

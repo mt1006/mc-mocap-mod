@@ -1,6 +1,6 @@
 package net.mt1006.mocap.mocap.settings;
 
-import net.mt1006.mocap.command.io.CommandInfo;
+import net.mt1006.mocap.command.io.FullCommandInfo;
 import net.mt1006.mocap.mocap.playing.modifiers.EntityFilter;
 import net.mt1006.mocap.mocap.playing.modifiers.EntityFilterInstance;
 import net.mt1006.mocap.mocap.settings.enums.EntitiesAfterPlayback;
@@ -77,7 +77,7 @@ public class Settings
 		return groups.groupMap.values();
 	}
 
-	public static boolean list(CommandInfo commandInfo)
+	public static boolean list(FullCommandInfo commandInfo)
 	{
 		commandInfo.sendSuccess("settings.list");
 		for (SettingFields.Field<?> field : getFields())
@@ -87,7 +87,7 @@ public class Settings
 		return true;
 	}
 
-	public static boolean info(CommandInfo commandInfo)
+	public static boolean info(FullCommandInfo commandInfo)
 	{
 		String settingName;
 		try
@@ -113,7 +113,7 @@ public class Settings
 		return true;
 	}
 
-	public static boolean set(CommandInfo commandInfo)
+	public static boolean set(FullCommandInfo commandInfo)
 	{
 		String settingName = commandInfo.getNode(-2);
 		if (settingName == null)

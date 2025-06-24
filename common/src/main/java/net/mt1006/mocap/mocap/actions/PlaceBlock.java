@@ -3,15 +3,16 @@ package net.mt1006.mocap.mocap.actions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.mt1006.mocap.mocap.files.RecordingData;
-import net.mt1006.mocap.mocap.files.RecordingFiles;
-import net.mt1006.mocap.mocap.playing.playback.ActionContext;
-import net.mt1006.mocap.mocap.playing.playback.PositionTransformer;
+import net.mt1006.mocap.api.v1.extension.MocapBlockState;
+import net.mt1006.mocap.api.v1.extension.MocapPositionTransformer;
+import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
+import net.mt1006.mocap.api.v1.extension.actions.MocapActionContext;
+import net.mt1006.mocap.api.v1.extension.actions.MocapBlockAction;
 
-public class PlaceBlock implements BlockAction
+public class PlaceBlock implements MocapBlockAction
 {
-	private final BlockStateData previousBlockState;
-	private final BlockStateData newBlockState;
+	private final MocapBlockState previousBlockState;
+	private final MocapBlockState newBlockState;
 	private final BlockPos blockPos;
 
 	public PlaceBlock(BlockState previousBlockState, BlockState newBlockState, BlockPos blockPos)
@@ -21,37 +22,35 @@ public class PlaceBlock implements BlockAction
 		this.blockPos = blockPos;
 	}
 
-	public PlaceBlock(RecordingFiles.Reader reader)
+	public PlaceBlock(Reader reader, MocapRecordingData data)
 	{
-		previousBlockState = new BlockStateData(reader);
-		newBlockState = new BlockStateData(reader);
+		previousBlockState = new BlockStateData(reader, data);
+		newBlockState = new BlockStateData(reader, data);
 		blockPos = reader.readBlockPos();
 	}
 
-	@Override public void prepareWrite(RecordingData data)
+	@Override public void prepareWrite(MocapRecordingData data)
 	{
 		previousBlockState.prepareWrite(data);
 		newBlockState.prepareWrite(data);
 	}
 
-	@Override public void write(RecordingFiles.Writer writer)
+	@Override public void write(Writer writer, MocapRecordingData data)
 	{
-		writer.addByte(Type.PLACE_BLOCK.id);
-
 		previousBlockState.write(writer);
 		newBlockState.write(writer);
 
 		writer.addBlockPos(blockPos);
 	}
 
-	@Override public void preExecute(Entity entity, PositionTransformer transformer)
+	@Override public void preExecute(Entity entity, MocapPositionTransformer transformer)
 	{
 		previousBlockState.placeSilently(entity, transformer, blockPos);
 	}
 
-	@Override public Result execute(ActionContext ctx)
+	@Override public Result execute(MocapActionContext ctx)
 	{
-		newBlockState.place(ctx.entity, ctx.transformer, blockPos);
+		newBlockState.place(ctx.getEntity(), ctx.getTransformer(), blockPos);
 		return Result.OK;
 	}
 }

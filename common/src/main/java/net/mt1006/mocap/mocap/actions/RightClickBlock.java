@@ -11,11 +11,12 @@ import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.mt1006.mocap.mocap.files.RecordingFiles;
-import net.mt1006.mocap.mocap.playing.playback.ActionContext;
-import net.mt1006.mocap.mocap.playing.playback.PositionTransformer;
+import net.mt1006.mocap.api.v1.extension.MocapPositionTransformer;
+import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
+import net.mt1006.mocap.api.v1.extension.actions.MocapActionContext;
+import net.mt1006.mocap.api.v1.extension.actions.MocapBlockAction;
 
-public class RightClickBlock implements BlockAction
+public class RightClickBlock implements MocapBlockAction
 {
 	private final BlockHitResult blockHitResult;
 	private final boolean offHand;
@@ -26,7 +27,7 @@ public class RightClickBlock implements BlockAction
 		this.offHand = offHand;
 	}
 
-	public RightClickBlock(RecordingFiles.Reader reader)
+	public RightClickBlock(Reader reader)
 	{
 		Vec3 pos = reader.readVec3();
 		BlockPos blockPos = reader.readBlockPos();
@@ -63,10 +64,8 @@ public class RightClickBlock implements BlockAction
 		};
 	}
 
-	@Override public void write(RecordingFiles.Writer writer)
+	@Override public void write(Writer writer, MocapRecordingData data)
 	{
-		writer.addByte(Type.RIGHT_CLICK_BLOCK.id);
-
 		writer.addVec3(blockHitResult.getLocation());
 		writer.addBlockPos(blockHitResult.getBlockPos());
 
@@ -76,25 +75,25 @@ public class RightClickBlock implements BlockAction
 		writer.addBoolean(offHand);
 	}
 
-	@Override public void preExecute(Entity entity, PositionTransformer transformer) {}
+	@Override public void preExecute(Entity entity, MocapPositionTransformer transformer) {}
 
-	@Override public Result execute(ActionContext ctx)
+	@Override public Result execute(MocapActionContext ctx)
 	{
-		Player player = (ctx.entity instanceof Player) ? (Player)ctx.entity : ctx.ghostPlayer;
+		Player player = ctx.getPlayerOrDummy();
 		if (player == null) { return Result.IGNORED; }
 
 		InteractionHand interactionHand = offHand ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
 		ItemStack itemStack = player.getItemInHand(interactionHand);
 
-		for (BlockPos blockPos : ctx.transformer.transformBlockPos(blockHitResult.getBlockPos()))
+		for (BlockPos blockPos : ctx.getTransformer().transformBlockPos(blockHitResult.getBlockPos()))
 		{
-			BlockState blockState = ctx.level.getBlockState(blockPos);
+			BlockState blockState = ctx.getLevel().getBlockState(blockPos);
 			if (blockState.getBlock() instanceof BedBlock) { continue; }
 
-			ItemInteractionResult result = blockState.useItemOn(itemStack, ctx.level, player, interactionHand, blockHitResult);
+			ItemInteractionResult result = blockState.useItemOn(itemStack, ctx.getLevel(), player, interactionHand, blockHitResult);
 			if (result == ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION)
 			{
-				blockState.useWithoutItem(ctx.level, player, blockHitResult);
+				blockState.useWithoutItem(ctx.getLevel(), player, blockHitResult);
 			}
 		}
 		return Result.OK;

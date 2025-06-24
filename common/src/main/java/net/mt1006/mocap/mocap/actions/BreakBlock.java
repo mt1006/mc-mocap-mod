@@ -3,17 +3,18 @@ package net.mt1006.mocap.mocap.actions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.mt1006.mocap.mocap.files.RecordingData;
-import net.mt1006.mocap.mocap.files.RecordingFiles;
-import net.mt1006.mocap.mocap.playing.playback.ActionContext;
-import net.mt1006.mocap.mocap.playing.playback.PositionTransformer;
+import net.mt1006.mocap.api.v1.extension.MocapBlockState;
+import net.mt1006.mocap.api.v1.extension.MocapPositionTransformer;
+import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
+import net.mt1006.mocap.api.v1.extension.actions.MocapActionContext;
+import net.mt1006.mocap.api.v1.extension.actions.MocapBlockAction;
 import net.mt1006.mocap.mocap.settings.Settings;
 
 import java.util.List;
 
-public class BreakBlock implements BlockAction
+public class BreakBlock implements MocapBlockAction
 {
-	private final BlockStateData previousBlockState;
+	private final MocapBlockState previousBlockState;
 	private final BlockPos blockPos;
 
 	public BreakBlock(BlockState blockState, BlockPos blockPos)
@@ -22,34 +23,32 @@ public class BreakBlock implements BlockAction
 		this.blockPos = blockPos;
 	}
 
-	public BreakBlock(RecordingFiles.Reader reader)
+	public BreakBlock(Reader reader, MocapRecordingData data)
 	{
-		previousBlockState = new BlockStateData(reader);
+		previousBlockState = new BlockStateData(reader, data);
 		blockPos = reader.readBlockPos();
 	}
 
-	@Override public void prepareWrite(RecordingData data)
+	@Override public void prepareWrite(MocapRecordingData data)
 	{
 		previousBlockState.prepareWrite(data);
 	}
 
-	@Override public void write(RecordingFiles.Writer writer)
+	@Override public void write(Writer writer, MocapRecordingData data)
 	{
-		writer.addByte(Type.BREAK_BLOCK.id);
-
 		previousBlockState.write(writer);
 		writer.addBlockPos(blockPos);
 	}
 
-	@Override public void preExecute(Entity entity, PositionTransformer transformer)
+	@Override public void preExecute(Entity entity, MocapPositionTransformer transformer)
 	{
 		previousBlockState.placeSilently(entity, transformer, blockPos);
 	}
 
-	@Override public Result execute(ActionContext ctx)
+	@Override public Result execute(MocapActionContext ctx)
 	{
-		List<BlockPos> blocks = ctx.transformer.transformBlockPos(blockPos);
-		blocks.forEach((b) -> ctx.level.destroyBlock(b, Settings.DROP_FROM_BLOCKS.val));
+		List<? extends BlockPos> blocks = ctx.getTransformer().transformBlockPos(blockPos);
+		blocks.forEach((b) -> ctx.getLevel().destroyBlock(b, Settings.DROP_FROM_BLOCKS.val));
 		return Result.OK;
 	}
 }

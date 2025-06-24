@@ -3,16 +3,14 @@ package net.mt1006.mocap.mocap.recording;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.mt1006.mocap.api.v1.extension.MocapActiveRecordingActions;
 import net.mt1006.mocap.mixin.fields.LevelFields;
 import net.mt1006.mocap.mocap.actions.EntityUpdate;
 import net.mt1006.mocap.mocap.playing.Playing;
 import net.mt1006.mocap.mocap.settings.Settings;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class EntityTracker
 {
@@ -29,6 +27,11 @@ public class EntityTracker
 	public TrackedEntity get(Entity entity)
 	{
 		return map.get(entity);
+	}
+
+	public Collection<TrackedEntity> getAll()
+	{
+		return map.values();
 	}
 
 	public void onTick()
@@ -118,7 +121,7 @@ public class EntityTracker
 		toRemove.forEach(map::remove);
 	}
 
-	public static class TrackedEntity
+	public static class TrackedEntity implements MocapActiveRecordingActions.TrackedEntity
 	{
 		private final RecordingContext ctx;
 		private final int id;
@@ -152,9 +155,19 @@ public class EntityTracker
 			}
 		}
 
-		public void onHurt()
+		@Override public MocapActiveRecordingActions getParent()
 		{
-			ctx.addAction(EntityUpdate.hurt(id));
+			return ctx;
+		}
+
+		@Override public int getId()
+		{
+			return id;
+		}
+
+		@Override public Entity getEntity()
+		{
+			return entity;
 		}
 	}
 }

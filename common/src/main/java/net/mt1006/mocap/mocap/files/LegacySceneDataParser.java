@@ -1,5 +1,6 @@
 package net.mt1006.mocap.mocap.files;
 
+import net.mt1006.mocap.api.v1.modifiers.MocapPlayerSkin;
 import net.mt1006.mocap.command.io.CommandOutput;
 import net.mt1006.mocap.mocap.playing.modifiers.*;
 import org.jetbrains.annotations.Nullable;
@@ -80,7 +81,7 @@ public class LegacySceneDataParser
 
 	private static PlayerSkin parsePlayerSkin(Scanner scanner)
 	{
-		PlayerSkin.SkinSource skinSource = PlayerSkin.SkinSource.DEFAULT;
+		MocapPlayerSkin.Source source = MocapPlayerSkin.Source.DEFAULT;
 		String skinPath = NULL_STR;
 
 		try
@@ -88,12 +89,23 @@ public class LegacySceneDataParser
 			skinPath = scanner.next();
 
 			// Pre-1.3 compatibility
-			if (!skinPath.equals(NULL_STR)) { skinSource = PlayerSkin.SkinSource.FROM_MINESKIN; }
+			if (!skinPath.equals(NULL_STR)) { source = MocapPlayerSkin.Source.FROM_MINESKIN; }
 
-			skinSource = PlayerSkin.SkinSource.fromID(Integer.parseInt(scanner.next()));
+			source = skinSourceFromLegacyId(Integer.parseInt(scanner.next()));
 		}
 		catch (Exception ignore) {}
 
-		return new PlayerSkin(skinSource, skinPath.equals(NULL_STR) ? null : skinPath);
+		return new PlayerSkin(source, skinPath.equals(NULL_STR) ? null : skinPath);
+	}
+
+	private static MocapPlayerSkin.Source skinSourceFromLegacyId(int id)
+	{
+		return switch (id)
+		{
+			case 1 -> MocapPlayerSkin.Source.FROM_PLAYER;
+			case 2 -> MocapPlayerSkin.Source.FROM_FILE;
+			case 3 -> MocapPlayerSkin.Source.FROM_MINESKIN;
+			default -> MocapPlayerSkin.Source.DEFAULT;
+		};
 	}
 }

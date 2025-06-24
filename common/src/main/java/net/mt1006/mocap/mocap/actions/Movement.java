@@ -2,13 +2,15 @@ package net.mt1006.mocap.mocap.actions;
 
 import net.minecraft.network.protocol.game.ClientboundRotateHeadPacket;
 import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
+import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
+import net.mt1006.mocap.api.v1.extension.actions.MocapAction;
+import net.mt1006.mocap.api.v1.extension.actions.MocapActionContext;
 import net.mt1006.mocap.mixin.fields.EntityFields;
-import net.mt1006.mocap.mocap.files.RecordingFiles;
-import net.mt1006.mocap.mocap.playing.playback.ActionContext;
 import org.jetbrains.annotations.Nullable;
 
-public class Movement implements Action
+public class Movement implements MocapAction
 {
 	/*
 	Flags:
@@ -68,7 +70,7 @@ public class Movement implements Action
 		this.headRot = headRot;
 	}
 
-	public Movement(RecordingFiles.Reader reader)
+	public Movement(Reader reader)
 	{
 		flags = reader.readByte();
 
@@ -102,7 +104,7 @@ public class Movement implements Action
 		};
 	}
 
-	private double readXZ(RecordingFiles.Reader reader)
+	private double readXZ(Reader reader)
 	{
 		return switch (flags & MASK_XZ)
 		{
@@ -251,9 +253,8 @@ public class Movement implements Action
 		return (float)(((double)packed / (double)0x10000) * 360.0);
 	}
 
-	@Override public void write(RecordingFiles.Writer writer)
+	@Override public void write(Writer writer, MocapRecordingData data)
 	{
-		writer.addByte(Type.MOVEMENT.id);
 		writer.addByte(flags);
 
 		switch (flags & MASK_Y)
@@ -277,7 +278,7 @@ public class Movement implements Action
 		if ((flags & MASK_ROT) == ROT_HEAD_DIFF) { writer.addShort(packRot(headRot)); }
 	}
 
-	private void writeXZ(RecordingFiles.Writer writer, double val)
+	private void writeXZ(Writer writer, double val)
 	{
 		switch (flags & MASK_XZ)
 		{
@@ -308,24 +309,25 @@ public class Movement implements Action
 		oldPos[2] = xzRel ? (oldPos[2] + position.z) : position.z;
 	}
 
-	@Override public Result execute(ActionContext ctx)
+	@Override public Result execute(MocapActionContext ctx)
 	{
+		Entity entity = ctx.getEntity();
 		boolean updateRot = (flags & MASK_ROT) != ROT_0;
-		float rotX = updateRot ? rotation[0] : ctx.entity.getXRot();
-		float rotY = updateRot ? rotation[1] : ctx.entity.getYRot();
+		float rotX = updateRot ? rotation[0] : entity.getXRot();
+		float rotY = updateRot ? rotation[1] : entity.getYRot();
 
-		float finHeadRot = ctx.transformer.transformRotation(headRot);
+		float finHeadRot = ctx.getTransformer().transformRotation(headRot);
 
 		ctx.changePosition(position, rotY, rotX, isXzRelative(), isYRelative(), updateRot);
-		if (updateRot) { ctx.entity.setYHeadRot(finHeadRot); }
-		ctx.entity.setOnGround((flags & ON_GROUND) != 0);
-		((EntityFields)ctx.entity).callCheckInsideBlocks();
+		if (updateRot) { entity.setYHeadRot(finHeadRot); }
+		entity.setOnGround((flags & ON_GROUND) != 0);
+		((EntityFields)entity).callCheckInsideBlocks();
 
-		ctx.fluentMovement(() -> new ClientboundTeleportEntityPacket(ctx.entity)); //TODO: try packet with higher precision
+		ctx.fluentMovement(() -> new ClientboundTeleportEntityPacket(entity)); //TODO: try packet with higher precision
 		if (updateRot)
 		{
 			byte headRotData = (byte)Math.floor(finHeadRot * 256.0f / 360.0f);
-			ctx.fluentMovement(() -> new ClientboundRotateHeadPacket(ctx.entity, headRotData));
+			ctx.fluentMovement(() -> new ClientboundRotateHeadPacket(entity, headRotData));
 		}
 		return Result.OK;
 	}

@@ -22,7 +22,7 @@ public class ScenePlayback extends Playback
 	private ScenePlayback(CommandInfo commandInfo, DataManager dataManager, String name, PlaybackModifiers parentModifiers,
 						  @Nullable SceneData.Subscene info, @Nullable PositionTransformer parentTransformer) throws StartException
 	{
-		super(info == null, commandInfo.level, commandInfo.sourcePlayer, parentModifiers, info);
+		super(info == null, commandInfo.getLevel(), commandInfo.getSourcePlayer(), parentModifiers, info);
 
 		SceneData sceneData = dataManager.getScene(name);
 		if (sceneData == null) { throw new StartException(); }
@@ -118,7 +118,7 @@ public class ScenePlayback extends Playback
 		{
 			case COMMON_FIRST -> sceneData.subscenes.get(0);
 			case COMMON_LAST -> sceneData.subscenes.get(sceneData.subscenes.size() - 1);
-			case COMMON_SPECIFIC -> SceneData.loadSubscene(commandOutput, sceneData, CommandUtils.splitIdStr(centers.specificStr));
+			case COMMON_SPECIFIC -> SceneData.loadSubscene(commandOutput, sceneData, CommandUtils.splitPosStr(centers.specificStr));
 			default -> null;
 		};
 		if (subscene == null) { throw new StartException(); }

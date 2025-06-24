@@ -14,7 +14,7 @@ public class RecordingId
 	private final @Nullable String recorded;
 	private final @Nullable String name;
 
-	public RecordingId(String id, @Nullable ServerPlayer sourcePlayer)
+	public RecordingId(String id, @Nullable String sourceName)
 	{
 		if (id.startsWith("-")) { id = id.substring(1); }
 
@@ -32,13 +32,13 @@ public class RecordingId
 		switch (parts.length)
 		{
 			case 1:
-				this.source = getSourceName(sourcePlayer);
+				this.source = sourceName;
 				this.recorded = getNullablePart(parts[0]);
 				this.name = parts[0].equals("_") ? null : "1";
 				break;
 
 			case 2:
-				this.source = getSourceName(sourcePlayer);
+				this.source = sourceName;
 				this.recorded = getNullablePart(parts[0]);
 				this.name = getNullablePart(parts[1]);
 				break;
@@ -56,9 +56,9 @@ public class RecordingId
 		this.str = String.format("-%s.%s.%s", getNotNullPart(source), getNotNullPart(recorded), getNotNullPart(name));
 	}
 
-	public RecordingId(Collection<RecordingContext> contexts, ServerPlayer recordedPlayer, @Nullable ServerPlayer sourcePlayer)
+	public RecordingId(Collection<RecordingContext> contexts, ServerPlayer recordedPlayer, @Nullable String source)
 	{
-		String source = getSourceName(sourcePlayer);
+		if (source == null) { source = "+mc"; }
 		String recorded = recordedPlayer.getName().getString();
 
 		long maxId = 0;
@@ -135,11 +135,6 @@ public class RecordingId
 	private static @Nullable String getNullablePart(String part)
 	{
 		return part.equals("_") ? null : part;
-	}
-
-	private static String getSourceName(@Nullable ServerPlayer sourcePlayer)
-	{
-		return sourcePlayer != null ? sourcePlayer.getName().getString() : "+mc";
 	}
 
 	private static boolean verifyParts(String[] parts)

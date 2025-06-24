@@ -43,3 +43,8 @@ sourceSets.each
 	it.output.resourcesDir = dir
 	it.java.destinationDirectory = dir
 }
+
+processResources
+{
+	from(project.file("src/main/generated")) { duplicatesStrategy DuplicatesStrategy.EXCLUDE }
+}

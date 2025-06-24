@@ -10,6 +10,10 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.mt1006.mocap.MocapMod;
+import net.mt1006.mocap.api.impl.modifiers.MocapModifiersImpl;
+import net.mt1006.mocap.api.v1.extension.MocapPositionTransformer;
+import net.mt1006.mocap.api.v1.extension.actions.MocapActionContext;
+import net.mt1006.mocap.api.v1.modifiers.MocapModifiers;
 import net.mt1006.mocap.events.PlayerConnectionEvent;
 import net.mt1006.mocap.mocap.playing.Playing;
 import net.mt1006.mocap.mocap.playing.modifiers.PlaybackModifiers;
@@ -26,44 +30,82 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-public class ActionContext
+public class ActionContext implements MocapActionContext
 {
 	private final ServerPlayer owner;
 	private final PlayerList packetTargets;
 	private final EntityData mainEntityData;
 	public final Map<Integer, EntityData> entityDataMap = new HashMap<>();
 	public final ServerLevel level;
-	public final PlaybackModifiers modifiers;
+	private final MocapModifiers modifiers;
 	public final @Nullable FakePlayer ghostPlayer;
 	public final PositionTransformer transformer;
 	private boolean mainEntityRemoved = false;
 	private @Nullable EntityData currentEntityData = null;
 	public Entity entity;
 	private Vec3 position;
-	public int skippingTicks = 0;
+	private int repeatCounter = 0;
 
 	public ActionContext(ServerPlayer owner, PlayerList packetTargets, Entity entity, Vec3 startPos,
 						 PlaybackModifiers modifiers, @Nullable FakePlayer ghostPlayer, PositionTransformer transformer)
 	{
-		if (!(entity.level() instanceof ServerLevel)) { throw new RuntimeException("Failed to get ServerLevel for ActionContext!"); }
+		if (!(entity.level() instanceof ServerLevel))
+		{
+			throw new RuntimeException("Failed to get ServerLevel for ActionContext!");
+		}
 
 		this.owner = owner;
 		this.packetTargets = packetTargets;
 		this.mainEntityData = new EntityData(entity, startPos);
-		this.level = (ServerLevel)entity.level();
-		this.modifiers = modifiers;
+		this.level = (ServerLevel) entity.level();
+		this.modifiers = MocapModifiersImpl.ofCopy(modifiers); //TODO: merge with modifiers
 		this.ghostPlayer = ghostPlayer;
 		this.transformer = transformer;
 
 		setMainContextEntity();
 	}
 
-	public void setMainContextEntity()
+	@Override public Entity getEntity()
+	{
+		return entity;
+	}
+
+	@Override public ServerLevel getLevel()
+	{
+		return level;
+	}
+
+	@Override public MocapModifiers getModifiers()
+	{
+		return modifiers;
+	}
+
+	@Override public MocapPositionTransformer getTransformer()
+	{
+		return transformer;
+	}
+
+	@Override public @Nullable ServerPlayer getDummy()
+	{
+		return ghostPlayer;
+	}
+
+	@Override public @Nullable ServerPlayer getPlayerOrDummy()
+	{
+		return (entity instanceof ServerPlayer) ? (ServerPlayer)entity : ghostPlayer;
+	}
+
+	@Override public @Nullable ServerPlayer getLivingEntityOrDummy()
+	{
+		return (entity instanceof ServerPlayer) ? (ServerPlayer)entity : ghostPlayer;
+	}
+
+	@Override public void setMainContextEntity()
 	{
 		setContextEntity(mainEntityData);
 	}
 
-	public boolean setContextEntity(int id)
+	@Override public boolean setContextEntity(int id)
 	{
 		EntityData data = entityDataMap.get(id);
 		if (data == null) { return false; }
@@ -81,12 +123,12 @@ public class ActionContext
 		position = data.lastPosition;
 	}
 
-	public void broadcast(Packet<?> packet)
+	@Override public void broadcast(Packet<?> packet)
 	{
 		packetTargets.broadcastAll(packet);
 	}
 
-	public void fluentMovement(Supplier<Packet<?>> packetSupplier)
+	@Override public void fluentMovement(Supplier<Packet<?>> packetSupplier)
 	{
 		double fluentMovements = Settings.FLUENT_MOVEMENTS.val;
 		if (fluentMovements == 0.0) { return; }
@@ -153,7 +195,7 @@ public class ActionContext
 		playerToRemove.getAdvancements().stopListening();
 	}
 
-	public void changePosition(Vec3 newPos, float rotY, float rotX, boolean shiftXZ, boolean shiftY, boolean transformRot)
+	@Override public void changePosition(Vec3 newPos, float rotY, float rotX, boolean shiftXZ, boolean shiftY, boolean transformRot)
 	{
 		double x = shiftXZ ? (position.x + newPos.x) : newPos.x;
 		double y = shiftY ? (position.y + newPos.y) : newPos.y;
@@ -191,6 +233,36 @@ public class ActionContext
 		if (ghostPlayer != null) { ghostPlayer.changeDimension(dimensionTransition); }
 	}*/
 
+	@Override public void addEntity(int id, Entity entity, Vec3 position)
+	{
+		entityDataMap.put(id, new EntityData(entity, position));
+	}
+
+	@Override public @Nullable EntityData getEntityData(int id)
+	{
+		return entityDataMap.get(id);
+	}
+
+	@Override public boolean hasEntity(int id)
+	{
+		return entityDataMap.containsKey(id);
+	}
+
+	@Override public void incrementRepeatCounter()
+	{
+		repeatCounter++;
+	}
+
+	@Override public boolean shouldStopRepeat(int iter)
+	{
+		if (repeatCounter == iter)
+		{
+			repeatCounter = 0;
+			return true;
+		}
+		return false;
+	}
+
 	private static void removeEntity(Entity entity)
 	{
 		switch (Settings.ENTITIES_AFTER_PLAYBACK.val)
@@ -216,18 +288,6 @@ public class ActionContext
 
 			default:
 				throw new IllegalStateException("Unexpected value: " + Settings.ENTITIES_AFTER_PLAYBACK.val);
-		}
-	}
-
-	public static class EntityData
-	{
-		public final Entity entity;
-		public Vec3 lastPosition;
-
-		public EntityData(Entity entity, Vec3 startPos)
-		{
-			this.entity = entity;
-			this.lastPosition = startPos;
 		}
 	}
 }

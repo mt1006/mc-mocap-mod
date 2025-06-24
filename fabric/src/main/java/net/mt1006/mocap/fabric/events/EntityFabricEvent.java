@@ -9,7 +9,7 @@ public class EntityFabricEvent
 {
 	public static boolean onEntityHurt(LivingEntity entity, DamageSource source, float amount)
 	{
-		EntityEvent.onEntityHurt(entity);
+		EntityEvent.onEntityHurt(null);
 		return true;
 	}
 

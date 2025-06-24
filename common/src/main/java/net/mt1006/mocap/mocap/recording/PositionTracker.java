@@ -2,7 +2,7 @@ package net.mt1006.mocap.mocap.recording;
 
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
-import net.mt1006.mocap.mocap.actions.Action;
+import net.mt1006.mocap.api.v1.extension.actions.MocapAction;
 import net.mt1006.mocap.mocap.actions.EntityAction;
 import net.mt1006.mocap.mocap.actions.Movement;
 import net.mt1006.mocap.mocap.files.RecordingData;
@@ -42,7 +42,7 @@ public class PositionTracker
 		this.entity = entity;
 	}
 
-	public void onTick(List<Action> actionList, @Nullable Integer entityId)
+	public void onTick(List<MocapAction> actionList, @Nullable Integer entityId)
 	{
 		Movement movement = getDelta(true, forceNonPosDataFlag);
 		forceNonPosDataFlag = false;
@@ -51,7 +51,7 @@ public class PositionTracker
 		actionList.add(entityId != null ? new EntityAction(entityId, movement) : movement);
 	}
 
-	public void teleportFarAway(List<Action> actionList)
+	public void teleportFarAway(List<MocapAction> actionList)
 	{
 		//TODO: replace pos arrays with Vec3
 		Movement movement = Movement.teleportToPos(FAR_AWAY, false);

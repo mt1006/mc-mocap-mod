@@ -13,15 +13,16 @@ import net.minecraft.world.entity.vehicle.AbstractMinecart;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
+import net.mt1006.mocap.api.v1.extension.actions.MocapActionContext;
+import net.mt1006.mocap.api.v1.extension.actions.MocapStateAction;
 import net.mt1006.mocap.mixin.fields.AbstractHorseFields;
 import net.mt1006.mocap.mixin.fields.BoatFields;
 import net.mt1006.mocap.mixin.fields.HorseFields;
 import net.mt1006.mocap.mixin.fields.PigFields;
-import net.mt1006.mocap.mocap.files.RecordingFiles;
-import net.mt1006.mocap.mocap.playing.playback.ActionContext;
 import net.mt1006.mocap.utils.EntityData;
 
-public class VehicleData implements ComparableAction
+public class VehicleData implements MocapStateAction
 {
 	private final boolean used;
 	private byte flags = 0;         // AbstractHorse
@@ -83,7 +84,7 @@ public class VehicleData implements ComparableAction
 		used = true;
 	}
 
-	public VehicleData(RecordingFiles.Reader reader)
+	public VehicleData(Reader reader)
 	{
 		used = reader.readBoolean();
 		if (used)
@@ -98,7 +99,7 @@ public class VehicleData implements ComparableAction
 		}
 	}
 
-	@Override public boolean differs(ComparableAction previousAction)
+	@Override public boolean differs(MocapStateAction previousAction)
 	{
 		VehicleData vehicleData = (VehicleData)previousAction;
 
@@ -113,9 +114,8 @@ public class VehicleData implements ComparableAction
 				|| float1 != vehicleData.float1;
 	}
 
-	@Override public void write(RecordingFiles.Writer writer)
+	@Override public void write(Writer writer, MocapRecordingData data)
 	{
-		writer.addByte(Type.VEHICLE_DATA.id);
 		writer.addBoolean(used);
 		if (used)
 		{
@@ -129,49 +129,50 @@ public class VehicleData implements ComparableAction
 		}
 	}
 
-	@Override public Result execute(ActionContext ctx)
+	@Override public Result execute(MocapActionContext ctx)
 	{
 		if (!used) { return Result.OK; }
+		Entity entity = ctx.getEntity();
 
-		if (ctx.entity instanceof AgeableMob)
+		if (entity instanceof AgeableMob)
 		{
-			((AgeableMob)ctx.entity).setAge(flag2 ? -1 : 0);
+			((AgeableMob)entity).setAge(flag2 ? -1 : 0);
 		}
 
-		if (ctx.entity instanceof AbstractHorse)
+		if (entity instanceof AbstractHorse)
 		{
-			EntityData.ABSTRACT_HORSE_FLAGS.set(ctx.entity, flags);
+			EntityData.ABSTRACT_HORSE_FLAGS.set(entity, flags);
 
 			try
 			{
 				ItemStack itemStack = new ItemStack((flags & 0x04) != 0 ? Items.SADDLE : Items.AIR);
-				((AbstractHorseFields)ctx.entity).getInventory().setItem(0, itemStack);
+				((AbstractHorseFields)entity).getInventory().setItem(0, itemStack);
 			}
 			catch (Exception ignore) {}
 
-			if (ctx.entity instanceof Horse) { ((HorseFields)ctx.entity).callSetTypeVariant(int1); }
-			else if (ctx.entity instanceof AbstractChestedHorse) { ((AbstractChestedHorse)ctx.entity).setChest(flag1); }
-			else if (ctx.entity instanceof Camel) { ((Camel)ctx.entity).setDashing(flag1); }
+			if (entity instanceof Horse) { ((HorseFields)entity).callSetTypeVariant(int1); }
+			else if (entity instanceof AbstractChestedHorse) { ((AbstractChestedHorse)entity).setChest(flag1); }
+			else if (entity instanceof Camel) { ((Camel)entity).setDashing(flag1); }
 
-			if (ctx.entity instanceof Llama) { ((Llama)ctx.entity).setVariant(Llama.Variant.byId(int1)); }
+			if (entity instanceof Llama) { ((Llama)entity).setVariant(Llama.Variant.byId(int1)); }
 		}
-		else if (ctx.entity instanceof Pig)
+		else if (entity instanceof Pig)
 		{
-			((PigFields)ctx.entity).getSteering().setSaddle(flag1);
+			((PigFields)entity).getSteering().setSaddle(flag1);
 		}
-		else if (ctx.entity instanceof Boat)
+		else if (entity instanceof Boat)
 		{
-			((Boat)ctx.entity).setPaddleState(flag1, flag2);
-			((Boat)ctx.entity).setHurtTime(int1);
-			((Boat)ctx.entity).setHurtDir(int2);
-			((BoatFields)ctx.entity).callSetBubbleTime(int3);
-			((Boat)ctx.entity).setDamage(float1);
+			((Boat)entity).setPaddleState(flag1, flag2);
+			((Boat)entity).setHurtTime(int1);
+			((Boat)entity).setHurtDir(int2);
+			((BoatFields)entity).callSetBubbleTime(int3);
+			((Boat)entity).setDamage(float1);
 		}
-		else if (ctx.entity instanceof AbstractMinecart)
+		else if (entity instanceof AbstractMinecart)
 		{
-			((AbstractMinecart)ctx.entity).setHurtTime(int1);
-			((AbstractMinecart)ctx.entity).setHurtDir(int2);
-			((AbstractMinecart)ctx.entity).setDamage(float1);
+			((AbstractMinecart)entity).setHurtTime(int1);
+			((AbstractMinecart)entity).setHurtDir(int2);
+			((AbstractMinecart)entity).setDamage(float1);
 		}
 
 		return Result.OK;

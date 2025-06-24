@@ -1,24 +1,27 @@
 package net.mt1006.mocap.mocap.actions;
 
-import net.mt1006.mocap.mocap.files.RecordingFiles;
-import net.mt1006.mocap.mocap.playing.playback.ActionContext;
+import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
+import net.mt1006.mocap.api.v1.extension.actions.MocapAction;
+import net.mt1006.mocap.api.v1.extension.actions.MocapActionContext;
 import net.mt1006.mocap.utils.FakePlayer;
 
-public class Die implements Action
+public class Die implements MocapAction
 {
-	public Die() {}
+	public static final Die INSTANCE = new Die();
 
-	public Die(RecordingFiles.Reader ignore) {}
+	private Die() {}
 
-	@Override public void write(RecordingFiles.Writer writer)
+	public static Die fromReader(Reader ignore)
 	{
-		writer.addByte(Type.DIE.id);
+		return INSTANCE;
 	}
 
-	@Override public Result execute(ActionContext ctx)
+	@Override public void write(Writer writer, MocapRecordingData data) {}
+
+	@Override public Result execute(MocapActionContext ctx)
 	{
-		if (ctx.entity instanceof FakePlayer) { ((FakePlayer)ctx.entity).fakeKill(); }
-		else { ctx.entity.kill(); }
+		if (ctx.getEntity() instanceof FakePlayer) { ((FakePlayer)ctx.getEntity()).fakeKill(); }
+		else { ctx.getEntity().kill(); }
 		return Result.OK;
 	}
 }

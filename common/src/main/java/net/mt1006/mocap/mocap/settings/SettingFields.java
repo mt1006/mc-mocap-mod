@@ -14,6 +14,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
 import net.mt1006.mocap.command.io.CommandInfo;
+import net.mt1006.mocap.command.io.FullCommandInfo;
 import net.mt1006.mocap.mocap.files.Files;
 import net.mt1006.mocap.utils.Utils;
 import org.jetbrains.annotations.Nullable;
@@ -185,7 +186,7 @@ public class SettingFields
 			}
 		}
 
-		public final boolean fromCommand(CommandInfo commandInfo)
+		public final boolean fromCommand(FullCommandInfo commandInfo)
 		{
 			try
 			{
@@ -223,7 +224,7 @@ public class SettingFields
 		}
 
 		public abstract T parseFromString(String str);
-		public abstract @Nullable T parseFromCommand(CommandInfo commandInfo);
+		public abstract @Nullable T parseFromCommand(FullCommandInfo commandInfo);
 		public abstract ArgumentType<?> getArgumentType();
 	}
 
@@ -263,7 +264,7 @@ public class SettingFields
 			return Boolean.valueOf(str);
 		}
 
-		@Override public Boolean parseFromCommand(CommandInfo commandInfo)
+		@Override public Boolean parseFromCommand(FullCommandInfo commandInfo)
 		{
 			return commandInfo.getBool("new_value");
 		}
@@ -286,7 +287,7 @@ public class SettingFields
 			return Double.valueOf(str);
 		}
 
-		@Override public Double parseFromCommand(CommandInfo commandInfo)
+		@Override public Double parseFromCommand(FullCommandInfo commandInfo)
 		{
 			return commandInfo.getDouble("new_value");
 		}
@@ -313,7 +314,7 @@ public class SettingFields
 			return (testCommandInput == null || testCommandInput.apply(str)) ? str : defVal;
 		}
 
-		@Override public @Nullable String parseFromCommand(CommandInfo commandInfo)
+		@Override public @Nullable String parseFromCommand(FullCommandInfo commandInfo)
 		{
 			String newValue = commandInfo.getString("new_value");
 			return (testCommandInput == null || testCommandInput.apply(newValue)) ? newValue : null;
@@ -365,7 +366,7 @@ public class SettingFields
 			return Enum.valueOf(enumClass, str.toUpperCase());
 		}
 
-		@Override public @Nullable Enum<T> parseFromCommand(CommandInfo commandInfo)
+		@Override public @Nullable Enum<T> parseFromCommand(FullCommandInfo commandInfo)
 		{
 			String newValue = commandInfo.getString("new_value");
 			try { return Enum.valueOf(enumClass, newValue.toUpperCase()); }

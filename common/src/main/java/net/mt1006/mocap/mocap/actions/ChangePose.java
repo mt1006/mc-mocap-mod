@@ -4,12 +4,13 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Pose;
-import net.mt1006.mocap.mocap.files.RecordingFiles;
-import net.mt1006.mocap.mocap.playing.playback.ActionContext;
+import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
+import net.mt1006.mocap.api.v1.extension.actions.MocapActionContext;
+import net.mt1006.mocap.api.v1.extension.actions.MocapStateAction;
 
 import java.util.EnumMap;
 
-public class ChangePose implements ComparableAction
+public class ChangePose implements MocapStateAction
 {
 	private static final BiMap<Integer, Pose> poseMap;
 	private static final BiMap<Pose, Integer> poseIdMap;
@@ -46,25 +47,24 @@ public class ChangePose implements ComparableAction
 		pose = entity.getPose();
 	}
 
-	public ChangePose(RecordingFiles.Reader reader)
+	public ChangePose(Reader reader)
 	{
 		pose = poseMap.getOrDefault(reader.readInt(), Pose.STANDING);
 	}
 
-	@Override public boolean differs(ComparableAction previousAction)
+	@Override public boolean differs(MocapStateAction previousAction)
 	{
 		return pose != ((ChangePose)previousAction).pose;
 	}
 
-	@Override public void write(RecordingFiles.Writer writer)
+	@Override public void write(Writer writer, MocapRecordingData data)
 	{
-		writer.addByte(Type.CHANGE_POSE.id);
 		writer.addInt(poseIdMap.getOrDefault(pose, 0));
 	}
 
-	@Override public Result execute(ActionContext ctx)
+	@Override public Result execute(MocapActionContext ctx)
 	{
-		ctx.entity.setPose(pose);
+		ctx.getEntity().setPose(pose);
 		return Result.OK;
 	}
 }

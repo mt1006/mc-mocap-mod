@@ -1,11 +1,14 @@
 package net.mt1006.mocap;
 
 import net.minecraft.server.MinecraftServer;
-import net.mt1006.mocap.mocap.actions.Action;
+import net.mt1006.mocap.mocap.actions.ActionType;
 import net.mt1006.mocap.utils.Fields;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MocapMod
 {
@@ -18,6 +21,8 @@ public class MocapMod
 	public static final int NETWORK_PACKETS_VERSION = 5;
 
 	public static final Logger LOGGER = LogManager.getLogger();
+	public static final List<Runnable> toRunOnInit = new ArrayList<>();
+	public static boolean initialized = false;
 	public static boolean isDedicatedServer = false;
 	public static MocapModLoaderInterface loaderInterface = null;
 	public static @Nullable MinecraftServer server = null;
@@ -28,7 +33,14 @@ public class MocapMod
 		MocapMod.loaderInterface = loaderInterface;
 
 		Fields.init();
-		Action.init();
+		ActionType.initTypes();
+	}
+
+	public static void postInit()
+	{
+		toRunOnInit.forEach(Runnable::run);
+		toRunOnInit.clear();
+		initialized = true;
 	}
 
 	public static String getName()

@@ -12,9 +12,9 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.mt1006.mocap.MocapMod;
+import net.mt1006.mocap.api.v1.extension.actions.MocapAction;
 import net.mt1006.mocap.command.io.CommandInfo;
 import net.mt1006.mocap.events.PlayerConnectionEvent;
-import net.mt1006.mocap.mocap.actions.Action;
 import net.mt1006.mocap.mocap.files.RecordingData;
 import net.mt1006.mocap.mocap.files.SceneData;
 import net.mt1006.mocap.mocap.playing.DataManager;
@@ -36,7 +36,7 @@ public class RecordingPlayback extends Playback
 	private RecordingPlayback(CommandInfo commandInfo, @Nullable RecordingData recording, PlaybackModifiers parentModifiers,
 							  @Nullable SceneData.Subscene subscene, @Nullable PositionTransformer parentTransformer) throws StartException
 	{
-		super(subscene == null, commandInfo.level, commandInfo.sourcePlayer, parentModifiers, subscene);
+		super(subscene == null, commandInfo.getLevel(), commandInfo.getSourcePlayer(), parentModifiers, subscene);
 
 		if (recording == null) { throw new StartException(); } //TODO: test if gives error message (especially as subscene)
 		this.recording = recording;
@@ -155,11 +155,11 @@ public class RecordingPlayback extends Playback
 		{
 			while (true)
 			{
-				Action.Result result = recording.executeNext(ctx, pos++);
+				MocapAction.Result result = recording.executeNext(ctx, pos++);
 
 				if (result.endsPlayback)
 				{
-					if (result == Action.Result.ERROR)
+					if (result == MocapAction.Result.ERROR)
 					{
 						Utils.sendMessage(owner, "error.playback_error");
 						MocapMod.LOGGER.error("Something went wrong during playback!");
@@ -174,7 +174,7 @@ public class RecordingPlayback extends Playback
 					finished = true;
 				}
 
-				if (result == Action.Result.REPEAT) { pos--; }
+				if (result == MocapAction.Result.REPEAT_TICK) { pos--; }
 				if (result.endsTick) { break; }
 			}
 		}
@@ -204,8 +204,8 @@ public class RecordingPlayback extends Playback
 	private @Nullable GameProfile getGameProfile(CommandInfo commandInfo)
 	{
 		String profileName = modifiers.playerName;
-		Entity entity = commandInfo.sourceEntity;
-		Level level = commandInfo.level;
+		Entity entity = commandInfo.getSourceEntity();
+		Level level = commandInfo.getLevel();
 
 		if (profileName == null)
 		{
@@ -215,6 +215,6 @@ public class RecordingPlayback extends Playback
 			else { profileName = "Player"; }
 		}
 
-		return ProfileUtils.getGameProfile(commandInfo.server, profileName);
+		return ProfileUtils.getGameProfile(commandInfo.getServer(), profileName);
 	}
 }

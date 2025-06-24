@@ -23,7 +23,7 @@ public abstract class Playback
 	protected final PlaybackModifiers modifiers;
 	protected int tickCounter = 0; //TODO: StartContext?
 
-	public static @Nullable Root start(CommandInfo commandInfo, String name, PlaybackModifiers modifiers, int id)
+	public static @Nullable PlaybackRoot start(CommandInfo commandInfo, String name, PlaybackModifiers modifiers, int id, boolean hideId)
 	{
 		DataManager dataManager = new DataManager();
 		if (!dataManager.load(commandInfo, name))
@@ -38,14 +38,14 @@ public abstract class Playback
 			case RECORDING -> RecordingPlayback.startRoot(commandInfo, dataManager.getRecording(name), modifiers);
 			case SCENE -> ScenePlayback.startRoot(commandInfo, dataManager, name, modifiers);
 		};
-		return playback != null ? new Root(playback, id, name) : null;
+		return playback != null ? new PlaybackRoot(playback, id, name, hideId) : null;
 	}
 
-	public static @Nullable Root start(CommandInfo commandInfo, RecordingData recordingData, String name,
-									   PlaybackModifiers modifiers, int id)
+	public static @Nullable PlaybackRoot start(CommandInfo commandInfo, RecordingData recordingData, String name,
+											   PlaybackModifiers modifiers, int id, boolean hideId)
 	{
 		Playback playback = RecordingPlayback.startRoot(commandInfo, recordingData, modifiers);
-		return playback != null ? new Root(playback, id, name) : null;
+		return playback != null ? new PlaybackRoot(playback, id, name, hideId) : null;
 	}
 
 	protected static @Nullable Playback start(CommandInfo commandInfo, DataManager dataManager, Playback parent, SceneData.Subscene info)
@@ -102,22 +102,6 @@ public abstract class Playback
 			}
 		}
 		return false;
-	}
-
-	public static class Root
-	{
-		public final Playback instance;
-		public final int id;
-		public final String name;
-		public final String suggestionStr;
-
-		public Root(Playback instance, int id, String name)
-		{
-			this.instance = instance;
-			this.id = id;
-			this.name = name;
-			this.suggestionStr = String.format("%03d-%s", id, name);
-		}
 	}
 
 	public static class StartException extends Exception {}

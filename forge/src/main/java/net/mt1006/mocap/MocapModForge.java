@@ -22,6 +22,7 @@ public class MocapModForge implements MocapModLoaderInterface
 		MocapMod.init(isDedicatedServer, this);
 
 		PacketHandler.register();
+		MocapMod.postInit();
 	}
 
 	@Override public String getLoaderName()

@@ -44,6 +44,7 @@
 -Added suggestions for "/mocap playback stop" command.
 -Suggestions for recordings/scenes names no longer require mod to be installed on a client.
 -For scene name suggestions where dot can be omitted, user input without a dot is now properly parsed by suggestion provider.
+-Number of operations in recording information now includes tick operations.
 -Improvements to recording format.
 -Improvements to recording information command output.
 -Improvements to error messages.

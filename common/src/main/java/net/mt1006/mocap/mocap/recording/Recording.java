@@ -48,43 +48,43 @@ public class Recording
 	private static final Collection<RecordingContext> contexts = contextsBySource.values();
 	public static final BiMultimap<ServerPlayer, RecordingContext> waitingForRespawn = new BiMultimap<>();
 
-	public static boolean start(CommandInfo commandInfo, ServerPlayer recordedPlayer, @Nullable String instantSave)
+	public static @Nullable RecordingContext startOrWait(CommandInfo commandInfo, ServerPlayer player,
+														 RecordingSource source, @Nullable String instantSave)
 	{
-		if (!checkDoubleStart(commandInfo, recordedPlayer)) { return false; }
+		if (!checkDoubleStart(commandInfo, player)) { return null; }
 		boolean startInstantly = Settings.START_INSTANTLY.val;
 
-		boolean success = start(recordedPlayer, commandInfo.sourcePlayer, instantSave, startInstantly, true);
-		if (success && !startInstantly)
+		RecordingContext ctx = start(player, source, instantSave, startInstantly, true);
+		if (ctx != null && !startInstantly)
 		{
-			commandInfo.sendSuccess(recordedPlayer.equals(commandInfo.sourcePlayer)
+			commandInfo.sendSuccess(player.equals(commandInfo.getSourcePlayer())
 					? "recording.start.waiting_for_action.self"
 					: "recording.start.waiting_for_action.another_player");
 		}
-		if (!success)
+		if (ctx == null)
 		{
 			commandInfo.sendFailure("recording.start.error");
 		}
-
-		return success;
+		return ctx;
 	}
 
-	public static boolean start(ServerPlayer recordedPlayer, @Nullable ServerPlayer sourcePlayer,
-								@Nullable String instantSave, boolean startNow, boolean sendMessage)
+	public static @Nullable RecordingContext start(ServerPlayer player, RecordingSource source,
+												   @Nullable String instantSave, boolean startNow, boolean sendMessage)
 	{
-		RecordingId id = new RecordingId(contexts, recordedPlayer, sourcePlayer);
-		if (!id.isProper()) { return false; }
+		RecordingId id = new RecordingId(contexts, player, source.name);
+		if (!id.isProper()) { return null; }
 
-		RecordingContext ctx = new RecordingContext(id, recordedPlayer, sourcePlayer, instantSave);
-		contextsBySource.put(sourcePlayer != null ? sourcePlayer.getName().getString() : "", ctx);
+		RecordingContext ctx = new RecordingContext(id, player, source, instantSave);
+		contextsBySource.put(source.name, ctx);
 		CommandSuggestions.inputSet.add(id.str);
 
 		if (startNow) { ctx.start(sendMessage); }
-		return true;
+		return ctx;
 	}
 
 	private static boolean checkDoubleStart(CommandInfo commandInfo, ServerPlayer recordedPlayer)
 	{
-		ServerPlayer sourcePlayer = commandInfo.sourcePlayer;
+		ServerPlayer sourcePlayer = commandInfo.getSourcePlayer();
 		if (sourcePlayer == null) { return true; }
 
 		String recordedPlayerName = recordedPlayer.getName().getString();
@@ -93,7 +93,7 @@ public class Recording
 		{
 			for (RecordingContext ctx : contexts)
 			{
-				if (ctx.sourcePlayer == sourcePlayer && ctx.recordedPlayer == recordedPlayer)
+				if (ctx.source.player == sourcePlayer && ctx.recordedPlayer == recordedPlayer)
 				{
 					handleDoubleStart(commandInfo, ctx);
 					return false;
@@ -130,9 +130,9 @@ public class Recording
 				break;
 		}
 
-		if (addToDoubleStart && ctx.sourcePlayer != null)
+		if (addToDoubleStart && ctx.source.player != null)
 		{
-			CommandsContext.get(ctx.sourcePlayer).doubleStart = ctx.recordedPlayer.getName().getString();
+			CommandsContext.get(ctx.source.player).doubleStart = ctx.recordedPlayer.getName().getString();
 		}
 	}
 
@@ -156,7 +156,7 @@ public class Recording
 		return success;
 	}
 
-	private static boolean stopSingle(CommandInfo commandInfo, RecordingContext ctx)
+	public static boolean stopSingle(CommandInfo commandInfo, RecordingContext ctx)
 	{
 		if (ctx.state == RecordingContext.State.WAITING_FOR_DECISION)
 		{
@@ -177,7 +177,7 @@ public class Recording
 				commandInfo.sendSuccess("recording.stop.stopped");
 				if (Settings.SHOW_TIPS.val)
 				{
-					commandInfo.sendSuccess(quickDiscard.canBeUsed(ctx, commandInfo.sourcePlayer)
+					commandInfo.sendSuccess(quickDiscard.canBeUsed(ctx, commandInfo.getSourcePlayer())
 							? "recording.stop.stopped.stop_tip"
 							: "recording.stop.stopped.discard_tip");
 				}
@@ -241,12 +241,18 @@ public class Recording
 		return true;
 	}
 
+	public static @Nullable RecordingContext resolveSingle(CommandInfo commandInfo, String id)
+	{
+		ResolvedContexts resolvedContexts = ResolvedContexts.resolve(commandInfo, id, false);
+		return (resolvedContexts != null && resolvedContexts.isSingle) ? resolvedContexts.list.iterator().next() : null;
+	}
+
 	private static void refreshSyncOnStop(ResolvedContexts resolvedContexts)
 	{
 		Set<ServerPlayer> players = new HashSet<>();
 		for (RecordingContext ctx : resolvedContexts.list)
 		{
-			if (ctx.sourcePlayer != null) { players.add(ctx.sourcePlayer); }
+			if (ctx.source.player != null) { players.add(ctx.source.player); }
 		}
 
 		for (ServerPlayer player : players)
@@ -273,7 +279,7 @@ public class Recording
 		if (resolvedContexts.isSingle)
 		{
 			RecordingContext ctx = resolvedContexts.list.iterator().next();
-			boolean showQuickDiscardTip = quickDiscard.canBeUsed(ctx, commandInfo.sourcePlayer) && Settings.SHOW_TIPS.val;
+			boolean showQuickDiscardTip = quickDiscard.canBeUsed(ctx, commandInfo.getSourcePlayer()) && Settings.SHOW_TIPS.val;
 			boolean success = discardSingle(commandInfo, ctx);
 
 			if (success && ctx.state == RecordingContext.State.DISCARDED && showQuickDiscardTip)
@@ -288,7 +294,7 @@ public class Recording
 		}
 	}
 
-	private static boolean discardSingle(CommandOutput commandOutput, RecordingContext ctx)
+	public static boolean discardSingle(CommandOutput commandOutput, RecordingContext ctx)
 	{
 		if (ctx.state == RecordingContext.State.RECORDING)
 		{
@@ -578,7 +584,7 @@ public class Recording
 	public static void removeContext(RecordingContext ctx)
 	{
 		waitingForRespawn.removeByValue(ctx);
-		contextsBySource.remove(ctx.sourcePlayer != null ? ctx.sourcePlayer.getName().getString() : "", ctx);
+		contextsBySource.remove(ctx.source.name, ctx);
 		CommandSuggestions.inputSet.remove(ctx.id.str);
 	}
 
@@ -635,7 +641,7 @@ public class Recording
 				return ctx != null ? new ResolvedContexts(List.of(ctx), true, ctx.id) : null;
 			}
 
-			RecordingId id = new RecordingId(idStr, commandInfo.sourcePlayer);
+			RecordingId id = new RecordingId(idStr, commandInfo.getSourceName());
 
 			if (!id.isProper())
 			{
@@ -675,7 +681,7 @@ public class Recording
 
 		private static @Nullable RecordingContext resolveEmpty(CommandInfo commandInfo)
 		{
-			ServerPlayer source = commandInfo.sourcePlayer;
+			ServerPlayer source = commandInfo.getSourcePlayer();
 			if (source == null)
 			{
 				commandInfo.sendFailure("failure.resolve_player");

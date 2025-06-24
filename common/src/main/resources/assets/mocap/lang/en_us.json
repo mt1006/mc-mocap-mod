@@ -170,6 +170,7 @@
   "mocap.playback.start.error.empty_scene.tip": "Use \"/mocap scenes add_to\" to add elements to the scene",
   "mocap.playback.start.error.load_header": "§lError:§r failed to load recording header!",
   "mocap.playback.start.error.profile": "§lError:§r failed to load player profile!",
+  "mocap.playback.start.error.extension.load_header": "§lError:§r extension \"%s\" failed to load its header!",
   "mocap.playback.start.warning.unknown_entity": "Trying to use unknown entity as player - %s",
   "mocap.playback.start.warning.skin.profile": "Failed to load skin from player profile",
   "mocap.playback.start.warning.skin.file": "Failed to load skin from file",
