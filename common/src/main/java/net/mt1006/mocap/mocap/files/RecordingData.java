@@ -42,7 +42,7 @@ public class RecordingData implements MocapRecordingData
 	public static final RecordingData DUMMY = new RecordingData();
 
 	private static final byte FLAGS1_ENDS_WITH_DEATH =           0b00000001;
-	private static final byte FLAGS1_NULL_TERMINATED_STRINGS =   0b00000010;
+	private static final byte FLAGS1_PACKED_SIZE_STRINGS =       0b00000010;
 	private static final byte FLAGS1_HAS_ID_MAPS =               0b00000100;
 	private static final byte FLAGS1_START_DIMENSION_SPECIFIED = 0b00001000;
 	private static final byte FLAGS1_PLAYER_NAME_SPECIFIED =     0b00010000;
@@ -133,7 +133,7 @@ public class RecordingData implements MocapRecordingData
 
 		byte flags1 = 0;
 		flags1 |= endsWithDeath ? FLAGS1_ENDS_WITH_DEATH : 0;
-		flags1 |= FLAGS1_NULL_TERMINATED_STRINGS;
+		flags1 |= FLAGS1_PACKED_SIZE_STRINGS;
 		flags1 |= hasIdMaps ? FLAGS1_HAS_ID_MAPS : 0;
 		flags1 |= startDimension != null ? FLAGS1_START_DIMENSION_SPECIFIED : 0;
 		flags1 |= playerName != null ? FLAGS1_PLAYER_NAME_SPECIFIED : 0;
@@ -180,7 +180,7 @@ public class RecordingData implements MocapRecordingData
 
 		byte flags1 = reader.readByte();
 		endsWithDeath = (flags1 & FLAGS1_ENDS_WITH_DEATH) != 0;
-		reader.setStringMode((flags1 & FLAGS1_NULL_TERMINATED_STRINGS) == 0);
+		reader.setStringMode((flags1 & FLAGS1_PACKED_SIZE_STRINGS) == 0);
 		usesIdMaps = (flags1 & FLAGS1_HAS_ID_MAPS) != 0;
 		boolean startDimensionSpecified = (flags1 & FLAGS1_START_DIMENSION_SPECIFIED) != 0;
 		boolean playerNameSpecified = (flags1 & FLAGS1_PLAYER_NAME_SPECIFIED) != 0;

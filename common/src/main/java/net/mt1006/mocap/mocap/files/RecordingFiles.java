@@ -255,11 +255,11 @@ public class RecordingFiles
 		@Override public void addString(String val)
 		{
 			byte[] bytes = val.getBytes(StandardCharsets.UTF_8);
+			addPackedSize(bytes.length);
 			for (byte b : bytes)
 			{
 				recording.add(b);
 			}
-			recording.add((byte)0);
 		}
 
 		@Override public void addVec3(Vec3 vec)
@@ -379,27 +379,7 @@ public class RecordingFiles
 
 		@Override public String readString()
 		{
-			if (legacyString) { return readLegacyString(); }
-
-			int termPos = -1;
-			for (int i = offset; i < recording.length; i++)
-			{
-				if (recording[i] == 0)
-				{
-					termPos = i;
-					break;
-				}
-			}
-
-			int len = termPos - offset;
-			String str = new String(recording, offset, len, StandardCharsets.UTF_8);
-			offset += len + 1;
-			return str;
-		}
-
-		private String readLegacyString()
-		{
-			int len = readInt();
+			int len = legacyString ? readInt() : readPackedSize();
 			String str = new String(recording, offset, len, StandardCharsets.UTF_8);
 			offset += len;
 			return str;
