@@ -277,6 +277,11 @@ public class RecordingData implements MocapRecordingData
 		}
 	}
 
+	@Override public Vec3 getStartPos()
+	{
+		return startPos;
+	}
+
 	@Override public Item itemFromId(int id)
 	{
 		return itemIdMap.getObject(id);

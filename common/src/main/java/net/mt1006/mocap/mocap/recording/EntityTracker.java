@@ -136,7 +136,7 @@ public class EntityTracker
 			this.ctx = ctx;
 			this.id = id;
 			this.entity = entity;
-			this.positionTracker = new PositionTracker(entity, true);
+			this.positionTracker = new PositionTracker(entity, true, ctx.data.startPos);
 		}
 
 		public void onTick()

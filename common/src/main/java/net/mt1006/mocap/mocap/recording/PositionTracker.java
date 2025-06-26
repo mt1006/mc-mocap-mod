@@ -14,27 +14,25 @@ public class PositionTracker
 {
 	private final Vec3 FAR_AWAY = new Vec3(0.0, 1000000.0, 0.0);
 	private Entity entity;
-	private final double[] position = new double[3];
+	private final Vec3 startPos;
+	private Vec3 pos;
 	private final float[] rotation = new float[2];
 	private float headRot;
-	private boolean isOnGround;
+	private boolean onGround;
 	private boolean forceNonPosDataFlag;
 
-	public PositionTracker(Entity entity, boolean initRotAndGround)
+	public PositionTracker(Entity entity, boolean initRotAndGround, Vec3 startPos)
 	{
 		this.entity = entity;
+		this.startPos = startPos;
 
-		Vec3 posVec = entity.position();
-		position[0] = posVec.x;
-		position[1] = posVec.y;
-		position[2] = posVec.z;
+		this.pos = entity.position();
+		this.rotation[0] = entity.getXRot();
+		this.rotation[1] = entity.getYRot();
+		this.headRot = entity.getYHeadRot();
+		this.onGround = entity.onGround();
 
-		rotation[0] = entity.getXRot();
-		rotation[1] = entity.getYRot();
-		headRot = entity.getYHeadRot();
-		isOnGround = entity.onGround();
-
-		forceNonPosDataFlag = initRotAndGround;
+		this.forceNonPosDataFlag = initRotAndGround;
 	}
 
 	public void setEntity(Entity entity)
@@ -53,15 +51,14 @@ public class PositionTracker
 
 	public void teleportFarAway(List<MocapAction> actionList)
 	{
-		//TODO: replace pos arrays with Vec3
 		Movement movement = Movement.teleportToPos(FAR_AWAY, false);
 		actionList.add(movement);
 
-		movement.applyToPosition(position);
+		pos = movement.getNewPosition(startPos, pos);
 		rotation[0] = 0.0f;
 		rotation[1] = 0.0f;
 		headRot = 0.0f;
-		isOnGround = false;
+		onGround = false;
 	}
 
 	public @Nullable Movement getDelta()
@@ -72,26 +69,25 @@ public class PositionTracker
 	private @Nullable Movement getDelta(boolean applyChanges, boolean forceNonPosData)
 	{
 		float newXRot = entity.getXRot(), newYRot = entity.getYRot(), newHeadRot = entity.getYHeadRot();
-		boolean newIsOnGround = entity.onGround();
+		boolean newOnGround = entity.onGround();
 
-		Movement movement = Movement.delta(position, entity.position(), rotation,
-				newXRot, newYRot, headRot, newHeadRot, isOnGround, newIsOnGround, forceNonPosData);
+		Movement movement = Movement.delta(startPos, pos, entity.position(), rotation,
+				newXRot, newYRot, headRot, newHeadRot, onGround, newOnGround, forceNonPosData);
 
 		if (applyChanges)
 		{
 			rotation[0] = newXRot;
 			rotation[1] = newYRot;
 			headRot = newHeadRot;
-			isOnGround = newIsOnGround;
-			if (movement != null) { movement.applyToPosition(position); }
+			onGround = newOnGround;
+			if (movement != null) { pos = movement.getNewPosition(startPos, pos); }
 		}
-
 		return movement;
 	}
 
-	public void writeToRecordingData(RecordingData data)
+	public void writeStartPos(RecordingData data)
 	{
-		data.startPos = new Vec3(position[0], position[1], position[2]);
+		data.startPos = startPos;
 
 		// unlike in other places, file header has first rotY, than rotX
 		data.startRot[0] = rotation[1];

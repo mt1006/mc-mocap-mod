@@ -79,7 +79,7 @@ public class RightClickBlock implements MocapBlockAction
 
 	@Override public Result execute(MocapActionContext ctx)
 	{
-		Player player = ctx.getPlayerOrDummy();
+		Player player = ctx.getRealOrDummyPlayer();
 		if (player == null) { return Result.IGNORED; }
 
 		InteractionHand interactionHand = offHand ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;

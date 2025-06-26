@@ -12,6 +12,7 @@ import net.minecraft.world.phys.Vec3;
 import net.mt1006.mocap.MocapMod;
 import net.mt1006.mocap.api.impl.modifiers.MocapModifiersImpl;
 import net.mt1006.mocap.api.v1.extension.MocapPositionTransformer;
+import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
 import net.mt1006.mocap.api.v1.extension.actions.MocapActionContext;
 import net.mt1006.mocap.api.v1.modifiers.MocapModifiers;
 import net.mt1006.mocap.events.PlayerConnectionEvent;
@@ -32,6 +33,7 @@ import java.util.function.Supplier;
 
 public class ActionContext implements MocapActionContext
 {
+	private final MocapRecordingData recordingData;
 	private final ServerPlayer owner;
 	private final PlayerList packetTargets;
 	private final EntityData mainEntityData;
@@ -46,7 +48,7 @@ public class ActionContext implements MocapActionContext
 	private Vec3 position;
 	private int repeatCounter = 0;
 
-	public ActionContext(ServerPlayer owner, PlayerList packetTargets, Entity entity, Vec3 startPos,
+	public ActionContext(MocapRecordingData recordingData, ServerPlayer owner, PlayerList packetTargets, Entity entity,
 						 PlaybackModifiers modifiers, @Nullable FakePlayer ghostPlayer, PositionTransformer transformer)
 	{
 		if (!(entity.level() instanceof ServerLevel))
@@ -54,15 +56,21 @@ public class ActionContext implements MocapActionContext
 			throw new RuntimeException("Failed to get ServerLevel for ActionContext!");
 		}
 
+		this.recordingData = recordingData;
 		this.owner = owner;
 		this.packetTargets = packetTargets;
-		this.mainEntityData = new EntityData(entity, startPos);
+		this.mainEntityData = new EntityData(entity, recordingData.getStartPos());
 		this.level = (ServerLevel) entity.level();
 		this.modifiers = MocapModifiersImpl.ofCopy(modifiers); //TODO: merge with modifiers
 		this.ghostPlayer = ghostPlayer;
 		this.transformer = transformer;
 
 		setMainContextEntity();
+	}
+
+	@Override public MocapRecordingData getRecordingData()
+	{
+		return recordingData;
 	}
 
 	@Override public Entity getEntity()
@@ -85,17 +93,17 @@ public class ActionContext implements MocapActionContext
 		return transformer;
 	}
 
-	@Override public @Nullable ServerPlayer getDummy()
+	@Override public @Nullable ServerPlayer getDummyPlayer()
 	{
 		return ghostPlayer;
 	}
 
-	@Override public @Nullable ServerPlayer getPlayerOrDummy()
+	@Override public @Nullable ServerPlayer getRealOrDummyPlayer()
 	{
 		return (entity instanceof ServerPlayer) ? (ServerPlayer)entity : ghostPlayer;
 	}
 
-	@Override public @Nullable ServerPlayer getLivingEntityOrDummy()
+	@Override public @Nullable ServerPlayer getLivingEntityOrDummyPlayer()
 	{
 		return (entity instanceof ServerPlayer) ? (ServerPlayer)entity : ghostPlayer;
 	}
@@ -195,13 +203,14 @@ public class ActionContext implements MocapActionContext
 		playerToRemove.getAdvancements().stopListening();
 	}
 
-	@Override public void changePosition(Vec3 newPos, float rotY, float rotX, boolean shiftXZ, boolean shiftY, boolean transformRot)
+	@Override public Vec3 getPosition()
 	{
-		double x = shiftXZ ? (position.x + newPos.x) : newPos.x;
-		double y = shiftY ? (position.y + newPos.y) : newPos.y;
-		double z = shiftXZ ? (position.z + newPos.z) : newPos.z;
-		position = new Vec3(x, y, z);
+		return position;
+	}
 
+	@Override public void changePosition(Vec3 newPos, float rotY, float rotX, boolean transformRot)
+	{
+		position = newPos;
 		Vec3 finPos = transformer.transformPos(position);
 		float finRotY = transformRot ? transformer.transformRotation(rotY) : rotY;
 

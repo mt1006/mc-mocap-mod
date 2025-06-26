@@ -7,6 +7,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import net.mt1006.mocap.api.v1.extension.MocapPositionTransformer;
+import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
 import net.mt1006.mocap.api.v1.modifiers.MocapModifiers;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,6 +15,8 @@ import java.util.function.Supplier;
 
 public interface MocapActionContext
 {
+	MocapRecordingData getRecordingData();
+
 	Entity getEntity();
 
 	ServerLevel getLevel();
@@ -22,11 +25,11 @@ public interface MocapActionContext
 
 	MocapPositionTransformer getTransformer();
 
-	@Nullable ServerPlayer getDummy();
+	@Nullable ServerPlayer getDummyPlayer();
 
-	@Nullable ServerPlayer getPlayerOrDummy();
+	@Nullable ServerPlayer getRealOrDummyPlayer();
 
-	@Nullable LivingEntity getLivingEntityOrDummy();
+	@Nullable LivingEntity getLivingEntityOrDummyPlayer();
 
 	void setMainContextEntity();
 
@@ -36,7 +39,9 @@ public interface MocapActionContext
 
 	void fluentMovement(Supplier<Packet<?>> packetSupplier);
 
-	void changePosition(Vec3 newPos, float rotY, float rotX, boolean shiftXZ, boolean shiftY, boolean transformRot);
+	Vec3 getPosition();
+
+	void changePosition(Vec3 newPos, float rotY, float rotX, boolean transformRot);
 
 	void addEntity(int id, Entity entity, Vec3 position);
 

@@ -35,7 +35,7 @@ public class ChatMessage implements MocapAction
 	@Override public Result execute(MocapActionContext ctx)
 	{
 		if (!Settings.CHAT_PLAYBACK.val) { return Result.IGNORED; }
-		ServerPlayer player = ctx.getPlayerOrDummy();
+		ServerPlayer player = ctx.getRealOrDummyPlayer();
 		if (player == null) { return Result.IGNORED; }
 
 		MinecraftServer server = ctx.getLevel().getServer();

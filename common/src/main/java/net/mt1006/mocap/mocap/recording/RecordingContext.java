@@ -38,11 +38,11 @@ public class RecordingContext implements MocapActiveRecordingActions
 		this.id = id;
 		this.recordedPlayer = recordedPlayer;
 		this.source = source;
-		this.positionTracker = new PositionTracker(recordedPlayer, false);
+		this.positionTracker = new PositionTracker(recordedPlayer, false, recordedPlayer.position());
 		this.entityFilter = EntityFilter.FOR_RECORDING;
 		this.instantSave = instantSave;
 
-		this.positionTracker.writeToRecordingData(data);
+		this.positionTracker.writeStartPos(data);
 
 		//if (Settings.ASSIGN_DIMENSIONS.val) { data.startDimension = recordedPlayer.level().dimension().location().toString(); } //TODO: restore
 		if (Settings.ASSIGN_PLAYER_NAME.val) { data.playerName = recordedPlayer.getName().getString(); }

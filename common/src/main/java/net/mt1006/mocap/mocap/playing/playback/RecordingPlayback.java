@@ -121,7 +121,7 @@ public class RecordingPlayback extends Playback
 			}
 		}
 
-		this.ctx = new ActionContext(owner, packetTargets, entity, recording.startPos, modifiers, ghost, transformer);
+		this.ctx = new ActionContext(recording, owner, packetTargets, entity, modifiers, ghost, transformer);
 	}
 
 	protected static @Nullable RecordingPlayback startRoot(CommandInfo commandInfo, @Nullable RecordingData recording, PlaybackModifiers modifiers)

@@ -155,7 +155,7 @@ public class ChangeItem implements MocapStateAction
 			return Result.ERROR;
 		}
 
-		LivingEntity livingEntity = ctx.getLivingEntityOrDummy();
+		LivingEntity livingEntity = ctx.getLivingEntityOrDummyPlayer();
 		if (livingEntity == null) { return Result.IGNORED; }
 
 		setEntityItems(livingEntity);

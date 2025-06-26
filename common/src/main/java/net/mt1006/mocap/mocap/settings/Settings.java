@@ -40,7 +40,7 @@ public class Settings
 	public static final SettingFields.BooleanField INVULNERABLE_PLAYBACK = PLAYBACK.add(fields.add("invulnerable_playback", true));
 
 	public static final SettingFields.DoubleField FLUENT_MOVEMENTS = ADVANCED.add(fields.add("fluent_movements", 32.0));
-	//public static final SettingFields.DoubleField MOVEMENT_PRECISION = ADVANCED.add(fields.add("movement_precision", 4096.0));
+	public static final SettingFields.DoubleField MAX_FLOAT_POS_VALUE = ADVANCED.add(fields.add("max_float_pos_value", 1024.0));
 	//public static final SettingFields.BooleanField PRECISE_ROTATION_RECORDING = ADVANCED.add(fields.add("precise_rotation_recording", true));
 	//public static final SettingFields.BooleanField PRECISE_ROTATION_PLAYBACK = ADVANCED.add(fields.add("precise_rotation_playback", false)); //TODO: restore?
 	public static final SettingFields.BooleanField ALLOW_MINESKIN_REQUESTS = ADVANCED.add(fields.add("allow_mineskin_requests", true));

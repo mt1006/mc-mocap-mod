@@ -31,7 +31,7 @@ public class MovementLegacy implements MocapAction
 
 	@Override public Result execute(MocapActionContext ctx)
 	{
-		ctx.changePosition(position, rotation[1], rotation[0], true, true, true);
+		ctx.changePosition(ctx.getPosition().add(position), rotation[1], rotation[0], true);
 
 		ctx.getEntity().setOnGround(isOnGround);
 		((EntityFields)ctx.getEntity()).callCheckInsideBlocks();
