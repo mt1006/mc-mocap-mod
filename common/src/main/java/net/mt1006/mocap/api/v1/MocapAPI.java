@@ -81,6 +81,5 @@ public final class MocapAPI
 		{
 			return MocapMod.SCENE_FORMAT_VERSION;
 		}
-
 	}
 }

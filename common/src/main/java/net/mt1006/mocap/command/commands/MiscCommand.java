@@ -3,6 +3,8 @@ package net.mt1006.mocap.command.commands;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.mt1006.mocap.api.impl.extenstion.Extensions;
+import net.mt1006.mocap.api.impl.extenstion.MocapExtensionImpl;
 import net.mt1006.mocap.command.CommandSuggestions;
 import net.mt1006.mocap.command.CommandUtils;
 import net.mt1006.mocap.command.CommandsContext;
@@ -11,6 +13,8 @@ import net.mt1006.mocap.command.io.CommandOutput;
 import net.mt1006.mocap.events.PlayerConnectionEvent;
 import net.mt1006.mocap.mocap.playing.skins.CustomServerSkinManager;
 import net.mt1006.mocap.network.MocapPacketS2C;
+
+import java.util.Collection;
 
 public class MiscCommand
 {
@@ -23,7 +27,7 @@ public class MiscCommand
 			then(Commands.literal("disable").executes(CommandUtils.command(MiscCommand::syncDisable))));
 		commandBuilder.then(Commands.literal("clear_cache").executes(CommandUtils.command(MiscCommand::clearCache)));
 		commandBuilder.then(Commands.literal("refresh_suggestions").executes(CommandUtils.command(MiscCommand::refreshSuggestions)));
-		//TODO: add "api"
+		commandBuilder.then(Commands.literal("extensions").executes(CommandUtils.command(MiscCommand::extensions)));
 
 		return commandBuilder;
 	}
@@ -68,6 +72,26 @@ public class MiscCommand
 	{
 		CommandSuggestions.refresh();
 		commandOutput.sendSuccess("misc.refresh_suggestions.success");
+		return true;
+	}
+
+	private static boolean extensions(CommandOutput commandOutput)
+	{
+		Collection<MocapExtensionImpl> extensions = Extensions.getExtensions();
+		if (extensions.isEmpty())
+		{
+			commandOutput.sendSuccess("misc.extensions.no_extensions");
+		}
+		else
+		{
+			commandOutput.sendSuccess("misc.extensions.list");
+			for (MocapExtensionImpl ext : extensions)
+			{
+				int version = ext.getVersion();
+				if (version >= 0) { commandOutput.sendSuccess("misc.extensions.info", ext.getId(), version); }
+				else { commandOutput.sendSuccess("misc.extensions.info.experimental", ext.getId(), -version); }
+			}
+		}
 		return true;
 	}
 }

@@ -6,6 +6,7 @@
 -Added command to set playback modifiers - "/mocap playback modifiers".
 -Added command to clear server and clients mocap cache - "/mocap misc clear_cache".
 -Added command to refresh suggestions for files - "/mocap misc refresh_suggestions".
+-Added command to list API extensions - "/mocap misc extensions".
 -Added support for custom NBT data with "player_as_entity" modifier.
 -Added player chat messages recording and associated with it settings: "chat_recording" (false by default) and "chat_playback" (true by default).
 -Added "transformations" playback modifier group and moved "offset" into it.
@@ -37,6 +38,7 @@
 -Added "for_all_players" optional argument to "/mocap playback stop_all".
 -Added "instant_save" optional argument to "/mocap recording start" to instantly save recording after stopping it (thanks to Antimality for suggesiton).
 -Renamed "from_..." to "skin_from_..." simple modifiers in "playback start" and "scene add_to" commands.
+-Added API.
 -It's now possible to add player_as_entity modifier using simple modifiers (thanks to Narfu for suggestion).
 -Item types and block states are now stored using string IDs (instead of numeric IDs), providing better compatibility between different Minecraft versions and modpacks.
 -Scene format is now JSON-based.

@@ -264,7 +264,13 @@
   "mocap.misc.sync.disable.not_changed": "Synchronizacja już była wyłączona",
 
   "mocap.misc.clear_cache.success": "Pamięć podręczna wyczyszczona",
+
   "mocap.misc.refresh_suggestions.success": "Sugestie odświeżone",
+
+  "mocap.misc.extensions.no_extensions": "Brak zarejestrowanych rozszerzeń",
+  "mocap.misc.extensions.list": "Zarejestrowane rozszerzenia:",
+  "mocap.misc.extensions.info": "%s (wersja %d)",
+  "mocap.misc.extensions.info.experimental": "%s (wersja %d-exp)",
 
 
   "mocap.help": "%s - §lPomoc§r\n  /mocap recording [...] - Nagrywanie ruchów gracza\n  /mocap recordings [...] - Zarządzanie plikami nagrań\n  /mocap scenes [...] - Tworzenie i modyfikowanie scen\n  /mocap playback [...] - Odtwarzanie scen i nagrań\n  /mocap settings [...] - Pokazuje i modyfikuje ustawienia\n  /mocap info - Pokazuje informacje o modzie\n  /mocap help - Pokazuje tą wiadomość\n§lJak używać:§r\n- Najpierw musisz rozpocząć nagrywanie używając \"/mocap recording start\". Nagrane zostaną wszystkie ruchy twoje lub ruchy gracza danego jako argument w poleceniu.\n- Następnie, możesz przerwać nagrywanie przy użyciu \"/mocap recording stop\" i zapisać je używając \"/mocap recording save <nazwa>\".\n- Użyj \"/mocap playback start <nazwa>\" aby odtworzyć nagranie.\n- Możesz także tworzyć sceny do których można dodawać wiele nagrań lub innych scen, z parametrami takimi jak nazwa gracza, przesunięcie pozycji, czy opóźnienie startu.\n- Aby utworzyć scenę użyj \"/mocap scenes add <nazwa_sceny>\". Następnie, dodaj swoje nagranie używając \"/mocap scenes add_to <nazwa_sceny> <nazwa_nagrania> [nazwa_gracza] [typ_źródła_skórki] [źródło_skórki]\" (możesz pominąć argumenty w nawiasach kwadratowych, jeśli chcesz).\n- Aby odtworzyć scenę użyj \"/mocap playback start .<nazwa_sceny>\" - musisz umieścić kropkę przed nazwą sceny.\n- Umieszczając kropkę przed nazwą, kiedy korzystasz z \"/mocap scenes add_to ...\", możesz także dodawać sceny do innej sceny.",

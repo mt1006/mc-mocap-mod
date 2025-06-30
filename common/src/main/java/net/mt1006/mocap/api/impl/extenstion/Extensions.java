@@ -4,6 +4,7 @@ import net.mt1006.mocap.MocapMod;
 import net.mt1006.mocap.api.v1.extension.MocapExtension;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,5 +36,10 @@ public class Extensions
 	{
 		MocapExtension extension = extensions.get(id);
 		return (extension == null || Math.abs(extension.getVersion()) < minVersion) ? null : extension;
+	}
+
+	public static Collection<MocapExtensionImpl> getExtensions()
+	{
+		return extensions.values();
 	}
 }

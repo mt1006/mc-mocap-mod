@@ -12,7 +12,6 @@ import net.mt1006.mocap.mocap.files.SceneFiles;
 import net.mt1006.mocap.mocap.playing.Playing;
 import net.mt1006.mocap.mocap.playing.playback.PlaybackRoot;
 import net.mt1006.mocap.mocap.recording.Recording;
-import net.mt1006.mocap.mocap.recording.RecordingContext;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
