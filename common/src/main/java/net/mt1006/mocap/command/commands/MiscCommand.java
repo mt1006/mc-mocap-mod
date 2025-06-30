@@ -22,6 +22,7 @@ public class MiscCommand
 			then(Commands.literal("enable").executes(CommandUtils.command(MiscCommand::syncEnable))).
 			then(Commands.literal("disable").executes(CommandUtils.command(MiscCommand::syncDisable))));
 		commandBuilder.then(Commands.literal("clear_cache").executes(CommandUtils.command(MiscCommand::clearCache)));
+		commandBuilder.then(Commands.literal("refresh_suggestions").executes(CommandUtils.command(MiscCommand::refreshSuggestions)));
 		//TODO: add "api"
 
 		return commandBuilder;
@@ -59,7 +60,14 @@ public class MiscCommand
 		CustomServerSkinManager.clearCache();
 		PlayerConnectionEvent.players.forEach(MocapPacketS2C::sendClearCache);
 
-		commandOutput.sendSuccess("misc.clear_cache.cleared");
+		commandOutput.sendSuccess("misc.clear_cache.success");
+		return true;
+	}
+
+	private static boolean refreshSuggestions(CommandOutput commandOutput)
+	{
+		CommandSuggestions.refresh();
+		commandOutput.sendSuccess("misc.refresh_suggestions.success");
 		return true;
 	}
 }

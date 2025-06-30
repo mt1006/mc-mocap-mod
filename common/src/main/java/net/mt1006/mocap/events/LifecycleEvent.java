@@ -17,7 +17,7 @@ public class LifecycleEvent
 		MocapMod.server = server;
 		Files.init();
 		Settings.load();
-		CommandSuggestions.initInputSet();
+		CommandSuggestions.refresh();
 	}
 
 	public static void onServerStop()

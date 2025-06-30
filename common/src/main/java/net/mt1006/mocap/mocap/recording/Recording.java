@@ -588,6 +588,11 @@ public class Recording
 		CommandSuggestions.inputSet.remove(ctx.id.str);
 	}
 
+	public static Collection<RecordingContext> allContexts()
+	{
+		return contexts;
+	}
+
 	public static void onServerStop()
 	{
 		waitingForRespawn.clear();

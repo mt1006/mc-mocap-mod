@@ -254,7 +254,7 @@ public class SceneFiles
 		String[] fileList = Files.sceneDirectory.list(Files::isSceneFile);
 		if (fileList == null) { return null; }
 
-		ArrayList<String> scenes = new ArrayList<>();
+		List<String> scenes = new ArrayList<>();
 		for (String filename : fileList)
 		{
 			scenes.add("." + filename.substring(0, filename.lastIndexOf('.')));

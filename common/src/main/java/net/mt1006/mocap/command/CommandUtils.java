@@ -39,7 +39,8 @@ public class CommandUtils
 																			Command<CommandSourceStack> command, boolean addPlayerAsEntity)
 	{
 		builder.then(Commands.literal("skin_from_player").then(Commands.argument("skin_player_name", StringArgumentType.greedyString()).executes(command)));
-		builder.then(Commands.literal("skin_from_file").then(Commands.argument("skin_filename", StringArgumentType.greedyString()).executes(command)));
+		builder.then(Commands.literal("skin_from_file").then(Commands.argument("skin_filename",
+				StringArgumentType.greedyString()).suggests(CommandSuggestions::skinFile).executes(command)));
 		builder.then(Commands.literal("skin_from_mineskin").then(Commands.argument("mineskin_url", StringArgumentType.greedyString()).executes(command)));
 		if (addPlayerAsEntity)
 		{

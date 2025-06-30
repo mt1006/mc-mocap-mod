@@ -5,6 +5,7 @@
 -Added command to discard recordings - "/mocap recording discard".
 -Added command to set playback modifiers - "/mocap playback modifiers".
 -Added command to clear server and clients mocap cache - "/mocap misc clear_cache".
+-Added command to refresh suggestions for files - "/mocap misc refresh_suggestions".
 -Added support for custom NBT data with "player_as_entity" modifier.
 -Added player chat messages recording and associated with it settings: "chat_recording" (false by default) and "chat_playback" (true by default).
 -Added "transformations" playback modifier group and moved "offset" into it.
@@ -42,9 +43,10 @@
 -Recording now continues for short period after player death.
 -Added suggestions for "/mocap scenes modify" "to_modify" argument.
 -Added suggestions for "/mocap playback stop" command.
+-Added suggestions for skins from files.
 -Suggestions for recordings/scenes names no longer require mod to be installed on a client.
 -For scene name suggestions where dot can be omitted, user input without a dot is now properly parsed by suggestion provider.
--Number of operations in recording information now includes tick operations.
+-Number of operations in recording information now counts tick operations.
 -Improvements to recording format.
 -Improvements to recording information command output.
 -Improvements to error messages.

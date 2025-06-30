@@ -142,7 +142,7 @@ public class RecordingFiles
 		String[] fileList = Files.recordingsDirectory.list(Files::isRecordingFile);
 		if (fileList == null) { return null; }
 
-		ArrayList<String> recordings = new ArrayList<>(fileList.length);
+		List<String> recordings = new ArrayList<>(fileList.length);
 		for (String filename : fileList)
 		{
 			recordings.add(filename.substring(0, filename.lastIndexOf('.')));
