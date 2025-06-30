@@ -170,6 +170,7 @@
   "mocap.playback.start.error.empty_scene.tip": "Użyj \"/mocap scenes add_to\" aby dodać elementy do sceny",
   "mocap.playback.start.error.load_header": "§lBłąd:§r nie udało się załadować nagłówka nagrania!",
   "mocap.playback.start.error.profile": "§lBłąd:§r nie udało się załadować profilu gracza!",
+  "mocap.playback.start.error.extension.load_header": "§lBłąd:§r rozszerzeniu \"%s\" nie udało się załadować swojego nagłówka!",
   "mocap.playback.start.warning.unknown_entity": "Próba użycia nieznanego bytu jako gracza - %s",
   "mocap.playback.start.warning.skin.profile": "Nie udało się załadować skórki z profilu gracza",
   "mocap.playback.start.warning.skin.file": "Nie udało się załadować skórki z pliku",
@@ -262,7 +263,8 @@
   "mocap.misc.sync.disable.changed": "Synchronizacja wyłączona",
   "mocap.misc.sync.disable.not_changed": "Synchronizacja już była wyłączona",
 
-  "mocap.misc.clear_cache.cleared": "Pamięć podręczna wyczyszczona",
+  "mocap.misc.clear_cache.success": "Pamięć podręczna wyczyszczona",
+  "mocap.misc.refresh_suggestions.success": "Sugestie odświeżone",
 
 
   "mocap.help": "%s - §lPomoc§r\n  /mocap recording [...] - Nagrywanie ruchów gracza\n  /mocap recordings [...] - Zarządzanie plikami nagrań\n  /mocap scenes [...] - Tworzenie i modyfikowanie scen\n  /mocap playback [...] - Odtwarzanie scen i nagrań\n  /mocap settings [...] - Pokazuje i modyfikuje ustawienia\n  /mocap info - Pokazuje informacje o modzie\n  /mocap help - Pokazuje tą wiadomość\n§lJak używać:§r\n- Najpierw musisz rozpocząć nagrywanie używając \"/mocap recording start\". Nagrane zostaną wszystkie ruchy twoje lub ruchy gracza danego jako argument w poleceniu.\n- Następnie, możesz przerwać nagrywanie przy użyciu \"/mocap recording stop\" i zapisać je używając \"/mocap recording save <nazwa>\".\n- Użyj \"/mocap playback start <nazwa>\" aby odtworzyć nagranie.\n- Możesz także tworzyć sceny do których można dodawać wiele nagrań lub innych scen, z parametrami takimi jak nazwa gracza, przesunięcie pozycji, czy opóźnienie startu.\n- Aby utworzyć scenę użyj \"/mocap scenes add <nazwa_sceny>\". Następnie, dodaj swoje nagranie używając \"/mocap scenes add_to <nazwa_sceny> <nazwa_nagrania> [nazwa_gracza] [typ_źródła_skórki] [źródło_skórki]\" (możesz pominąć argumenty w nawiasach kwadratowych, jeśli chcesz).\n- Aby odtworzyć scenę użyj \"/mocap playback start .<nazwa_sceny>\" - musisz umieścić kropkę przed nazwą sceny.\n- Umieszczając kropkę przed nazwą, kiedy korzystasz z \"/mocap scenes add_to ...\", możesz także dodawać sceny do innej sceny.",
@@ -305,5 +307,7 @@
   "mocap.error.failed_to_init_directories": "§lBłąd:§r nie udało się zainicjalizować folderów!",
   "mocap.error.unable_to_get_argument": "§lBłąd:§r nie udało się pobrać argumentów!",
   "mocap.error.failed_to_load_scene": "§lBłąd:§r nie udało się załadować pliku sceny!",
-  "mocap.error.failed_to_load_scene.not_supported": "§lBłąd:§r nie udało się załadować pliku sceny!\nNiewspierana wersja pliku sceny"
+  "mocap.error.failed_to_load_scene.not_supported": "§lBłąd:§r nie udało się załadować pliku sceny!\nNiewspierana wersja pliku sceny",
+
+  "modmenu.descriptionTranslation.mocap": "Pozwala na nagrywanie i odtwarzanie ruchów graczy."
 }
