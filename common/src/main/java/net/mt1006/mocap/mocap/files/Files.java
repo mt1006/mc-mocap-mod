@@ -160,6 +160,12 @@ public class Files
 		return !file.isDirectory() && name.endsWith(SCENE_EXTENSION) && checkIfProperName(CommandOutput.DUMMY, name);
 	}
 
+	public static boolean isSkinFile(File directory, String name)
+	{
+		File file = new File(directory, name);
+		return !file.isDirectory() && name.endsWith(SKIN_EXTENSION) && checkIfProperName(CommandOutput.DUMMY, name);
+	}
+
 	public static boolean isAllowedInInputName(int c)
 	{
 		return (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_' || c == '-' || c == '.';

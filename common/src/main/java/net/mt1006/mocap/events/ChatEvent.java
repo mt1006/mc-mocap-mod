@@ -4,16 +4,21 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.mt1006.mocap.mocap.actions.ChatMessage;
 import net.mt1006.mocap.mocap.recording.Recording;
-import net.mt1006.mocap.mocap.settings.Settings;
+import net.mt1006.mocap.mocap.recording.RecordingContext;
 
 public class ChatEvent
 {
 	public static void onChatMessage(Component message, ServerPlayer sender)
 	{
-		if (Recording.isActive() && Settings.CHAT_RECORDING.val)
+		if (Recording.isActive())
 		{
-			Recording.byRecordedPlayer(sender).forEach((ctx) -> ctx.addAction(
-					new ChatMessage(Component.Serializer.toJson(message, sender.server.registryAccess()))));
+			for (RecordingContext ctx : Recording.byRecordedPlayer(sender))
+			{
+				if (ctx.config.getChatRecording())
+				{
+					ctx.addAction(new ChatMessage(Component.Serializer.toJson(message, sender.server.registryAccess())));
+				}
+			}
 		}
 	}
 }

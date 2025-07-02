@@ -10,11 +10,16 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.mt1006.mocap.MocapMod;
+import net.mt1006.mocap.api.impl.modifiers.MocapModifiersImpl;
+import net.mt1006.mocap.api.v1.controller.config.MocapPlaybackConfig;
+import net.mt1006.mocap.api.v1.extension.MocapPositionTransformer;
+import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
+import net.mt1006.mocap.api.v1.extension.actions.MocapActionContext;
+import net.mt1006.mocap.api.v1.modifiers.MocapModifiers;
 import net.mt1006.mocap.events.PlayerConnectionEvent;
 import net.mt1006.mocap.mocap.playing.Playing;
 import net.mt1006.mocap.mocap.playing.modifiers.PlaybackModifiers;
 import net.mt1006.mocap.mocap.settings.Settings;
-import net.mt1006.mocap.mocap.settings.enums.EntitiesAfterPlayback;
 import net.mt1006.mocap.network.MocapPacketS2C;
 import net.mt1006.mocap.utils.FakePlayer;
 import net.mt1006.mocap.utils.Utils;
@@ -26,44 +31,96 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-public class ActionContext
+public class ActionContext implements MocapActionContext
 {
+	private final MocapRecordingData recordingData;
 	private final ServerPlayer owner;
 	private final PlayerList packetTargets;
 	private final EntityData mainEntityData;
 	public final Map<Integer, EntityData> entityDataMap = new HashMap<>();
 	public final ServerLevel level;
-	public final PlaybackModifiers modifiers;
+	private final MocapPlaybackConfig config;
+	private final MocapModifiers modifiers;
 	public final @Nullable FakePlayer ghostPlayer;
 	public final PositionTransformer transformer;
 	private boolean mainEntityRemoved = false;
 	private @Nullable EntityData currentEntityData = null;
 	public Entity entity;
 	private Vec3 position;
-	public int skippingTicks = 0;
+	private int repeatCounter = 0;
 
-	public ActionContext(ServerPlayer owner, PlayerList packetTargets, Entity entity, Vec3 startPos,
-						 PlaybackModifiers modifiers, @Nullable FakePlayer ghostPlayer, PositionTransformer transformer)
+	public ActionContext(MocapRecordingData recordingData, ServerPlayer owner, PlayerList packetTargets, Entity entity,
+						 MocapPlaybackConfig config, PlaybackModifiers modifiers, @Nullable FakePlayer ghostPlayer, PositionTransformer transformer)
 	{
-		if (!(entity.level() instanceof ServerLevel)) { throw new RuntimeException("Failed to get ServerLevel for ActionContext!"); }
+		if (!(entity.level() instanceof ServerLevel))
+		{
+			throw new RuntimeException("Failed to get ServerLevel for ActionContext!");
+		}
 
+		this.recordingData = recordingData;
 		this.owner = owner;
 		this.packetTargets = packetTargets;
-		this.mainEntityData = new EntityData(entity, startPos);
-		this.level = (ServerLevel)entity.level();
-		this.modifiers = modifiers;
+		this.mainEntityData = new EntityData(entity, recordingData.getStartPos());
+		this.level = (ServerLevel) entity.level();
+		this.config = config;
+		this.modifiers = MocapModifiersImpl.ofCopy(modifiers); //TODO: merge with modifiers
 		this.ghostPlayer = ghostPlayer;
 		this.transformer = transformer;
 
 		setMainContextEntity();
 	}
 
-	public void setMainContextEntity()
+	@Override public MocapRecordingData getRecordingData()
+	{
+		return recordingData;
+	}
+
+	@Override public Entity getEntity()
+	{
+		return entity;
+	}
+
+	@Override public ServerLevel getLevel()
+	{
+		return level;
+	}
+
+	@Override public MocapPlaybackConfig getConfig()
+	{
+		return config;
+	}
+
+	@Override public MocapModifiers getModifiers()
+	{
+		return modifiers;
+	}
+
+	@Override public MocapPositionTransformer getTransformer()
+	{
+		return transformer;
+	}
+
+	@Override public @Nullable ServerPlayer getDummyPlayer()
+	{
+		return ghostPlayer;
+	}
+
+	@Override public @Nullable ServerPlayer getRealOrDummyPlayer()
+	{
+		return (entity instanceof ServerPlayer) ? (ServerPlayer)entity : ghostPlayer;
+	}
+
+	@Override public @Nullable ServerPlayer getLivingEntityOrDummyPlayer()
+	{
+		return (entity instanceof ServerPlayer) ? (ServerPlayer)entity : ghostPlayer;
+	}
+
+	@Override public void setMainContextEntity()
 	{
 		setContextEntity(mainEntityData);
 	}
 
-	public boolean setContextEntity(int id)
+	@Override public boolean setContextEntity(int id)
 	{
 		EntityData data = entityDataMap.get(id);
 		if (data == null) { return false; }
@@ -81,12 +138,12 @@ public class ActionContext
 		position = data.lastPosition;
 	}
 
-	public void broadcast(Packet<?> packet)
+	@Override public void broadcast(Packet<?> packet)
 	{
 		packetTargets.broadcastAll(packet);
 	}
 
-	public void fluentMovement(Supplier<Packet<?>> packetSupplier)
+	@Override public void fluentMovement(Supplier<Packet<?>> packetSupplier)
 	{
 		double fluentMovements = Settings.FLUENT_MOVEMENTS.val;
 		if (fluentMovements == 0.0) { return; }
@@ -153,13 +210,14 @@ public class ActionContext
 		playerToRemove.getAdvancements().stopListening();
 	}
 
-	public void changePosition(Vec3 newPos, float rotY, float rotX, boolean shiftXZ, boolean shiftY, boolean transformRot)
+	@Override public Vec3 getPosition()
 	{
-		double x = shiftXZ ? (position.x + newPos.x) : newPos.x;
-		double y = shiftY ? (position.y + newPos.y) : newPos.y;
-		double z = shiftXZ ? (position.z + newPos.z) : newPos.z;
-		position = new Vec3(x, y, z);
+		return position;
+	}
 
+	@Override public void changePosition(Vec3 newPos, float rotY, float rotX, boolean transformRot)
+	{
+		position = newPos;
 		Vec3 finPos = transformer.transformPos(position);
 		float finRotY = transformRot ? transformer.transformRotation(rotY) : rotY;
 
@@ -191,23 +249,53 @@ public class ActionContext
 		if (ghostPlayer != null) { ghostPlayer.changeDimension(dimensionTransition); }
 	}*/
 
-	private static void removeEntity(Entity entity, ServerLevel level)
+	@Override public void addEntity(int id, Entity entity, Vec3 position)
 	{
-		switch (Settings.ENTITIES_AFTER_PLAYBACK.val)
+		entityDataMap.put(id, new EntityData(entity, position));
+	}
+
+	@Override public @Nullable EntityData getEntityData(int id)
+	{
+		return entityDataMap.get(id);
+	}
+
+	@Override public boolean hasEntity(int id)
+	{
+		return entityDataMap.containsKey(id);
+	}
+
+	@Override public void incrementRepeatCounter()
+	{
+		repeatCounter++;
+	}
+
+	@Override public boolean shouldStopRepeat(int iter)
+	{
+		if (repeatCounter == iter)
 		{
-			case EntitiesAfterPlayback.REMOVE:
+			repeatCounter = 0;
+			return true;
+		}
+		return false;
+	}
+
+	private void removeEntity(Entity entity, ServerLevel level)
+	{
+		switch (config.getEntitiesAfterPlayback())
+		{
+			case REMOVE:
 				entity.remove(Entity.RemovalReason.KILLED);
 
-			case EntitiesAfterPlayback.KILL:
+			case KILL:
 				entity.invulnerableTime = 0; // for sound effect
 				if (entity instanceof FakePlayer) { ((FakePlayer)entity).fakeKill(); }
 				else { entity.kill(level); }
 				break;
 
-			case EntitiesAfterPlayback.LEFT_UNTOUCHED:
+			case LEFT_UNTOUCHED:
 				break;
 
-			case EntitiesAfterPlayback.RELEASE_AS_NORMAL:
+			case RELEASE_AS_NORMAL:
 				entity.setNoGravity(false);
 				entity.setInvulnerable(false);
 				entity.removeTag(Playing.MOCAP_ENTITY_TAG);
@@ -215,19 +303,7 @@ public class ActionContext
 				break;
 
 			default:
-				throw new IllegalStateException("Unexpected value: " + Settings.ENTITIES_AFTER_PLAYBACK.val);
-		}
-	}
-
-	public static class EntityData
-	{
-		public final Entity entity;
-		public Vec3 lastPosition;
-
-		public EntityData(Entity entity, Vec3 startPos)
-		{
-			this.entity = entity;
-			this.lastPosition = startPos;
+				throw new IllegalStateException("Unexpected value: " + config.getEntitiesAfterPlayback());
 		}
 	}
 }

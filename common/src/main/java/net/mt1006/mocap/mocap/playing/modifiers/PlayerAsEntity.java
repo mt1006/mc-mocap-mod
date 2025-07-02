@@ -9,11 +9,12 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
+import net.mt1006.mocap.api.v1.modifiers.MocapPlayerAsEntity;
 import net.mt1006.mocap.mocap.files.SceneFiles;
 import net.mt1006.mocap.utils.Utils;
 import org.jetbrains.annotations.Nullable;
 
-public class PlayerAsEntity
+public class PlayerAsEntity implements MocapPlayerAsEntity
 {
 	public static final PlayerAsEntity DISABLED = new PlayerAsEntity(null, null);
 
@@ -47,6 +48,29 @@ public class PlayerAsEntity
 		this.compoundTag = prepareCompoundTag(entityId, entityNbt);
 	}
 
+	@Override public boolean isEnabled()
+	{
+		return entityId != null;
+	}
+
+	@Override public @Nullable ResourceLocation getEntityId()
+	{
+		return entityId != null ? ResourceLocation.tryParse(entityId) : null;
+	}
+
+	@Override public @Nullable EntityType<?> getEntityType()
+	{
+		ResourceLocation id = getEntityId();
+		if (id == null || !BuiltInRegistries.ENTITY_TYPE.containsKey(id)) { return null; }
+		Holder.Reference<EntityType<?>> entityTypeRef = BuiltInRegistries.ENTITY_TYPE.get(id).orElse(null);
+		return entityTypeRef != null ? entityTypeRef.value() : null;
+	}
+
+	@Override public @Nullable String getNbt()
+	{
+		return entityNbt;
+	}
+
 	public @Nullable SceneFiles.Writer save()
 	{
 		if (!isEnabled()) { return null; }
@@ -56,11 +80,6 @@ public class PlayerAsEntity
 		writer.addString("nbt", entityNbt);
 
 		return writer;
-	}
-
-	public boolean isEnabled()
-	{
-		return entityId != null;
 	}
 
 	public @Nullable Entity createEntity(Level level)

@@ -15,17 +15,17 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.mt1006.mocap.MocapMod;
+import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
+import net.mt1006.mocap.api.v1.extension.actions.MocapActionContext;
+import net.mt1006.mocap.api.v1.extension.actions.MocapStateAction;
 import net.mt1006.mocap.mixin.fields.LivingEntityFields;
-import net.mt1006.mocap.mocap.files.RecordingData;
-import net.mt1006.mocap.mocap.files.RecordingFiles;
-import net.mt1006.mocap.mocap.playing.playback.ActionContext;
 import net.mt1006.mocap.utils.Utils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ChangeItem implements ComparableAction
+public class ChangeItem implements MocapStateAction
 {
 	private static final int ITEM_COUNT_LEGACY = 6;
 	private static final int ITEM_COUNT = 7;
@@ -58,7 +58,7 @@ public class ChangeItem implements ComparableAction
 		itemCount = (byte)itemCounter;
 	}
 
-	public ChangeItem(RecordingFiles.Reader reader)
+	public ChangeItem(Reader reader, MocapRecordingData data)
 	{
 		byte firstByte = reader.readByte();
 
@@ -76,12 +76,12 @@ public class ChangeItem implements ComparableAction
 		if (itemCount > ITEM_COUNT)
 		{
 			// Shouldn't happen, unless loading recording from newer mc version
-			for (int i = 0; i < ITEM_COUNT; i++) { items.add(new ItemData(reader)); }
-			for (int i = ITEM_COUNT; i < itemCount; i++) { new ItemData(reader); }
+			for (int i = 0; i < ITEM_COUNT; i++) { items.add(new ItemData(reader, data)); }
+			for (int i = ITEM_COUNT; i < itemCount; i++) { new ItemData(reader, data); }
 		}
 		else
 		{
-			for (int i = 0; i < itemCount; i++) { items.add(new ItemData(reader)); }
+			for (int i = 0; i < itemCount; i++) { items.add(new ItemData(reader, data)); }
 			for (int i = itemCount; i < ITEM_COUNT; i++) { items.add(ItemData.EMPTY); }
 		}
 	}
@@ -114,7 +114,7 @@ public class ChangeItem implements ComparableAction
 		}
 	}
 
-	@Override public boolean differs(ComparableAction previousAction)
+	@Override public boolean differs(MocapStateAction previousAction)
 	{
 		if (items.size() != ((ChangeItem)previousAction).items.size()) { return true; }
 
@@ -127,7 +127,7 @@ public class ChangeItem implements ComparableAction
 		return false;
 	}
 
-	@Override public void prepareWrite(RecordingData data)
+	@Override public void prepareWrite(MocapRecordingData data)
 	{
 		if (itemCount > items.size()) { throw new RuntimeException(); }
 
@@ -137,9 +137,8 @@ public class ChangeItem implements ComparableAction
 		}
 	}
 
-	@Override public void write(RecordingFiles.Writer writer)
+	@Override public void write(Writer writer, MocapRecordingData data)
 	{
-		writer.addByte(Type.CHANGE_ITEM.id);
 		writer.addByte(itemCount > 0 ? (byte)(-itemCount) : Byte.MIN_VALUE);
 
 		for (int i = 0; i < itemCount; i++)
@@ -148,7 +147,7 @@ public class ChangeItem implements ComparableAction
 		}
 	}
 
-	@Override public Result execute(ActionContext ctx)
+	@Override public Result execute(MocapActionContext ctx)
 	{
 		if (items.size() != ITEM_COUNT)
 		{
@@ -156,11 +155,10 @@ public class ChangeItem implements ComparableAction
 			return Result.ERROR;
 		}
 
-		boolean isLivingEntity = (ctx.entity instanceof LivingEntity);
-		if (!isLivingEntity && ctx.ghostPlayer == null) { return Result.IGNORED; }
+		LivingEntity livingEntity = ctx.getLivingEntityOrDummyPlayer();
+		if (livingEntity == null) { return Result.IGNORED; }
 
-		if (isLivingEntity) { setEntityItems((LivingEntity)ctx.entity); }
-		if (ctx.ghostPlayer != null) { setEntityItems(ctx.ghostPlayer); }
+		setEntityItems(livingEntity);
 		return Result.OK;
 	}
 
@@ -232,20 +230,19 @@ public class ChangeItem implements ComparableAction
 			data = componentsTag.toString();
 		}
 
-		public ItemData(RecordingFiles.Reader reader)
+		public ItemData(Reader reader, MocapRecordingData recordingData)
 		{
 			type = ItemDataType.get(reader.readByte());
 			int itemId = type.hasId ? reader.readInt() : 0;
 			data = type.hasData ? reader.readString() : "";
 
-			RecordingData recordingData = reader.getParent();
 			if (recordingData == null)
 			{
 				item = Items.AIR;
 				return;
 			}
 
-			item = recordingData.itemIdMap.getObject(itemId);
+			item = recordingData.itemFromId(itemId);
 		}
 
 		public static ItemData get(@Nullable ItemStack itemStack, RegistryAccess registryAccess)
@@ -258,12 +255,12 @@ public class ChangeItem implements ComparableAction
 			return type != itemData.type || item != itemData.item || !data.equals(itemData.data);
 		}
 
-		public void prepareWrite(RecordingData recordingData)
+		public void prepareWrite(MocapRecordingData recordingData)
 		{
-			idToWrite = recordingData.itemIdMap.provideId(item);
+			idToWrite = recordingData.provideItemId(item);
 		}
 
-		public void write(RecordingFiles.Writer writer)
+		public void write(Writer writer)
 		{
 			if (idToWrite == -1) { throw new RuntimeException("ItemData write wasn't prepared!"); }
 

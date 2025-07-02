@@ -226,7 +226,7 @@
   "mocap.misc.sync.disable.changed": "已停用同步",
   "mocap.misc.sync.disable.not_changed": "同步已停用",
   
-  "mocap.misc.clear_cache.cleared": "快取已清除",
+  "mocap.misc.clear_cache.success": "快取已清除",
   
 
   "mocap.help": "%s - §l說明§r\n /mocap recording [...] - 錄製玩家動作\n /mocap recordings [...] - 管理錄製檔案\n /mocap scenes [...] - 建立和修改場景\n /mocap playback [...] - 播放場景和錄製\n /mocap settings [...] - 顯示和修改設定\n /mocap info - 顯示模組資訊\n /mocap help - 顯示此訊息\n§l使用方法：§r\n- 首先，你需要使用「/mocap recording start」開始錄製。它會錄製你或指定玩家的所有動作。\n- 然後，你可以使用「/mocap recording stop」停止錄製，並使用「/mocap recording save <名稱>」儲存。\n- 使用「/mocap playback start <名稱>」播放錄製。\n- 你也可以建立場景，在其中新增多個錄製或其他場景，並設定參數，例如玩家名稱、位置偏移或開始延遲。\n- 若要建立場景，請使用「/mocap scenes add <場景名稱>」。然後，使用「/mocap scenes add_to <場景名稱> <錄製名稱> [玩家名稱] [外觀來源類型] [外觀來源]」新增你的錄製 (如果需要，可以跳過方括號中的參數)。\n- 若要播放場景，請使用「/mocap playback start .<場景名稱>」- 你需要在場景名稱前加上一個點。\n- 在使用「/mocap scenes add_to ...」時，在名稱前加上一個點，你也可以將場景新增至其他場景。",

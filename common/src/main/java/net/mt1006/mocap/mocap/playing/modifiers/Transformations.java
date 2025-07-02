@@ -4,8 +4,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.mt1006.mocap.MocapMod;
-import net.mt1006.mocap.command.io.CommandInfo;
 import net.mt1006.mocap.command.io.CommandOutput;
+import net.mt1006.mocap.command.io.FullCommandInfo;
 import net.mt1006.mocap.mocap.files.SceneFiles;
 import org.jetbrains.annotations.Nullable;
 
@@ -162,7 +162,7 @@ public class Transformations
 		config.list(commandOutput);
 	}
 
-	public boolean modify(CommandInfo commandInfo, String propertyName, int propertyNodePosition)
+	public boolean modify(FullCommandInfo commandInfo, String propertyName, int propertyNodePosition)
 	{
 		switch (propertyName)
 		{

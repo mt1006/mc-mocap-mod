@@ -11,8 +11,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.mt1006.mocap.command.CommandSuggestions;
 import net.mt1006.mocap.command.CommandUtils;
-import net.mt1006.mocap.command.io.CommandInfo;
+import net.mt1006.mocap.command.io.FullCommandInfo;
 import net.mt1006.mocap.mocap.recording.Recording;
+import net.mt1006.mocap.mocap.recording.RecordingSource;
 import net.mt1006.mocap.mocap.settings.Settings;
 
 import java.util.Collection;
@@ -41,7 +42,7 @@ public class RecordingCommand
 		return commandBuilder;
 	}
 
-	private static boolean start(CommandInfo commandInfo)
+	private static boolean start(FullCommandInfo commandInfo)
 	{
 		ServerPlayer player = null;
 		String instantSave = null;
@@ -53,7 +54,7 @@ public class RecordingCommand
 			if (gameProfiles.size() == 1)
 			{
 				String nickname = gameProfiles.iterator().next().getName();
-				player = commandInfo.server.getPlayerList().getPlayerByName(nickname);
+				player = commandInfo.getServer().getPlayerList().getPlayerByName(nickname);
 			}
 			if (player == null)
 			{
@@ -65,7 +66,7 @@ public class RecordingCommand
 		}
 		catch (Exception e)
 		{
-			Entity entity = commandInfo.sourceEntity;
+			Entity entity = commandInfo.getSourceEntity();
 			if (!(entity instanceof ServerPlayer))
 			{
 				// "with_tip" variant contains tip but uses single message to fit in command blocks "previous output" box
@@ -78,25 +79,25 @@ public class RecordingCommand
 			player = (ServerPlayer)entity;
 		}
 
-		return Recording.start(commandInfo, player, instantSave);
+		return (Recording.startOrWait(commandInfo, player, RecordingSource.forCommand(commandInfo), instantSave) != null);
 	}
 
-	private static boolean stop(CommandInfo commandInfo)
+	private static boolean stop(FullCommandInfo commandInfo)
 	{
 		return Recording.stop(commandInfo, commandInfo.getNullableString("id"));
 	}
 
-	private static boolean discard(CommandInfo commandInfo)
+	private static boolean discard(FullCommandInfo commandInfo)
 	{
 		return Recording.discard(commandInfo, commandInfo.getNullableString("id"));
 	}
 
-	private static boolean saveAuto(CommandInfo commandInfo, String name)
+	private static boolean saveAuto(FullCommandInfo commandInfo, String name)
 	{
 		return Recording.save(commandInfo, null, name);
 	}
 
-	private static boolean saveSpecific(CommandInfo commandInfo)
+	private static boolean saveSpecific(FullCommandInfo commandInfo)
 	{
 		String name = commandInfo.getNullableString("name");
 		if (name == null)
@@ -108,7 +109,7 @@ public class RecordingCommand
 		return Recording.save(commandInfo, commandInfo.getNullableString("id"), name);
 	}
 
-	private static boolean list(CommandInfo commandInfo)
+	private static boolean list(FullCommandInfo commandInfo)
 	{
 		return Recording.list(commandInfo, commandInfo.getNullableString("id"));
 	}

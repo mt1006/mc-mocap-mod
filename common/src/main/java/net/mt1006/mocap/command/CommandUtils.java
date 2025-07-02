@@ -16,7 +16,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.NbtTagArgument;
 import net.minecraft.commands.arguments.ResourceArgument;
 import net.minecraft.core.registries.Registries;
-import net.mt1006.mocap.command.io.CommandInfo;
+import net.mt1006.mocap.command.io.FullCommandInfo;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -39,7 +39,8 @@ public class CommandUtils
 																			Command<CommandSourceStack> command, boolean addPlayerAsEntity)
 	{
 		builder.then(Commands.literal("skin_from_player").then(Commands.argument("skin_player_name", StringArgumentType.greedyString()).executes(command)));
-		builder.then(Commands.literal("skin_from_file").then(Commands.argument("skin_filename", StringArgumentType.greedyString()).executes(command)));
+		builder.then(Commands.literal("skin_from_file").then(Commands.argument("skin_filename",
+				StringArgumentType.greedyString()).suggests(CommandSuggestions::skinFile).executes(command)));
 		builder.then(Commands.literal("skin_from_mineskin").then(Commands.argument("mineskin_url", StringArgumentType.greedyString()).executes(command)));
 		if (addPlayerAsEntity)
 		{
@@ -111,22 +112,22 @@ public class CommandUtils
 		return builder;
 	}
 
-	public static Command<CommandSourceStack> command(Function<CommandInfo, Boolean> function)
+	public static Command<CommandSourceStack> command(Function<FullCommandInfo, Boolean> function)
 	{
-		return (ctx) -> (function.apply(new CommandInfo(ctx)) ? 1 : 0);
+		return (ctx) -> (function.apply(new FullCommandInfo(ctx)) ? 1 : 0);
 	}
 
-	public static RequiredArgumentBuilder<CommandSourceStack, String> withStringArgument(BiFunction<CommandInfo, String, Boolean> function, String arg)
+	public static RequiredArgumentBuilder<CommandSourceStack, String> withStringArgument(BiFunction<FullCommandInfo, String, Boolean> function, String arg)
 	{
 		return Commands.argument(arg, StringArgumentType.string()).executes((ctx) -> stringCommand(function, ctx, arg, false));
 	}
 
-	public static RequiredArgumentBuilder<CommandSourceStack, String> withInputArgument(BiFunction<CommandInfo, String, Boolean> function,SuggestionProvider<CommandSourceStack> suggestions, String arg)
+	public static RequiredArgumentBuilder<CommandSourceStack, String> withInputArgument(BiFunction<FullCommandInfo, String, Boolean> function, SuggestionProvider<CommandSourceStack> suggestions, String arg)
 	{
 		return withStringArgument(function, arg).suggests(suggestions);
 	}
 
-	public static RequiredArgumentBuilder<CommandSourceStack, String> withInputAndStringArgument(TriFunction<CommandInfo, String, String, Boolean> function,
+	public static RequiredArgumentBuilder<CommandSourceStack, String> withInputAndStringArgument(TriFunction<FullCommandInfo, String, String, Boolean> function,
 																								 SuggestionProvider<CommandSourceStack> suggestions, String arg1, String arg2)
 	{
 		return Commands.argument(arg1, StringArgumentType.string())
@@ -135,7 +136,7 @@ public class CommandUtils
 				.executes((ctx) -> twoStringCommand(function, ctx, arg1, arg2)));
 	}
 
-	public static RequiredArgumentBuilder<CommandSourceStack, String> withTwoInputArguments(TriFunction<CommandInfo, String, String, Boolean> function,
+	public static RequiredArgumentBuilder<CommandSourceStack, String> withTwoInputArguments(TriFunction<FullCommandInfo, String, String, Boolean> function,
 																							SuggestionProvider<CommandSourceStack> suggestions1,
 																							SuggestionProvider<CommandSourceStack> suggestions2,
 																							String arg1, String arg2)
@@ -147,9 +148,9 @@ public class CommandUtils
 				.executes((ctx) -> twoStringCommand(function, ctx, arg1, arg2)));
 	}
 
-	private static int stringCommand(BiFunction<CommandInfo, String, Boolean> function, CommandContext<CommandSourceStack> ctx, String arg, boolean nullable)
+	private static int stringCommand(BiFunction<FullCommandInfo, String, Boolean> function, CommandContext<CommandSourceStack> ctx, String arg, boolean nullable)
 	{
-		CommandInfo commandInfo = new CommandInfo(ctx);
+		FullCommandInfo commandInfo = new FullCommandInfo(ctx);
 		try
 		{
 			String str = commandInfo.getString(arg);
@@ -169,9 +170,9 @@ public class CommandUtils
 		}
 	}
 
-	private static int twoStringCommand(TriFunction<CommandInfo, String, String, Boolean> function, CommandContext<CommandSourceStack> ctx, String arg1, String arg2)
+	private static int twoStringCommand(TriFunction<FullCommandInfo, String, String, Boolean> function, CommandContext<CommandSourceStack> ctx, String arg1, String arg2)
 	{
-		CommandInfo commandInfo = new CommandInfo(ctx);
+		FullCommandInfo commandInfo = new FullCommandInfo(ctx);
 		try
 		{
 			String str1 = commandInfo.getString(arg1);
@@ -185,7 +186,15 @@ public class CommandUtils
 		}
 	}
 
-	public static Pair<Integer, @Nullable String> splitIdStr(String str)
+	public static Pair<String, @Nullable String> splitIdStr(String str)
+	{
+		int dashPos = str.indexOf('-');
+		int pos = Integer.parseInt(dashPos != -1 ? str.substring(0, dashPos) : str);
+		String expectedName = dashPos != -1 ? str.substring(dashPos + 1) : null;
+		return Pair.of(Integer.toString(pos), expectedName);
+	}
+
+	public static Pair<Integer, @Nullable String> splitPosStr(String str)
 	{
 		int dashPos = str.indexOf('-');
 		int pos = Integer.parseInt(dashPos != -1 ? str.substring(0, dashPos) : str);

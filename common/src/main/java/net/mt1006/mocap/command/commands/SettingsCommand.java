@@ -8,7 +8,7 @@ import com.mojang.brigadier.suggestion.SuggestionProvider;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.mt1006.mocap.command.CommandUtils;
-import net.mt1006.mocap.command.io.CommandInfo;
+import net.mt1006.mocap.command.io.FullCommandInfo;
 import net.mt1006.mocap.mocap.settings.SettingFields;
 import net.mt1006.mocap.mocap.settings.SettingGroups;
 import net.mt1006.mocap.mocap.settings.Settings;
@@ -35,7 +35,7 @@ public class SettingsCommand
 		return commandBuilder;
 	}
 
-	private static boolean set(CommandInfo commandInfo)
+	private static boolean set(FullCommandInfo commandInfo)
 	{
 		return Settings.set(commandInfo);
 	}

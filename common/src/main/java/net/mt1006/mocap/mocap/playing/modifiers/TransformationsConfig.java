@@ -1,11 +1,13 @@
 package net.mt1006.mocap.mocap.playing.modifiers;
 
-import net.mt1006.mocap.command.io.CommandInfo;
+import net.minecraft.world.phys.Vec3;
+import net.mt1006.mocap.api.v1.modifiers.MocapTransformationsConfig;
 import net.mt1006.mocap.command.io.CommandOutput;
+import net.mt1006.mocap.command.io.FullCommandInfo;
 import net.mt1006.mocap.mocap.files.SceneFiles;
 import org.jetbrains.annotations.Nullable;
 
-public class TransformationsConfig
+public class TransformationsConfig implements MocapTransformationsConfig
 {
 	public static final TransformationsConfig DEFAULT = new TransformationsConfig(false, RecordingCenter.AUTO, SceneCenter.DEFAULT, Offset.ZERO);
 	public static final TransformationsConfig LEGACY = new TransformationsConfig(true, RecordingCenter.AUTO, SceneCenter.DEFAULT, Offset.ZERO);
@@ -34,6 +36,52 @@ public class TransformationsConfig
 	public static TransformationsConfig fromObject(@Nullable SceneFiles.Reader reader)
 	{
 		return reader != null ? new TransformationsConfig(reader) : DEFAULT;
+	}
+
+	@Override public boolean getRoundBlockPos()
+	{
+		return roundBlockPos;
+	}
+
+	@Override public TransformationsConfig setRoundBlockPos(boolean roundBlockPos)
+	{
+		return new TransformationsConfig(roundBlockPos, recordingCenter, sceneCenter, centerOffset);
+	}
+
+	@Override public RecordingCenter getRecordingCenter()
+	{
+		return recordingCenter;
+	}
+
+	@Override public TransformationsConfig setRecordingCenter(RecordingCenter center)
+	{
+		return new TransformationsConfig(roundBlockPos, center, sceneCenter, centerOffset);
+	}
+
+	@Override public SceneCenterType getSceneCenterType()
+	{
+		return sceneCenter.type;
+	}
+
+	@Override public @Nullable String getSceneCenterSpecificStr()
+	{
+		return sceneCenter.specificStr;
+	}
+
+	@Override public TransformationsConfig setSceneCenter(SceneCenterType center, @Nullable String specificStr)
+	{
+		if (center != SceneCenterType.COMMON_SPECIFIC) { specificStr = null; }
+		return new TransformationsConfig(roundBlockPos, recordingCenter, new SceneCenter(center, specificStr), centerOffset);
+	}
+
+	@Override public Vec3 getCenterOffset()
+	{
+		return centerOffset;
+	}
+
+	@Override public TransformationsConfig setCenterOffset(Vec3 offset)
+	{
+		return new TransformationsConfig(roundBlockPos, recordingCenter, sceneCenter, new Offset(offset.x, offset.y, offset.z));
 	}
 
 	public boolean isDefault()
@@ -69,51 +117,34 @@ public class TransformationsConfig
 		commandOutput.sendSuccess("scenes.element_info.transformations.center_offset", centerOffset.x, centerOffset.y, centerOffset.z);
 	}
 
-	public @Nullable TransformationsConfig modify(CommandInfo commandInfo, String propertyName, int propertyNodePosition)
+	public @Nullable TransformationsConfig modify(FullCommandInfo commandInfo, String propertyName, int propertyNodePosition)
 	{
 		switch (propertyName)
 		{
 			case "round_block_pos":
-				return new TransformationsConfig(commandInfo.getBool("round"), recordingCenter, sceneCenter, centerOffset);
+				return setRoundBlockPos(commandInfo.getBool("round"));
 
 			case "recording_center":
 				String centerPointStr = commandInfo.getNode(propertyNodePosition + 1);
 				if (centerPointStr == null) { break; }
 
-				return new TransformationsConfig(roundBlockPos, RecordingCenter.valueOf(centerPointStr.toUpperCase()), sceneCenter, centerOffset);
+				return setRecordingCenter(RecordingCenter.valueOf(centerPointStr.toUpperCase()));
 
 			case "scene_center":
 				String sceneCenterStr = commandInfo.getNode(propertyNodePosition + 1);
 				if (sceneCenterStr == null) { break; }
 
 				SceneCenterType centerType = SceneCenterType.valueOf(sceneCenterStr.toUpperCase());
-				SceneCenter center = centerType == SceneCenterType.COMMON_SPECIFIC
-						? new SceneCenter(centerType, commandInfo.getString("specific_scene_element"))
-						: new SceneCenter(centerType, null);
+				String specificStr = centerType == SceneCenterType.COMMON_SPECIFIC
+						? commandInfo.getString("specific_scene_element") : null;
 
-				return new TransformationsConfig(roundBlockPos, recordingCenter, center, centerOffset);
+				return setSceneCenter(centerType, specificStr);
 
 			case "center_offset":
-				return new TransformationsConfig(roundBlockPos, recordingCenter, sceneCenter,
-						new Offset(commandInfo.getDouble("offset_x"), commandInfo.getDouble("offset_y"), commandInfo.getDouble("offset_z")));
+				return setCenterOffset(new Vec3(commandInfo.getDouble("offset_x"),
+						commandInfo.getDouble("offset_y"), commandInfo.getDouble("offset_z")));
 		}
 		return null;
-	}
-
-	public enum RecordingCenter
-	{
-		AUTO,
-		BLOCK_CENTER,
-		BLOCK_CORNER,
-		ACTUAL
-	}
-
-	public enum SceneCenterType
-	{
-		COMMON_FIRST,
-		COMMON_LAST,
-		COMMON_SPECIFIC,
-		INDIVIDUAL
 	}
 
 	public static class SceneCenter

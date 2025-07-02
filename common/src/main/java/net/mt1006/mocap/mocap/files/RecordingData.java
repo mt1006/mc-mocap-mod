@@ -16,33 +16,39 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.Vec3;
 import net.mt1006.mocap.MocapMod;
+import net.mt1006.mocap.api.impl.extenstion.Extensions;
+import net.mt1006.mocap.api.impl.extenstion.MocapExtensionImpl;
+import net.mt1006.mocap.api.v1.controller.config.MocapPlaybackConfig;
+import net.mt1006.mocap.api.v1.extension.MocapExtension;
+import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
+import net.mt1006.mocap.api.v1.extension.actions.MocapAction;
+import net.mt1006.mocap.api.v1.extension.actions.MocapBlockAction;
 import net.mt1006.mocap.command.io.CommandOutput;
-import net.mt1006.mocap.mocap.actions.Action;
-import net.mt1006.mocap.mocap.actions.BlockAction;
+import net.mt1006.mocap.mocap.actions.ActionType;
+import net.mt1006.mocap.mocap.actions.BlockStateData;
 import net.mt1006.mocap.mocap.actions.NextTick;
 import net.mt1006.mocap.mocap.actions.SkipTicks;
 import net.mt1006.mocap.mocap.playing.playback.ActionContext;
 import net.mt1006.mocap.mocap.playing.playback.PositionTransformer;
-import net.mt1006.mocap.mocap.settings.Settings;
+import net.mt1006.mocap.mocap.playing.playback.PreExecuteContext;
 import net.mt1006.mocap.utils.EntityData;
 import net.mt1006.mocap.utils.Utils;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
-public class RecordingData
+public class RecordingData implements MocapRecordingData
 {
 	public static final RecordingData DUMMY = new RecordingData();
 
 	private static final byte FLAGS1_ENDS_WITH_DEATH =           0b00000001;
-	private static final byte FLAGS1_NULL_TERMINATED_STRINGS =   0b00000010;
+	private static final byte FLAGS1_PACKED_SIZE_STRINGS =       0b00000010;
 	private static final byte FLAGS1_HAS_ID_MAPS =               0b00000100;
 	private static final byte FLAGS1_START_DIMENSION_SPECIFIED = 0b00001000;
 	private static final byte FLAGS1_PLAYER_NAME_SPECIFIED =     0b00010000;
+	private static final byte FLAGS1_HAS_EXTENSIONS =            0b00100000;
 
 	public long fileSize = 0;
 	public byte version = 0;
@@ -51,12 +57,15 @@ public class RecordingData
 	public final float[] startRot = new float[2];
 	public boolean endsWithDeath = false; // deprecated
 	private boolean usesIdMaps = true;
-	public final ItemIdMap itemIdMap = new ItemIdMap(this);
-	public final BlockStateIdMap blockStateIdMap = new BlockStateIdMap(this);
-	public @Nullable String startDimension = null; //TODO: use it
+	private final ItemIdMap itemIdMap = new ItemIdMap(this);
+	private final BlockStateIdMap blockStateIdMap = new BlockStateIdMap(this);
+	private @Nullable String startDimension = null; //TODO: use it
 	public @Nullable String playerName = null;
-	public final List<Action> actions = new ArrayList<>();
-	public final List<BlockAction> blockActions = new ArrayList<>();
+	private final SortedMap<Integer, MocapExtension> extensionById = new TreeMap<>();
+	private final Map<MocapExtension, Byte> extensionToId = new HashMap<>();
+	private final Map<MocapExtension, ExtensionHeader> extensionHeaders = new HashMap<>();
+	public final List<MocapAction> actions = new ArrayList<>();
+	public final List<MocapBlockAction> blockActions = new ArrayList<>();
 	public long tickCount = 0;
 
 	public static RecordingData forWriting()
@@ -72,11 +81,11 @@ public class RecordingData
 		if (version != RecordingFiles.VERSION) { throw new RuntimeException("Trying to save recording with read-only version."); }
 		actions.forEach((action) -> action.prepareWrite(this));
 
-		RecordingFiles.Writer writer = new RecordingFiles.Writer(this);
+		RecordingFiles.Writer writer = new RecordingFiles.Writer();
 
 		writer.addByte((byte)(experimentalVersion ? (-version) : version));
 		saveHeader(writer);
-		actions.forEach((action) -> action.write(writer));
+		actions.forEach((a) -> ActionType.writeAction(writer, this, a));
 
 		stream.write(writer.toByteArray());
 	}
@@ -84,7 +93,7 @@ public class RecordingData
 	public boolean load(CommandOutput commandOutput, String name)
 	{
 		byte[] data = Files.loadFile(Files.getRecordingFile(commandOutput, name));
-		return data != null && load(commandOutput, new RecordingFiles.FileReader(this, data, true));
+		return data != null && load(commandOutput, new RecordingFiles.FileReader(data, true));
 	}
 
 	private boolean load(CommandOutput commandOutput, RecordingFiles.FileReader reader)
@@ -101,15 +110,15 @@ public class RecordingData
 			return false;
 		}
 
-		loadHeader(reader, version <= 2); //TODO: test old recordings
+		if (!loadHeader(commandOutput, reader, version <= 2)) { return false; } //TODO: test old recordings
 
 		while (reader.canRead())
 		{
-			Action action = Action.readAction(reader, this);
+			MocapAction action = ActionType.readAction(reader, this);
 			if (action == null) { return false; }
 
 			actions.add(action);
-			if (action instanceof BlockAction) { blockActions.add((BlockAction)action); }
+			if (action instanceof BlockStateData) { blockActions.add((MocapBlockAction)action); }
 			else if (action instanceof NextTick) { tickCount++; }
 			else if (action instanceof SkipTicks) { tickCount += ((SkipTicks)action).number; }
 		}
@@ -126,10 +135,11 @@ public class RecordingData
 
 		byte flags1 = 0;
 		flags1 |= endsWithDeath ? FLAGS1_ENDS_WITH_DEATH : 0;
-		flags1 |= FLAGS1_NULL_TERMINATED_STRINGS;
+		flags1 |= FLAGS1_PACKED_SIZE_STRINGS;
 		flags1 |= hasIdMaps ? FLAGS1_HAS_ID_MAPS : 0;
 		flags1 |= startDimension != null ? FLAGS1_START_DIMENSION_SPECIFIED : 0;
 		flags1 |= playerName != null ? FLAGS1_PLAYER_NAME_SPECIFIED : 0;
+		flags1 |= !extensionById.isEmpty() ? FLAGS1_HAS_EXTENSIONS : 0;
 		writer.addByte(flags1);
 
 		if (hasIdMaps)
@@ -140,21 +150,43 @@ public class RecordingData
 
 		if (startDimension != null) { writer.addString(startDimension); }
 		if (playerName != null) { writer.addString(playerName); }
+		if (!extensionById.isEmpty()) { saveExtensionHeaders(writer); }
 	}
 
-	private void loadHeader(RecordingFiles.FileReader reader, boolean legacyHeader)
+	private void saveExtensionHeaders(RecordingFiles.Writer writer)
+	{
+		writer.addByte((byte)extensionById.size());
+
+		int expectedId = 0;
+		for (Map.Entry<Integer, MocapExtension> entry : extensionById.entrySet())
+		{
+			if (entry.getKey() != expectedId) { throw new RuntimeException("Extensions in wrong order! Trying to save loaded recording?"); }
+			expectedId++;
+
+			writer.addString(entry.getValue().getId());
+			writer.addShort(entry.getValue().getVersion());
+
+			RecordingFiles.Writer headerWriter = new RecordingFiles.Writer();
+			extensionHeaders.get(entry.getValue()).save(headerWriter);
+			writer.addPackedSize(headerWriter.getSize());
+			headerWriter.copyToWriter(writer);
+		}
+	}
+
+	private boolean loadHeader(CommandOutput commandOutput, RecordingFiles.FileReader reader, boolean legacyHeader)
 	{
 		startPos = reader.readVec3();
 		startRot[0] = reader.readFloat();
 		startRot[1] = reader.readFloat();
-		if (legacyHeader) { return; }
+		if (legacyHeader) { return true; }
 
 		byte flags1 = reader.readByte();
 		endsWithDeath = (flags1 & FLAGS1_ENDS_WITH_DEATH) != 0;
-		reader.setStringMode((flags1 & FLAGS1_NULL_TERMINATED_STRINGS) == 0);
+		reader.setStringMode((flags1 & FLAGS1_PACKED_SIZE_STRINGS) == 0);
 		usesIdMaps = (flags1 & FLAGS1_HAS_ID_MAPS) != 0;
 		boolean startDimensionSpecified = (flags1 & FLAGS1_START_DIMENSION_SPECIFIED) != 0;
 		boolean playerNameSpecified = (flags1 & FLAGS1_PLAYER_NAME_SPECIFIED) != 0;
+		boolean hasExtensions = (flags1 & FLAGS1_HAS_EXTENSIONS) != 0;
 
 		if (usesIdMaps)
 		{
@@ -164,6 +196,41 @@ public class RecordingData
 
 		if (startDimensionSpecified) { startDimension = reader.readString(); }
 		if (playerNameSpecified) { playerName = reader.readString(); }
+		if (hasExtensions && !loadExtensionHeaders(commandOutput, reader)) { return false; }
+		return true;
+	}
+
+	private boolean loadExtensionHeaders(CommandOutput commandOutput, RecordingFiles.FileReader reader)
+	{
+		int extensionCount = Byte.toUnsignedInt(reader.readByte());
+		for (int i = 0; i < extensionCount; i++)
+		{
+			MocapExtension extension = Extensions.getExtension(reader.readString(), reader.readShort());
+			int headerSize = reader.readPackedSize();
+			if (extension == null)
+			{
+				reader.shift(headerSize);
+				continue;
+			}
+
+			if (!(extension instanceof MocapExtensionImpl)) { throw new RuntimeException("MocapExtension isn't instance of MocapExtensionImpl!"); }
+			ExtensionHeader extensionHeader = ((MocapExtensionImpl)extension).createHeader();
+			if (!extensionHeader.load(reader))
+			{
+				commandOutput.sendFailure("playback.start.error.extension.load_header", extension.getId());
+				return false;
+			}
+
+			addExtension(i, extension, extensionHeader);
+		}
+		return true;
+	}
+
+	private void addExtension(int id, MocapExtension extension, ExtensionHeader extensionHeader)
+	{
+		extensionById.put(id, extension);
+		extensionToId.put(extension, (byte)id);
+		extensionHeaders.put(extension, extensionHeader);
 	}
 
 	public void initEntityPosition(Entity entity, PositionTransformer transformer)
@@ -173,33 +240,33 @@ public class RecordingData
 		entity.setYHeadRot(rotY);
 	}
 
-	public void preExecute(Entity entity, PositionTransformer transformer)
+	public void preExecute(PreExecuteContext ctx)
 	{
-		if (Settings.BLOCK_INITIALIZATION.val)
+		if (ctx.getConfig().getBlockInitialization())
 		{
 			for (int i = blockActions.size() - 1; i >= 0; i--)
 			{
-				blockActions.get(i).preExecute(entity, transformer);
+				blockActions.get(i).preExecute(ctx);
 			}
 		}
 	}
 
-	public Action.Result executeNext(ActionContext ctx, int pos)
+	public MocapAction.Result executeNext(ActionContext ctx, MocapPlaybackConfig config, int pos)
 	{
-		if (pos >= actions.size()) { return Action.Result.END; }
+		if (pos >= actions.size()) { return MocapAction.Result.END; }
 		if (pos == 0) { firstExecute(ctx.entity); }
 
 		try
 		{
-			Action nextAction = actions.get(pos);
-			if (!Settings.BLOCK_ACTIONS_PLAYBACK.val && nextAction instanceof BlockAction) { return Action.Result.OK; }
+			MocapAction nextAction = actions.get(pos);
+			if (!config.getBlockActionsPlayback() && nextAction instanceof BlockStateData) { return MocapAction.Result.OK; }
 
 			return nextAction.execute(ctx);
 		}
 		catch (Exception e)
 		{
 			Utils.exception(e, "Exception occurred while executing action!");
-			return Action.Result.ERROR;
+			return MocapAction.Result.ERROR;
 		}
 	}
 
@@ -210,6 +277,50 @@ public class RecordingData
 			//TODO: recording skin parts
 			EntityData.PLAYER_SKIN_PARTS.set(entity, (byte)0b01111111);
 		}
+	}
+
+	@Override public Vec3 getStartPos()
+	{
+		return startPos;
+	}
+
+	@Override public Item itemFromId(int id)
+	{
+		return itemIdMap.getObject(id);
+	}
+
+	@Override public int provideItemId(Item item)
+	{
+		return itemIdMap.provideMappedId(item);
+	}
+
+	@Override public BlockState blockStateFromId(int id)
+	{
+		return blockStateIdMap.getMappedObject(id);
+	}
+
+	@Override public int provideBlockStateId(BlockState blockState)
+	{
+		return blockStateIdMap.provideMappedId(blockState);
+	}
+
+	@Override public @Nullable MocapExtension getExtension(byte idFromRecording)
+	{
+		return extensionById.get(Byte.toUnsignedInt(idFromRecording));
+	}
+
+	@Override public byte getIdForExtension(MocapExtension extension)
+	{
+		Byte id = extensionToId.get(extension);
+		if (id == null)
+		{
+			if (!(extension instanceof MocapExtensionImpl)) { throw new RuntimeException("MocapExtension isn't instance of MocapExtensionImpl!"); }
+
+			int nextId = extensionById.size();
+			addExtension(nextId, extension, ((MocapExtensionImpl)extension).createHeader());
+			return (byte)nextId;
+		}
+		return id;
 	}
 
 	public static abstract class RefIdMap<T>
@@ -259,8 +370,8 @@ public class RecordingData
 		protected abstract void init();
 		public abstract int provideId(T ref);
 		public abstract T getObject(int id);
-		protected abstract void save(RecordingFiles.Writer writer);
-		protected abstract void load(RecordingFiles.Reader reader);
+		protected abstract void save(MocapAction.Writer writer);
+		protected abstract void load(MocapAction.Reader reader);
 	}
 
 	public static class ItemIdMap extends RefIdMap<Item>
@@ -278,14 +389,13 @@ public class RecordingData
 			return parent.usesIdMaps ? getMappedObject(id) : Item.byId(id);
 		}
 
-		@Override protected void save(RecordingFiles.Writer writer)
+		@Override protected void save(MocapAction.Writer writer)
 		{
 			writer.addInt(size());
-			idToRef.subList(1, idToRef.size())
-					.forEach((item) -> writer.addString(resLocToStr(BuiltInRegistries.ITEM.getKey(item))));
+			idToRef.subList(1, idToRef.size()).forEach((item) -> writer.addString(resLocToStr(BuiltInRegistries.ITEM.getKey(item))));
 		}
 
-		@Override protected void load(RecordingFiles.Reader reader)
+		@Override protected void load(MocapAction.Reader reader)
 		{
 			int size = reader.readInt();
 
@@ -314,7 +424,7 @@ public class RecordingData
 			return parent.usesIdMaps ? getMappedObject(id) : Block.stateById(id);
 		}
 
-		@Override protected void save(RecordingFiles.Writer writer)
+		@Override protected void save(MocapAction.Writer writer)
 		{
 			List<Property<?>> properties = new ArrayList<>();
 			writer.addInt(size());
@@ -341,7 +451,7 @@ public class RecordingData
 			}
 		}
 
-		@Override protected void load(RecordingFiles.Reader reader)
+		@Override protected void load(MocapAction.Reader reader)
 		{
 			int size = reader.readInt();
 

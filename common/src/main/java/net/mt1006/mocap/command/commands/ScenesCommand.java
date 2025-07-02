@@ -10,8 +10,8 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.mt1006.mocap.command.CommandSuggestions;
 import net.mt1006.mocap.command.CommandUtils;
-import net.mt1006.mocap.command.io.CommandInfo;
 import net.mt1006.mocap.command.io.CommandOutput;
+import net.mt1006.mocap.command.io.FullCommandInfo;
 import net.mt1006.mocap.mocap.files.SceneData;
 import net.mt1006.mocap.mocap.files.SceneFiles;
 import net.mt1006.mocap.mocap.playing.modifiers.PlaybackModifiers;
@@ -51,7 +51,7 @@ public class ScenesCommand
 		return commandBuilder;
 	}
 
-	private static boolean addTo(CommandInfo commandInfo)
+	private static boolean addTo(FullCommandInfo commandInfo)
 	{
 		try
 		{
@@ -79,12 +79,12 @@ public class ScenesCommand
 		}
 	}
 
-	private static boolean modify(CommandInfo commandInfo)
+	private static boolean modify(FullCommandInfo commandInfo)
 	{
 		try
 		{
 			String name = commandInfo.getString("scene_name");
-			Pair<Integer, String> posPair = CommandUtils.splitIdStr(commandInfo.getString("to_modify"));
+			Pair<Integer, String> posPair = CommandUtils.splitPosStr(commandInfo.getString("to_modify"));
 			return SceneFiles.modify(commandInfo, name, posPair.getFirst(), posPair.getSecond());
 		}
 		catch (IllegalArgumentException e)

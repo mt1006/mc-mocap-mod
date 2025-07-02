@@ -7,7 +7,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.mt1006.mocap.MocapMod;
 import net.mt1006.mocap.command.CommandUtils;
-import net.mt1006.mocap.command.io.CommandInfo;
+import net.mt1006.mocap.command.io.CommandOutput;
 
 public class MocapCommand
 {
@@ -28,16 +28,16 @@ public class MocapCommand
 		dispatcher.register(commandBuilder);
 	}
 
-	private static boolean info(CommandInfo commandInfo)
+	private static boolean info(CommandOutput commandOutput)
 	{
-		commandInfo.sendSuccessLiteral(MocapMod.getFullName());
-		commandInfo.sendSuccessLiteral("Author: mt1006");
+		commandOutput.sendSuccessLiteral(MocapMod.getFullName());
+		commandOutput.sendSuccessLiteral("Author: mt1006");
 		return true;
 	}
 
-	private static boolean help(CommandInfo commandInfo)
+	private static boolean help(CommandOutput commandOutput)
 	{
-		commandInfo.sendSuccess("help", MocapMod.getName());
+		commandOutput.sendSuccess("help", MocapMod.getName());
 		return true;
 	}
 }

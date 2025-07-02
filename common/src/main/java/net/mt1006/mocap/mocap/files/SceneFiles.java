@@ -9,8 +9,8 @@ import net.minecraft.world.phys.Vec3;
 import net.mt1006.mocap.MocapMod;
 import net.mt1006.mocap.command.CommandSuggestions;
 import net.mt1006.mocap.command.CommandUtils;
-import net.mt1006.mocap.command.io.CommandInfo;
 import net.mt1006.mocap.command.io.CommandOutput;
+import net.mt1006.mocap.command.io.FullCommandInfo;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -122,7 +122,7 @@ public class SceneFiles
 
 	public static boolean removeElement(CommandOutput commandOutput, String name, String posStr)
 	{
-		Pair<Integer, String> posPair = CommandUtils.splitIdStr(posStr);
+		Pair<Integer, String> posPair = CommandUtils.splitPosStr(posStr);
 		int pos = posPair.getFirst();
 		String expectedName = posPair.getSecond();
 
@@ -135,7 +135,7 @@ public class SceneFiles
 		return sceneData.save(commandOutput, file, name, "scenes.remove_from.success", "scenes.remove_from.error");
 	}
 
-	public static boolean modify(CommandInfo commandInfo, String name, int pos, @Nullable String expectedName)
+	public static boolean modify(FullCommandInfo commandInfo, String name, int pos, @Nullable String expectedName)
 	{
 		File file = Files.getSceneFile(commandInfo, name);
 		SceneData sceneData = loadSceneData(commandInfo, file);
@@ -153,11 +153,11 @@ public class SceneFiles
 		return sceneData.save(commandInfo, file, name, "scenes.modify.success", "scenes.modify.error");
 	}
 
-	private static @Nullable SceneData.Subscene modifySubscene(CommandInfo rootCommandInfo, SceneData.Subscene oldSubscene)
+	private static @Nullable SceneData.Subscene modifySubscene(FullCommandInfo rootCommandInfo, SceneData.Subscene oldSubscene)
 	{
 		SceneData.Subscene subscene = oldSubscene.copy();
 
-		CommandInfo commandInfo = rootCommandInfo.getFinalCommandInfo();
+		FullCommandInfo commandInfo = rootCommandInfo.getFinalCommandInfo();
 		if (commandInfo == null)
 		{
 			rootCommandInfo.sendFailure("error.unable_to_get_argument");
@@ -195,12 +195,11 @@ public class SceneFiles
 
 	public static boolean elementInfo(CommandOutput commandOutput, String name, String posStr)
 	{
-		Pair<Integer, String> posPair = CommandUtils.splitIdStr(posStr);
+		Pair<Integer, String> posPair = CommandUtils.splitPosStr(posStr);
 		int pos = posPair.getFirst();
 		String expectedName = posPair.getSecond();
 
-		File file = Files.getSceneFile(commandOutput, name);
-		SceneData sceneData = loadSceneData(commandOutput, file);
+		SceneData sceneData = loadSceneData(commandOutput, name);
 		SceneData.Subscene subscene = SceneData.loadSubscene(commandOutput, sceneData, pos, expectedName);
 		if (subscene == null) { return false; }
 
@@ -212,9 +211,10 @@ public class SceneFiles
 		return true;
 	}
 
+
 	public static boolean listElements(CommandOutput commandOutput, String name)
 	{
-		SceneData sceneData = loadSceneData(commandOutput, Files.getSceneFile(commandOutput, name));
+		SceneData sceneData = loadSceneData(commandOutput, name);
 		if (sceneData == null) { return false; }
 
 		commandOutput.sendSuccess("scenes.list_elements");
@@ -254,7 +254,7 @@ public class SceneFiles
 		String[] fileList = Files.sceneDirectory.list(Files::isSceneFile);
 		if (fileList == null) { return null; }
 
-		ArrayList<String> scenes = new ArrayList<>();
+		List<String> scenes = new ArrayList<>();
 		for (String filename : fileList)
 		{
 			scenes.add("." + filename.substring(0, filename.lastIndexOf('.')));
@@ -269,7 +269,12 @@ public class SceneFiles
 		return name.charAt(0) == '.' ? name : ("." + name);
 	}
 
-	private static @Nullable SceneData loadSceneData(CommandOutput commandOutput, @Nullable File file)
+	public static @Nullable SceneData loadSceneData(CommandOutput commandOutput, String name)
+	{
+		return loadSceneData(commandOutput, Files.getSceneFile(commandOutput, name));
+	}
+
+	public static @Nullable SceneData loadSceneData(CommandOutput commandOutput, @Nullable File file)
 	{
 		if (file == null) { return null; }
 		if (!file.exists())

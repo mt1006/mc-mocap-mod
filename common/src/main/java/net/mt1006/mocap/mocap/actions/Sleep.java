@@ -3,11 +3,12 @@ package net.mt1006.mocap.mocap.actions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.mt1006.mocap.mocap.files.RecordingFiles;
-import net.mt1006.mocap.mocap.playing.playback.ActionContext;
+import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
+import net.mt1006.mocap.api.v1.extension.actions.MocapActionContext;
+import net.mt1006.mocap.api.v1.extension.actions.MocapStateAction;
 import org.jetbrains.annotations.Nullable;
 
-public class Sleep implements ComparableAction
+public class Sleep implements MocapStateAction
 {
 	private final @Nullable BlockPos bedPostion;
 
@@ -16,22 +17,20 @@ public class Sleep implements ComparableAction
 		bedPostion = (entity instanceof LivingEntity) ? ((LivingEntity)entity).getSleepingPos().orElse(null) : null;
 	}
 
-	public Sleep(RecordingFiles.Reader reader)
+	public Sleep(Reader reader)
 	{
 		bedPostion = reader.readBoolean() ? reader.readBlockPos() : null;
 	}
 
-	@Override public boolean differs(ComparableAction previousAction)
+	@Override public boolean differs(MocapStateAction previousAction)
 	{
 		if (bedPostion == null && ((Sleep)previousAction).bedPostion == null) { return false; }
 		if ((bedPostion == null) != (((Sleep)previousAction).bedPostion == null)) { return true; }
 		return bedPostion != null && !bedPostion.equals(((Sleep)previousAction).bedPostion);
 	}
 
-	public void write(RecordingFiles.Writer writer)
+	@Override public void write(Writer writer, MocapRecordingData data)
 	{
-		writer.addByte(Type.SLEEP.id);
-
 		if (bedPostion != null)
 		{
 			writer.addBoolean(true);
@@ -43,12 +42,12 @@ public class Sleep implements ComparableAction
 		}
 	}
 
-	@Override public Result execute(ActionContext ctx)
+	@Override public Result execute(MocapActionContext ctx)
 	{
-		if (!(ctx.entity instanceof LivingEntity)) { return Result.IGNORED; }
+		if (!(ctx.getEntity() instanceof LivingEntity)) { return Result.IGNORED; }
 
-		if (bedPostion != null) { ((LivingEntity)ctx.entity).setSleepingPos(bedPostion); }
-		else { ((LivingEntity)ctx.entity).clearSleepingPos(); }
+		if (bedPostion != null) { ((LivingEntity)ctx.getEntity()).setSleepingPos(bedPostion); }
+		else { ((LivingEntity)ctx.getEntity()).clearSleepingPos(); }
 		return Result.OK;
 	}
 }

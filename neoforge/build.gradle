@@ -23,3 +23,8 @@ neoForge
 		"${mod_id}" { sourceSet sourceSets.main }
 	}
 }
+
+processResources
+{
+	from(project.file("src/main/generated")) { duplicatesStrategy DuplicatesStrategy.EXCLUDE }
+}

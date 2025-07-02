@@ -3,16 +3,13 @@ package net.mt1006.mocap.mocap.recording;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.mt1006.mocap.api.v1.extension.MocapActiveRecordingActions;
 import net.mt1006.mocap.mixin.fields.LevelFields;
 import net.mt1006.mocap.mocap.actions.EntityUpdate;
 import net.mt1006.mocap.mocap.playing.Playing;
-import net.mt1006.mocap.mocap.settings.Settings;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class EntityTracker
 {
@@ -31,9 +28,14 @@ public class EntityTracker
 		return map.get(entity);
 	}
 
+	public Collection<TrackedEntity> getAll()
+	{
+		return map.values();
+	}
+
 	public void onTick()
 	{
-		if (Settings.ENTITY_TRACKING_DISTANCE.val != 0.0)
+		if (ctx.config.getEntityTrackingDistance() != 0.0)
 		{
 			updateTracked();
 			updateVehicle();
@@ -43,14 +45,14 @@ public class EntityTracker
 
 	private void updateTracked()
 	{
-		double entityTrackingDist = Settings.ENTITY_TRACKING_DISTANCE.val;
+		double entityTrackingDist = ctx.config.getEntityTrackingDistance();
 		boolean limitDistance = entityTrackingDist >= 0.0;
 		double maxDistanceSqr = entityTrackingDist * entityTrackingDist;
 
 		for (Entity entity : ((LevelFields)ctx.recordedPlayer.level()).callGetEntities().getAll())
 		{
 			if ((limitDistance && ctx.recordedPlayer.distanceToSqr(entity) > maxDistanceSqr) || entity instanceof Player
-					|| (Settings.PREVENT_TRACKING_PLAYED_ENTITIES.val && entity.getTags().contains(Playing.MOCAP_ENTITY_TAG)))
+					|| (ctx.config.getPreventTrackingPlayedEntities() && entity.getTags().contains(Playing.MOCAP_ENTITY_TAG)))
 			{
 				continue;
 			}
@@ -118,7 +120,7 @@ public class EntityTracker
 		toRemove.forEach(map::remove);
 	}
 
-	public static class TrackedEntity
+	public static class TrackedEntity implements MocapActiveRecordingActions.TrackedEntity
 	{
 		private final RecordingContext ctx;
 		private final int id;
@@ -133,7 +135,7 @@ public class EntityTracker
 			this.ctx = ctx;
 			this.id = id;
 			this.entity = entity;
-			this.positionTracker = new PositionTracker(entity, true);
+			this.positionTracker = new PositionTracker(entity, true, ctx.data.startPos);
 		}
 
 		public void onTick()
@@ -152,9 +154,19 @@ public class EntityTracker
 			}
 		}
 
-		public void onHurt()
+		@Override public MocapActiveRecordingActions getParent()
 		{
-			ctx.addAction(EntityUpdate.hurt(id));
+			return ctx;
+		}
+
+		@Override public int getId()
+		{
+			return id;
+		}
+
+		@Override public Entity getEntity()
+		{
+			return entity;
 		}
 	}
 }

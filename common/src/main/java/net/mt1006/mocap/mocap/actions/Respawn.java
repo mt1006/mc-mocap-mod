@@ -5,15 +5,16 @@ import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
+import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
+import net.mt1006.mocap.api.v1.extension.actions.MocapAction;
+import net.mt1006.mocap.api.v1.extension.actions.MocapActionContext;
 import net.mt1006.mocap.mixin.fields.EntityFields;
-import net.mt1006.mocap.mocap.files.RecordingFiles;
-import net.mt1006.mocap.mocap.playing.playback.ActionContext;
 import net.mt1006.mocap.utils.FakePlayer;
 
 import java.util.List;
 import java.util.UUID;
 
-public class Respawn implements Action
+public class Respawn implements MocapAction
 {
 	/*private final Vec3 pos;
 	private final float rotY, rotX;
@@ -50,39 +51,37 @@ public class Respawn implements Action
 
 	public Respawn() {}
 
-	public Respawn(RecordingFiles.Reader reader) {}
+	public Respawn(Reader ignore) {}
 
-	@Override public void write(RecordingFiles.Writer writer)
+	@Override public void write(Writer writer, MocapRecordingData data) {}
+
+	@Override public Result execute(MocapActionContext ctx)
 	{
-		writer.addByte(Type.RESPAWN.id);
-	}
+		Entity entity = ctx.getEntity();
+		entity.setPose(Pose.STANDING);
 
-	@Override public Result execute(ActionContext ctx)
-	{
-		ctx.entity.setPose(Pose.STANDING);
-
-		if (ctx.entity instanceof LivingEntity)
+		if (entity instanceof LivingEntity)
 		{
-			LivingEntity entity = (LivingEntity)ctx.entity;
-			entity.setHealth(entity.getMaxHealth());
-			entity.deathTime = 0;
+			LivingEntity livingEntity = (LivingEntity)entity;
+			livingEntity.setHealth(livingEntity.getMaxHealth());
+			livingEntity.deathTime = 0;
 		}
 
-		if (ctx.entity instanceof FakePlayer)
+		if (entity instanceof FakePlayer)
 		{
-			UUID uuid = ctx.entity.getUUID();
+			UUID uuid = entity.getUUID();
 			ctx.broadcast(new ClientboundPlayerInfoRemovePacket(List.of(uuid)));
-			ctx.level.removePlayerImmediately((FakePlayer)ctx.entity, Entity.RemovalReason.KILLED);
+			ctx.getLevel().removePlayerImmediately((FakePlayer)entity, Entity.RemovalReason.KILLED);
 
-			((FakePlayer)ctx.entity).fakeRespawn();
-			ctx.level.getServer().getPlayerList()
-					.broadcastAll(new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER, (FakePlayer)ctx.entity));
-			ctx.level.addNewPlayer((FakePlayer)ctx.entity);
+			((FakePlayer)entity).fakeRespawn();
+			ctx.getLevel().getServer().getPlayerList()
+					.broadcastAll(new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER, (FakePlayer)entity));
+			ctx.getLevel().addNewPlayer((FakePlayer)entity);
 		}
 		else
 		{
-			((EntityFields)ctx.entity).callUnsetRemoved();
-			ctx.level.addFreshEntity(ctx.entity);
+			((EntityFields)entity).callUnsetRemoved();
+			ctx.getLevel().addFreshEntity(entity);
 		}
 		return Result.OK;
 	}

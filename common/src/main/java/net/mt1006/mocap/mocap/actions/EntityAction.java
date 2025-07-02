@@ -1,43 +1,38 @@
 package net.mt1006.mocap.mocap.actions;
 
-import net.mt1006.mocap.mocap.files.RecordingData;
-import net.mt1006.mocap.mocap.files.RecordingFiles;
-import net.mt1006.mocap.mocap.playing.playback.ActionContext;
+import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
+import net.mt1006.mocap.api.v1.extension.actions.MocapAction;
+import net.mt1006.mocap.api.v1.extension.actions.MocapActionContext;
 
-public class EntityAction implements Action
+public class EntityAction implements MocapAction
 {
 	private final int id;
-	private final Action action;
+	private final MocapAction action;
 
-	public EntityAction(int id, Action action)
+	public EntityAction(int id, MocapAction action)
 	{
 		this.id = id;
 		this.action = action;
 	}
 
-	public EntityAction(RecordingFiles.Reader reader, RecordingData data)
+	public EntityAction(Reader reader, MocapRecordingData data)
 	{
 		id = reader.readInt();
-		action = Action.readAction(reader, data);
+		action = ActionType.readAction(reader, data);
 	}
 
-	@Override public void prepareWrite(RecordingData data)
+	@Override public void prepareWrite(MocapRecordingData data)
 	{
 		action.prepareWrite(data);
 	}
 
-	@Override public void write(RecordingFiles.Writer writer)
+	@Override public void write(Writer writer, MocapRecordingData data)
 	{
-		RecordingFiles.Writer actionWriter = new RecordingFiles.Writer(writer.parent);
-		action.write(actionWriter);
-		if (actionWriter.getByteList().isEmpty()) { return; }
-
-		writer.addByte(Type.ENTITY_ACTION.id);
 		writer.addInt(id);
-		writer.addWriter(actionWriter);
+		ActionType.writeAction(writer, data, action);
 	}
 
-	@Override public Result execute(ActionContext ctx)
+	@Override public Result execute(MocapActionContext ctx)
 	{
 		if (!ctx.setContextEntity(id)) { return Result.IGNORED; }
 		Result retVal = action.execute(ctx);

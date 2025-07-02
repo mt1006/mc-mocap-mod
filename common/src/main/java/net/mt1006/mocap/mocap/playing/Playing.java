@@ -3,13 +3,16 @@ package net.mt1006.mocap.mocap.playing;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import net.minecraft.server.level.ServerPlayer;
+import net.mt1006.mocap.api.v1.controller.config.MocapPlaybackConfig;
 import net.mt1006.mocap.command.CommandsContext;
 import net.mt1006.mocap.command.io.CommandInfo;
 import net.mt1006.mocap.command.io.CommandOutput;
+import net.mt1006.mocap.command.io.FullCommandInfo;
 import net.mt1006.mocap.mocap.files.SceneData;
 import net.mt1006.mocap.mocap.files.SceneFiles;
 import net.mt1006.mocap.mocap.playing.modifiers.PlaybackModifiers;
 import net.mt1006.mocap.mocap.playing.playback.Playback;
+import net.mt1006.mocap.mocap.playing.playback.PlaybackRoot;
 import net.mt1006.mocap.mocap.recording.Recording;
 import net.mt1006.mocap.mocap.recording.RecordingContext;
 import net.mt1006.mocap.mocap.settings.Settings;
@@ -22,24 +25,49 @@ import java.util.List;
 public class Playing
 {
 	public static final String MOCAP_ENTITY_TAG = "mocap_entity";
-	public static final Multimap<String, Playback.Root> playbacksByOwner = HashMultimap.create();
-	public static final Collection<Playback.Root> playbacks = playbacksByOwner.values();
+	public static final Multimap<String, PlaybackRoot> playbacksByOwner = HashMultimap.create();
+	public static final Collection<PlaybackRoot> playbacks = playbacksByOwner.values();
 	private static long tickCounter = 0;
 	private static double timer = 0.0;
 	private static double previousPlaybackSpeed = 0.0;
+	private static int nextPlaybackId = 0;
 
-	public static boolean start(CommandInfo commandInfo, String name, PlaybackModifiers modifiers, boolean defaultModifiers)
+	public static boolean start(CommandInfo commandInfo, String name, MocapPlaybackConfig config,
+								PlaybackModifiers modifiers, boolean sendModifiersWarning)
 	{
-		if (name.charAt(0) == '-') { return startCurrentlyRecorded(commandInfo, name, modifiers, defaultModifiers); }
+		if (name.charAt(0) == '-') { return startCurrentlyRecorded(commandInfo, name, config, modifiers, sendModifiersWarning); }
 
-		Playback.Root playback = Playback.start(commandInfo, name, modifiers, getMaxId() + 1);
+		PlaybackRoot playback = Playback.start(commandInfo, name, config, modifiers, getNextId(), false);
 		if (playback == null) { return false; }
 		addPlayback(playback);
-		sendStartMessage(commandInfo, defaultModifiers);
+		sendStartMessage(commandInfo, sendModifiersWarning);
 		return true;
 	}
 
-	private static boolean startCurrentlyRecorded(CommandInfo commandInfo, String name, PlaybackModifiers modifiers, boolean defaultModifiers)
+	public static @Nullable PlaybackRoot startSingleSilently(CommandInfo commandInfo, String name, MocapPlaybackConfig config,
+															 PlaybackModifiers modifiers, boolean hidden)
+	{
+		PlaybackRoot playback;
+		if (name.charAt(0) == '-')
+		{
+			Collection<RecordingContext> contexts = Recording.resolveContexts(commandInfo, name);
+			if (contexts == null || contexts.size() != 1) { return null; }
+
+			RecordingContext ctx = contexts.iterator().next();
+			playback = Playback.start(commandInfo, ctx.data, ctx.id.str, config, modifiers, getNextId(), hidden);
+		}
+		else
+		{
+			playback = Playback.start(commandInfo, name, config, modifiers, getNextId(), hidden);
+		}
+
+		if (playback == null) { return null; }
+		addPlayback(playback);
+		return playback;
+	}
+
+	private static boolean startCurrentlyRecorded(CommandInfo commandInfo, String name, MocapPlaybackConfig config,
+												  PlaybackModifiers modifiers, boolean sendModifiersWarning)
 	{
 		Collection<RecordingContext> contexts = Recording.resolveContexts(commandInfo, name);
 		if (contexts == null) { return false; }
@@ -48,70 +76,82 @@ public class Playing
 		for (RecordingContext ctx : contexts)
 		{
 			PlaybackModifiers modifiersToApply = modifiers;
-			if (Settings.START_AS_RECORDED.val)
+			if (config.getStartAsRecorded())
 			{
 				PlaybackModifiers playerNameModifier = PlaybackModifiers.empty();
 				playerNameModifier.playerName = ctx.recordedPlayer.getName().getString();
 				modifiersToApply = modifiers.mergeWithParent(playerNameModifier);
 			}
 
-			Playback.Root playback = Playback.start(commandInfo, ctx.data, ctx.id.str, modifiersToApply, getMaxId() + 1);
-			if (playback == null) { continue; }
-			addPlayback(playback);
-			successes++;
+			PlaybackRoot playback = Playback.start(commandInfo, ctx.data, ctx.id.str, config, modifiersToApply, getNextId(), false);
+			if (playback != null)
+			{
+				addPlayback(playback);
+				successes++;
+			}
 		}
 
 		if (successes == 0) { return false; }
-		sendStartMessage(commandInfo, defaultModifiers);
+		sendStartMessage(commandInfo, sendModifiersWarning);
 		return true;
 	}
 
-	private static void sendStartMessage(CommandInfo commandInfo, boolean defaultModifiers)
+	private static void sendStartMessage(CommandInfo commandInfo, boolean sendModifiersWarning)
 	{
 		String key = "playback.start.success";
-		if (!defaultModifiers) { key += ".modifiers"; }
+		if (sendModifiersWarning) { key += ".modifiers"; }
 
-		if (commandInfo.sourcePlayer != null)
+		if (commandInfo.getSourcePlayer() != null)
 		{
-			CommandsContext commandsContext = CommandsContext.get(commandInfo.sourcePlayer);
+			CommandsContext commandsContext = CommandsContext.get(commandInfo.getSourcePlayer());
 			if (commandsContext.getSync()) { key += ".sync"; }
 		}
 
 		commandInfo.sendSuccess(key);
 	}
 
-	public static void stop(CommandOutput commandOutput, int id, @Nullable String expectedName)
+	public static boolean stop(CommandOutput commandOutput, String id, @Nullable String expectedName)
 	{
-		for (Playback.Root playback : playbacks)
+		PlaybackRoot playback = findPlayback(commandOutput, id, expectedName);
+		if (playback == null)
 		{
-			if (playback.id == id)
-			{
-				if (expectedName != null && !expectedName.equals(playback.name))
-				{
-					commandOutput.sendFailure("playback.stop.wrong_playback_name");
-					return;
-				}
-
-				playback.instance.stop();
-				commandOutput.sendSuccess("playback.stop.success");
-				return;
-			}
+			commandOutput.sendFailureWithTip("playback.stop.unable_to_find_playback");
+			return false;
 		}
 
-		commandOutput.sendFailureWithTip("playback.stop.unable_to_find_playback");
+		playback.stop();
+		commandOutput.sendSuccess("playback.stop.success");
+		return true;
+	}
+
+	public static @Nullable PlaybackRoot findPlayback(CommandOutput commandOutput, String id, @Nullable String expectedName)
+	{
+		for (PlaybackRoot playback : playbacks)
+		{
+			if (playback.getId().equals(id))
+			{
+				if (expectedName != null && !expectedName.equals(playback.getRootName()))
+				{
+					commandOutput.sendFailure("playback.stop.wrong_playback_name"); //TODO: FIX
+					return null;
+				}
+				return playback;
+			}
+		}
+		return null;
 	}
 
 	public static void stopAll(CommandOutput commandOutput, @Nullable ServerPlayer player)
 	{
 		if (player == null)
 		{
-			playbacks.forEach((p) -> p.instance.stop());
+			playbacks.forEach(PlaybackRoot::stop);
 			commandOutput.sendSuccess(playbacks.isEmpty() ? "playback.stop_all.empty": "playback.stop_all.all");
 		}
 		else
 		{
-			Collection<Playback.Root> playerPlaybacks = playbacksByOwner.get(player.getName().getString());
-			playerPlaybacks.forEach((p) -> p.instance.stop());
+			Collection<PlaybackRoot> playerPlaybacks = playbacksByOwner.get(player.getName().getString());
+			playerPlaybacks.forEach(PlaybackRoot::stop);
 
 			if (playerPlaybacks.isEmpty())
 			{
@@ -133,9 +173,9 @@ public class Playing
 		}
 	}
 
-	public static boolean modifiersSet(CommandInfo rootCommandInfo)
+	public static boolean modifiersSet(FullCommandInfo rootCommandInfo)
 	{
-		ServerPlayer source = rootCommandInfo.sourcePlayer;
+		ServerPlayer source = rootCommandInfo.getSourcePlayer();
 		if (source == null)
 		{
 			rootCommandInfo.sendFailure("failure.resolve_player");
@@ -143,7 +183,7 @@ public class Playing
 		}
 		CommandsContext ctx = CommandsContext.get(source);
 
-		CommandInfo commandInfo = rootCommandInfo.getFinalCommandInfo();
+		FullCommandInfo commandInfo = rootCommandInfo.getFinalCommandInfo();
 		if (commandInfo == null)
 		{
 			rootCommandInfo.sendFailure("error.unable_to_get_argument");
@@ -178,7 +218,7 @@ public class Playing
 
 	public static boolean modifiersList(CommandInfo commandInfo)
 	{
-		ServerPlayer source = commandInfo.sourcePlayer;
+		ServerPlayer source = commandInfo.getSourcePlayer();
 		if (source == null)
 		{
 			commandInfo.sendFailure("failure.resolve_player");
@@ -193,7 +233,7 @@ public class Playing
 
 	public static boolean modifiersReset(CommandInfo commandInfo)
 	{
-		ServerPlayer source = commandInfo.sourcePlayer;
+		ServerPlayer source = commandInfo.getSourcePlayer();
 		if (source == null)
 		{
 			commandInfo.sendFailure("failure.resolve_player");
@@ -208,7 +248,7 @@ public class Playing
 
 	public static boolean modifiersAddTo(CommandInfo commandInfo, String sceneName, String toAdd)
 	{
-		ServerPlayer source = commandInfo.sourcePlayer;
+		ServerPlayer source = commandInfo.getSourcePlayer();
 		if (source == null)
 		{
 			commandInfo.sendFailure("failure.resolve_player");
@@ -222,7 +262,7 @@ public class Playing
 	public static boolean list(CommandOutput commandOutput)
 	{
 		commandOutput.sendSuccess("playback.list");
-		playbacks.forEach((p) -> commandOutput.sendSuccessLiteral("[%d] %s", p.id, p.name));
+		playbacks.forEach((p) -> commandOutput.sendSuccessLiteral("[%d] %s", p.getId(), p.getRootName()));
 		return true;
 	}
 
@@ -244,12 +284,12 @@ public class Playing
 
 		while ((long)timer == tickCounter)
 		{
-			List<Playback.Root> toRemove = new ArrayList<>();
+			List<PlaybackRoot> toRemove = new ArrayList<>();
 
-			for (Playback.Root playback : playbacks)
+			for (PlaybackRoot playback : playbacks)
 			{
-				if (playback.instance.isFinished()) { toRemove.add(playback); }
-				else { playback.instance.tick(); }
+				if (playback.isFinished()) { toRemove.add(playback); }
+				else { playback.tick(); }
 			}
 
 			removePlaybacks(toRemove);
@@ -260,31 +300,23 @@ public class Playing
 		tickCounter++;
 	}
 
-	private static void addPlayback(Playback.Root playback)
+	private static void addPlayback(PlaybackRoot playback)
 	{
-		ServerPlayer owner = playback.instance.owner;
+		ServerPlayer owner = playback.getOwner();
 		playbacksByOwner.put(owner != null ? owner.getName().getString() : "", playback);
 	}
 
-	private static void removePlaybacks(Collection<Playback.Root> toRemove)
+	private static void removePlaybacks(Collection<PlaybackRoot> toRemove)
 	{
-		for (Playback.Root playback : toRemove)
+		for (PlaybackRoot playback : toRemove)
 		{
-			ServerPlayer owner = playback.instance.owner;
+			ServerPlayer owner = playback.getOwner();
 			playbacksByOwner.remove(owner != null ? owner.getName().getString() : "", playback);
 		}
 	}
 
-	public static int getMaxId()
+	public static int getNextId()
 	{
-		int maxInt = 0;
-		for (Playback.Root playback : playbacks)
-		{
-			if (playback.id > maxInt)
-			{
-				maxInt = playback.id;
-			}
-		}
-		return maxInt;
+		return nextPlaybackId++;
 	}
 }

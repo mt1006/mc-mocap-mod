@@ -19,7 +19,6 @@ import net.minecraft.stats.Stat;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.level.portal.TeleportTransition;
 import net.mt1006.mocap.mocap.playing.playback.RecordingPlayback;
-import net.mt1006.mocap.mocap.settings.Settings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,7 +36,7 @@ public class FakePlayer extends ServerPlayer
 		super(level.getServer(), level, profile, DEFAULT_CLIENT_INFO);
 		this.connection = new FakePlayerNetHandler(level.getServer(), this, profile);
 		this.playback = playback;
-		this.isInvulnerable = Settings.INVULNERABLE_PLAYBACK.val;
+		this.isInvulnerable = playback.config.getInvulnerablePlayback();
 
 		if (isInvulnerable) { setInvulnerable(true); }
 		else { this.invulnerableTime = 0; }

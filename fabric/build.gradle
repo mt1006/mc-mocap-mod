@@ -5,6 +5,7 @@ plugins
 
 repositories
 {
+	maven { url = "https://maven.parchmentmc.org/" }
 	maven { url = "https://maven.terraformersmc.com/releases/" }
 }
 
@@ -23,4 +24,9 @@ dependencies
 loom
 {
 	mixin.useLegacyMixinAp = false
+}
+
+processResources
+{
+	from(project.file("src/main/generated")) { duplicatesStrategy DuplicatesStrategy.EXCLUDE }
 }

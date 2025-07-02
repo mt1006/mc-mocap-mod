@@ -7,8 +7,9 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
-import net.mt1006.mocap.command.io.CommandInfo;
+import net.mt1006.mocap.api.v1.modifiers.MocapPlayerSkin;
 import net.mt1006.mocap.command.io.CommandOutput;
+import net.mt1006.mocap.command.io.FullCommandInfo;
 import net.mt1006.mocap.mocap.files.SceneFiles;
 import net.mt1006.mocap.utils.Utils;
 import org.jetbrains.annotations.Nullable;
@@ -68,7 +69,7 @@ public class PlaybackModifiers
 
 	public boolean areDefault()
 	{
-		return playerName == null && playerSkin.skinSource == PlayerSkin.SkinSource.DEFAULT
+		return playerName == null && playerSkin.source == MocapPlayerSkin.Source.DEFAULT
 				&& transformations.areDefault() && !playerAsEntity.isEnabled() && startDelay == StartDelay.ZERO
 				&& entityFilter.isDefaultForPlayback();
 	}
@@ -88,24 +89,24 @@ public class PlaybackModifiers
 		if (playerName == null) { commandOutput.sendSuccess("scenes.element_info.player_name.default"); }
 		else { commandOutput.sendSuccess("scenes.element_info.player_name.custom", playerName); }
 
-		switch (playerSkin.skinSource)
+		switch (playerSkin.source)
 		{
 			case DEFAULT:
 				commandOutput.sendSuccess("scenes.element_info.skin.default");
 				break;
 
 			case FROM_PLAYER:
-				commandOutput.sendSuccess("scenes.element_info.skin.profile", playerSkin.skinPath);
+				commandOutput.sendSuccess("scenes.element_info.skin.profile", playerSkin.path);
 				break;
 
 			case FROM_FILE:
-				commandOutput.sendSuccess("scenes.element_info.skin.file", playerSkin.skinPath);
+				commandOutput.sendSuccess("scenes.element_info.skin.file", playerSkin.path);
 				break;
 
 			case FROM_MINESKIN:
 				commandOutput.sendSuccess("scenes.element_info.skin.mineskin");
 				Component urlComponent = Utils.getEventComponent(ClickEvent.Action.OPEN_URL,
-						playerSkin.skinPath, String.format("  (§n%s§r)", playerSkin.skinPath));
+						playerSkin.path, String.format("  (§n%s§r)", playerSkin.path));
 				commandOutput.sendSuccessComponent(urlComponent);
 				break;
 		}
@@ -120,7 +121,7 @@ public class PlaybackModifiers
 		else { commandOutput.sendSuccess("scenes.element_info.entity_filter.enabled", entityFilter.save()); }
 	}
 
-	public boolean modify(CommandInfo commandInfo, String propertyName, int propertyNodePosition) throws CommandSyntaxException
+	public boolean modify(FullCommandInfo commandInfo, String propertyName, int propertyNodePosition) throws CommandSyntaxException
 	{
 		switch (propertyName)
 		{

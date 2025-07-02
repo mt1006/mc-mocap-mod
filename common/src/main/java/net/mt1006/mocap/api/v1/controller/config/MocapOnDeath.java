@@ -1,6 +1,6 @@
-package net.mt1006.mocap.mocap.settings.enums;
+package net.mt1006.mocap.api.v1.controller.config;
 
-public enum OnDeath
+public enum MocapOnDeath
 {
 	END_RECORDING,
 	SPLIT_RECORDING,

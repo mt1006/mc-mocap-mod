@@ -3,9 +3,9 @@ package net.mt1006.mocap.events;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
+import net.mt1006.mocap.mocap.actions.EntityUpdate;
 import net.mt1006.mocap.mocap.actions.Hurt;
 import net.mt1006.mocap.mocap.playing.Playing;
-import net.mt1006.mocap.mocap.recording.EntityTracker;
 import net.mt1006.mocap.mocap.recording.Recording;
 
 public class EntityEvent
@@ -14,8 +14,8 @@ public class EntityEvent
 	{
 		if (Recording.isActive() && entity.level() instanceof ServerLevel)
 		{
-			Recording.byRecordedPlayer(entity).forEach((ctx) -> ctx.addAction(new Hurt()));
-			Recording.listTrackedEntities(entity).forEach(EntityTracker.TrackedEntity::onHurt);
+			Recording.byRecordedPlayer(entity).forEach((ctx) -> ctx.addAction(Hurt.INSTANCE));
+			Recording.listTrackedEntities(entity).forEach((e) -> e.getParent().addAction(EntityUpdate.hurt(e.getId())));
 		}
 	}
 

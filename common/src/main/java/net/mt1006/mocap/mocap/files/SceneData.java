@@ -34,7 +34,7 @@ public class SceneData
 	public boolean save(CommandOutput commandOutput, File file, String sceneName, String onSuccess, String onError)
 	{
 		JsonObject json = new JsonObject();
-		json.add("version", new JsonPrimitive(experimentalVersion ? (-version) : version));
+		json.add("version", new JsonPrimitive(experimentalVersion ? (-version) : version)); //TODO: fix?
 
 		JsonArray subscenesArray = new JsonArray();
 		subscenes.forEach((s) -> subscenesArray.add(s.toJson()));

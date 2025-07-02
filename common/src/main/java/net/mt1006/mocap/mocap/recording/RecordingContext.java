@@ -2,23 +2,28 @@ package net.mt1006.mocap.mocap.recording;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.mt1006.mocap.api.v1.controller.config.MocapOnDeath;
+import net.mt1006.mocap.api.v1.controller.config.MocapRecordingConfig;
+import net.mt1006.mocap.api.v1.extension.MocapActiveRecordingActions;
+import net.mt1006.mocap.api.v1.extension.actions.MocapAction;
+import net.mt1006.mocap.api.v1.extension.actions.MocapBlockAction;
 import net.mt1006.mocap.command.io.CommandOutput;
 import net.mt1006.mocap.mocap.actions.*;
 import net.mt1006.mocap.mocap.files.RecordingData;
 import net.mt1006.mocap.mocap.files.RecordingFiles;
 import net.mt1006.mocap.mocap.playing.modifiers.EntityFilter;
-import net.mt1006.mocap.mocap.settings.Settings;
-import net.mt1006.mocap.mocap.settings.enums.OnDeath;
 import net.mt1006.mocap.utils.Utils;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.util.Collection;
 
-public class RecordingContext
+public class RecordingContext implements MocapActiveRecordingActions
 {
 	public final RecordingId id;
 	public ServerPlayer recordedPlayer;
-	public final @Nullable ServerPlayer sourcePlayer;
+	public final RecordingSource source;
+	public final MocapRecordingConfig config;
 	public final RecordingData data = RecordingData.forWriting();
 	public State state = State.WAITING_FOR_ACTION;
 	private @Nullable RecordedEntityState entityState = null;
@@ -29,26 +34,28 @@ public class RecordingContext
 	private int tick = 0, diedOnTick = 0;
 	private boolean died = false;
 
-	public RecordingContext(RecordingId id, ServerPlayer recordedPlayer, @Nullable ServerPlayer sourcePlayer, @Nullable String instantSave)
+	public RecordingContext(RecordingId id, ServerPlayer recordedPlayer, RecordingSource source,
+							MocapRecordingConfig config, @Nullable String instantSave)
 	{
 		this.id = id;
 		this.recordedPlayer = recordedPlayer;
-		this.sourcePlayer = sourcePlayer;
-		this.positionTracker = new PositionTracker(recordedPlayer, false);
+		this.source = source;
+		this.config = config;
+		this.positionTracker = new PositionTracker(recordedPlayer, false, recordedPlayer.position());
 		this.entityFilter = EntityFilter.FOR_RECORDING;
 		this.instantSave = instantSave;
 
-		this.positionTracker.writeToRecordingData(data);
+		this.positionTracker.writeStartPos(data);
 
 		//if (Settings.ASSIGN_DIMENSIONS.val) { data.startDimension = recordedPlayer.level().dimension().location().toString(); } //TODO: restore
-		if (Settings.ASSIGN_PLAYER_NAME.val) { data.playerName = recordedPlayer.getName().getString(); }
+		if (config.getAssignPlayerName()) { data.playerName = recordedPlayer.getName().getString(); }
 	}
 
 	public void start(boolean sendMessage)
 	{
 		entityState = null;
 		state = State.RECORDING;
-		if (sendMessage) { Utils.sendMessage(sourcePlayer, "recording.start.recording_started"); }
+		if (sendMessage) { Utils.sendMessage(source.player, "recording.start.recording_started"); }
 	}
 
 	public void stop(CommandOutput commandOutput)
@@ -120,7 +127,7 @@ public class RecordingContext
 		if (died)
 		{
 			int tickDiff = tick - diedOnTick;
-			if (Settings.ON_DEATH.val == OnDeath.CONTINUE_SYNCED || tickDiff < 20)
+			if (config.getOnDeath() == MocapOnDeath.CONTINUE_SYNCED || tickDiff < 20)
 			{
 				entityTracker.onTick();
 				addTickAction();
@@ -128,8 +135,8 @@ public class RecordingContext
 
 			if (tickDiff == 20)
 			{
-				if (Settings.ON_DEATH.val == OnDeath.END_RECORDING) { stopRecording("recording.stop.stopped"); }
-				else if (Settings.ON_DEATH.val != OnDeath.SPLIT_RECORDING) { positionTracker.teleportFarAway(data.actions); }
+				if (config.getOnDeath() == MocapOnDeath.END_RECORDING) { stopRecording("recording.stop.stopped"); }
+				else if (config.getOnDeath() != MocapOnDeath.SPLIT_RECORDING) { positionTracker.teleportFarAway(data.actions); }
 			}
 			return;
 		}
@@ -143,11 +150,11 @@ public class RecordingContext
 
 		if (recordedPlayer.isDeadOrDying())
 		{
-			addAction(new Die());
+			addAction(Die.INSTANCE);
 			died = true;
 			diedOnTick = tick;
 
-			if (Settings.ON_DEATH.val != OnDeath.END_RECORDING) { Recording.waitingForRespawn.put(recordedPlayer, this); }
+			if (config.getOnDeath() != MocapOnDeath.END_RECORDING) { Recording.waitingForRespawn.put(recordedPlayer, this); }
 		}
 		else if (recordedPlayer.isRemoved())
 		{
@@ -159,7 +166,7 @@ public class RecordingContext
 
 	public void onRespawn(ServerPlayer newPlayer)
 	{
-		if (Settings.ON_DEATH.val == OnDeath.SPLIT_RECORDING)
+		if (config.getOnDeath() == MocapOnDeath.SPLIT_RECORDING)
 		{
 			splitRecording(newPlayer);
 			return;
@@ -174,17 +181,17 @@ public class RecordingContext
 	public void stopRecording(String message)
 	{
 		state = State.WAITING_FOR_DECISION;
-		Utils.sendMessage(sourcePlayer, message);
+		Utils.sendMessage(source.player, message);
 	}
 
 	public void splitRecording(ServerPlayer newPlayer)
 	{
 		stopRecording("recording.stop.split");
-		boolean success = Recording.start(newPlayer, sourcePlayer, null, true, false);
-		if (!success) { Utils.sendMessage(sourcePlayer, "recording.stop.split.error"); }
+		boolean success = (Recording.start(newPlayer, source, config, null, true, false) != null);
+		if (!success) { Utils.sendMessage(source.player, "recording.stop.split.error"); }
 	}
 
-	public void addAction(Action action)
+	@Override public void addAction(MocapAction action)
 	{
 		if (state != State.RECORDING)
 		{
@@ -193,7 +200,17 @@ public class RecordingContext
 		}
 
 		data.actions.add(action);
-		if (action instanceof BlockAction) { data.blockActions.add((BlockAction)action); }
+		if (action instanceof MocapBlockAction) { data.blockActions.add((MocapBlockAction)action); }
+	}
+
+	@Override public void addEntityAction(MocapAction action, int entityId)
+	{
+		addAction(new EntityAction(entityId, action));
+	}
+
+	@Override public Collection<? extends TrackedEntity> getTrackedEntities()
+	{
+		return entityTracker.getAll();
 	}
 
 	public void addTickAction()
@@ -201,11 +218,11 @@ public class RecordingContext
 		int lastElementPos = data.actions.size() - 1;
 		if (lastElementPos < 0)
 		{
-			addAction(new NextTick());
+			addAction(NextTick.INSTANCE);
 			return;
 		}
 
-		Action lastElement = data.actions.get(lastElementPos);
+		MocapAction lastElement = data.actions.get(lastElementPos);
 
 		if (lastElement instanceof NextTick)
 		{
@@ -217,7 +234,7 @@ public class RecordingContext
 		}
 		else
 		{
-			addAction(new NextTick());
+			addAction(NextTick.INSTANCE);
 		}
 	}
 
@@ -229,6 +246,11 @@ public class RecordingContext
 	public int getTick()
 	{
 		return tick;
+	}
+
+	public boolean isRemoved()
+	{
+		return state.removed;
 	}
 
 	public enum State

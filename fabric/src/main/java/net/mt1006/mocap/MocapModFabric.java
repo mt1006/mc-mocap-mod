@@ -47,6 +47,7 @@ public class MocapModFabric implements ModInitializer, MocapModLoaderInterface
 
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> MocapCommand.register(dispatcher, registryAccess));
 		PacketHandler.register();
+		MocapMod.postInit();
 	}
 
 	@Override public String getLoaderName()

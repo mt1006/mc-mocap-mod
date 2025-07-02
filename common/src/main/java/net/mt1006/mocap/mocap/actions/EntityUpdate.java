@@ -6,16 +6,16 @@ import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.phys.Vec3;
+import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
+import net.mt1006.mocap.api.v1.extension.actions.MocapAction;
+import net.mt1006.mocap.api.v1.extension.actions.MocapActionContext;
+import net.mt1006.mocap.api.v1.modifiers.MocapEntityFilter;
 import net.mt1006.mocap.mixin.fields.EntityIdFields;
-import net.mt1006.mocap.mocap.files.RecordingFiles;
 import net.mt1006.mocap.mocap.playing.Playing;
-import net.mt1006.mocap.mocap.playing.modifiers.EntityFilter;
-import net.mt1006.mocap.mocap.playing.playback.ActionContext;
-import net.mt1006.mocap.mocap.settings.Settings;
 import net.mt1006.mocap.utils.Utils;
 import org.jetbrains.annotations.Nullable;
 
-public class EntityUpdate implements Action
+public class EntityUpdate implements MocapAction
 {
 	private final UpdateType type;
 	private final int id;
@@ -61,7 +61,7 @@ public class EntityUpdate implements Action
 		this.position = position;
 	}
 
-	public EntityUpdate(RecordingFiles.Reader reader)
+	public EntityUpdate(Reader reader)
 	{
 		type = UpdateType.fromId(reader.readByte());
 		id = reader.readInt();
@@ -92,10 +92,8 @@ public class EntityUpdate implements Action
 		return compoundTag;
 	}
 
-	@Override public void write(RecordingFiles.Writer writer)
+	@Override public void write(Writer writer, MocapRecordingData data)
 	{
-		writer.addByte(Type.ENTITY_UPDATE.id);
-
 		writer.addByte(type.id);
 		writer.addInt(id);
 
@@ -109,7 +107,7 @@ public class EntityUpdate implements Action
 		}
 	}
 
-	@Override public Result execute(ActionContext ctx)
+	@Override public Result execute(MocapActionContext ctx)
 	{
 		switch (type)
 		{
@@ -117,14 +115,14 @@ public class EntityUpdate implements Action
 				return executeAdd(ctx);
 
 			case PLAYER_DISMOUNT:
-				ctx.entity.stopRiding();
+				ctx.getEntity().stopRiding();
 				return Result.OK;
 
 			case NONE:
 				return Result.IGNORED;
 		}
 
-		ActionContext.EntityData entityData = ctx.entityDataMap.get(id);
+		MocapActionContext.EntityData entityData = ctx.getEntityData(id);
 		if (entityData == null) { return Result.IGNORED; }
 		Entity entity = entityData.entity;
 
@@ -136,24 +134,24 @@ public class EntityUpdate implements Action
 
 			case KILL:
 				entity.invulnerableTime = 0; // for sound effect
-				entity.kill(ctx.level);
+				entity.kill(ctx.getLevel());
 				return Result.OK;
 
 			case HURT:
-				Hurt.hurtEntity(entity);
+				Hurt.hurtEntity(entity, ctx.getConfig());
 				return Result.OK;
 
 			case PLAYER_MOUNT:
-				ctx.entity.startRiding(entity, true);
+				ctx.getEntity().startRiding(entity, true);
 				return Result.OK;
 		}
 		return Result.IGNORED;
 	}
 
-	private Result executeAdd(ActionContext ctx)
+	private Result executeAdd(MocapActionContext ctx)
 	{
-		EntityFilter filter = ctx.modifiers.entityFilter;
-		if (nbtString == null || position == null || ctx.entityDataMap.containsKey(id) || filter.isEmpty()) { return Result.IGNORED; }
+		MocapEntityFilter filter = ctx.getModifiers().getEntityFilter();
+		if (nbtString == null || position == null || ctx.hasEntity(id) || filter.isEmpty()) { return Result.IGNORED; }
 
 		CompoundTag nbt;
 		try
@@ -167,19 +165,19 @@ public class EntityUpdate implements Action
 		}
 		
 		EntityType<?> entityType = EntityType.by(nbt).orElse(null);
-		Entity entity = entityType.create(ctx.level, EntitySpawnReason.MOB_SUMMONED);
+		Entity entity = entityType.create(ctx.getLevel(), EntitySpawnReason.MOB_SUMMONED);
 		if (entity == null || !filter.isAllowed(entity)) { return Result.IGNORED; }
 
-		entity.setPos(ctx.transformer.transformPos(position));
+		entity.setPos(ctx.getTransformer().transformPos(position));
 		entity.setDeltaMovement(0.0, 0.0, 0.0);
 		entity.setNoGravity(true);
-		entity.setInvulnerable(Settings.INVULNERABLE_PLAYBACK.val);
+		entity.setInvulnerable(ctx.getConfig().getInvulnerablePlayback());
 		entity.addTag(Playing.MOCAP_ENTITY_TAG);
 		if (entity instanceof Mob) { ((Mob)entity).setNoAi(true); }
-		ctx.modifiers.transformations.scale.applyToEntity(entity);
+		ctx.getModifiers().getTransformations().applyScaleToEntity(entity);
 
-		ctx.level.addFreshEntity(entity);
-		ctx.entityDataMap.put(id, new ActionContext.EntityData(entity, position));
+		ctx.getLevel().addFreshEntity(entity);
+		ctx.addEntity(id, entity, position);
 		return Result.OK;
 	}
 

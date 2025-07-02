@@ -3,6 +3,7 @@ package net.mt1006.mocap.mocap.playing.modifiers;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
+import net.mt1006.mocap.api.v1.modifiers.MocapPlayerSkin;
 import net.mt1006.mocap.command.io.CommandInfo;
 import net.mt1006.mocap.command.io.CommandOutput;
 import net.mt1006.mocap.mocap.files.SceneFiles;
@@ -18,42 +19,42 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Scanner;
 
-public class PlayerSkin
+public class PlayerSkin implements MocapPlayerSkin
 {
-	public static final PlayerSkin DEFAULT = new PlayerSkin(SkinSource.DEFAULT, null);
+	public static final PlayerSkin DEFAULT = new PlayerSkin(Source.DEFAULT, null);
 	private static final String MINESKIN_URL_PREFIX1 = "minesk.in/";
 	private static final String MINESKIN_URL_PREFIX2 = "mineskin.org/skins/";
 	private static final String MINESKIN_API_URL = "https://api.mineskin.org/get/uuid/";
-	public final SkinSource skinSource;
-	public final @Nullable String skinPath;
+	public final Source source;
+	public final @Nullable String path;
 
-	public PlayerSkin(SkinSource skinSource, @Nullable String skinPath)
+	public PlayerSkin(Source source, @Nullable String path)
 	{
-		this.skinSource = skinSource;
-		this.skinPath = skinPath;
+		this.source = source;
+		this.path = path;
 	}
 
 	public PlayerSkin(@Nullable SceneFiles.Reader reader)
 	{
 		if (reader == null)
 		{
-			skinSource = SkinSource.DEFAULT;
-			skinPath = null;
+			source = Source.DEFAULT;
+			path = null;
 			return;
 		}
 
-		skinSource = SkinSource.fromName(reader.readString("skin_source"));
-		skinPath = reader.readString("skin_path");
+		source = Source.fromName(reader.readString("skin_source"));
+		path = reader.readString("skin_path");
 	}
 
-	public static @Nullable PlayerSkin createVerified(CommandOutput commandOutput, SkinSource skinSource, @Nullable String skinPath)
+	public static @Nullable PlayerSkin createVerified(CommandOutput commandOutput, Source source, @Nullable String skinPath)
 	{
-		if (skinSource == SkinSource.FROM_MINESKIN && skinPath != null && !verifyMineskinUrl(skinPath))
+		if (source == Source.FROM_MINESKIN && skinPath != null && !verifyMineskinUrl(skinPath))
 		{
 			commandOutput.sendFailure("failure.improper_mineskin_link");
 			return null;
 		}
-		return new PlayerSkin(skinSource, skinPath);
+		return new PlayerSkin(source, skinPath);
 	}
 
 	private static boolean verifyMineskinUrl(String url)
@@ -64,13 +65,23 @@ public class PlayerSkin
 		return url.startsWith(MINESKIN_URL_PREFIX1) || url.startsWith(MINESKIN_URL_PREFIX2);
 	}
 
+	@Override public Source getSource()
+	{
+		return source;
+	}
+
+	@Override public @Nullable String getPath()
+	{
+		return path;
+	}
+
 	public @Nullable SceneFiles.Writer save()
 	{
-		if (skinSource == SkinSource.DEFAULT) { return null; }
+		if (source == Source.DEFAULT) { return null; }
 
 		SceneFiles.Writer writer = new SceneFiles.Writer();
-		writer.addString("skin_source", skinSource.getName());
-		writer.addString("skin_path", skinPath);
+		writer.addString("skin_source", source.toString());
+		writer.addString("skin_path", path);
 
 		return writer;
 	}
@@ -78,12 +89,12 @@ public class PlayerSkin
 	public void addSkinToPropertyMap(CommandInfo commandInfo, PropertyMap propertyMap)
 			throws IllegalArgumentException, IllegalAccessException
 	{
-		if (skinPath == null) { return; }
+		if (path == null) { return; }
 
-		switch (skinSource)
+		switch (source)
 		{
 			case FROM_PLAYER:
-				GameProfile tempProfile = ProfileUtils.getGameProfile(commandInfo.server, skinPath);
+				GameProfile tempProfile = ProfileUtils.getGameProfile(commandInfo.getServer(), path);
 				PropertyMap tempPropertyMap = (PropertyMap)Fields.gameProfileProperties.get(tempProfile);
 
 				if (!tempPropertyMap.containsKey("textures"))
@@ -97,12 +108,12 @@ public class PlayerSkin
 				break;
 
 			case FROM_FILE:
-				propertyMap.put(CustomServerSkinManager.PROPERTY_ID, new Property(CustomServerSkinManager.PROPERTY_ID, skinPath));
+				propertyMap.put(CustomServerSkinManager.PROPERTY_ID, new Property(CustomServerSkinManager.PROPERTY_ID, path));
 				break;
 
 			case FROM_MINESKIN:
 				if (!Settings.ALLOW_MINESKIN_REQUESTS.val) { return; }
-				Property skinProperty = propertyFromMineskinURL(skinPath);
+				Property skinProperty = propertyFromMineskinURL(path);
 
 				if (skinProperty == null)
 				{
@@ -118,9 +129,9 @@ public class PlayerSkin
 
 	public PlayerSkin mergeWithParent(PlayerSkin parent)
 	{
-		return (skinSource != SkinSource.DEFAULT)
-				? new PlayerSkin(skinSource, skinPath)
-				: new PlayerSkin(parent.skinSource, parent.skinPath);
+		return (source != Source.DEFAULT)
+				? new PlayerSkin(source, path)
+				: new PlayerSkin(parent.source, parent.path);
 	}
 
 	private @Nullable Property propertyFromMineskinURL(String mineskinURL)
@@ -151,46 +162,5 @@ public class PlayerSkin
 			return new Property("textures", value, signature);
 		}
 		catch (Exception e) { return null; }
-	}
-
-	public enum SkinSource
-	{
-		DEFAULT(0),
-		FROM_PLAYER(1),
-		FROM_FILE(2),
-		FROM_MINESKIN(3);
-
-		private static final SkinSource[] VALUES = values();
-		public final int id;
-
-		SkinSource(int id)
-		{
-			this.id = id;
-		}
-
-		public static SkinSource fromID(int id)
-		{
-			for (SkinSource s : VALUES)
-			{
-				if (s.id == id) { return s; }
-			}
-			return DEFAULT;
-		}
-
-		public String getName()
-		{
-			return name().toLowerCase();
-		}
-
-		public static SkinSource fromName(@Nullable String name)
-		{
-			if (name == null) { return DEFAULT; }
-
-			try
-			{
-				return valueOf(name.toUpperCase());
-			}
-			catch (IllegalArgumentException e) { return DEFAULT; }
-		}
 	}
 }

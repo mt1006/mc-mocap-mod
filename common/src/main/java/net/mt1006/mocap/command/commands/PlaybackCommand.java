@@ -6,10 +6,12 @@ import com.mojang.datafixers.util.Pair;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.mt1006.mocap.api.v1.controller.config.MocapPlaybackConfig;
 import net.mt1006.mocap.command.CommandSuggestions;
 import net.mt1006.mocap.command.CommandUtils;
 import net.mt1006.mocap.command.CommandsContext;
 import net.mt1006.mocap.command.io.CommandInfo;
+import net.mt1006.mocap.command.io.FullCommandInfo;
 import net.mt1006.mocap.mocap.playing.Playing;
 import net.mt1006.mocap.mocap.playing.modifiers.PlaybackModifiers;
 
@@ -42,7 +44,7 @@ public class PlaybackCommand
 		return commandBuilder;
 	}
 
-	private static boolean start(CommandInfo commandInfo)
+	private static boolean start(FullCommandInfo commandInfo)
 	{
 		String name = commandInfo.getNullableString("name");
 		if (name == null)
@@ -56,9 +58,9 @@ public class PlaybackCommand
 
 		try
 		{
-			PlaybackModifiers finalModifiers = CommandsContext.getFinalModifiers(commandInfo.sourcePlayer, modifiers);
-			boolean hasDefaultModifiers = CommandsContext.hasDefaultModifiers(commandInfo.sourcePlayer);
-			return Playing.start(commandInfo, name, finalModifiers, hasDefaultModifiers);
+			PlaybackModifiers finalModifiers = CommandsContext.getFinalModifiers(commandInfo.getSourcePlayer(), modifiers);
+			boolean sendModifiersWarning = !CommandsContext.hasDefaultModifiers(commandInfo.getSourcePlayer());
+			return Playing.start(commandInfo, name, MocapPlaybackConfig.createFromSettings(), finalModifiers, sendModifiersWarning);
 		}
 		catch (Exception e)
 		{
@@ -67,13 +69,12 @@ public class PlaybackCommand
 		}
 	}
 
-	private static boolean stop(CommandInfo commandInfo)
+	private static boolean stop(FullCommandInfo commandInfo)
 	{
 		try
 		{
-			Pair<Integer, String> idPair = CommandUtils.splitIdStr(commandInfo.getString("id"));
-			Playing.stop(commandInfo, idPair.getFirst(), idPair.getSecond());
-			return true;
+			Pair<String, String> idPair = CommandUtils.splitIdStr(commandInfo.getString("id"));
+			return Playing.stop(commandInfo, idPair.getFirst(), idPair.getSecond());
 		}
 		catch (IllegalArgumentException e)
 		{
@@ -84,11 +85,11 @@ public class PlaybackCommand
 
 	private static boolean stopAll(CommandInfo commandInfo, boolean includeOthers)
 	{
-		Playing.stopAll(commandInfo, includeOthers ? null : commandInfo.sourcePlayer);
+		Playing.stopAll(commandInfo, includeOthers ? null : commandInfo.getSourcePlayer());
 		return true;
 	}
 
-	private static boolean modifiersAddTo(CommandInfo commandInfo)
+	private static boolean modifiersAddTo(FullCommandInfo commandInfo)
 	{
 		try
 		{
