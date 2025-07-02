@@ -15,12 +15,7 @@ public class MocapSceneElementImpl implements MocapSceneElement
 	public MocapSceneElementImpl(MocapControllerImpl ctrl, SceneData.Subscene subscene)
 	{
 		//TODO: test length 0
-		this.playable = switch (subscene.name.charAt(0))
-		{
-			case '.' -> new MocapSceneImpl(ctrl, subscene.name);
-			case '-' -> new MocapActiveRecordingImpl(ctrl, subscene.name);
-			default -> new MocapSavedRecordingImpl(ctrl, subscene.name);
-		};
+		this.playable = MocapPlayableImpl.fromName(ctrl, subscene.name);
 		this.modifiers = MocapModifiersImpl.ofCopy(subscene.modifiers);
 	}
 

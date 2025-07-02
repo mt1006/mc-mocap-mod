@@ -22,7 +22,6 @@ import net.minecraft.world.entity.RelativeMovement;
 import net.minecraft.world.level.portal.DimensionTransition;
 import net.mt1006.mocap.mixin.fields.ServerPlayerFields;
 import net.mt1006.mocap.mocap.playing.playback.RecordingPlayback;
-import net.mt1006.mocap.mocap.settings.Settings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,7 +41,7 @@ public class FakePlayer extends ServerPlayer
 		super(level.getServer(), level, profile, DEFAULT_CLIENT_INFO);
 		this.connection = new FakePlayerNetHandler(level.getServer(), this, profile);
 		this.playback = playback;
-		this.isInvulnerable = Settings.INVULNERABLE_PLAYBACK.val;
+		this.isInvulnerable = playback.config.getInvulnerablePlayback();
 
 		if (isInvulnerable) { setInvulnerable(true); }
 		else { ((ServerPlayerFields)this).setSpawnInvulnerableTime(0); }

@@ -2,6 +2,7 @@ package net.mt1006.mocap.mocap.playing.playback;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.mt1006.mocap.api.v1.controller.config.MocapPlaybackConfig;
 import net.mt1006.mocap.command.CommandsContext;
 import net.mt1006.mocap.command.io.CommandInfo;
 import net.mt1006.mocap.mocap.files.RecordingData;
@@ -19,11 +20,13 @@ public abstract class Playback
 	protected final boolean root;
 	protected final ServerLevel level;
 	public final @Nullable ServerPlayer owner;
+	public final MocapPlaybackConfig config;
 	protected boolean finished = false;
 	protected final PlaybackModifiers modifiers;
 	protected int tickCounter = 0; //TODO: StartContext?
 
-	public static @Nullable PlaybackRoot start(CommandInfo commandInfo, String name, PlaybackModifiers modifiers, int id, boolean hideId)
+	public static @Nullable PlaybackRoot start(CommandInfo commandInfo, String name, MocapPlaybackConfig config,
+											   PlaybackModifiers modifiers, int id, boolean hideId)
 	{
 		DataManager dataManager = new DataManager();
 		if (!dataManager.load(commandInfo, name))
@@ -35,35 +38,37 @@ public abstract class Playback
 
 		Playback playback = switch (SceneType.fromName(name))
 		{
-			case RECORDING -> RecordingPlayback.startRoot(commandInfo, dataManager.getRecording(name), modifiers);
-			case SCENE -> ScenePlayback.startRoot(commandInfo, dataManager, name, modifiers);
+			case RECORDING -> RecordingPlayback.startRoot(commandInfo, dataManager.getRecording(name), config, modifiers);
+			case SCENE -> ScenePlayback.startRoot(commandInfo, dataManager, config, name, modifiers);
 		};
-		return playback != null ? new PlaybackRoot(playback, id, name, hideId) : null;
+		return playback != null ? new PlaybackRoot(playback, id, name, config, hideId) : null;
 	}
 
 	public static @Nullable PlaybackRoot start(CommandInfo commandInfo, RecordingData recordingData, String name,
-											   PlaybackModifiers modifiers, int id, boolean hideId)
+											   MocapPlaybackConfig config, PlaybackModifiers modifiers, int id, boolean hideId)
 	{
-		Playback playback = RecordingPlayback.startRoot(commandInfo, recordingData, modifiers);
-		return playback != null ? new PlaybackRoot(playback, id, name, hideId) : null;
+		Playback playback = RecordingPlayback.startRoot(commandInfo, recordingData, config, modifiers);
+		return playback != null ? new PlaybackRoot(playback, id, name, config, hideId) : null;
 	}
 
-	protected static @Nullable Playback start(CommandInfo commandInfo, DataManager dataManager, Playback parent, SceneData.Subscene info)
+	protected static @Nullable Playback start(CommandInfo commandInfo, DataManager dataManager,
+											  MocapPlaybackConfig config, Playback parent, SceneData.Subscene info)
 	{
 		String name = info.name;
 		return switch (SceneType.fromName(name))
 		{
-			case RECORDING -> RecordingPlayback.startSubscene(commandInfo, dataManager, parent, info);
-			case SCENE -> ScenePlayback.startSubscene(commandInfo, dataManager, parent, info);
+			case RECORDING -> RecordingPlayback.startSubscene(commandInfo, dataManager, config, parent, info);
+			case SCENE -> ScenePlayback.startSubscene(commandInfo, dataManager, config, parent, info);
 		};
 	}
 
-	protected Playback(boolean root, ServerLevel level, @Nullable ServerPlayer owner,
+	protected Playback(boolean root, ServerLevel level, @Nullable ServerPlayer owner, MocapPlaybackConfig config,
 					   PlaybackModifiers parentModifiers, @Nullable SceneData.Subscene subscene)
 	{
 		this.root = root;
 		this.level = level;
 		this.owner = owner;
+		this.config = config;
 
 		if (root)
 		{
@@ -81,7 +86,8 @@ public abstract class Playback
 
 	public abstract void stop();
 
-	public abstract boolean isFinished();
+	//TODO: remove?
+	public abstract boolean wasFinished();
 
 	protected abstract PositionTransformer getPosTransformer();
 

@@ -7,7 +7,6 @@ import net.mt1006.mocap.api.v1.extension.MocapActiveRecordingActions;
 import net.mt1006.mocap.mixin.fields.LevelFields;
 import net.mt1006.mocap.mocap.actions.EntityUpdate;
 import net.mt1006.mocap.mocap.playing.Playing;
-import net.mt1006.mocap.mocap.settings.Settings;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -36,7 +35,7 @@ public class EntityTracker
 
 	public void onTick()
 	{
-		if (Settings.ENTITY_TRACKING_DISTANCE.val != 0.0)
+		if (ctx.config.getEntityTrackingDistance() != 0.0)
 		{
 			updateTracked();
 			updateVehicle();
@@ -46,14 +45,14 @@ public class EntityTracker
 
 	private void updateTracked()
 	{
-		double entityTrackingDist = Settings.ENTITY_TRACKING_DISTANCE.val;
+		double entityTrackingDist = ctx.config.getEntityTrackingDistance();
 		boolean limitDistance = entityTrackingDist >= 0.0;
 		double maxDistanceSqr = entityTrackingDist * entityTrackingDist;
 
 		for (Entity entity : ((LevelFields)ctx.recordedPlayer.level()).callGetEntities().getAll())
 		{
 			if ((limitDistance && ctx.recordedPlayer.distanceToSqr(entity) > maxDistanceSqr) || entity instanceof Player
-					|| (Settings.PREVENT_TRACKING_PLAYED_ENTITIES.val && entity.getTags().contains(Playing.MOCAP_ENTITY_TAG)))
+					|| (ctx.config.getPreventTrackingPlayedEntities() && entity.getTags().contains(Playing.MOCAP_ENTITY_TAG)))
 			{
 				continue;
 			}

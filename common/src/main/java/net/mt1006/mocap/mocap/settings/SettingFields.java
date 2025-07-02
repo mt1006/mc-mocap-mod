@@ -30,7 +30,7 @@ import java.util.function.Function;
 
 public class SettingFields
 {
-	final Map<String, Field<?>> fieldMap = new HashMap<>();
+	public final Map<String, Field<?>> fieldMap = new HashMap<>();
 
 	//TODO: remove?
 	/*public IntegerField add(String name, int val)
@@ -116,7 +116,7 @@ public class SettingFields
 				Field<?> field = fieldMap.get(parts[0]);
 				if (field == null) { continue; }
 
-				field.fromString(parts[1]);
+				field.setFromString(parts[1]);
 			}
 			fileScanner.close();
 		}
@@ -132,7 +132,7 @@ public class SettingFields
 	{
 		public final String name;
 		private final @Nullable Consumer<T> onSet;
-		protected final T defVal;
+		public final T defVal;
 		public T val;
 
 		public Field(String name, T defVal, @Nullable Consumer<T> onSet)
@@ -151,7 +151,7 @@ public class SettingFields
 			if (onSet != null) { onSet.accept(val); }
 		}
 
-		private void reset()
+		public void reset()
 		{
 			set(defVal);
 		}
@@ -173,16 +173,17 @@ public class SettingFields
 			return name + "=" + valToString() + "\n";
 		}
 
-		public final void fromString(String str)
+		public final boolean setFromString(String str)
 		{
 			try
 			{
 				set(parseFromString(str));
+				return true;
 			}
 			catch (Exception e)
 			{
 				Utils.exception(e, "Failed to load settings from string");
-				reset();
+				return false;
 			}
 		}
 

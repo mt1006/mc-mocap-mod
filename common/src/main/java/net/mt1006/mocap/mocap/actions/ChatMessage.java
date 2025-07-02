@@ -8,7 +8,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
 import net.mt1006.mocap.api.v1.extension.actions.MocapAction;
 import net.mt1006.mocap.api.v1.extension.actions.MocapActionContext;
-import net.mt1006.mocap.mocap.settings.Settings;
 
 import java.util.List;
 import java.util.UUID;
@@ -34,7 +33,7 @@ public class ChatMessage implements MocapAction
 
 	@Override public Result execute(MocapActionContext ctx)
 	{
-		if (!Settings.CHAT_PLAYBACK.val) { return Result.IGNORED; }
+		if (!ctx.getConfig().getChatPlayback()) { return Result.IGNORED; }
 		ServerPlayer player = ctx.getRealOrDummyPlayer();
 		if (player == null) { return Result.IGNORED; }
 

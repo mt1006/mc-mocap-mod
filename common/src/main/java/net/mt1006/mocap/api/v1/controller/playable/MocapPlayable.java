@@ -1,6 +1,7 @@
 package net.mt1006.mocap.api.v1.controller.playable;
 
 import net.mt1006.mocap.api.v1.controller.MocapPlayback;
+import net.mt1006.mocap.api.v1.controller.config.MocapPlaybackConfig;
 import org.jetbrains.annotations.Nullable;
 
 public interface MocapPlayable
@@ -10,4 +11,6 @@ public interface MocapPlayable
 	boolean exists();
 
 	@Nullable MocapPlayback startPlayback(String playerName);
+
+	@Nullable MocapPlayback startPlayback(String playerName, MocapPlaybackConfig config);
 }

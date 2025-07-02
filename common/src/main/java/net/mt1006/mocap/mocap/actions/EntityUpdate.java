@@ -11,7 +11,6 @@ import net.mt1006.mocap.api.v1.extension.actions.MocapActionContext;
 import net.mt1006.mocap.api.v1.modifiers.MocapEntityFilter;
 import net.mt1006.mocap.mixin.fields.EntityIdFields;
 import net.mt1006.mocap.mocap.playing.Playing;
-import net.mt1006.mocap.mocap.settings.Settings;
 import net.mt1006.mocap.utils.Utils;
 import org.jetbrains.annotations.Nullable;
 
@@ -138,7 +137,7 @@ public class EntityUpdate implements MocapAction
 				return Result.OK;
 
 			case HURT:
-				Hurt.hurtEntity(entity);
+				Hurt.hurtEntity(entity, ctx.getConfig());
 				return Result.OK;
 
 			case PLAYER_MOUNT:
@@ -170,7 +169,7 @@ public class EntityUpdate implements MocapAction
 		entity.setPos(ctx.getTransformer().transformPos(position));
 		entity.setDeltaMovement(0.0, 0.0, 0.0);
 		entity.setNoGravity(true);
-		entity.setInvulnerable(Settings.INVULNERABLE_PLAYBACK.val);
+		entity.setInvulnerable(ctx.getConfig().getInvulnerablePlayback());
 		entity.addTag(Playing.MOCAP_ENTITY_TAG);
 		if (entity instanceof Mob) { ((Mob)entity).setNoAi(true); }
 		ctx.getModifiers().getTransformations().applyScaleToEntity(entity);

@@ -1,6 +1,7 @@
 package net.mt1006.mocap.mocap.playing.playback;
 
 import net.minecraft.world.phys.Vec3;
+import net.mt1006.mocap.api.v1.controller.config.MocapPlaybackConfig;
 import net.mt1006.mocap.command.CommandUtils;
 import net.mt1006.mocap.command.io.CommandInfo;
 import net.mt1006.mocap.command.io.CommandOutput;
@@ -19,10 +20,10 @@ public class ScenePlayback extends Playback
 	private final List<Playback> subscenes = new ArrayList<>();
 	private final PositionTransformer transformer;
 
-	private ScenePlayback(CommandInfo commandInfo, DataManager dataManager, String name, PlaybackModifiers parentModifiers,
+	private ScenePlayback(CommandInfo commandInfo, DataManager dataManager, String name, MocapPlaybackConfig config, PlaybackModifiers parentModifiers,
 						  @Nullable SceneData.Subscene info, @Nullable PositionTransformer parentTransformer) throws StartException
 	{
-		super(info == null, commandInfo.getLevel(), commandInfo.getSourcePlayer(), parentModifiers, info);
+		super(info == null, commandInfo.getLevel(), commandInfo.getSourcePlayer(), config, parentModifiers, info);
 
 		SceneData sceneData = dataManager.getScene(name);
 		if (sceneData == null) { throw new StartException(); }
@@ -36,22 +37,23 @@ public class ScenePlayback extends Playback
 		transformer = createPosTransformer(commandInfo, parentTransformer, sceneData, dataManager);
 		for (SceneData.Subscene subscene : sceneData.subscenes)
 		{
-			Playback playback = Playback.start(commandInfo, dataManager, this, subscene);
+			Playback playback = Playback.start(commandInfo, dataManager, config, this, subscene);
 			if (playback == null) { return; }
 			subscenes.add(playback);
 		}
 	}
 
 	protected static @Nullable ScenePlayback startRoot(CommandInfo commandInfo, DataManager dataManager,
-													   String name, PlaybackModifiers modifiers)
+													   MocapPlaybackConfig config, String name, PlaybackModifiers modifiers)
 	{
-		try { return new ScenePlayback(commandInfo, dataManager, name, modifiers, null, null); }
+		try { return new ScenePlayback(commandInfo, dataManager, name, config, modifiers, null, null); }
 		catch (StartException e) { return null; }
 	}
 
-	protected static @Nullable ScenePlayback startSubscene(CommandInfo commandInfo, DataManager dataManager, Playback parent, SceneData.Subscene info)
+	protected static @Nullable ScenePlayback startSubscene(CommandInfo commandInfo, DataManager dataManager,
+														   MocapPlaybackConfig config, Playback parent, SceneData.Subscene info)
 	{
-		try { return new ScenePlayback(commandInfo, dataManager, info.name, parent.modifiers, info, parent.getPosTransformer()); }
+		try { return new ScenePlayback(commandInfo, dataManager, info.name, config, parent.modifiers, info, parent.getPosTransformer()); }
 		catch (StartException e) { return null; }
 	}
 
@@ -80,7 +82,7 @@ public class ScenePlayback extends Playback
 		finished = true;
 	}
 
-	@Override public boolean isFinished()
+	@Override public boolean wasFinished()
 	{
 		return finished;
 	}

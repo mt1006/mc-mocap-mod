@@ -2,6 +2,7 @@ package net.mt1006.mocap.mocap.playing.playback;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.mt1006.mocap.api.v1.controller.MocapPlayback;
+import net.mt1006.mocap.api.v1.controller.config.MocapPlaybackConfig;
 import org.jetbrains.annotations.Nullable;
 
 public class PlaybackRoot implements MocapPlayback
@@ -10,14 +11,16 @@ public class PlaybackRoot implements MocapPlayback
 	private final String id; //TODO: turn them into string ids? (1.5)
 	private final String name;
 	private final String suggestedId;
+	private final MocapPlaybackConfig config;
 	private final boolean hideId;
 
-	public PlaybackRoot(Playback instance, int id, String name, boolean hideId)
+	public PlaybackRoot(Playback instance, int id, String name, MocapPlaybackConfig config, boolean hideId)
 	{
 		this.instance = instance;
 		this.id = String.valueOf(id);
 		this.name = name;
 		this.suggestedId = String.format("%03d-%s", id, name);
+		this.config = config;
 		this.hideId = hideId;
 	}
 
@@ -39,6 +42,11 @@ public class PlaybackRoot implements MocapPlayback
 	@Override public @Nullable ServerPlayer getOwner()
 	{
 		return instance.owner;
+	}
+
+	@Override public MocapPlaybackConfig getConfig()
+	{
+		return config;
 	}
 
 	@Override public boolean isHidden()

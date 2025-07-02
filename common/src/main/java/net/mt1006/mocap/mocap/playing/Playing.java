@@ -3,6 +3,7 @@ package net.mt1006.mocap.mocap.playing;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import net.minecraft.server.level.ServerPlayer;
+import net.mt1006.mocap.api.v1.controller.config.MocapPlaybackConfig;
 import net.mt1006.mocap.command.CommandsContext;
 import net.mt1006.mocap.command.io.CommandInfo;
 import net.mt1006.mocap.command.io.CommandOutput;
@@ -31,18 +32,20 @@ public class Playing
 	private static double previousPlaybackSpeed = 0.0;
 	private static int nextPlaybackId = 0;
 
-	public static boolean start(CommandInfo commandInfo, String name, PlaybackModifiers modifiers, boolean sendModifiersWarning)
+	public static boolean start(CommandInfo commandInfo, String name, MocapPlaybackConfig config,
+								PlaybackModifiers modifiers, boolean sendModifiersWarning)
 	{
-		if (name.charAt(0) == '-') { return startCurrentlyRecorded(commandInfo, name, modifiers, sendModifiersWarning); }
+		if (name.charAt(0) == '-') { return startCurrentlyRecorded(commandInfo, name, config, modifiers, sendModifiersWarning); }
 
-		PlaybackRoot playback = Playback.start(commandInfo, name, modifiers, getNextId(), false);
+		PlaybackRoot playback = Playback.start(commandInfo, name, config, modifiers, getNextId(), false);
 		if (playback == null) { return false; }
 		addPlayback(playback);
 		sendStartMessage(commandInfo, sendModifiersWarning);
 		return true;
 	}
 
-	public static @Nullable PlaybackRoot startSingleSilently(CommandInfo commandInfo, String name, PlaybackModifiers modifiers, boolean hidden)
+	public static @Nullable PlaybackRoot startSingleSilently(CommandInfo commandInfo, String name, MocapPlaybackConfig config,
+															 PlaybackModifiers modifiers, boolean hidden)
 	{
 		PlaybackRoot playback;
 		if (name.charAt(0) == '-')
@@ -51,11 +54,11 @@ public class Playing
 			if (contexts == null || contexts.size() != 1) { return null; }
 
 			RecordingContext ctx = contexts.iterator().next();
-			playback = Playback.start(commandInfo, ctx.data, ctx.id.str, modifiers, getNextId(), hidden);
+			playback = Playback.start(commandInfo, ctx.data, ctx.id.str, config, modifiers, getNextId(), hidden);
 		}
 		else
 		{
-			playback = Playback.start(commandInfo, name, modifiers, getNextId(), hidden);
+			playback = Playback.start(commandInfo, name, config, modifiers, getNextId(), hidden);
 		}
 
 		if (playback == null) { return null; }
@@ -63,7 +66,8 @@ public class Playing
 		return playback;
 	}
 
-	private static boolean startCurrentlyRecorded(CommandInfo commandInfo, String name, PlaybackModifiers modifiers, boolean sendModifiersWarning)
+	private static boolean startCurrentlyRecorded(CommandInfo commandInfo, String name, MocapPlaybackConfig config,
+												  PlaybackModifiers modifiers, boolean sendModifiersWarning)
 	{
 		Collection<RecordingContext> contexts = Recording.resolveContexts(commandInfo, name);
 		if (contexts == null) { return false; }
@@ -72,14 +76,14 @@ public class Playing
 		for (RecordingContext ctx : contexts)
 		{
 			PlaybackModifiers modifiersToApply = modifiers;
-			if (Settings.START_AS_RECORDED.val)
+			if (config.getStartAsRecorded())
 			{
 				PlaybackModifiers playerNameModifier = PlaybackModifiers.empty();
 				playerNameModifier.playerName = ctx.recordedPlayer.getName().getString();
 				modifiersToApply = modifiers.mergeWithParent(playerNameModifier);
 			}
 
-			PlaybackRoot playback = Playback.start(commandInfo, ctx.data, ctx.id.str, modifiersToApply, getNextId(), false);
+			PlaybackRoot playback = Playback.start(commandInfo, ctx.data, ctx.id.str, config, modifiersToApply, getNextId(), false);
 			if (playback != null)
 			{
 				addPlayback(playback);

@@ -1,30 +1,16 @@
 package net.mt1006.mocap.api.v1.extension.actions;
 
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
-import net.mt1006.mocap.api.v1.extension.MocapPositionTransformer;
-import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
-import net.mt1006.mocap.api.v1.modifiers.MocapModifiers;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
 
-public interface MocapActionContext
+public interface MocapActionContext extends MocapBasicActionContext
 {
-	MocapRecordingData getRecordingData();
-
-	Entity getEntity();
-
-	ServerLevel getLevel();
-
-	MocapModifiers getModifiers();
-
-	MocapPositionTransformer getTransformer();
-
 	@Nullable ServerPlayer getDummyPlayer();
 
 	@Nullable ServerPlayer getRealOrDummyPlayer();

@@ -6,6 +6,7 @@ import com.mojang.datafixers.util.Pair;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.mt1006.mocap.api.v1.controller.config.MocapPlaybackConfig;
 import net.mt1006.mocap.command.CommandSuggestions;
 import net.mt1006.mocap.command.CommandUtils;
 import net.mt1006.mocap.command.CommandsContext;
@@ -59,7 +60,7 @@ public class PlaybackCommand
 		{
 			PlaybackModifiers finalModifiers = CommandsContext.getFinalModifiers(commandInfo.getSourcePlayer(), modifiers);
 			boolean sendModifiersWarning = !CommandsContext.hasDefaultModifiers(commandInfo.getSourcePlayer());
-			return Playing.start(commandInfo, name, finalModifiers, sendModifiersWarning);
+			return Playing.start(commandInfo, name, MocapPlaybackConfig.createFromSettings(), finalModifiers, sendModifiersWarning);
 		}
 		catch (Exception e)
 		{

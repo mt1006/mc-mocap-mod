@@ -11,6 +11,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.mt1006.mocap.MocapMod;
 import net.mt1006.mocap.api.impl.modifiers.MocapModifiersImpl;
+import net.mt1006.mocap.api.v1.controller.config.MocapPlaybackConfig;
 import net.mt1006.mocap.api.v1.extension.MocapPositionTransformer;
 import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
 import net.mt1006.mocap.api.v1.extension.actions.MocapActionContext;
@@ -19,7 +20,6 @@ import net.mt1006.mocap.events.PlayerConnectionEvent;
 import net.mt1006.mocap.mocap.playing.Playing;
 import net.mt1006.mocap.mocap.playing.modifiers.PlaybackModifiers;
 import net.mt1006.mocap.mocap.settings.Settings;
-import net.mt1006.mocap.mocap.settings.enums.EntitiesAfterPlayback;
 import net.mt1006.mocap.network.MocapPacketS2C;
 import net.mt1006.mocap.utils.FakePlayer;
 import net.mt1006.mocap.utils.Utils;
@@ -39,6 +39,7 @@ public class ActionContext implements MocapActionContext
 	private final EntityData mainEntityData;
 	public final Map<Integer, EntityData> entityDataMap = new HashMap<>();
 	public final ServerLevel level;
+	private final MocapPlaybackConfig config;
 	private final MocapModifiers modifiers;
 	public final @Nullable FakePlayer ghostPlayer;
 	public final PositionTransformer transformer;
@@ -49,7 +50,7 @@ public class ActionContext implements MocapActionContext
 	private int repeatCounter = 0;
 
 	public ActionContext(MocapRecordingData recordingData, ServerPlayer owner, PlayerList packetTargets, Entity entity,
-						 PlaybackModifiers modifiers, @Nullable FakePlayer ghostPlayer, PositionTransformer transformer)
+						 MocapPlaybackConfig config, PlaybackModifiers modifiers, @Nullable FakePlayer ghostPlayer, PositionTransformer transformer)
 	{
 		if (!(entity.level() instanceof ServerLevel))
 		{
@@ -61,6 +62,7 @@ public class ActionContext implements MocapActionContext
 		this.packetTargets = packetTargets;
 		this.mainEntityData = new EntityData(entity, recordingData.getStartPos());
 		this.level = (ServerLevel) entity.level();
+		this.config = config;
 		this.modifiers = MocapModifiersImpl.ofCopy(modifiers); //TODO: merge with modifiers
 		this.ghostPlayer = ghostPlayer;
 		this.transformer = transformer;
@@ -81,6 +83,11 @@ public class ActionContext implements MocapActionContext
 	@Override public ServerLevel getLevel()
 	{
 		return level;
+	}
+
+	@Override public MocapPlaybackConfig getConfig()
+	{
+		return config;
 	}
 
 	@Override public MocapModifiers getModifiers()
@@ -272,23 +279,23 @@ public class ActionContext implements MocapActionContext
 		return false;
 	}
 
-	private static void removeEntity(Entity entity)
+	private void removeEntity(Entity entity)
 	{
-		switch (Settings.ENTITIES_AFTER_PLAYBACK.val)
+		switch (config.getEntitiesAfterPlayback())
 		{
-			case EntitiesAfterPlayback.REMOVE:
+			case REMOVE:
 				entity.remove(Entity.RemovalReason.KILLED);
 
-			case EntitiesAfterPlayback.KILL:
+			case KILL:
 				entity.invulnerableTime = 0; // for sound effect
 				if (entity instanceof FakePlayer) { ((FakePlayer)entity).fakeKill(); }
 				else { entity.kill(); }
 				break;
 
-			case EntitiesAfterPlayback.LEFT_UNTOUCHED:
+			case LEFT_UNTOUCHED:
 				break;
 
-			case EntitiesAfterPlayback.RELEASE_AS_NORMAL:
+			case RELEASE_AS_NORMAL:
 				entity.setNoGravity(false);
 				entity.setInvulnerable(false);
 				entity.removeTag(Playing.MOCAP_ENTITY_TAG);
@@ -296,7 +303,7 @@ public class ActionContext implements MocapActionContext
 				break;
 
 			default:
-				throw new IllegalStateException("Unexpected value: " + Settings.ENTITIES_AFTER_PLAYBACK.val);
+				throw new IllegalStateException("Unexpected value: " + config.getEntitiesAfterPlayback());
 		}
 	}
 }

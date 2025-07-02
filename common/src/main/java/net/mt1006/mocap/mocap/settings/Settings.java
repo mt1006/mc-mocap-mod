@@ -1,10 +1,11 @@
 package net.mt1006.mocap.mocap.settings;
 
+import net.mt1006.mocap.api.v1.controller.config.MocapEntitiesAfterPlayback;
+import net.mt1006.mocap.api.v1.controller.config.MocapOnDeath;
 import net.mt1006.mocap.command.io.FullCommandInfo;
 import net.mt1006.mocap.mocap.playing.modifiers.EntityFilter;
 import net.mt1006.mocap.mocap.playing.modifiers.EntityFilterInstance;
-import net.mt1006.mocap.mocap.settings.enums.EntitiesAfterPlayback;
-import net.mt1006.mocap.mocap.settings.enums.OnDeath;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
@@ -18,26 +19,26 @@ public class Settings
 	private static final SettingGroups.Group ADVANCED = groups.add("advanced");
 
 	public static final SettingFields.StringField TRACK_ENTITIES = RECORDING.add(fields.add("track_entities", "@vehicles;@projectiles;@items", EntityFilter::onTrackEntitiesSet, EntityFilterInstance::test));
-	public static final SettingFields.BooleanField PREVENT_TRACKING_PLAYED_ENTITIES = RECORDING.add(fields.add("prevent_tracking_played_entities", true));
-	public static final SettingFields.DoubleField ENTITY_TRACKING_DISTANCE = RECORDING.add(fields.add("entity_tracking_distance", 128.0));
+	static final SettingFields.BooleanField PREVENT_TRACKING_PLAYED_ENTITIES = RECORDING.add(fields.add("prevent_tracking_played_entities", true));
+	static final SettingFields.DoubleField ENTITY_TRACKING_DISTANCE = RECORDING.add(fields.add("entity_tracking_distance", 128.0));
 	//public static final SettingFields.BooleanField ASSIGN_DIMENSIONS = RECORDING.add(fields.add("assign_dimensions", true));
-	public static final SettingFields.EnumField<OnDeath> ON_DEATH = RECORDING.add(fields.add("on_death", OnDeath.END_RECORDING));
+	static final SettingFields.EnumField<MocapOnDeath> ON_DEATH = RECORDING.add(fields.add("on_death", MocapOnDeath.END_RECORDING));
 	//public static final SettingFields.IntegerField ON_CHANGE_DIMENSION = RECORDING.add(fields.add("on_change_dimension", 2)); //TODO: implement
 	public static final SettingFields.BooleanField START_INSTANTLY = RECORDING.add(fields.add("start_instantly", false));
-	public static final SettingFields.BooleanField ASSIGN_PLAYER_NAME = RECORDING.add(fields.add("assign_player_name", false));
-	public static final SettingFields.BooleanField CHAT_RECORDING = RECORDING.add(fields.add("chat_recording", false));
+	static final SettingFields.BooleanField ASSIGN_PLAYER_NAME = RECORDING.add(fields.add("assign_player_name", false));
+	static final SettingFields.BooleanField CHAT_RECORDING = RECORDING.add(fields.add("chat_recording", false));
 
 	public static final SettingFields.DoubleField PLAYBACK_SPEED = PLAYBACK.add(fields.add("playback_speed", 1.0));
 	public static final SettingFields.StringField PLAY_ENTITIES = PLAYBACK.add(fields.add("play_entities", "*", EntityFilter::onPlaybackEntitiesSet, EntityFilterInstance::test));
-	public static final SettingFields.BooleanField CAN_PUSH_ENTITIES = PLAYBACK.add(fields.add("can_push_entities", true));
-	public static final SettingFields.EnumField<EntitiesAfterPlayback> ENTITIES_AFTER_PLAYBACK = PLAYBACK.add(fields.add("entities_after_playback", EntitiesAfterPlayback.REMOVE));
-	public static final SettingFields.BooleanField BLOCK_ACTIONS_PLAYBACK = PLAYBACK.add(fields.add("block_actions_playback", true));
-	public static final SettingFields.BooleanField BLOCK_INITIALIZATION = PLAYBACK.add(fields.add("block_initialization", true));
-	public static final SettingFields.BooleanField BLOCK_ALLOW_SCALED = PLAYBACK.add(fields.add("block_allow_scaled", false));
-	public static final SettingFields.BooleanField DROP_FROM_BLOCKS = PLAYBACK.add(fields.add("drop_from_blocks", false));
-	public static final SettingFields.BooleanField START_AS_RECORDED = PLAYBACK.add(fields.add("start_as_recorded", false));
-	public static final SettingFields.BooleanField CHAT_PLAYBACK = PLAYBACK.add(fields.add("chat_playback", true));
-	public static final SettingFields.BooleanField INVULNERABLE_PLAYBACK = PLAYBACK.add(fields.add("invulnerable_playback", true));
+	static final SettingFields.BooleanField CAN_PUSH_ENTITIES = PLAYBACK.add(fields.add("can_push_entities", true));
+	static final SettingFields.EnumField<MocapEntitiesAfterPlayback> ENTITIES_AFTER_PLAYBACK = PLAYBACK.add(fields.add("entities_after_playback", MocapEntitiesAfterPlayback.REMOVE));
+	static final SettingFields.BooleanField BLOCK_ACTIONS_PLAYBACK = PLAYBACK.add(fields.add("block_actions_playback", true));
+	static final SettingFields.BooleanField BLOCK_INITIALIZATION = PLAYBACK.add(fields.add("block_initialization", true));
+	static final SettingFields.BooleanField BLOCK_ALLOW_SCALED = PLAYBACK.add(fields.add("block_allow_scaled", false));
+	static final SettingFields.BooleanField DROP_FROM_BLOCKS = PLAYBACK.add(fields.add("drop_from_blocks", false));
+	static final SettingFields.BooleanField START_AS_RECORDED = PLAYBACK.add(fields.add("start_as_recorded", false));
+	static final SettingFields.BooleanField CHAT_PLAYBACK = PLAYBACK.add(fields.add("chat_playback", true));
+	static final SettingFields.BooleanField INVULNERABLE_PLAYBACK = PLAYBACK.add(fields.add("invulnerable_playback", true));
 
 	public static final SettingFields.DoubleField FLUENT_MOVEMENTS = ADVANCED.add(fields.add("fluent_movements", 32.0));
 	public static final SettingFields.DoubleField MAX_FLOAT_POS_VALUE = ADVANCED.add(fields.add("max_float_pos_value", 1024.0));
@@ -70,6 +71,11 @@ public class Settings
 	public static Collection<SettingFields.Field<?>> getFields()
 	{
 		return fields.fieldMap.values();
+	}
+
+	public static @Nullable SettingFields.Field<?> getField(String name)
+	{
+		return fields.fieldMap.get(name);
 	}
 
 	public static Collection<SettingGroups.Group> getGroups()

@@ -3,10 +3,10 @@ package net.mt1006.mocap.mocap.actions;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.mt1006.mocap.api.v1.controller.config.MocapPlaybackConfig;
 import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
 import net.mt1006.mocap.api.v1.extension.actions.MocapAction;
 import net.mt1006.mocap.api.v1.extension.actions.MocapActionContext;
-import net.mt1006.mocap.mocap.settings.Settings;
 
 public class Hurt implements MocapAction
 {
@@ -19,7 +19,7 @@ public class Hurt implements MocapAction
 		return INSTANCE;
 	}
 
-	public static void hurtEntity(Entity entity)
+	public static void hurtEntity(Entity entity, MocapPlaybackConfig config)
 	{
 		LivingEntity livingEntity = (entity instanceof LivingEntity) ? (LivingEntity)entity : null;
 		entity.setInvulnerable(false);
@@ -29,7 +29,7 @@ public class Hurt implements MocapAction
 		entity.hurt(new DamageSource(entity.level().damageSources().fellOutOfWorld().typeHolder()), 1.0f);
 
 		if (livingEntity != null) { livingEntity.setHealth(livingEntity.getMaxHealth()); }
-		entity.setInvulnerable(Settings.INVULNERABLE_PLAYBACK.val);
+		entity.setInvulnerable(config.getInvulnerablePlayback());
 	}
 
 	@Override public void write(Writer writer, MocapRecordingData data)
@@ -39,7 +39,7 @@ public class Hurt implements MocapAction
 
 	@Override public Result execute(MocapActionContext ctx)
 	{
-		hurtEntity(ctx.getEntity());
+		hurtEntity(ctx.getEntity(), ctx.getConfig());
 		return Result.OK;
 	}
 }

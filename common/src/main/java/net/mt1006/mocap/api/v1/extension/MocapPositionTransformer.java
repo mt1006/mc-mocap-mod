@@ -10,7 +10,7 @@ public interface MocapPositionTransformer
 {
 	Vec3 transformPos(Vec3 point);
 
-	List<? extends BlockPos> transformBlockPos(BlockPos blockPos);
+	List<? extends BlockPos> transformBlockPos(BlockPos blockPos, boolean allowScaled);
 
 	BlockState transformBlockState(BlockState blockState);
 

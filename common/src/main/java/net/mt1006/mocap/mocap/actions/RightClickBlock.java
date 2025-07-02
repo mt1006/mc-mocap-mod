@@ -4,16 +4,15 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.mt1006.mocap.api.v1.extension.MocapPositionTransformer;
 import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
 import net.mt1006.mocap.api.v1.extension.actions.MocapActionContext;
+import net.mt1006.mocap.api.v1.extension.actions.MocapBasicActionContext;
 import net.mt1006.mocap.api.v1.extension.actions.MocapBlockAction;
 
 public class RightClickBlock implements MocapBlockAction
@@ -75,7 +74,7 @@ public class RightClickBlock implements MocapBlockAction
 		writer.addBoolean(offHand);
 	}
 
-	@Override public void preExecute(Entity entity, MocapPositionTransformer transformer) {}
+	@Override public void preExecute(MocapBasicActionContext ctx) {}
 
 	@Override public Result execute(MocapActionContext ctx)
 	{
@@ -85,7 +84,8 @@ public class RightClickBlock implements MocapBlockAction
 		InteractionHand interactionHand = offHand ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
 		ItemStack itemStack = player.getItemInHand(interactionHand);
 
-		for (BlockPos blockPos : ctx.getTransformer().transformBlockPos(blockHitResult.getBlockPos()))
+		boolean allowScaled = ctx.getConfig().getBlockAllowScaled();
+		for (BlockPos blockPos : ctx.getTransformer().transformBlockPos(blockHitResult.getBlockPos(), allowScaled))
 		{
 			BlockState blockState = ctx.getLevel().getBlockState(blockPos);
 			if (blockState.getBlock() instanceof BedBlock) { continue; }

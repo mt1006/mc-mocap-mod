@@ -7,9 +7,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.mt1006.mocap.api.v1.extension.MocapBlockState;
-import net.mt1006.mocap.api.v1.extension.MocapPositionTransformer;
 import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
 import net.mt1006.mocap.api.v1.extension.actions.MocapAction;
+import net.mt1006.mocap.api.v1.extension.actions.MocapBasicActionContext;
 
 public class BlockStateData implements MocapBlockState
 {
@@ -37,22 +37,25 @@ public class BlockStateData implements MocapBlockState
 		writer.addInt(idToWrite);
 	}
 
-	@Override public void place(Entity entity, MocapPositionTransformer transformer, BlockPos blockPos)
+	@Override public void place(MocapBasicActionContext ctx, BlockPos blockPos)
 	{
-		BlockState finBlockState = transformer.transformBlockState(blockState);
-		transformer.transformBlockPos(blockPos).forEach((b) -> placeSingle(entity, b, finBlockState));
+		Entity entity = ctx.getEntity();
+		Level level = ctx.getLevel();
+		BlockState finBlockState = ctx.getTransformer().transformBlockState(blockState);
+		ctx.getTransformer().transformBlockPos(blockPos, ctx.getConfig().getBlockAllowScaled())
+				.forEach((block) -> placeSingle(entity, level, block, finBlockState));
 	}
 
-	@Override public void placeSilently(Entity entity, MocapPositionTransformer transformer, BlockPos blockPos)
+	@Override public void placeSilently(MocapBasicActionContext ctx, BlockPos blockPos)
 	{
-		BlockState finBlockState = transformer.transformBlockState(blockState);
-		transformer.transformBlockPos(blockPos).forEach((b) -> placeSingleSilently(entity, b, finBlockState));
+		Level level = ctx.getLevel();
+		BlockState finBlockState = ctx.getTransformer().transformBlockState(blockState);
+		ctx.getTransformer().transformBlockPos(blockPos, ctx.getConfig().getBlockAllowScaled())
+				.forEach((block) -> placeSingleSilently(level, block, finBlockState));
 	}
 
-	private static void placeSingle(Entity entity, BlockPos blockPos, BlockState blockState)
+	private static void placeSingle(Entity entity, Level level, BlockPos blockPos, BlockState blockState)
 	{
-		Level level = entity.level();
-
 		if (blockState.isAir())
 		{
 			level.destroyBlock(blockPos, true);
@@ -67,8 +70,8 @@ public class BlockStateData implements MocapBlockState
 		}
 	}
 
-	private static void placeSingleSilently(Entity entity, BlockPos blockPos, BlockState blockState)
+	private static void placeSingleSilently(Level level, BlockPos blockPos, BlockState blockState)
 	{
-		entity.level().setBlock(blockPos, blockState, 3);
+		level.setBlock(blockPos, blockState, 3);
 	}
 }

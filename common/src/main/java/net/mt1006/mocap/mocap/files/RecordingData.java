@@ -17,6 +17,7 @@ import net.minecraft.world.phys.Vec3;
 import net.mt1006.mocap.MocapMod;
 import net.mt1006.mocap.api.impl.extenstion.Extensions;
 import net.mt1006.mocap.api.impl.extenstion.MocapExtensionImpl;
+import net.mt1006.mocap.api.v1.controller.config.MocapPlaybackConfig;
 import net.mt1006.mocap.api.v1.extension.MocapExtension;
 import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
 import net.mt1006.mocap.api.v1.extension.actions.MocapAction;
@@ -28,7 +29,7 @@ import net.mt1006.mocap.mocap.actions.NextTick;
 import net.mt1006.mocap.mocap.actions.SkipTicks;
 import net.mt1006.mocap.mocap.playing.playback.ActionContext;
 import net.mt1006.mocap.mocap.playing.playback.PositionTransformer;
-import net.mt1006.mocap.mocap.settings.Settings;
+import net.mt1006.mocap.mocap.playing.playback.PreExecuteContext;
 import net.mt1006.mocap.utils.EntityData;
 import net.mt1006.mocap.utils.Utils;
 import org.jetbrains.annotations.Nullable;
@@ -238,18 +239,18 @@ public class RecordingData implements MocapRecordingData
 		entity.setYHeadRot(rotY);
 	}
 
-	public void preExecute(Entity entity, PositionTransformer transformer)
+	public void preExecute(PreExecuteContext ctx)
 	{
-		if (Settings.BLOCK_INITIALIZATION.val)
+		if (ctx.getConfig().getBlockInitialization())
 		{
 			for (int i = blockActions.size() - 1; i >= 0; i--)
 			{
-				blockActions.get(i).preExecute(entity, transformer);
+				blockActions.get(i).preExecute(ctx);
 			}
 		}
 	}
 
-	public MocapAction.Result executeNext(ActionContext ctx, int pos)
+	public MocapAction.Result executeNext(ActionContext ctx, MocapPlaybackConfig config, int pos)
 	{
 		if (pos >= actions.size()) { return MocapAction.Result.END; }
 		if (pos == 0) { firstExecute(ctx.entity); }
@@ -257,7 +258,7 @@ public class RecordingData implements MocapRecordingData
 		try
 		{
 			MocapAction nextAction = actions.get(pos);
-			if (!Settings.BLOCK_ACTIONS_PLAYBACK.val && nextAction instanceof BlockStateData) { return MocapAction.Result.OK; }
+			if (!config.getBlockActionsPlayback() && nextAction instanceof BlockStateData) { return MocapAction.Result.OK; }
 
 			return nextAction.execute(ctx);
 		}

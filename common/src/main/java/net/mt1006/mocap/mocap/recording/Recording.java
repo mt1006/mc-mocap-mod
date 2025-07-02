@@ -6,6 +6,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.mt1006.mocap.MocapMod;
+import net.mt1006.mocap.api.v1.controller.config.MocapRecordingConfig;
 import net.mt1006.mocap.command.CommandSuggestions;
 import net.mt1006.mocap.command.CommandsContext;
 import net.mt1006.mocap.command.io.CommandInfo;
@@ -54,7 +55,8 @@ public class Recording
 		if (!checkDoubleStart(commandInfo, player)) { return null; }
 		boolean startInstantly = Settings.START_INSTANTLY.val;
 
-		RecordingContext ctx = start(player, source, instantSave, startInstantly, true);
+		RecordingContext ctx = start(player, source,
+				MocapRecordingConfig.createFromSettings(), instantSave, startInstantly, true);
 		if (ctx != null && !startInstantly)
 		{
 			commandInfo.sendSuccess(player.equals(commandInfo.getSourcePlayer())
@@ -68,13 +70,13 @@ public class Recording
 		return ctx;
 	}
 
-	public static @Nullable RecordingContext start(ServerPlayer player, RecordingSource source,
+	public static @Nullable RecordingContext start(ServerPlayer player, RecordingSource source, MocapRecordingConfig config,
 												   @Nullable String instantSave, boolean startNow, boolean sendMessage)
 	{
 		RecordingId id = new RecordingId(contexts, player, source.name);
 		if (!id.isProper()) { return null; }
 
-		RecordingContext ctx = new RecordingContext(id, player, source, instantSave);
+		RecordingContext ctx = new RecordingContext(id, player, source, config, instantSave);
 		contextsBySource.put(source.name, ctx);
 		CommandSuggestions.inputSet.add(id.str);
 

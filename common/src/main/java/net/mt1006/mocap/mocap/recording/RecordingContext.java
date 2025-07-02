@@ -2,6 +2,8 @@ package net.mt1006.mocap.mocap.recording;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.mt1006.mocap.api.v1.controller.config.MocapOnDeath;
+import net.mt1006.mocap.api.v1.controller.config.MocapRecordingConfig;
 import net.mt1006.mocap.api.v1.extension.MocapActiveRecordingActions;
 import net.mt1006.mocap.api.v1.extension.actions.MocapAction;
 import net.mt1006.mocap.api.v1.extension.actions.MocapBlockAction;
@@ -10,8 +12,6 @@ import net.mt1006.mocap.mocap.actions.*;
 import net.mt1006.mocap.mocap.files.RecordingData;
 import net.mt1006.mocap.mocap.files.RecordingFiles;
 import net.mt1006.mocap.mocap.playing.modifiers.EntityFilter;
-import net.mt1006.mocap.mocap.settings.Settings;
-import net.mt1006.mocap.mocap.settings.enums.OnDeath;
 import net.mt1006.mocap.utils.Utils;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,6 +23,7 @@ public class RecordingContext implements MocapActiveRecordingActions
 	public final RecordingId id;
 	public ServerPlayer recordedPlayer;
 	public final RecordingSource source;
+	public final MocapRecordingConfig config;
 	public final RecordingData data = RecordingData.forWriting();
 	public State state = State.WAITING_FOR_ACTION;
 	private @Nullable RecordedEntityState entityState = null;
@@ -33,11 +34,13 @@ public class RecordingContext implements MocapActiveRecordingActions
 	private int tick = 0, diedOnTick = 0;
 	private boolean died = false;
 
-	public RecordingContext(RecordingId id, ServerPlayer recordedPlayer, RecordingSource source, @Nullable String instantSave)
+	public RecordingContext(RecordingId id, ServerPlayer recordedPlayer, RecordingSource source,
+							MocapRecordingConfig config, @Nullable String instantSave)
 	{
 		this.id = id;
 		this.recordedPlayer = recordedPlayer;
 		this.source = source;
+		this.config = config;
 		this.positionTracker = new PositionTracker(recordedPlayer, false, recordedPlayer.position());
 		this.entityFilter = EntityFilter.FOR_RECORDING;
 		this.instantSave = instantSave;
@@ -45,7 +48,7 @@ public class RecordingContext implements MocapActiveRecordingActions
 		this.positionTracker.writeStartPos(data);
 
 		//if (Settings.ASSIGN_DIMENSIONS.val) { data.startDimension = recordedPlayer.level().dimension().location().toString(); } //TODO: restore
-		if (Settings.ASSIGN_PLAYER_NAME.val) { data.playerName = recordedPlayer.getName().getString(); }
+		if (config.getAssignPlayerName()) { data.playerName = recordedPlayer.getName().getString(); }
 	}
 
 	public void start(boolean sendMessage)
@@ -124,7 +127,7 @@ public class RecordingContext implements MocapActiveRecordingActions
 		if (died)
 		{
 			int tickDiff = tick - diedOnTick;
-			if (Settings.ON_DEATH.val == OnDeath.CONTINUE_SYNCED || tickDiff < 20)
+			if (config.getOnDeath() == MocapOnDeath.CONTINUE_SYNCED || tickDiff < 20)
 			{
 				entityTracker.onTick();
 				addTickAction();
@@ -132,8 +135,8 @@ public class RecordingContext implements MocapActiveRecordingActions
 
 			if (tickDiff == 20)
 			{
-				if (Settings.ON_DEATH.val == OnDeath.END_RECORDING) { stopRecording("recording.stop.stopped"); }
-				else if (Settings.ON_DEATH.val != OnDeath.SPLIT_RECORDING) { positionTracker.teleportFarAway(data.actions); }
+				if (config.getOnDeath() == MocapOnDeath.END_RECORDING) { stopRecording("recording.stop.stopped"); }
+				else if (config.getOnDeath() != MocapOnDeath.SPLIT_RECORDING) { positionTracker.teleportFarAway(data.actions); }
 			}
 			return;
 		}
@@ -151,7 +154,7 @@ public class RecordingContext implements MocapActiveRecordingActions
 			died = true;
 			diedOnTick = tick;
 
-			if (Settings.ON_DEATH.val != OnDeath.END_RECORDING) { Recording.waitingForRespawn.put(recordedPlayer, this); }
+			if (config.getOnDeath() != MocapOnDeath.END_RECORDING) { Recording.waitingForRespawn.put(recordedPlayer, this); }
 		}
 		else if (recordedPlayer.isRemoved())
 		{
@@ -163,7 +166,7 @@ public class RecordingContext implements MocapActiveRecordingActions
 
 	public void onRespawn(ServerPlayer newPlayer)
 	{
-		if (Settings.ON_DEATH.val == OnDeath.SPLIT_RECORDING)
+		if (config.getOnDeath() == MocapOnDeath.SPLIT_RECORDING)
 		{
 			splitRecording(newPlayer);
 			return;
@@ -184,7 +187,7 @@ public class RecordingContext implements MocapActiveRecordingActions
 	public void splitRecording(ServerPlayer newPlayer)
 	{
 		stopRecording("recording.stop.split");
-		boolean success = (Recording.start(newPlayer, source, null, true, false) != null);
+		boolean success = (Recording.start(newPlayer, source, config, null, true, false) != null);
 		if (!success) { Utils.sendMessage(source.player, "recording.stop.split.error"); }
 	}
 
