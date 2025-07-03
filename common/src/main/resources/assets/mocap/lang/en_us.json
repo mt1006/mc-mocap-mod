@@ -111,6 +111,11 @@
   "mocap.scenes.remove.success": "Scene successfully removed",
 
   "mocap.scenes.add_to.error": "§lError:§r unable to add element to scene!",
+  "mocap.scenes.add_to.multiple.not_found": "Failed to find playable element matching this pattern!",
+  "mocap.scenes.add_to.multiple.invalid_pattern": "Invalid name pattern - it can only contain one asterisk character!",
+  "mocap.scenes.add_to.multiple.pattern_with_arguments": "You can't specify scene modifiers when using name pattern!",
+  "mocap.scenes.add_to.multiple.error": "§lError:§r unable to add at least one of the elements to scene!",
+  "mocap.scenes.add_to.multiple.success": "All of the elements successfully added to scene",
   "mocap.scenes.add_to.success": "Element successfully added to scene",
 
   "mocap.scenes.remove_from.error": "§lError:§r unable to remove element from scene!",

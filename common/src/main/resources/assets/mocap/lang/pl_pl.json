@@ -111,13 +111,18 @@
   "mocap.scenes.remove.success": "Scena pomyślnie usunięta",
 
   "mocap.scenes.add_to.error": "§lBłąd:§r nie udało się dodać elementu do sceny!",
+  "mocap.scenes.add_to.multiple.not_found": "Nie udało się znaleźć odtwarzalnego elementu pasującego do tego wzorca!",
+  "mocap.scenes.add_to.multiple.invalid_pattern": "Nieprawidłowy wzorzec nazwy - może on zawierać tylko jeden asterysk!",
+  "mocap.scenes.add_to.multiple.pattern_with_arguments": "Nie możesz określić modyfikatorów sceny, gdy używasz wzorca nazwy!",
+  "mocap.scenes.add_to.multiple.error": "§lBłąd:§r nie udało się dodać co najmniej jednego z elementów do sceny!",
+  "mocap.scenes.add_to.multiple.success": "Wszystkie elementy zostały pomyślnie dodane do sceny",
   "mocap.scenes.add_to.success": "Element pomyślnie dodany do sceny",
 
   "mocap.scenes.remove_from.error": "§lBłąd:§r nie udało się usunąć elementu ze sceny!",
   "mocap.scenes.remove_from.success": "Element pomyślnie usunięty ze sceny",
 
-  "mocap.scenes.modify.error": "§lError:§r unable to modify scene element!",
-  "mocap.scenes.modify.success": "Element successfully modified",
+  "mocap.scenes.modify.error": "§lBłąd:§r nie udało się zmodyfikować elementu sceny!",
+  "mocap.scenes.modify.success": "Element pomyślnie zmodyfikowany",
 
   "mocap.scenes.element_info.info": "§l[INFORMACJE O ELEMENCIE SCENY]§r",
   "mocap.scenes.element_info.id": "§lScena/Pozycja:§r %s / %d",
@@ -310,7 +315,7 @@
   "mocap.warning.experimental.stable_download": "§npobierz stabilne wydanie§r!\n",
   "mocap.warning.experimental.disable_message": "§n[Wyłącz tę wiadomość]",
 
-  "mocap.error.generic": "§lError:§r coś poszło nie tak!",
+  "mocap.error.generic": "§lBłąd:§r coś poszło nie tak!",
   "mocap.error.playback_error": "§lBłąd:§r coś poszło nie tak w trakcie odtwarzania!",
   "mocap.error.failed_to_remove_fake_player": "§lBłąd:§r nie udało się usunąć odtwarzanego gracza!",
   "mocap.error.failed_to_init_directories": "§lBłąd:§r nie udało się zainicjalizować folderów!",

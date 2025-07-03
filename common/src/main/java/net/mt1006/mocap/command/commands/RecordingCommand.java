@@ -73,22 +73,22 @@ public class RecordingCommand
 		}
 
 		RecordingSource source = RecordingSource.forCommand(commandInfo);
-		int successCount = 0;
+		int successes = 0;
 		for (ServerPlayer player : players)
 		{
 			String instantSaveName = (players.size() > 1 && instantSave != null)
 					? (instantSave + "_" + player.getName().getString())
 					: instantSave;
-			successCount += (Recording.startOrWait(commandInfo, player, source, instantSaveName, players.size() > 1) != null) ? 1 : 0;
+			successes += (Recording.startOrWait(commandInfo, player, source, instantSaveName, players.size() > 1) != null) ? 1 : 0;
 		}
 
 		if (players.size() > 1)
 		{
-			if (successCount == players.size()) { commandInfo.sendSuccess("recording.start.multiple_started.success"); }
-			else if (successCount > 0) { commandInfo.sendSuccess("recording.start.multiple_started.partial_success"); }
+			if (successes == players.size()) { commandInfo.sendSuccess("recording.start.multiple_started.success"); }
+			else if (successes > 0) { commandInfo.sendFailure("recording.start.multiple_started.partial_success"); }
 			else { commandInfo.sendFailure("recording.start.error"); }
 		}
-		return (successCount == players.size());
+		return (successes == players.size());
 	}
 
 	private static boolean stop(FullCommandInfo commandInfo)

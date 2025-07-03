@@ -12,12 +12,15 @@ import net.mt1006.mocap.command.CommandSuggestions;
 import net.mt1006.mocap.command.CommandUtils;
 import net.mt1006.mocap.command.io.CommandOutput;
 import net.mt1006.mocap.command.io.FullCommandInfo;
+import net.mt1006.mocap.mocap.files.RecordingFiles;
 import net.mt1006.mocap.mocap.files.SceneData;
 import net.mt1006.mocap.mocap.files.SceneFiles;
 import net.mt1006.mocap.mocap.playing.modifiers.PlaybackModifiers;
 import net.mt1006.mocap.mocap.playing.modifiers.StartDelay;
+import net.mt1006.mocap.mocap.recording.Recording;
 import net.mt1006.mocap.utils.Utils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ScenesCommand
@@ -34,7 +37,7 @@ public class ScenesCommand
 		commandBuilder.then(Commands.literal("remove").then(CommandUtils.withInputArgument(SceneFiles::remove, CommandSuggestions::scene, "name")));
 		commandBuilder.then(Commands.literal("add_to").
 			then(Commands.argument("scene_name", StringArgumentType.string()).suggests(CommandSuggestions::scene).
-			then(Commands.argument("to_add", StringArgumentType.string()).suggests(CommandSuggestions::playable).executes(COMMAND_ADD_TO).
+			then(Commands.argument("to_add", StringArgumentType.string()).suggests(CommandSuggestions::playable).executes(CommandUtils.command(ScenesCommand::addToMinimal)).
 			then(Commands.argument("start_delay", DoubleArgumentType.doubleArg(0.0)).executes(COMMAND_ADD_TO).
 			then(CommandUtils.playerArguments(buildContext, COMMAND_ADD_TO))))));
 		commandBuilder.then(Commands.literal("remove_from").
@@ -51,6 +54,70 @@ public class ScenesCommand
 		return commandBuilder;
 	}
 
+	private static boolean addToMinimal(FullCommandInfo commandInfo)
+	{
+		// separated from addTo because it supports name pattern (adding multiple elements with single command)
+		try
+		{
+			String name = commandInfo.getString("scene_name");
+			String toAdd = commandInfo.getString("to_add");
+
+			if (!toAdd.contains("*"))
+			{
+				SceneData.Subscene subscene = new SceneData.Subscene(toAdd, PlaybackModifiers.empty());
+				return SceneFiles.addElement(commandInfo, name, subscene);
+			}
+			else
+			{
+				String[] parts = toAdd.split("\\*", -1);
+				if (parts.length != 2)
+				{
+					commandInfo.sendFailure("scenes.add_to.multiple.invalid_pattern");
+					return false;
+				}
+
+				//TODO: rely on file list
+				List<String> playableList;
+				if (toAdd.startsWith("."))
+				{
+					playableList = SceneFiles.list();
+				}
+				else if (toAdd.startsWith("-"))
+				{
+					playableList = new ArrayList<>();
+					Recording.allContexts().forEach((ctx) -> playableList.add(ctx.id.str));
+				}
+				else
+				{
+					playableList = RecordingFiles.list();
+				}
+
+				if (playableList == null) { return false; }
+				int successes = 0, matched = 0;
+				for (String str : playableList)
+				{
+					if (str.startsWith(parts[0]) && str.endsWith(parts[1]))
+					{
+						SceneData.Subscene subscene = new SceneData.Subscene(str, PlaybackModifiers.empty());
+						successes += SceneFiles.addElement(CommandOutput.LOGS, name, subscene) ? 1 : 0;
+						matched++;
+					}
+				}
+
+				if (matched == 0) { commandInfo.sendFailure("scenes.add_to.multiple.not_found"); }
+				else if (successes == matched) { commandInfo.sendSuccess("scenes.add_to.multiple.success"); }
+				else { commandInfo.sendFailure("scenes.add_to.multiple.error"); }
+				return (successes == matched && matched != 0);
+			}
+
+		}
+		catch (IllegalArgumentException e)
+		{
+			commandInfo.sendException(e, "error.unable_to_get_argument");
+			return false;
+		}
+	}
+
 	private static boolean addTo(FullCommandInfo commandInfo)
 	{
 		try
@@ -58,7 +125,13 @@ public class ScenesCommand
 			String name = commandInfo.getString("scene_name");
 			String toAdd = commandInfo.getString("to_add");
 
-			double delay = 0;
+			if (toAdd.contains("*"))
+			{
+				commandInfo.sendFailure("scenes.add_to.multiple.pattern_with_arguments");
+				return false;
+			}
+
+			double delay = 0.0;
 			try
 			{
 				delay = commandInfo.getDouble("start_delay");
