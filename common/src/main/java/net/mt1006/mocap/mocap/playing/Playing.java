@@ -261,8 +261,15 @@ public class Playing
 
 	public static boolean list(CommandOutput commandOutput)
 	{
-		commandOutput.sendSuccess("playback.list");
-		playbacks.forEach((p) -> commandOutput.sendSuccessLiteral("[%d] %s", p.getId(), p.getRootName()));
+		if (playbacks.isEmpty())
+		{
+			commandOutput.sendSuccess("playback.list.empty");
+		}
+		else
+		{
+			commandOutput.sendSuccess("playback.list");
+			playbacks.forEach((p) -> commandOutput.sendSuccessLiteral("[%s] %s", p.getId(), p.getRootName()));
+		}
 		return true;
 	}
 

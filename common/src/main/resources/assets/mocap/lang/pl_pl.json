@@ -197,6 +197,7 @@
   "mocap.playback.modifiers.reset": "Modyfikatory odtwarzania zresetowane",
 
   "mocap.playback.list": "§lObecnie odtwarzane:§r",
+  "mocap.playback.list.empty": "Brak aktywnych odtworzeń",
 
 
   "mocap.settings.error": "§lBłąd:§r nie udało się znaleźć ustawienia!",

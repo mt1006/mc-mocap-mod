@@ -197,6 +197,7 @@
   "mocap.playback.modifiers.reset": "Playback modifiers reset",
 
   "mocap.playback.list": "§lCurrently playing:§r",
+  "mocap.playback.list.empty": "There are no active playbacks",
 
 
   "mocap.settings.error": "§lError:§r unable to find setting!",
