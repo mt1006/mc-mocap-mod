@@ -20,6 +20,7 @@ public class PacketHandler
 	@SubscribeEvent
 	public static void register(RegisterPayloadHandlersEvent event)
 	{
+		//TODO: add .optional()?
 		PayloadRegistrar registrar = event.registrar("1");
 		registrar.playToServer(MocapPacketC2S.TYPE, MocapPacketC2S.CODEC, PacketHandler::serverReceiver);
 		registrar.playToClient(MocapPacketS2C.TYPE, MocapPacketS2C.CODEC, PacketHandler::clientReceiver);

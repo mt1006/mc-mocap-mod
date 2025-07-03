@@ -76,14 +76,17 @@ public class RecordingCommand
 		int successCount = 0;
 		for (ServerPlayer player : players)
 		{
-			successCount += (Recording.startOrWait(commandInfo, player, source, instantSave, players.size() > 1) != null) ? 1 : 0;
+			String instantSaveName = (players.size() > 1 && instantSave != null)
+					? (instantSave + "_" + player.getName().getString())
+					: instantSave;
+			successCount += (Recording.startOrWait(commandInfo, player, source, instantSaveName, players.size() > 1) != null) ? 1 : 0;
 		}
 
 		if (players.size() > 1)
 		{
 			if (successCount == players.size()) { commandInfo.sendSuccess("recording.start.multiple_started.success"); }
 			else if (successCount > 0) { commandInfo.sendSuccess("recording.start.multiple_started.partial_success"); }
-			else { commandInfo.sendSuccess("recording.start.error"); }
+			else { commandInfo.sendFailure("recording.start.error"); }
 		}
 		return (successCount == players.size());
 	}
