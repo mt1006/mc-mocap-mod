@@ -8,6 +8,8 @@
   "mocap.recording.start.player_not_specified.no_tip": "Nie określono gracza!",
   "mocap.recording.start.waiting_for_action.self": "Wykonaj jakąkolwiek akcję lub użyj \"/mocap recording start\" ponownie, aby zacząć nagrywanie...",
   "mocap.recording.start.waiting_for_action.another_player": "Czekanie na akcję gracza. Użyj \"/mocap recording start\" ponownie, aby zacząć nagrywanie już teraz...",
+  "mocap.recording.start.multiple_started.success": "Określono wielu graczy, natychmiast rozpoczęto nagrywanie...",
+  "mocap.recording.start.multiple_started.partial_success": "Określono wielu graczy, natychmiast rozpoczęto nagrywanie, ale część z nagrań zakończyła się porażką...",
   "mocap.recording.start.recording_started": "Nagrywanie rozpoczęte...",
   "mocap.recording.start.error": "§lBłąd:§r nie udało się rozpocząć nagrywania!",
 

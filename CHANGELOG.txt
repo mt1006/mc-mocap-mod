@@ -35,6 +35,7 @@
 -Renamed settings: "playing_speed" to "playback_speed", "play_block_actions" to "block_actions_playback", "set_block_states" to "block_initialization".
 -Changed "entities_after_playback" setting type from integer to enum.
 -Changed settings, command names and command arguments naming convention from lower camel case to snake case.
+-Command "/mocap playback start" can now accept entity selectors to more than one player.
 -Added "for_all_players" optional argument to "/mocap playback stop_all".
 -Added "instant_save" optional argument to "/mocap recording start" to instantly save recording after stopping it (thanks to Antimality for suggesiton).
 -Renamed "from_..." to "skin_from_..." simple modifiers in "playback start" and "scene add_to" commands.
@@ -48,6 +49,7 @@
 -Added suggestions for skins from files.
 -Suggestions for recordings/scenes names no longer require mod to be installed on a client.
 -For scene name suggestions where dot can be omitted, user input without a dot is now properly parsed by suggestion provider.
+-Playback IDs are now unique throughout server run.
 -Number of operations in recording information now counts tick operations.
 -Improvements to recording format.
 -Improvements to recording information command output.

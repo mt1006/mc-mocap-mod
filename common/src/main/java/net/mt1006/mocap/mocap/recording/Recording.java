@@ -49,14 +49,14 @@ public class Recording
 	private static final Collection<RecordingContext> contexts = contextsBySource.values();
 	public static final BiMultimap<ServerPlayer, RecordingContext> waitingForRespawn = new BiMultimap<>();
 
-	public static @Nullable RecordingContext startOrWait(CommandInfo commandInfo, ServerPlayer player,
-														 RecordingSource source, @Nullable String instantSave)
+	public static @Nullable RecordingContext startOrWait(CommandInfo commandInfo, ServerPlayer player, RecordingSource source,
+														 @Nullable String instantSave, boolean multiplePlayers)
 	{
 		if (!checkDoubleStart(commandInfo, player)) { return null; }
-		boolean startInstantly = Settings.START_INSTANTLY.val;
+		boolean startInstantly = Settings.START_INSTANTLY.val || multiplePlayers;
 
 		RecordingContext ctx = start(player, source,
-				MocapRecordingConfig.createFromSettings(), instantSave, startInstantly, true);
+				MocapRecordingConfig.createFromSettings(), instantSave, startInstantly, !multiplePlayers);
 		if (ctx != null && !startInstantly)
 		{
 			commandInfo.sendSuccess(player.equals(commandInfo.getSourcePlayer())

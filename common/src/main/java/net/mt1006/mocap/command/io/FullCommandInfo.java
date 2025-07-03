@@ -1,14 +1,11 @@
 package net.mt1006.mocap.command.io;
 
-import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.arguments.GameProfileArgument;
 import net.minecraft.commands.arguments.NbtTagArgument;
 import net.minecraft.commands.arguments.ResourceArgument;
 import net.minecraft.nbt.CompoundTag;
@@ -26,8 +23,6 @@ import net.mt1006.mocap.mocap.playing.modifiers.PlayerSkin;
 import net.mt1006.mocap.mocap.settings.Settings;
 import net.mt1006.mocap.utils.Utils;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Collection;
 
 public class FullCommandInfo implements CommandInfo
 {
@@ -141,11 +136,6 @@ public class FullCommandInfo implements CommandInfo
 	public String getString(String name)
 	{
 		return StringArgumentType.getString(ctx, name);
-	}
-
-	public Collection<GameProfile> getGameProfiles(String name) throws CommandSyntaxException
-	{
-		return GameProfileArgument.getGameProfiles(ctx, name);
 	}
 
 	public @Nullable String getNullableString(String name)

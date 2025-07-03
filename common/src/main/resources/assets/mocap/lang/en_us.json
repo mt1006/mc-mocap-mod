@@ -8,6 +8,8 @@
   "mocap.recording.start.player_not_specified.no_tip": "Player wasn't specified!",
   "mocap.recording.start.waiting_for_action.self": "Take any action or use \"/mocap recording start\" again to start recording...",
   "mocap.recording.start.waiting_for_action.another_player": "Waiting for player action. Use \"/mocap recording start\" again to start recording right now...",
+  "mocap.recording.start.multiple_started.success": "Multiple players specified, recording started immediately...",
+  "mocap.recording.start.multiple_started.partial_success": "Multiple players specified, recording started immediately, but some of recordings failed...",
   "mocap.recording.start.recording_started": "Recording started...",
   "mocap.recording.start.error": "§lError:§r failed to start recording!",
 

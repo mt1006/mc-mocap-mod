@@ -1,12 +1,11 @@
 package net.mt1006.mocap.command.commands;
 
-import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.commands.arguments.GameProfileArgument;
+import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.mt1006.mocap.command.CommandSuggestions;
@@ -17,6 +16,7 @@ import net.mt1006.mocap.mocap.recording.RecordingSource;
 import net.mt1006.mocap.mocap.settings.Settings;
 
 import java.util.Collection;
+import java.util.List;
 
 public class RecordingCommand
 {
@@ -27,9 +27,8 @@ public class RecordingCommand
 		LiteralArgumentBuilder<CommandSourceStack> commandBuilder = Commands.literal("recording");
 
 		commandBuilder.then(Commands.literal("start").executes(COMMAND_START).
-			then(Commands.argument("player", GameProfileArgument.gameProfile()).executes(COMMAND_START).
+			then(Commands.argument("player", EntityArgument.players()).executes(COMMAND_START).
 			then(Commands.argument("instant_save", StringArgumentType.string()).executes(COMMAND_START))));
-		//commandBuilder.then(Commands.literal("start_multiple").then(CommandUtils.withStringArgument(Recording::startMultiple, "players"))); //TODO: todo?
 		commandBuilder.then(Commands.literal("stop").executes(CommandUtils.command(RecordingCommand::stop)).
 			then(Commands.argument("id", StringArgumentType.string()).suggests(CommandSuggestions::currentlyRecorded).executes(CommandUtils.command(RecordingCommand::stop))));
 		commandBuilder.then(Commands.literal("discard").executes(CommandUtils.command(RecordingCommand::discard)).
@@ -44,19 +43,13 @@ public class RecordingCommand
 
 	private static boolean start(FullCommandInfo commandInfo)
 	{
-		ServerPlayer player = null;
+		Collection<ServerPlayer> players;
 		String instantSave = null;
 
 		try
 		{
-			Collection<GameProfile> gameProfiles = commandInfo.getGameProfiles("player");
-
-			if (gameProfiles.size() == 1)
-			{
-				String nickname = gameProfiles.iterator().next().getName();
-				player = commandInfo.getServer().getPlayerList().getPlayerByName(nickname);
-			}
-			if (player == null)
+			players = EntityArgument.getOptionalPlayers(commandInfo.ctx, "player");
+			if (players.isEmpty())
 			{
 				commandInfo.sendFailure("recording.start.player_not_found");
 				return false;
@@ -76,10 +69,23 @@ public class RecordingCommand
 				return false;
 			}
 
-			player = (ServerPlayer)entity;
+			players = List.of((ServerPlayer)entity);
 		}
 
-		return (Recording.startOrWait(commandInfo, player, RecordingSource.forCommand(commandInfo), instantSave) != null);
+		RecordingSource source = RecordingSource.forCommand(commandInfo);
+		int successCount = 0;
+		for (ServerPlayer player : players)
+		{
+			successCount += (Recording.startOrWait(commandInfo, player, source, instantSave, players.size() > 1) != null) ? 1 : 0;
+		}
+
+		if (players.size() > 1)
+		{
+			if (successCount == players.size()) { commandInfo.sendSuccess("recording.start.multiple_started.success"); }
+			else if (successCount > 0) { commandInfo.sendSuccess("recording.start.multiple_started.partial_success"); }
+			else { commandInfo.sendSuccess("recording.start.error"); }
+		}
+		return (successCount == players.size());
 	}
 
 	private static boolean stop(FullCommandInfo commandInfo)
