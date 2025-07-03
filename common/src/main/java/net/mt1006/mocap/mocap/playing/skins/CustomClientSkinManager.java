@@ -16,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -24,6 +25,7 @@ public class CustomClientSkinManager
 	private static final int MAX_CLIENT_CACHE_SIZE = 4096;
 	private static final String SKIN_RES_PREFIX = "custom_skin/";
 	private static final String SLIM_SKIN_RES_PREFIX = SKIN_RES_PREFIX + Files.SLIM_SKIN_PREFIX;
+	private static final Random RANDOM = new Random();
 	private static final ConcurrentMap<String, Boolean> skinCache = new ConcurrentHashMap<>();
 	private static boolean clientWarned = false;
 
@@ -88,7 +90,8 @@ public class CustomClientSkinManager
 				return;
 			}
 
-			Minecraft.getInstance().getTextureManager().register(resFromName(name), new DynamicTexture(nativeImage));
+			String id = MocapMod.MOD_ID + ":" + SKIN_RES_PREFIX + RANDOM.nextLong();
+			Minecraft.getInstance().getTextureManager().register(resFromName(name), new DynamicTexture(() -> id, nativeImage));
 			skinCache.put(name, true);
 		}
 		catch (Exception e) { Utils.exception(e, "Failed to read skin texture!"); }

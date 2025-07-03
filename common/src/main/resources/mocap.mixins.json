@@ -15,6 +15,7 @@
 		"fields.HorseFields",
 		"fields.LevelFields",
 		"fields.LivingEntityFields",
+		"fields.LlamaFields",
 		"fields.PigFields",
 		"fields.PlayerFields"
 	],

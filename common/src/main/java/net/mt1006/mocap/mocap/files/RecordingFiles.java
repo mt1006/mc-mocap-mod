@@ -1,7 +1,7 @@
 package net.mt1006.mocap.mocap.files;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.world.phys.Vec3;
@@ -123,8 +123,8 @@ public class RecordingFiles
 		String xStr = String.format(Locale.US, "%.2f", info.startPos.x);
 		String yStr = String.format(Locale.US, "%.2f", info.startPos.y);
 		String zStr = String.format(Locale.US, "%.2f", info.startPos.z);
-		MutableComponent tpSuggestionComponent = Utils.getEventComponent(ClickEvent.Action.SUGGEST_COMMAND,
-				String.format("/tp @p %s %s %s", xStr, yStr, zStr), String.format("%s %s %s", xStr, yStr, zStr));
+		MutableComponent tpSuggestionComponent = Utils.getSuggestCommandComponent(
+				String.format("/tp @p %s %s %s", xStr, yStr, zStr), Component.literal(String.format("%s %s %s", xStr, yStr, zStr)));
 		tpSuggestionComponent.withStyle(Style.EMPTY.withUnderlined(true));
 		commandOutput.sendSuccess("recordings.info.start_pos", tpSuggestionComponent);
 

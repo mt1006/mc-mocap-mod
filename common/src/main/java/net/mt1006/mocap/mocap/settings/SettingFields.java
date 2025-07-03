@@ -341,8 +341,8 @@ public class SettingFields
 
 		private static Component createButton(CommandInfo commandInfo, String textToCopy)
 		{
-			ClickEvent clickEvent = new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, textToCopy);
-			HoverEvent hoverEvent = new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+			ClickEvent clickEvent = new ClickEvent.CopyToClipboard(textToCopy);
+			HoverEvent hoverEvent = new HoverEvent.ShowText(
 					commandInfo.getTranslatableComponent("settings.info.copy_button_info"));
 
 			return commandInfo.getTranslatableComponent("settings.info.copy_button")

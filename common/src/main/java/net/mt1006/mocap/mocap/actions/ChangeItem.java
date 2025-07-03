@@ -211,7 +211,7 @@ public class ChangeItem implements MocapStateAction
 			item = itemStack.getItem();
 			Tag tag = itemStack.save(registryAccess);
 
-			if (!(tag instanceof CompoundTag) || !((CompoundTag)tag).contains("components", Tag.TAG_COMPOUND))
+			if (!(tag instanceof CompoundTag) || !((CompoundTag)tag).contains("components"))
 			{
 				type = ItemDataType.ID_ONLY;
 				data = "";

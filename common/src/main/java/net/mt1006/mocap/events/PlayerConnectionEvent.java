@@ -1,6 +1,6 @@
 package net.mt1006.mocap.events;
 
-import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.mt1006.mocap.MocapMod;
@@ -56,15 +56,11 @@ public class PlayerConnectionEvent
 		if (!MocapMod.EXPERIMENTAL || !player.hasPermissions(2) || !Settings.EXPERIMENTAL_RELEASE_WARNING.val) { return; }
 
 		Utils.sendComponent(player, Utils.getTranslatableComponent(player, "warning.experimental")
-				.append(Utils.getEventComponent(ClickEvent.Action.OPEN_URL,
-						"https://modrinth.com/mod/motion-capture/versions?c=release",
+				.append(Utils.getOpenUrlComponent("https://modrinth.com/mod/motion-capture/versions?c=release",
 						Utils.getTranslatableComponent(player, "warning.experimental.stable_download")))
-				.append(Utils.getEventComponent(ClickEvent.Action.OPEN_URL,
-						"https://discord.gg/nzDETZhqur", "§n[Discord]§r "))
-				.append(Utils.getEventComponent(ClickEvent.Action.OPEN_URL,
-						"https://github.com/mt1006/mc-mocap-mod", "§n[GitHub]§r "))
-				.append(Utils.getEventComponent(ClickEvent.Action.SUGGEST_COMMAND,
-						"/mocap settings advanced experimental_release_warning false",
+				.append(Utils.getOpenUrlComponent("https://discord.gg/nzDETZhqur", Component.literal("§n[Discord]§r ")))
+				.append(Utils.getOpenUrlComponent("https://github.com/mt1006/mc-mocap-mod", Component.literal("§n[GitHub]§r ")))
+				.append(Utils.getSuggestCommandComponent("/mocap settings advanced experimental_release_warning false",
 						Utils.getTranslatableComponent(player, "warning.experimental.disable_message"))));
 	}
 }

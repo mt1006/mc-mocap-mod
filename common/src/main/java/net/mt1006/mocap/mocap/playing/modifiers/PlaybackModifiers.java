@@ -5,7 +5,6 @@ import net.minecraft.commands.arguments.NbtTagArgument;
 import net.minecraft.commands.arguments.ResourceArgument;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.mt1006.mocap.api.v1.modifiers.MocapPlayerSkin;
 import net.mt1006.mocap.command.io.CommandOutput;
@@ -105,8 +104,8 @@ public class PlaybackModifiers
 
 			case FROM_MINESKIN:
 				commandOutput.sendSuccess("scenes.element_info.skin.mineskin");
-				Component urlComponent = Utils.getEventComponent(ClickEvent.Action.OPEN_URL,
-						playerSkin.path, String.format("  (§n%s§r)", playerSkin.path));
+				Component urlComponent = Utils.getOpenUrlComponent(playerSkin.path,
+						Component.literal(String.format("  (§n%s§r)", playerSkin.path)));
 				commandOutput.sendSuccessComponent(urlComponent);
 				break;
 		}
