@@ -70,7 +70,7 @@ public class FakePlayer extends ServerPlayer
 	public void fakeKill()
 	{
 		killedByPlayback = true;
-		kill(null);
+		kill(level());
 	}
 
 	public void fakeRespawn()
