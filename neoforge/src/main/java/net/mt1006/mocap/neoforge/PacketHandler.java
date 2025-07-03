@@ -7,13 +7,14 @@ import net.mt1006.mocap.network.MocapPacketC2S;
 import net.mt1006.mocap.network.MocapPacketS2C;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import org.jetbrains.annotations.Nullable;
 
-@EventBusSubscriber(modid = MocapMod.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = MocapMod.MOD_ID)
 public class PacketHandler
 {
 	@SubscribeEvent
@@ -65,7 +66,7 @@ public class PacketHandler
 	{
 		@Override public void respond(MocapPacketC2S packet)
 		{
-			PacketDistributor.sendToServer(packet);
+			ClientPacketDistributor.sendToServer(packet);
 		}
 	}
 }

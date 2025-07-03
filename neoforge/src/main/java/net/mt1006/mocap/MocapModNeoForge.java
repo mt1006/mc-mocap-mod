@@ -8,6 +8,7 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,6 +43,6 @@ public class MocapModNeoForge implements MocapModLoaderInterface
 
 	@Override public void sendPacketToServer(MocapPacketC2S packet)
 	{
-		PacketDistributor.sendToServer(packet);
+		ClientPacketDistributor.sendToServer(packet);
 	}
 }
