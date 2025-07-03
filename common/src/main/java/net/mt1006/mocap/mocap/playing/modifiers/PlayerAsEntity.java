@@ -5,10 +5,13 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.ValueInput;
 import net.mt1006.mocap.api.v1.modifiers.MocapPlayerAsEntity;
 import net.mt1006.mocap.mocap.files.SceneFiles;
 import net.mt1006.mocap.utils.Utils;
@@ -85,8 +88,10 @@ public class PlayerAsEntity implements MocapPlayerAsEntity
 	public @Nullable Entity createEntity(Level level)
 	{
 		if (entityType == null && compoundTag == null) { return null; }
+
+		ValueInput nbt = TagValueInput.create(ProblemReporter.DISCARDING, level.registryAccess(), compoundTag);
 		return (compoundTag != null)
-				? EntityType.create(compoundTag, level, EntitySpawnReason.COMMAND).orElse(null)
+				? EntityType.create(nbt, level, EntitySpawnReason.COMMAND).orElse(null)
 				: entityType.create(level, EntitySpawnReason.COMMAND);
 	}
 

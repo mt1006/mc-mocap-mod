@@ -1,7 +1,7 @@
 package net.mt1006.mocap.mixin;
 
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.mt1006.mocap.mocap.playing.Playing;
 import net.mt1006.mocap.mocap.settings.Settings;
 import org.spongepowered.asm.mixin.Mixin;
@@ -18,7 +18,7 @@ public abstract class EntityMixin
 	@Shadow public abstract Set<String> getTags();
 
 	@Inject(method = "save", at = @At(value = "HEAD"), cancellable = true)
-	private void atSave(CompoundTag compoundTag, CallbackInfoReturnable<Boolean> cir)
+	private void atSave(ValueOutput nbt, CallbackInfoReturnable<Boolean> cir)
 	{
 		if (!Playing.playbacks.isEmpty() && Settings.PREVENT_SAVING_ENTITIES.val && getTags().contains(Playing.MOCAP_ENTITY_TAG))
 		{

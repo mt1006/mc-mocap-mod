@@ -1,7 +1,10 @@
 package net.mt1006.mocap.mocap.actions;
 
+import com.google.gson.JsonParser;
+import com.mojang.serialization.JsonOps;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.chat.PlayerChatMessage;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -16,9 +19,12 @@ public class ChatMessage implements MocapAction
 {
 	private final String messageJson;
 
-	public ChatMessage(String messageJson)
+	public ChatMessage(Component component)
 	{
-		this.messageJson = messageJson;
+		String message;
+		try { message = ComponentSerialization.CODEC.encodeStart(JsonOps.INSTANCE, component).getOrThrow().toString(); }
+		catch (IllegalStateException e) { message = "{}"; }
+		this.messageJson = message;
 	}
 
 	public ChatMessage(Reader reader)
@@ -38,7 +44,9 @@ public class ChatMessage implements MocapAction
 		if (player == null) { return Result.IGNORED; }
 
 		MinecraftServer server = ctx.getLevel().getServer();
-		Component message = Component.Serializer.fromJson(messageJson, server.registryAccess());
+		Component message;
+		try { message = ComponentSerialization.CODEC.decode(JsonOps.INSTANCE, new JsonParser().parse(messageJson)).getOrThrow().getFirst(); }
+		catch (Exception e) { return Result.IGNORED; }
 		if (message == null) { return Result.IGNORED; }
 
 		UUID senderUUID;

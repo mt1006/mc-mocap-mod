@@ -1,10 +1,14 @@
 package net.mt1006.mocap.mocap.actions;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.TagValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.phys.Vec3;
 import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
 import net.mt1006.mocap.api.v1.extension.actions.MocapAction;
@@ -80,12 +84,13 @@ public class EntityUpdate implements MocapAction
 
 	public static CompoundTag serializeEntityNBT(Entity entity)
 	{
-		CompoundTag compoundTag = new CompoundTag();
+		TagValueOutput nbt = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, entity.registryAccess());
 
 		String id = ((EntityIdFields)entity).callGetEncodeId();
-		compoundTag.putString("id", id != null ? id : "minecraft:cow");
+		nbt.putString("id", id != null ? id : "minecraft:cow");
+		entity.saveWithoutId(nbt);
 
-		entity.saveWithoutId(compoundTag);
+		CompoundTag compoundTag = nbt.buildResult();
 		compoundTag.remove("UUID");
 		compoundTag.remove("Pos");
 		compoundTag.remove("Motion");
@@ -153,16 +158,17 @@ public class EntityUpdate implements MocapAction
 		MocapEntityFilter filter = ctx.getModifiers().getEntityFilter();
 		if (nbtString == null || position == null || ctx.hasEntity(id) || filter.isEmpty()) { return Result.IGNORED; }
 
-		CompoundTag nbt;
+		CompoundTag compoundTag;
 		try
 		{
-			nbt = Utils.nbtFromString(nbtString);
+			compoundTag = Utils.nbtFromString(nbtString);
 		}
 		catch (Exception e)
 		{
 			Utils.exception(e, "Exception occurred when parsing entity NBT data!");
 			return Result.ERROR;
 		}
+		ValueInput nbt = TagValueInput.create(ProblemReporter.DISCARDING, ctx.getEntity().registryAccess(), compoundTag);
 		
 		EntityType<?> entityType = EntityType.by(nbt).orElse(null);
 		Entity entity = entityType.create(ctx.getLevel(), EntitySpawnReason.MOB_SUMMONED);
