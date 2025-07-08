@@ -169,9 +169,8 @@ public class EntityUpdate implements MocapAction
 			return Result.ERROR;
 		}
 		ValueInput nbt = TagValueInput.create(ProblemReporter.DISCARDING, ctx.getEntity().registryAccess(), compoundTag);
-		
-		EntityType<?> entityType = EntityType.by(nbt).orElse(null);
-		Entity entity = entityType.create(ctx.getLevel(), EntitySpawnReason.MOB_SUMMONED);
+
+		Entity entity = EntityType.create(nbt, ctx.getLevel(), EntitySpawnReason.MOB_SUMMONED).orElse(null);
 		if (entity == null || !filter.isAllowed(entity)) { return Result.IGNORED; }
 
 		entity.setPos(ctx.getTransformer().transformPos(position));
