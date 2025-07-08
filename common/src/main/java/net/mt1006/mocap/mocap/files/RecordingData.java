@@ -118,7 +118,7 @@ public class RecordingData implements MocapRecordingData
 			if (action == null) { return false; }
 
 			actions.add(action);
-			if (action instanceof BlockStateData) { blockActions.add((MocapBlockAction)action); }
+			if (action instanceof MocapBlockAction) { blockActions.add((MocapBlockAction)action); }
 			else if (action instanceof NextTick) { tickCount++; }
 			else if (action instanceof SkipTicks) { tickCount += ((SkipTicks)action).number; }
 		}
