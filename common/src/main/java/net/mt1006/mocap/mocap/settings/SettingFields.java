@@ -13,9 +13,11 @@ import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
+import net.mt1006.mocap.command.CommandSuggestions;
 import net.mt1006.mocap.command.io.CommandInfo;
 import net.mt1006.mocap.command.io.FullCommandInfo;
 import net.mt1006.mocap.mocap.files.Files;
+import net.mt1006.mocap.mocap.playing.modifiers.EntityFilterInstance;
 import net.mt1006.mocap.utils.Utils;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,7 +28,6 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 public class SettingFields
 {
@@ -42,36 +43,28 @@ public class SettingFields
 
 	public BooleanField add(String name, boolean val)
 	{
-		BooleanField field = new BooleanField(name, val);
-		addField(field, name);
-		return field;
+		return addField(name, new BooleanField(name, val));
 	}
 
 	public DoubleField add(String name, double val)
 	{
-		DoubleField field = new DoubleField(name, val);
-		addField(field, name);
-		return field;
-	}
-
-	public StringField add(String name, String val, @Nullable Consumer<String> onSet,
-						   @Nullable Function<String, Boolean> testCommandInput)
-	{
-		StringField field = new StringField(name, val, onSet, testCommandInput);
-		addField(field, name);
-		return field;
+		return addField(name, new DoubleField(name, val));
 	}
 
 	public <T extends Enum<T>> EnumField<T> add(String name, Enum<T> val)
 	{
-		EnumField<T> field = new EnumField<>(name, val);
-		addField(field, name);
-		return field;
+		return addField(name, new EnumField<>(name, val));
 	}
 
-	private void addField(Field<?> field, String name)
+	public EntityFilterField addFilterField(String name, String val, @Nullable Consumer<String> onSet)
 	{
-		if (fieldMap.put(name, field) != null) { throw new RuntimeException("Duplicate field names!"); };
+		return addField(name, new EntityFilterField(name, val, onSet));
+	}
+
+	private <T extends Field<?>> T addField(String name, T field)
+	{
+		if (fieldMap.put(name, field) != null) { throw new RuntimeException("Duplicate field names!"); }
+		return field;
 	}
 
 	public void save()
@@ -301,24 +294,19 @@ public class SettingFields
 
 	public static class StringField extends Field<String>
 	{
-		private final @Nullable Function<String, Boolean> testCommandInput;
-
-		public StringField(String name, String val, @Nullable Consumer<String> onSet,
-						   @Nullable Function<String, Boolean> testCommandInput)
+		public StringField(String name, String val, @Nullable Consumer<String> onSet)
 		{
 			super(name, val, onSet);
-			this.testCommandInput = testCommandInput;
 		}
 
 		@Override public String parseFromString(String str)
 		{
-			return (testCommandInput == null || testCommandInput.apply(str)) ? str : defVal;
+			return str;
 		}
 
 		@Override public @Nullable String parseFromCommand(FullCommandInfo commandInfo)
 		{
-			String newValue = commandInfo.getString("new_value");
-			return (testCommandInput == null || testCommandInput.apply(newValue)) ? newValue : null;
+			return commandInfo.getString("new_value");
 		}
 
 		@Override public ArgumentType<?> getArgumentType()
@@ -347,6 +335,30 @@ public class SettingFields
 
 			return commandInfo.getTranslatableComponent("settings.info.copy_button")
 					.setStyle(Style.EMPTY.withClickEvent(clickEvent).withHoverEvent(hoverEvent));
+		}
+	}
+
+	public static class EntityFilterField extends StringField
+	{
+		public EntityFilterField(String name, String val, @Nullable Consumer<String> onSet)
+		{
+			super(name, val, onSet);
+		}
+
+		@Override public String parseFromString(String str)
+		{
+			return EntityFilterInstance.test(str) ? str : defVal;
+		}
+
+		@Override public @Nullable String parseFromCommand(FullCommandInfo commandInfo)
+		{
+			String newValue = commandInfo.getString("new_value");
+			return EntityFilterInstance.test(newValue) ? newValue : null;
+		}
+
+		@Override public SuggestionProvider<CommandSourceStack> getSuggestionProvider()
+		{
+			return CommandSuggestions::entityFilter;
 		}
 	}
 
@@ -384,7 +396,7 @@ public class SettingFields
 			return val.toString().toLowerCase();
 		}
 
-		public SuggestionProvider<CommandSourceStack> getSuggestionProvider()
+		@Override public SuggestionProvider<CommandSourceStack> getSuggestionProvider()
 		{
 			return this::suggestionProvider;
 		}

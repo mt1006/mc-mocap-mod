@@ -4,7 +4,6 @@ import net.mt1006.mocap.api.v1.controller.config.MocapEntitiesAfterPlayback;
 import net.mt1006.mocap.api.v1.controller.config.MocapOnDeath;
 import net.mt1006.mocap.command.io.FullCommandInfo;
 import net.mt1006.mocap.mocap.playing.modifiers.EntityFilter;
-import net.mt1006.mocap.mocap.playing.modifiers.EntityFilterInstance;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
@@ -18,7 +17,7 @@ public class Settings
 	private static final SettingGroups.Group PLAYBACK = groups.add("playback");
 	private static final SettingGroups.Group ADVANCED = groups.add("advanced");
 
-	public static final SettingFields.StringField TRACK_ENTITIES = RECORDING.add(fields.add("track_entities", "@vehicles;@projectiles;@items", EntityFilter::onTrackEntitiesSet, EntityFilterInstance::test));
+	public static final SettingFields.EntityFilterField TRACK_ENTITIES = RECORDING.add(fields.addFilterField("track_entities", "@vehicles;@projectiles;@items", EntityFilter::onTrackEntitiesSet));
 	static final SettingFields.BooleanField PREVENT_TRACKING_PLAYED_ENTITIES = RECORDING.add(fields.add("prevent_tracking_played_entities", true));
 	static final SettingFields.DoubleField ENTITY_TRACKING_DISTANCE = RECORDING.add(fields.add("entity_tracking_distance", 128.0));
 	//public static final SettingFields.BooleanField ASSIGN_DIMENSIONS = RECORDING.add(fields.add("assign_dimensions", true));
@@ -29,7 +28,7 @@ public class Settings
 	static final SettingFields.BooleanField CHAT_RECORDING = RECORDING.add(fields.add("chat_recording", false));
 
 	public static final SettingFields.DoubleField PLAYBACK_SPEED = PLAYBACK.add(fields.add("playback_speed", 1.0));
-	public static final SettingFields.StringField PLAY_ENTITIES = PLAYBACK.add(fields.add("play_entities", "*", EntityFilter::onPlaybackEntitiesSet, EntityFilterInstance::test));
+	public static final SettingFields.EntityFilterField PLAY_ENTITIES = PLAYBACK.add(fields.addFilterField("play_entities", "*", EntityFilter::onPlaybackEntitiesSet));
 	static final SettingFields.BooleanField CAN_PUSH_ENTITIES = PLAYBACK.add(fields.add("can_push_entities", true));
 	static final SettingFields.EnumField<MocapEntitiesAfterPlayback> ENTITIES_AFTER_PLAYBACK = PLAYBACK.add(fields.add("entities_after_playback", MocapEntitiesAfterPlayback.REMOVE));
 	static final SettingFields.BooleanField BLOCK_ACTIONS_PLAYBACK = PLAYBACK.add(fields.add("block_actions_playback", true));

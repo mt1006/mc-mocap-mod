@@ -101,13 +101,14 @@ public class CommandUtils
 		builder.then(Commands.literal("entity_filter").
 			then(Commands.literal("disabled").executes(command)).
 			then(Commands.literal("enabled").
-				then(Commands.argument("entity_filter", StringArgumentType.greedyString()).executes(command))));
+				then(Commands.argument("entity_filter", StringArgumentType.greedyString()).
+					suggests(CommandSuggestions::entityFilter).executes(command))));
 
 		if (isScene)
 		{
-			builder.then(Commands.literal("subscene_name")
-					.then(Commands.argument("new_name", StringArgumentType.string())
-							.suggests(CommandSuggestions::playable).executes(command)));
+			builder.then(Commands.literal("subscene_name").
+				then(Commands.argument("new_name", StringArgumentType.string()).
+					suggests(CommandSuggestions::playable).executes(command)));
 		}
 		return builder;
 	}

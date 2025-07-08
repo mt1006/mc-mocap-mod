@@ -4,6 +4,10 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
+import net.mt1006.mocap.MocapMod;
+import net.mt1006.mocap.api.v1.modifiers.MocapEntityFilterBuilder;
 import net.mt1006.mocap.command.io.CommandOutput;
 import net.mt1006.mocap.mocap.files.Files;
 import net.mt1006.mocap.mocap.files.RecordingFiles;
@@ -111,6 +115,63 @@ public class CommandSuggestions
 		{
 			if (input.startsWith(remaining)) { builder.suggest(input); }
 		}
+		return builder.buildFuture();
+	}
+
+	public static CompletableFuture<Suggestions> entityFilter(CommandContext<?> ctx, SuggestionsBuilder builder)
+	{
+		long a = System.nanoTime();
+
+		String remaining = builder.getRemaining();
+		int entryStart = remaining.lastIndexOf(';') + 1;
+		String entry = remaining.substring(entryStart);
+
+		boolean startsWithMinus = entry.startsWith("-");
+		if (startsWithMinus)
+		{
+			entry = entry.substring(1);
+			entryStart++;
+		}
+
+		builder = builder.createOffset(builder.getStart() + entryStart);
+		List<String> list = new ArrayList<>();
+
+		for (MocapEntityFilterBuilder.Group group : MocapEntityFilterBuilder.Group.values())
+		{
+			list.add("@" + group.name().toLowerCase());
+		}
+
+		Set<String> namespaces = new HashSet<>();
+		for (ResourceLocation id : BuiltInRegistries.ENTITY_TYPE.keySet())
+		{
+			list.add(id.toString());
+			namespaces.add(id.getNamespace());
+		}
+		namespaces.forEach((n) -> list.add(n + ":*"));
+		list.add("*");
+
+		String withMcNamespace = "minecraft:" + entry;
+		for (String str : list)
+		{
+			if (str.startsWith(entry) || str.startsWith(withMcNamespace))
+			{
+				builder.suggest(str);
+				if (str.equals(entry))
+				{
+					builder = builder.createOffset(builder.getStart() + str.length());
+					builder.suggest(";");
+					return builder.buildFuture();
+				}
+			}
+		}
+
+		if (entry.isEmpty())
+		{
+			if (!startsWithMinus) { builder.suggest("-"); }
+			builder.suggest("$");
+		}
+
+		MocapMod.LOGGER.warn("{}", System.nanoTime() - a);
 		return builder.buildFuture();
 	}
 
