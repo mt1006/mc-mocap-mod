@@ -17,6 +17,7 @@ import net.mt1006.mocap.api.v1.controller.config.MocapPlaybackConfig;
 import net.mt1006.mocap.api.v1.extension.actions.MocapAction;
 import net.mt1006.mocap.command.io.CommandInfo;
 import net.mt1006.mocap.events.PlayerConnectionEvent;
+import net.mt1006.mocap.mixin.fields.PlayerListFields;
 import net.mt1006.mocap.mocap.files.RecordingData;
 import net.mt1006.mocap.mocap.files.SceneData;
 import net.mt1006.mocap.mocap.playing.DataManager;
@@ -72,6 +73,7 @@ public class RecordingPlayback extends Playback
 		if (!modifiers.playerAsEntity.isEnabled())
 		{
 			FakePlayer fakePlayer = new FakePlayer(level, newProfile, this);
+			((PlayerListFields)packetTargets).getPlayersByUUID().put(newProfile.getId(), fakePlayer);
 			entity = fakePlayer;
 
 			EntityData.PLAYER_SKIN_PARTS.set(fakePlayer, (byte)0b01111111);
@@ -117,6 +119,7 @@ public class RecordingPlayback extends Playback
 			if (Settings.ALLOW_GHOSTS.val)
 			{
 				ghost = new FakePlayer(level, newProfile, this);
+				((PlayerListFields)packetTargets).getPlayersByUUID().put(newProfile.getId(), ghost);
 				ghost.gameMode.changeGameModeForPlayer(Settings.USE_CREATIVE_GAME_MODE.val ? GameType.CREATIVE : GameType.SURVIVAL);
 				recording.initEntityPosition(ghost, transformer);
 				level.addNewPlayer(ghost);

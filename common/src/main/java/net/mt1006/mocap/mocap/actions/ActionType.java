@@ -46,7 +46,8 @@ public enum ActionType
 	RESPAWN(24, Respawn::new),
 	CHAT_MESSAGE(25, ChatMessage::new),
 	SET_SPECTATOR(26, SetSpectator::new, SetSpectator::new),
-	DUMMY_ACTION(27, DummyAction::fromReader);
+	EMOTE(27, Emote::new),
+	DUMMY_ACTION(28, DummyAction::fromReader);
 
 	public final byte id;
 

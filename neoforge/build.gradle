@@ -24,6 +24,18 @@ neoForge
 	}
 }
 
+repositories {
+	maven { url 'https://maven.kosmx.dev/' }
+	maven {url = "https://repo.redlance.org/public" }
+}
+
+dependencies {
+	compileOnly("io.github.kosmx.emotes:emotesAPI:${emotesAPI_version}") {
+		exclude group: 'com.google.guava', module: 'guava'
+	}
+}
+
+
 processResources
 {
 	from(project.file("src/main/generated")) { duplicatesStrategy DuplicatesStrategy.EXCLUDE }

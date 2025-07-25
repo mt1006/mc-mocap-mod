@@ -70,4 +70,9 @@ public class MocapModFabric implements ModInitializer, MocapModLoaderInterface
 	{
 		ClientPlayNetworking.send(packet);
 	}
+
+	@Override
+	public boolean isModLoaded(String modId) {
+		return FabricLoader.getInstance().isModLoaded(modId);
+	}
 }

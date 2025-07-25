@@ -11,6 +11,7 @@ import net.mt1006.mocap.command.CommandSuggestions;
 import net.mt1006.mocap.command.CommandsContext;
 import net.mt1006.mocap.command.io.CommandInfo;
 import net.mt1006.mocap.command.io.CommandOutput;
+import net.mt1006.mocap.events.EmoteEvent;
 import net.mt1006.mocap.mocap.files.Files;
 import net.mt1006.mocap.mocap.files.RecordingFiles;
 import net.mt1006.mocap.mocap.playing.Playing;
@@ -77,6 +78,9 @@ public class Recording
 		if (!id.isProper()) { return null; }
 
 		RecordingContext ctx = new RecordingContext(id, player, source, config, instantSave);
+		if(MocapMod.loaderInterface.isModLoaded("emotecraft")) {
+			EmoteEvent.listen();
+		}
 		contextsBySource.put(source.name, ctx);
 		CommandSuggestions.inputSet.add(id.str);
 
@@ -153,6 +157,10 @@ public class Recording
 		boolean success = resolvedContexts.isSingle
 				? stopSingle(commandInfo, resolvedContexts.list.iterator().next())
 				: stopMultiple(commandInfo, resolvedContexts.list);
+
+		if(MocapMod.loaderInterface.isModLoaded("emotecraft")) {
+			EmoteEvent.unListen();
+		}
 
 		if (CommandsContext.haveSyncEnabled != 0) { refreshSyncOnStop(resolvedContexts); }
 		return success;

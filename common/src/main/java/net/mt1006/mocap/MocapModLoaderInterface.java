@@ -8,6 +8,7 @@ public interface MocapModLoaderInterface
 {
 	String getLoaderName();
 	String getModVersion();
+	boolean isModLoaded(String modId);
 
 	void sendPacketToClient(ServerPlayer player, MocapPacketS2C packet);
 	void sendPacketToServer(MocapPacketC2S packet);

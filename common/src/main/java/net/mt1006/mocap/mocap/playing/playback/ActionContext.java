@@ -17,6 +17,7 @@ import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
 import net.mt1006.mocap.api.v1.extension.actions.MocapActionContext;
 import net.mt1006.mocap.api.v1.modifiers.MocapModifiers;
 import net.mt1006.mocap.events.PlayerConnectionEvent;
+import net.mt1006.mocap.mixin.fields.PlayerListFields;
 import net.mt1006.mocap.mocap.playing.Playing;
 import net.mt1006.mocap.mocap.playing.modifiers.PlaybackModifiers;
 import net.mt1006.mocap.mocap.settings.Settings;
@@ -285,6 +286,9 @@ public class ActionContext implements MocapActionContext
 		{
 			case REMOVE:
 				entity.remove(Entity.RemovalReason.KILLED);
+				if(entity instanceof FakePlayer fakePlayer) {
+					((PlayerListFields)packetTargets).getPlayersByUUID().remove(fakePlayer.getUUID());
+				}
 
 			case KILL:
 				entity.invulnerableTime = 0; // for sound effect
