@@ -33,6 +33,9 @@ dependencies {
 	compileOnly("io.github.kosmx.emotes:emotesAPI:${emotesAPI_version}") {
 		exclude group: 'com.google.guava', module: 'guava'
 	}
+	compileOnly("io.github.kosmx.emotes:emotesServer:${emotesAPI_version}") {
+		exclude group: 'com.google.guava', module: 'guava'
+	}
 }
 
 

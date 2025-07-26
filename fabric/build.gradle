@@ -22,6 +22,7 @@ dependencies
 	modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
 	compileOnly("io.github.kosmx.emotes:emotesAPI:${emotesAPI_version}")
+	compileOnly("io.github.kosmx.emotes:emotesServer:${emotesAPI_version}")
 }
 
 loom
