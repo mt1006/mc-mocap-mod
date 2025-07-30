@@ -16,7 +16,7 @@ public class RecordingConfig implements MocapRecordingConfig
 	{
 		preventTrackingPlayedEntities = setDefault ? Settings.PREVENT_TRACKING_PLAYED_ENTITIES.defVal : null;
 		entityTrackingDistance = setDefault ? Settings.ENTITY_TRACKING_DISTANCE.defVal : null;
-		onDeath = setDefault ? (MocapOnDeath)Settings.ON_DEATH.defVal : null;
+		onDeath = setDefault ? Settings.ON_DEATH.defVal : null;
 		assignPlayerName = setDefault ? Settings.ASSIGN_PLAYER_NAME.defVal : null;
 		chatRecording = setDefault ? Settings.CHAT_RECORDING.defVal : null;
 	}
@@ -43,7 +43,7 @@ public class RecordingConfig implements MocapRecordingConfig
 
 	@Override public MocapOnDeath getOnDeath()
 	{
-		return onDeath != null ? onDeath : (MocapOnDeath)Settings.ON_DEATH.val;
+		return onDeath != null ? onDeath : Settings.ON_DEATH.val;
 	}
 
 	@Override public void setOnDeath(@Nullable MocapOnDeath val)

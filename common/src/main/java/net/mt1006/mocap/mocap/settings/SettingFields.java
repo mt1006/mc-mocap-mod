@@ -51,7 +51,7 @@ public class SettingFields
 		return addField(name, new DoubleField(name, val));
 	}
 
-	public <T extends Enum<T>> EnumField<T> add(String name, Enum<T> val)
+	public <T extends Enum<T>> EnumField<T> add(String name, T val)
 	{
 		return addField(name, new EnumField<>(name, val));
 	}
@@ -75,11 +75,7 @@ public class SettingFields
 			if (settingsFile == null) { return; }
 			PrintWriter printWriter = new PrintWriter(settingsFile);
 
-			for (Field<?> setting : fieldMap.values())
-			{
-				printWriter.print(setting.toFileLine());
-			}
-
+			fieldMap.values().forEach((f) -> printWriter.print(f.toFileLine()));
 			printWriter.close();
 		}
 		catch (Exception ignore) {}
@@ -362,24 +358,24 @@ public class SettingFields
 		}
 	}
 
-	public static class EnumField<T extends Enum<T>> extends Field<Enum<T>>
+	public static class EnumField<T extends Enum<T>> extends Field<T>
 	{
 		private final Class<T> enumClass;
 		private final T[] constants;
 
-		public EnumField(String name, Enum<T> val)
+		public EnumField(String name, T val)
 		{
 			super(name, val, null);
 			enumClass = (Class<T>)val.getClass();
 			constants = enumClass.getEnumConstants();
 		}
 
-		@Override public Enum<T> parseFromString(String str)
+		@Override public T parseFromString(String str)
 		{
 			return Enum.valueOf(enumClass, str.toUpperCase());
 		}
 
-		@Override public @Nullable Enum<T> parseFromCommand(FullCommandInfo commandInfo)
+		@Override public @Nullable T parseFromCommand(FullCommandInfo commandInfo)
 		{
 			String newValue = commandInfo.getString("new_value");
 			try { return Enum.valueOf(enumClass, newValue.toUpperCase()); }
@@ -391,7 +387,7 @@ public class SettingFields
 			return StringArgumentType.word();
 		}
 
-		@Override protected String valToString(Enum<T> val)
+		@Override protected String valToString(T val)
 		{
 			return val.toString().toLowerCase();
 		}

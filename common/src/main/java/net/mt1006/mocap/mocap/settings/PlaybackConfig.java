@@ -19,7 +19,7 @@ public class PlaybackConfig implements MocapPlaybackConfig
 	public PlaybackConfig(boolean setDefault)
 	{
 		canPushEntities = setDefault ? Settings.CAN_PUSH_ENTITIES.defVal : null;
-		entitiesAfterPlayback = setDefault ? (MocapEntitiesAfterPlayback)Settings.ENTITIES_AFTER_PLAYBACK.defVal : null;
+		entitiesAfterPlayback = setDefault ? Settings.ENTITIES_AFTER_PLAYBACK.defVal : null;
 		blockActionsPlayback = setDefault ? Settings.BLOCK_ACTIONS_PLAYBACK.defVal : null;
 		blockInitialization = setDefault ? Settings.BLOCK_INITIALIZATION.defVal : null;
 		blockAllowScaled = setDefault ? Settings.BLOCK_ALLOW_SCALED.defVal : null;
@@ -41,7 +41,7 @@ public class PlaybackConfig implements MocapPlaybackConfig
 
 	@Override public MocapEntitiesAfterPlayback getEntitiesAfterPlayback()
 	{
-		return entitiesAfterPlayback != null ? entitiesAfterPlayback : (MocapEntitiesAfterPlayback)Settings.ENTITIES_AFTER_PLAYBACK.val;
+		return entitiesAfterPlayback != null ? entitiesAfterPlayback : Settings.ENTITIES_AFTER_PLAYBACK.val;
 	}
 
 	@Override public void setEntitiesAfterPlayback(@Nullable MocapEntitiesAfterPlayback val)
