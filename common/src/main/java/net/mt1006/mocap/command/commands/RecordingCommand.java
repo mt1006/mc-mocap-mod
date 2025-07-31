@@ -41,85 +41,76 @@ public class RecordingCommand
 		return commandBuilder;
 	}
 
-	private static boolean start(FullCommandInfo commandInfo)
+	private static boolean start(FullCommandInfo info)
 	{
 		Collection<ServerPlayer> players;
 		String instantSave = null;
 
 		try
 		{
-			players = EntityArgument.getOptionalPlayers(commandInfo.ctx, "player");
-			if (players.isEmpty())
-			{
-				commandInfo.sendFailure("recording.start.player_not_found");
-				return false;
-			}
+			players = EntityArgument.getOptionalPlayers(info.ctx, "player");
+			if (players.isEmpty()) { return info.sendFailure("recording.start.player_not_found"); }
 
-			instantSave = commandInfo.getNullableString("instant_save");
+			instantSave = info.getNullableString("instant_save");
 		}
 		catch (Exception e)
 		{
-			Entity entity = commandInfo.getSourceEntity();
+			Entity entity = info.getSourceEntity();
 			if (!(entity instanceof ServerPlayer))
 			{
 				// "with_tip" variant contains tip but uses single message to fit in command blocks "previous output" box
-				commandInfo.sendFailure(Settings.SHOW_TIPS.val
+				return info.sendFailure(Settings.SHOW_TIPS.val
 						? "recording.start.player_not_specified.with_tip"
 						: "recording.start.player_not_specified.no_tip");
-				return false;
 			}
 
 			players = List.of((ServerPlayer)entity);
 		}
 
-		RecordingSource source = RecordingSource.forCommand(commandInfo);
+		RecordingSource source = RecordingSource.forCommand(info);
 		int successes = 0;
 		for (ServerPlayer player : players)
 		{
 			String instantSaveName = (players.size() > 1 && instantSave != null)
 					? (instantSave + "_" + player.getName().getString())
 					: instantSave;
-			successes += (Recording.startOrWait(commandInfo, player, source, instantSaveName, players.size() > 1) != null) ? 1 : 0;
+			successes += (Recording.startOrWait(info, player, source, instantSaveName, players.size() > 1) != null) ? 1 : 0;
 		}
 
 		if (players.size() > 1)
 		{
-			if (successes == players.size()) { commandInfo.sendSuccess("recording.start.multiple_started.success"); }
-			else if (successes > 0) { commandInfo.sendFailure("recording.start.multiple_started.partial_success"); }
-			else { commandInfo.sendFailure("recording.start.error"); }
+			if (successes == players.size()) { info.sendSuccess("recording.start.multiple_started.success"); }
+			else if (successes > 0) { info.sendFailure("recording.start.multiple_started.partial_success"); }
+			else { info.sendFailure("recording.start.error"); }
 		}
 		return (successes == players.size());
 	}
 
-	private static boolean stop(FullCommandInfo commandInfo)
+	private static boolean stop(FullCommandInfo info)
 	{
-		return Recording.stop(commandInfo, commandInfo.getNullableString("id"));
+		return Recording.stop(info, info.getNullableString("id"));
 	}
 
-	private static boolean discard(FullCommandInfo commandInfo)
+	private static boolean discard(FullCommandInfo info)
 	{
-		return Recording.discard(commandInfo, commandInfo.getNullableString("id"));
+		return Recording.discard(info, info.getNullableString("id"));
 	}
 
-	private static boolean saveAuto(FullCommandInfo commandInfo, String name)
+	private static boolean saveAuto(FullCommandInfo info, String name)
 	{
-		return Recording.save(commandInfo, null, name);
+		return Recording.save(info, null, name);
 	}
 
-	private static boolean saveSpecific(FullCommandInfo commandInfo)
+	private static boolean saveSpecific(FullCommandInfo info)
 	{
-		String name = commandInfo.getNullableString("name");
-		if (name == null)
-		{
-			commandInfo.sendFailure("error.unable_to_get_argument");
-			return false;
-		}
+		String name = info.getNullableString("name");
+		if (name == null) { return info.sendFailure("error.unable_to_get_argument"); }
 
-		return Recording.save(commandInfo, commandInfo.getNullableString("id"), name);
+		return Recording.save(info, info.getNullableString("id"), name);
 	}
 
-	private static boolean list(FullCommandInfo commandInfo)
+	private static boolean list(FullCommandInfo info)
 	{
-		return Recording.list(commandInfo, commandInfo.getNullableString("id"));
+		return Recording.list(info, info.getNullableString("id"));
 	}
 }

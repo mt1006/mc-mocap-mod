@@ -13,7 +13,7 @@ public class LegacySceneDataParser
 	private static final String NULL_STR = "[null]";
 	private boolean legacy = true, parsed = false;
 
-	public LegacySceneDataParser(SceneData sceneData, CommandOutput commandOutput, byte[] scene)
+	public LegacySceneDataParser(SceneData sceneData, CommandOutput out, byte[] scene)
 	{
 		try (Scanner scanner = new Scanner(new ByteArrayInputStream(scene)))
 		{
@@ -28,7 +28,7 @@ public class LegacySceneDataParser
 				return;
 			}
 
-			if (!sceneData.setAndVerifyVersion(commandOutput, versionNumber)) { scanner.close(); }
+			if (!sceneData.setAndVerifyVersion(out, versionNumber)) { scanner.close(); }
 			if (scanner.hasNextLine()) { scanner.nextLine(); }
 
 			while (scanner.hasNextLine())
@@ -37,7 +37,7 @@ public class LegacySceneDataParser
 			}
 			parsed = true;
 		}
-		catch (Exception e) { commandOutput.sendException(e, "error.failed_to_load_scene"); }
+		catch (Exception e) { out.sendException(e, "error.failed_to_load_scene"); }
 	}
 
 	public boolean isLegacy()

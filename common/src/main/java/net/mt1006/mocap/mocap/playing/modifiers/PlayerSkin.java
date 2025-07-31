@@ -47,11 +47,11 @@ public class PlayerSkin implements MocapPlayerSkin
 		path = reader.readString("skin_path");
 	}
 
-	public static @Nullable PlayerSkin createVerified(CommandOutput commandOutput, Source source, @Nullable String skinPath)
+	public static @Nullable PlayerSkin createVerified(CommandOutput out, Source source, @Nullable String skinPath)
 	{
 		if (source == Source.FROM_MINESKIN && skinPath != null && !verifyMineskinUrl(skinPath))
 		{
-			commandOutput.sendFailure("failure.improper_mineskin_link");
+			out.sendFailure("failure.improper_mineskin_link");
 			return null;
 		}
 		return new PlayerSkin(source, skinPath);
@@ -86,7 +86,7 @@ public class PlayerSkin implements MocapPlayerSkin
 		return writer;
 	}
 
-	public void addSkinToPropertyMap(CommandInfo commandInfo, PropertyMap propertyMap)
+	public void addSkinToPropertyMap(CommandInfo info, PropertyMap propertyMap)
 			throws IllegalArgumentException, IllegalAccessException
 	{
 		if (path == null) { return; }
@@ -94,12 +94,12 @@ public class PlayerSkin implements MocapPlayerSkin
 		switch (source)
 		{
 			case FROM_PLAYER:
-				GameProfile tempProfile = ProfileUtils.getGameProfile(commandInfo.getServer(), path);
+				GameProfile tempProfile = ProfileUtils.getGameProfile(info.getServer(), path);
 				PropertyMap tempPropertyMap = (PropertyMap)Fields.gameProfileProperties.get(tempProfile);
 
 				if (!tempPropertyMap.containsKey("textures"))
 				{
-					commandInfo.sendFailure("playback.start.warning.skin.profile");
+					info.sendFailure("playback.start.warning.skin.profile");
 					break;
 				}
 
@@ -117,7 +117,7 @@ public class PlayerSkin implements MocapPlayerSkin
 
 				if (skinProperty == null)
 				{
-					commandInfo.sendFailure("playback.start.warning.skin.mineskin");
+					info.sendFailure("playback.start.warning.skin.mineskin");
 					break;
 				}
 

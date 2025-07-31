@@ -24,36 +24,35 @@ public class SceneFiles
 {
 	public static final int VERSION = MocapMod.SCENE_FORMAT_VERSION;
 
-	public static boolean add(CommandOutput commandOutput, String name)
+	public static boolean add(CommandOutput out, String name)
 	{
-		File file = Files.getSceneFile(commandOutput, name);
+		File file = Files.getSceneFile(out, name);
 		if (file == null) { return false; }
 		if (file.exists())
 		{
-			commandOutput.sendFailure("scenes.add.already_exists");
+			out.sendFailure("scenes.add.already_exists");
 			return false;
 		}
 
 		SceneData sceneData = SceneData.empty();
-		boolean success = sceneData.save(commandOutput, file, name, "scenes.add.success", "scenes.add.error");
+		boolean success = sceneData.save(out, file, name, "scenes.add.success", "scenes.add.error");
 		if (success) { CommandSuggestions.inputSet.add(nameWithDot(name)); }
 		return success;
 	}
 
-	public static boolean copy(CommandOutput commandOutput, String srcName, String destName)
+	public static boolean copy(CommandOutput out, String srcName, String destName)
 	{
-		File srcFile = Files.getSceneFile(commandOutput, srcName);
+		File srcFile = Files.getSceneFile(out, srcName);
 		if (srcFile == null) { return false; }
 
-		File destFile = Files.getSceneFile(commandOutput, destName);
+		File destFile = Files.getSceneFile(out, destName);
 		if (destFile == null) { return false; }
 
-		try { FileUtils.copyFile(srcFile, destFile); }
-		catch (IOException e)
+		try
 		{
-			commandOutput.sendException(e, "scenes.copy.failed");
-			return false;
+			FileUtils.copyFile(srcFile, destFile);
 		}
+		catch (IOException e) { return out.sendException(e, "scenes.copy.failed"); }
 
 		CommandSuggestions.inputSet.add(nameWithDot(destName));
 		List<String> elementCache = CommandSuggestions.sceneElementCache.get(nameWithDot(srcName));
@@ -62,22 +61,20 @@ public class SceneFiles
 			CommandSuggestions.sceneElementCache.put(nameWithDot(destName), new ArrayList<>(elementCache));
 		}
 
-		commandOutput.sendSuccess("scenes.copy.success");
-		return true;
+		return out.sendSuccess("scenes.copy.success");
 	}
 
-	public static boolean rename(CommandOutput commandOutput, String oldName, String newName)
+	public static boolean rename(CommandOutput out, String oldName, String newName)
 	{
-		File oldFile = Files.getSceneFile(commandOutput, oldName);
+		File oldFile = Files.getSceneFile(out, oldName);
 		if (oldFile == null) { return false; }
 
-		File newFile = Files.getSceneFile(commandOutput, newName);
+		File newFile = Files.getSceneFile(out, newName);
 		if (newFile == null) { return false; }
 
 		if (!oldFile.renameTo(newFile))
 		{
-			commandOutput.sendFailure("scenes.rename.failed");
-			return false;
+			return out.sendFailure("scenes.rename.failed");
 		}
 
 		CommandSuggestions.inputSet.remove(nameWithDot(oldName));
@@ -89,82 +86,76 @@ public class SceneFiles
 			CommandSuggestions.sceneElementCache.put(nameWithDot(newName), elementCache);
 		}
 
-		commandOutput.sendSuccess("scenes.rename.success");
-		return true;
+		return out.sendSuccess("scenes.rename.success");
 	}
 
-	public static boolean remove(CommandOutput commandOutput, String name)
+	public static boolean remove(CommandOutput out, String name)
 	{
-		File sceneFile = Files.getSceneFile(commandOutput, name);
+		File sceneFile = Files.getSceneFile(out, name);
 		if (sceneFile == null) { return false; }
 
 		if (!sceneFile.delete())
 		{
-			commandOutput.sendFailure("scenes.remove.failed");
+			out.sendFailure("scenes.remove.failed");
 			return false;
 		}
 
 		CommandSuggestions.inputSet.remove(nameWithDot(name));
 		CommandSuggestions.sceneElementCache.remove(nameWithDot(name));
-		commandOutput.sendSuccess("scenes.remove.success");
-		return true;
+		return out.sendSuccess("scenes.remove.success");
 	}
 
-	public static boolean addElement(CommandOutput commandOutput, String name, SceneData.Subscene subscene)
+	public static boolean addElement(CommandOutput out, String name, SceneData.Subscene subscene)
 	{
-		File file = Files.getSceneFile(commandOutput, name);
-		SceneData sceneData = loadSceneData(commandOutput, file);
+		File file = Files.getSceneFile(out, name);
+		SceneData sceneData = loadSceneData(out, file);
 		if (sceneData == null) { return false; }
 
 		sceneData.subscenes.add(subscene);
-		return sceneData.save(commandOutput, file, name, "scenes.add_to.success", "scenes.add_to.error");
+		return sceneData.save(out, file, name, "scenes.add_to.success", "scenes.add_to.error");
 	}
 
-	public static boolean removeElement(CommandOutput commandOutput, String name, String posStr)
+	public static boolean removeElement(CommandOutput out, String name, String posStr)
 	{
 		Pair<Integer, String> posPair = CommandUtils.splitPosStr(posStr);
 		int pos = posPair.getFirst();
 		String expectedName = posPair.getSecond();
 
-		File file = Files.getSceneFile(commandOutput, name);
-		SceneData sceneData = loadSceneData(commandOutput, file);
-		SceneData.Subscene subscene = SceneData.loadSubscene(commandOutput, sceneData, pos, expectedName);
+		File file = Files.getSceneFile(out, name);
+		SceneData sceneData = loadSceneData(out, file);
+		SceneData.Subscene subscene = SceneData.loadSubscene(out, sceneData, pos, expectedName);
 		if (subscene == null) { return false; }
 
 		sceneData.subscenes.remove(pos - 1);
-		return sceneData.save(commandOutput, file, name, "scenes.remove_from.success", "scenes.remove_from.error");
+		return sceneData.save(out, file, name, "scenes.remove_from.success", "scenes.remove_from.error");
 	}
 
-	public static boolean modify(FullCommandInfo commandInfo, String name, int pos, @Nullable String expectedName)
+	public static boolean modify(FullCommandInfo info, String name, int pos, @Nullable String expectedName)
 	{
-		File file = Files.getSceneFile(commandInfo, name);
-		SceneData sceneData = loadSceneData(commandInfo, file);
-		SceneData.Subscene subscene = SceneData.loadSubscene(commandInfo, sceneData, pos, expectedName);
+		File file = Files.getSceneFile(info, name);
+		SceneData sceneData = loadSceneData(info, file);
+		SceneData.Subscene subscene = SceneData.loadSubscene(info, sceneData, pos, expectedName);
 		if (subscene == null) { return false; }
 
-		SceneData.Subscene newSubscene = modifySubscene(commandInfo, subscene);
-		if (newSubscene == null)
-		{
-			commandInfo.sendFailure("scenes.modify.error");
-			return false;
-		}
+		SceneData.Subscene newSubscene = modifySubscene(info, subscene);
+		if (newSubscene == null) { return info.sendFailure("scenes.modify.error"); }
 
 		sceneData.subscenes.set(pos - 1, newSubscene);
-		return sceneData.save(commandInfo, file, name, "scenes.modify.success", "scenes.modify.error");
+		return sceneData.save(info, file, name, "scenes.modify.success", "scenes.modify.error");
 	}
 
 	private static @Nullable SceneData.Subscene modifySubscene(FullCommandInfo rootCommandInfo, SceneData.Subscene oldSubscene)
 	{
 		SceneData.Subscene subscene = oldSubscene.copy();
 
-		FullCommandInfo commandInfo = rootCommandInfo.getFinalCommandInfo();
-		if (commandInfo == null)
+		FullCommandInfo info = rootCommandInfo.getFinalCommandInfo();
+		if (info == null)
 		{
 			rootCommandInfo.sendFailure("error.unable_to_get_argument");
 			return null;
 		}
 
-		String propertyName = commandInfo.getNode(5);
+		String propertyName = info.getNode(5);
 		if (propertyName == null)
 		{
 			rootCommandInfo.sendFailure("error.unable_to_get_argument");
@@ -175,11 +166,11 @@ public class SceneFiles
 		{
 			if (propertyName.equals("subscene_name"))
 			{
-				subscene.name = commandInfo.getString("new_name");
+				subscene.name = info.getString("new_name");
 				return subscene;
 			}
 
-			if (!subscene.modifiers.modify(commandInfo, propertyName, 5))
+			if (!subscene.modifiers.modify(info, propertyName, 5))
 			{
 				rootCommandInfo.sendFailure("error.generic");
 				return null;
@@ -193,58 +184,56 @@ public class SceneFiles
 		}
 	}
 
-	public static boolean elementInfo(CommandOutput commandOutput, String name, String posStr)
+	public static boolean elementInfo(CommandOutput out, String name, String posStr)
 	{
 		Pair<Integer, String> posPair = CommandUtils.splitPosStr(posStr);
 		int pos = posPair.getFirst();
 		String expectedName = posPair.getSecond();
 
-		SceneData sceneData = loadSceneData(commandOutput, name);
-		SceneData.Subscene subscene = SceneData.loadSubscene(commandOutput, sceneData, pos, expectedName);
+		SceneData sceneData = loadSceneData(out, name);
+		SceneData.Subscene subscene = SceneData.loadSubscene(out, sceneData, pos, expectedName);
 		if (subscene == null) { return false; }
 
-		commandOutput.sendSuccess("scenes.element_info.info");
-		commandOutput.sendSuccess("scenes.element_info.id", name, pos);
-		commandOutput.sendSuccess("scenes.element_info.name", subscene.name);
+		out.sendSuccess("scenes.element_info.info");
+		out.sendSuccess("scenes.element_info.id", name, pos);
+		out.sendSuccess("scenes.element_info.name", subscene.name);
 
-		subscene.modifiers.list(commandOutput);
+		subscene.modifiers.list(out);
 		return true;
 	}
 
 
-	public static boolean listElements(CommandOutput commandOutput, String name)
+	public static boolean listElements(CommandOutput out, String name)
 	{
-		SceneData sceneData = loadSceneData(commandOutput, name);
+		SceneData sceneData = loadSceneData(out, name);
 		if (sceneData == null) { return false; }
 
-		commandOutput.sendSuccess("scenes.list_elements");
+		out.sendSuccess("scenes.list_elements");
 
 		int i = 1;
 		for (SceneData.Subscene element : sceneData.subscenes)
 		{
-			commandOutput.sendSuccessLiteral("[%d] %s <%.3f> (%s)", i++, element.name,
+			out.sendSuccessLiteral("[%d] %s <%.3f> (%s)", i++, element.name,
 					element.modifiers.startDelay.seconds, element.modifiers.playerName);
 		}
 
-		commandOutput.sendSuccessLiteral("[id] name <start_delay> (player_name)");
-		return true;
+		return out.sendSuccessLiteral("[id] name <start_delay> (player_name)");
 	}
 
-	public static boolean info(CommandOutput commandOutput, String name)
+	public static boolean info(CommandOutput out, String name)
 	{
 		SceneData sceneData = new SceneData();
-		if (!sceneData.load(commandOutput, name) && sceneData.version <= VERSION)
+		if (!sceneData.load(out, name) && sceneData.version <= VERSION)
 		{
-			commandOutput.sendFailure("scenes.info.failed");
+			out.sendFailure("scenes.info.failed");
 			return false;
 		}
 
-		commandOutput.sendSuccess("scenes.info.info");
-		commandOutput.sendSuccess("file.info.name", name);
-		if (!Files.printVersionInfo(commandOutput, VERSION, sceneData.version, sceneData.experimentalVersion)) { return true; }
+		out.sendSuccess("scenes.info.info");
+		out.sendSuccess("file.info.name", name);
+		if (!Files.printVersionInfo(out, VERSION, sceneData.version, sceneData.experimentalVersion)) { return true; }
 
-		commandOutput.sendSuccess("scenes.info.size", String.format("%.2f", sceneData.fileSize / 1024.0), sceneData.subscenes.size());
-		return true;
+		return out.sendSuccess("scenes.info.size", String.format("%.2f", sceneData.fileSize / 1024.0), sceneData.subscenes.size());
 	}
 
 	public static @Nullable List<String> list()
@@ -269,22 +258,22 @@ public class SceneFiles
 		return name.charAt(0) == '.' ? name : ("." + name);
 	}
 
-	public static @Nullable SceneData loadSceneData(CommandOutput commandOutput, String name)
+	public static @Nullable SceneData loadSceneData(CommandOutput out, String name)
 	{
-		return loadSceneData(commandOutput, Files.getSceneFile(commandOutput, name));
+		return loadSceneData(out, Files.getSceneFile(out, name));
 	}
 
-	public static @Nullable SceneData loadSceneData(CommandOutput commandOutput, @Nullable File file)
+	public static @Nullable SceneData loadSceneData(CommandOutput out, @Nullable File file)
 	{
 		if (file == null) { return null; }
 		if (!file.exists())
 		{
-			commandOutput.sendFailure("scenes.failure.file_not_exists");
+			out.sendFailure("scenes.failure.file_not_exists");
 			return null;
 		}
 
 		SceneData sceneData = new SceneData();
-		return sceneData.load(commandOutput, file) ? sceneData : null;
+		return sceneData.load(out, file) ? sceneData : null;
 	}
 
 	public record Writer(JsonObject json)

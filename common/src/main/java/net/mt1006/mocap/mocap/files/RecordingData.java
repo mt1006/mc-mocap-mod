@@ -90,13 +90,13 @@ public class RecordingData implements MocapRecordingData
 		stream.write(writer.toByteArray());
 	}
 
-	public boolean load(CommandOutput commandOutput, String name)
+	public boolean load(CommandOutput out, String name)
 	{
-		byte[] data = Files.loadFile(Files.getRecordingFile(commandOutput, name));
-		return data != null && load(commandOutput, new RecordingFiles.FileReader(data, true));
+		byte[] data = Files.loadFile(Files.getRecordingFile(out, name));
+		return data != null && load(out, new RecordingFiles.FileReader(data, true));
 	}
 
-	private boolean load(CommandOutput commandOutput, RecordingFiles.FileReader reader)
+	private boolean load(CommandOutput out, RecordingFiles.FileReader reader)
 	{
 		fileSize = reader.getSize();
 
@@ -106,11 +106,11 @@ public class RecordingData implements MocapRecordingData
 
 		if (version > RecordingFiles.VERSION)
 		{
-			commandOutput.sendFailure("playback.start.error.load_header");
+			out.sendFailure("playback.start.error.load_header");
 			return false;
 		}
 
-		if (!loadHeader(commandOutput, reader, version <= 2)) { return false; } //TODO: test old recordings
+		if (!loadHeader(out, reader, version <= 2)) { return false; } //TODO: test old recordings
 
 		while (reader.canRead())
 		{
@@ -173,7 +173,7 @@ public class RecordingData implements MocapRecordingData
 		}
 	}
 
-	private boolean loadHeader(CommandOutput commandOutput, RecordingFiles.FileReader reader, boolean legacyHeader)
+	private boolean loadHeader(CommandOutput out, RecordingFiles.FileReader reader, boolean legacyHeader)
 	{
 		startPos = reader.readVec3();
 		startRot[0] = reader.readFloat();
@@ -196,11 +196,11 @@ public class RecordingData implements MocapRecordingData
 
 		if (startDimensionSpecified) { startDimension = reader.readString(); }
 		if (playerNameSpecified) { playerName = reader.readString(); }
-		if (hasExtensions && !loadExtensionHeaders(commandOutput, reader)) { return false; }
+		if (hasExtensions && !loadExtensionHeaders(out, reader)) { return false; }
 		return true;
 	}
 
-	private boolean loadExtensionHeaders(CommandOutput commandOutput, RecordingFiles.FileReader reader)
+	private boolean loadExtensionHeaders(CommandOutput out, RecordingFiles.FileReader reader)
 	{
 		int extensionCount = Byte.toUnsignedInt(reader.readByte());
 		for (int i = 0; i < extensionCount; i++)
@@ -217,7 +217,7 @@ public class RecordingData implements MocapRecordingData
 			ExtensionHeader extensionHeader = ((MocapExtensionImpl)extension).createHeader();
 			if (!extensionHeader.load(reader))
 			{
-				commandOutput.sendFailure("playback.start.error.extension.load_header", extension.getId());
+				out.sendFailure("playback.start.error.extension.load_header", extension.getId());
 				return false;
 			}
 

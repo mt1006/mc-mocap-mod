@@ -58,7 +58,7 @@ public class RecordingContext implements MocapActiveRecordingActions
 		if (sendMessage) { Utils.sendMessage(source.player, "recording.start.recording_started"); }
 	}
 
-	public void stop(CommandOutput commandOutput)
+	public void stop(CommandOutput out)
 	{
 		state = switch (state)
 		{
@@ -70,7 +70,7 @@ public class RecordingContext implements MocapActiveRecordingActions
 
 		if (state == State.WAITING_FOR_DECISION && instantSave != null)
 		{
-			Recording.saveSingle(commandOutput, this, instantSave, false);
+			Recording.saveSingle(out, this, instantSave, false);
 		}
 
 		if (state.removed) { Recording.removeContext(this); }

@@ -32,64 +32,52 @@ public class MiscCommand
 		return commandBuilder;
 	}
 
-	private static boolean syncEnable(CommandInfo commandInfo)
+	private static boolean syncEnable(CommandInfo info)
 	{
-		if (commandInfo.getSourcePlayer() == null)
-		{
-			commandInfo.sendFailure("failure.resolve_player");
-			return false;
-		}
+		if (info.getSourcePlayer() == null) { return info.sendFailure("failure.resolve_player"); }
 
-		CommandsContext ctx = CommandsContext.get(commandInfo.getSourcePlayer());
-		commandInfo.sendSuccess(ctx.setSync(true) ? "misc.sync.enable.not_changed" : "misc.sync.enable.changed");
-		return true;
+		CommandsContext ctx = CommandsContext.get(info.getSourcePlayer());
+		return info.sendSuccess(ctx.setSync(true) ? "misc.sync.enable.not_changed" : "misc.sync.enable.changed");
 	}
 
-	private static boolean syncDisable(CommandInfo commandInfo)
+	private static boolean syncDisable(CommandInfo info)
 	{
-		if (commandInfo.getSourcePlayer() == null)
-		{
-			commandInfo.sendFailure("failure.resolve_player");
-			return false;
-		}
+		if (info.getSourcePlayer() == null) { return info.sendFailure("failure.resolve_player"); }
 
-		CommandsContext ctx = CommandsContext.get(commandInfo.getSourcePlayer());
-		commandInfo.sendSuccess(ctx.setSync(false) ? "misc.sync.disable.changed" : "misc.sync.disable.not_changed");
-		return true;
+		CommandsContext ctx = CommandsContext.get(info.getSourcePlayer());
+		return info.sendSuccess(ctx.setSync(false) ? "misc.sync.disable.changed" : "misc.sync.disable.not_changed");
 	}
 
-	private static boolean clearCache(CommandOutput commandOutput)
+	private static boolean clearCache(CommandOutput out)
 	{
 		CommandSuggestions.clearCache();
 		CustomServerSkinManager.clearCache();
 		PlayerConnectionEvent.players.forEach(MocapPacketS2C::sendClearCache);
 
-		commandOutput.sendSuccess("misc.clear_cache.success");
-		return true;
+		return out.sendSuccess("misc.clear_cache.success");
 	}
 
-	private static boolean refreshSuggestions(CommandOutput commandOutput)
+	private static boolean refreshSuggestions(CommandOutput out)
 	{
 		CommandSuggestions.refresh();
-		commandOutput.sendSuccess("misc.refresh_suggestions.success");
-		return true;
+		return out.sendSuccess("misc.refresh_suggestions.success");
 	}
 
-	private static boolean extensions(CommandOutput commandOutput)
+	private static boolean extensions(CommandOutput out)
 	{
 		Collection<MocapExtensionImpl> extensions = Extensions.getExtensions();
 		if (extensions.isEmpty())
 		{
-			commandOutput.sendSuccess("misc.extensions.no_extensions");
+			out.sendSuccess("misc.extensions.no_extensions");
 		}
 		else
 		{
-			commandOutput.sendSuccess("misc.extensions.list");
+			out.sendSuccess("misc.extensions.list");
 			for (MocapExtensionImpl ext : extensions)
 			{
 				int version = ext.getVersion();
-				if (version >= 0) { commandOutput.sendSuccess("misc.extensions.info", ext.getId(), version); }
-				else { commandOutput.sendSuccess("misc.extensions.info.experimental", ext.getId(), -version); }
+				if (version >= 0) { out.sendSuccess("misc.extensions.info", ext.getId(), version); }
+				else { out.sendSuccess("misc.extensions.info.experimental", ext.getId(), -version); }
 			}
 		}
 		return true;

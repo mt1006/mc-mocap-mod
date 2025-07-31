@@ -43,36 +43,42 @@ public class FullCommandInfo implements CommandInfo
 		this.sourceEntity = source.getEntity();
 	}
 
-	@Override public void sendSuccess(String component, Object... args)
+	@Override public boolean sendSuccess(String component, Object... args)
 	{
 		source.sendSuccess(() -> getTranslatableComponent(component, args), false);
+		return true;
 	}
 
-	@Override public void sendSuccessLiteral(String format, Object... args)
+	@Override public boolean sendSuccessLiteral(String format, Object... args)
 	{
 		source.sendSuccess(() -> Component.literal(String.format(format, args)), false);
+		return true;
 	}
 
-	@Override public void sendSuccessComponent(Component component)
+	@Override public boolean sendSuccessComponent(Component component)
 	{
 		source.sendSuccess(() -> component, false);
+		return true;
 	}
 
-	@Override public void sendFailure(String component, Object... args)
+	@Override public boolean sendFailure(String component, Object... args)
 	{
 		source.sendFailure(getTranslatableComponent(component, args));
+		return false;
 	}
 
-	@Override public void sendFailureWithTip(String component, Object... args)
+	@Override public boolean sendFailureWithTip(String component, Object... args)
 	{
 		source.sendFailure(getTranslatableComponent(component, args));
 		if (Settings.SHOW_TIPS.val) { source.sendFailure(getTranslatableComponent(component + ".tip")); }
+		return false;
 	}
 
-	@Override public void sendException(Exception exception, String component, Object... args)
+	@Override public boolean sendException(Exception exception, String component, Object... args)
 	{
 		sendFailure(component, args);
 		Utils.exception(exception, Utils.stringFromComponent(component, args));
+		return false;
 	}
 
 	@Override public MinecraftServer getServer()
@@ -158,10 +164,10 @@ public class FullCommandInfo implements CommandInfo
 		return PlayerSkin.DEFAULT;
 	}
 
-	public @Nullable PlaybackModifiers getSimpleModifiers(CommandOutput commandOutput)
+	public @Nullable PlaybackModifiers getSimpleModifiers(CommandOutput out)
 	{
 		String playerName = getNullableString("player_name");
-		if (!PlaybackModifiers.checkIfProperName(commandOutput, playerName)) { return null; }
+		if (!PlaybackModifiers.checkIfProperName(out, playerName)) { return null; }
 
 		PlayerSkin playerSkin = getPlayerSkin();
 		if (playerSkin == null) { return null; }

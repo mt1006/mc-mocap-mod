@@ -54,25 +54,25 @@ public class ScenesCommand
 		return commandBuilder;
 	}
 
-	private static boolean addToMinimal(FullCommandInfo commandInfo)
+	private static boolean addToMinimal(FullCommandInfo info)
 	{
 		// separated from addTo because it supports name pattern (adding multiple elements with single command)
 		try
 		{
-			String name = commandInfo.getString("scene_name");
-			String toAdd = commandInfo.getString("to_add");
+			String name = info.getString("scene_name");
+			String toAdd = info.getString("to_add");
 
 			if (!toAdd.contains("*"))
 			{
 				SceneData.Subscene subscene = new SceneData.Subscene(toAdd, PlaybackModifiers.empty());
-				return SceneFiles.addElement(commandInfo, name, subscene);
+				return SceneFiles.addElement(info, name, subscene);
 			}
 			else
 			{
 				String[] parts = toAdd.split("\\*", -1);
 				if (parts.length != 2)
 				{
-					commandInfo.sendFailure("scenes.add_to.multiple.invalid_pattern");
+					info.sendFailure("scenes.add_to.multiple.invalid_pattern");
 					return false;
 				}
 
@@ -104,70 +104,61 @@ public class ScenesCommand
 					}
 				}
 
-				if (matched == 0) { commandInfo.sendFailure("scenes.add_to.multiple.not_found"); }
-				else if (successes == matched) { commandInfo.sendSuccess("scenes.add_to.multiple.success"); }
-				else { commandInfo.sendFailure("scenes.add_to.multiple.error"); }
+				if (matched == 0) { info.sendFailure("scenes.add_to.multiple.not_found"); }
+				else if (successes == matched) { info.sendSuccess("scenes.add_to.multiple.success"); }
+				else { info.sendFailure("scenes.add_to.multiple.error"); }
 				return (successes == matched && matched != 0);
 			}
-
 		}
-		catch (IllegalArgumentException e)
-		{
-			commandInfo.sendException(e, "error.unable_to_get_argument");
-			return false;
-		}
+		catch (IllegalArgumentException e) { return info.sendException(e, "error.unable_to_get_argument"); }
 	}
 
-	private static boolean addTo(FullCommandInfo commandInfo)
+	private static boolean addTo(FullCommandInfo info)
 	{
 		try
 		{
-			String name = commandInfo.getString("scene_name");
-			String toAdd = commandInfo.getString("to_add");
+			String name = info.getString("scene_name");
+			String toAdd = info.getString("to_add");
 
 			if (toAdd.contains("*"))
 			{
-				commandInfo.sendFailure("scenes.add_to.multiple.pattern_with_arguments");
+				info.sendFailure("scenes.add_to.multiple.pattern_with_arguments");
 				return false;
 			}
 
 			double delay = 0.0;
 			try
 			{
-				delay = commandInfo.getDouble("start_delay");
+				delay = info.getDouble("start_delay");
 			}
 			catch (IllegalArgumentException ignore) {}
 
-			PlaybackModifiers modifiers = commandInfo.getSimpleModifiers(commandInfo);
+			PlaybackModifiers modifiers = info.getSimpleModifiers(info);
 			if (modifiers == null) { return false; }
 			modifiers.startDelay = StartDelay.fromSeconds(delay);
 
 			SceneData.Subscene subscene = new SceneData.Subscene(toAdd, modifiers);
-			return SceneFiles.addElement(commandInfo, name, subscene);
+			return SceneFiles.addElement(info, name, subscene);
 		}
-		catch (IllegalArgumentException e)
-		{
-			commandInfo.sendException(e, "error.unable_to_get_argument");
-			return false;
-		}
+		catch (IllegalArgumentException e) { return info.sendException(e, "error.unable_to_get_argument"); }
 	}
 
-	private static boolean modify(FullCommandInfo commandInfo)
+	private static boolean modify(FullCommandInfo info)
 	{
 		try
 		{
-			String name = commandInfo.getString("scene_name");
-			Pair<Integer, String> posPair = CommandUtils.splitPosStr(commandInfo.getString("to_modify"));
-			return SceneFiles.modify(commandInfo, name, posPair.getFirst(), posPair.getSecond());
+			String name = info.getString("scene_name");
+			Pair<Integer, String> posPair = CommandUtils.splitPosStr(info.getString("to_modify"));
+			return SceneFiles.modify(info, name, posPair.getFirst(), posPair.getSecond());
 		}
 		catch (IllegalArgumentException e)
 		{
-			commandInfo.sendException(e, "error.unable_to_get_argument");
+			info.sendException(e, "error.unable_to_get_argument");
 			return false;
 		}
 	}
 
-	public static boolean list(CommandOutput commandOutput)
+	public static boolean list(CommandOutput out)
 	{
 		StringBuilder scenesListStr = new StringBuilder();
 		List<String> scenesList = SceneFiles.list();
@@ -185,7 +176,6 @@ public class ScenesCommand
 			scenesListStr.append(" ").append(Utils.stringFromComponent("list.empty"));
 		}
 
-		commandOutput.sendSuccess("scenes.list", new String(scenesListStr));
-		return true;
+		return out.sendSuccess("scenes.list", new String(scenesListStr));
 	}
 }

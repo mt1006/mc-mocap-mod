@@ -22,24 +22,27 @@ public class BasicCommandInfo implements CommandInfo
 		this.sourceName = String.format("+%s", sourceName);
 	}
 
-	@Override public void sendSuccess(String component, Object... args) {}
-	@Override public void sendSuccessLiteral(String format, Object... args) {}
-	@Override public void sendSuccessComponent(Component component) {}
+	@Override public boolean sendSuccess(String component, Object... args) { return true; }
+	@Override public boolean sendSuccessLiteral(String format, Object... args) { return true; }
+	@Override public boolean sendSuccessComponent(Component component) { return true; }
 
-	@Override public void sendFailure(String component, Object... args)
+	@Override public boolean sendFailure(String component, Object... args)
 	{
 		MocapMod.LOGGER.error(Utils.stringFromComponent(component, args));
+		return false;
 	}
 
-	@Override public void sendFailureWithTip(String component, Object... args)
+	@Override public boolean sendFailureWithTip(String component, Object... args)
 	{
 		// unlike with LogsCommandOutput failures can be caused by using API, so it's warning, not error
 		MocapMod.LOGGER.warn(Utils.stringFromComponent(component, args));
+		return false;
 	}
 
-	@Override public void sendException(Exception exception, String component, Object... args)
+	@Override public boolean sendException(Exception exception, String component, Object... args)
 	{
 		Utils.exception(exception, Utils.stringFromComponent(component, args));
+		return false;
 	}
 
 	@Override public MinecraftServer getServer()

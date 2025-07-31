@@ -147,54 +147,54 @@ public class Transformations
 		return writer;
 	}
 
-	public void list(CommandOutput commandOutput)
+	public void list(CommandOutput out)
 	{
-		commandOutput.sendSuccess("scenes.element_info.transformations.rotation", rotation.deg);
-		commandOutput.sendSuccess("scenes.element_info.transformations.mirror." + mirror.name().toLowerCase());
+		out.sendSuccess("scenes.element_info.transformations.rotation", rotation.deg);
+		out.sendSuccess("scenes.element_info.transformations.mirror." + mirror.name().toLowerCase());
 
-		if (scale.playerScale == 1.0) { commandOutput.sendSuccess("scenes.element_info.transformations.player_scale.normal"); }
-		else { commandOutput.sendSuccess("scenes.element_info.transformations.player_scale.custom", scale.playerScale); }
+		if (scale.playerScale == 1.0) { out.sendSuccess("scenes.element_info.transformations.player_scale.normal"); }
+		else { out.sendSuccess("scenes.element_info.transformations.player_scale.custom", scale.playerScale); }
 
-		if (scale.sceneScale == 1.0) { commandOutput.sendSuccess("scenes.element_info.transformations.scene_scale.normal"); }
-		else { commandOutput.sendSuccess("scenes.element_info.transformations.scene_scale.custom", scale.sceneScale); }
+		if (scale.sceneScale == 1.0) { out.sendSuccess("scenes.element_info.transformations.scene_scale.normal"); }
+		else { out.sendSuccess("scenes.element_info.transformations.scene_scale.custom", scale.sceneScale); }
 		
-		commandOutput.sendSuccess("scenes.element_info.transformations.offset", offset.x, offset.y, offset.z);
-		config.list(commandOutput);
+		out.sendSuccess("scenes.element_info.transformations.offset", offset.x, offset.y, offset.z);
+		config.list(out);
 	}
 
-	public boolean modify(FullCommandInfo commandInfo, String propertyName, int propertyNodePosition)
+	public boolean modify(FullCommandInfo info, String propertyName, int propertyNodePosition)
 	{
 		switch (propertyName)
 		{
 			case "rotation":
-				rotation = new Rotation(commandInfo.getDouble("deg"));
+				rotation = new Rotation(info.getDouble("deg"));
 				break;
 
 			case "mirror":
-				Mirror newMirror = Mirror.fromStringOrNull(commandInfo.getNode(propertyNodePosition + 1));
+				Mirror newMirror = Mirror.fromStringOrNull(info.getNode(propertyNodePosition + 1));
 				if (newMirror == null) { return false; }
 				mirror = newMirror;
 				break;
 
 			case "scale":
-				String scaleType = commandInfo.getNode(propertyNodePosition + 1);
+				String scaleType = info.getNode(propertyNodePosition + 1);
 				if (scaleType == null) { return false; }
 
-				double scaleVal = commandInfo.getDouble("scale");
+				double scaleVal = info.getDouble("scale");
 				if (scaleType.equals("of_player")) { scale = scale.ofPlayer(scaleVal); }
 				else if (scaleType.equals("of_scene")) { scale = scale.ofScene(scaleVal); }
 				else { return false; }
 				break;
 
 			case "offset":
-				offset = new Offset(commandInfo.getDouble("offset_x"), commandInfo.getDouble("offset_y"), commandInfo.getDouble("offset_z"));
+				offset = new Offset(info.getDouble("offset_x"), info.getDouble("offset_y"), info.getDouble("offset_z"));
 				break;
 
 			case "config":
-				String transformationType = commandInfo.getNode(propertyNodePosition + 1);
+				String transformationType = info.getNode(propertyNodePosition + 1);
 				if (transformationType == null) { return false; }
 
-				TransformationsConfig newConfig = config.modify(commandInfo, transformationType, propertyNodePosition + 1);
+				TransformationsConfig newConfig = config.modify(info, transformationType, propertyNodePosition + 1);
 				if (newConfig != null)
 				{
 					config = newConfig;

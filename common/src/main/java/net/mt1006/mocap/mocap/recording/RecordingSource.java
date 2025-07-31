@@ -16,9 +16,9 @@ public class RecordingSource
 		this.name = name;
 	}
 
-	public static RecordingSource forCommand(CommandInfo commandInfo)
+	public static RecordingSource forCommand(CommandInfo info)
 	{
-		ServerPlayer sourcePlayer = commandInfo.getSourcePlayer();
+		ServerPlayer sourcePlayer = info.getSourcePlayer();
 		return sourcePlayer != null ? new RecordingSource(sourcePlayer, sourcePlayer.getName().getString()) : DEFAULT;
 	}
 

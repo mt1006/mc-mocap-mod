@@ -33,9 +33,9 @@ public class CustomServerSkinManager
 		}
 	}
 
-	public static boolean checkIfProperName(CommandOutput commandOutput, String name)
+	public static boolean checkIfProperName(CommandOutput out, String name)
 	{
-		return Files.checkIfProperName(commandOutput, name.startsWith(Files.SLIM_SKIN_PREFIX) ? name.substring(5) : name);
+		return Files.checkIfProperName(out, name.startsWith(Files.SLIM_SKIN_PREFIX) ? name.substring(5) : name);
 	}
 
 	public static void clearCache()

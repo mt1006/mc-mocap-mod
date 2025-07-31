@@ -27,14 +27,14 @@ public class RecordingFiles
 	private static final int ALT_NAME_MAX_I = 128;
 	public static final MocapAction.Reader DUMMY_READER = new DummyReader();
 
-	public static boolean save(CommandOutput commandOutput, File recordingFile, String name, RecordingData data)
+	public static boolean save(CommandOutput out, File recordingFile, String name, RecordingData data)
 	{
 		try
 		{
 			// double-check to make sure it won't override existing file
 			if (recordingFile.exists())
 			{
-				commandOutput.sendFailure("recording.save.already_exists");
+				out.sendFailure("recording.save.already_exists");
 				return false;
 			}
 
@@ -44,7 +44,7 @@ public class RecordingFiles
 		}
 		catch (IOException e)
 		{
-			commandOutput.sendException(e, "recording.save.error");
+			out.sendException(e, "recording.save.error");
 			return false;
 		}
 
@@ -52,73 +52,65 @@ public class RecordingFiles
 		return true;
 	}
 
-	public static boolean copy(CommandOutput commandOutput, String srcName, String destName)
+	public static boolean copy(CommandOutput out, String srcName, String destName)
 	{
-		File srcFile = Files.getRecordingFile(commandOutput, srcName);
+		File srcFile = Files.getRecordingFile(out, srcName);
 		if (srcFile == null) { return false; }
 
-		File destFile = Files.getRecordingFile(commandOutput, destName);
+		File destFile = Files.getRecordingFile(out, destName);
 		if (destFile == null) { return false; }
 
 		try { FileUtils.copyFile(srcFile, destFile); }
 		catch (IOException e)
 		{
-			commandOutput.sendException(e, "recordings.copy.failed");
+			out.sendException(e, "recordings.copy.failed");
 			return false;
 		}
 
 		CommandSuggestions.inputSet.add(destName);
-		commandOutput.sendSuccess("recordings.copy.success");
-		return true;
+		return out.sendSuccess("recordings.copy.success");
 	}
 
-	public static boolean rename(CommandOutput commandOutput, String oldName, String newName)
+	public static boolean rename(CommandOutput out, String oldName, String newName)
 	{
-		File oldFile = Files.getRecordingFile(commandOutput, oldName);
+		File oldFile = Files.getRecordingFile(out, oldName);
 		if (oldFile == null) { return false; }
 
-		File newFile = Files.getRecordingFile(commandOutput, newName);
+		File newFile = Files.getRecordingFile(out, newName);
 		if (newFile == null) { return false; }
 
 		if (!oldFile.renameTo(newFile))
 		{
-			commandOutput.sendFailure("recordings.rename.failed");
+			out.sendFailure("recordings.rename.failed");
 			return false;
 		}
 
 		CommandSuggestions.inputSet.remove(oldName);
 		CommandSuggestions.inputSet.add(newName);
-		commandOutput.sendSuccess("recordings.rename.success");
-		return true;
+		return out.sendSuccess("recordings.rename.success");
 	}
 
-	public static boolean remove(CommandOutput commandOutput, String name)
+	public static boolean remove(CommandOutput out, String name)
 	{
-		File recordingFile = Files.getRecordingFile(commandOutput, name);
+		File recordingFile = Files.getRecordingFile(out, name);
 		if (recordingFile == null) { return false; }
-
-		if (!recordingFile.delete())
-		{
-			commandOutput.sendFailure("recordings.remove.failed");
-			return false;
-		}
+		if (!recordingFile.delete()) { return out.sendFailure("recordings.remove.failed"); }
 
 		CommandSuggestions.inputSet.remove(name);
-		commandOutput.sendSuccess("recordings.remove.success");
-		return true;
+		return out.sendSuccess("recordings.remove.success");
 	}
 
-	public static boolean info(CommandOutput commandOutput, String name)
+	public static boolean info(CommandOutput out, String name)
 	{
-		Info info = Info.load(commandOutput, name);
+		Info info = Info.load(out, name);
 		if (info == null) { return false; }
 
-		commandOutput.sendSuccess("recordings.info.info");
-		commandOutput.sendSuccess("file.info.name", name);
-		if (!Files.printVersionInfo(commandOutput, VERSION, info.version, info.experimental)) { return true; }
+		out.sendSuccess("recordings.info.info");
+		out.sendSuccess("file.info.name", name);
+		if (!Files.printVersionInfo(out, VERSION, info.version, info.experimental)) { return true; }
 
-		commandOutput.sendSuccess("recordings.info.length", String.format("%.2f", info.lengthInTicks / 20.0), info.lengthInTicks);
-		commandOutput.sendSuccess("recordings.info.size", String.format("%.2f", info.sizeInBytes / 1024.0), info.sizeInOps);
+		out.sendSuccess("recordings.info.length", String.format("%.2f", info.lengthInTicks / 20.0), info.lengthInTicks);
+		out.sendSuccess("recordings.info.size", String.format("%.2f", info.sizeInBytes / 1024.0), info.sizeInOps);
 
 		String xStr = String.format(Locale.US, "%.2f", info.startPos.x);
 		String yStr = String.format(Locale.US, "%.2f", info.startPos.y);
@@ -126,12 +118,12 @@ public class RecordingFiles
 		MutableComponent tpSuggestionComponent = Utils.getSuggestCommandComponent(
 				String.format("/tp @p %s %s %s", xStr, yStr, zStr), Component.literal(String.format("%s %s %s", xStr, yStr, zStr)));
 		tpSuggestionComponent.withStyle(Style.EMPTY.withUnderlined(true));
-		commandOutput.sendSuccess("recordings.info.start_pos", tpSuggestionComponent);
+		out.sendSuccess("recordings.info.start_pos", tpSuggestionComponent);
 
-		if (info.assignedPlayerName != null) { commandOutput.sendSuccess("recordings.info.player_name_assigned.yes", info.assignedPlayerName); }
-		else { commandOutput.sendSuccess("recordings.info.player_name_assigned.no"); }
+		if (info.assignedPlayerName != null) { out.sendSuccess("recordings.info.player_name_assigned.yes", info.assignedPlayerName); }
+		else { out.sendSuccess("recordings.info.player_name_assigned.no"); }
 
-		commandOutput.sendSuccess(info.legacyEndsWithDeath ? "recordings.info.dies.yes" : "recordings.info.dies.no");
+		out.sendSuccess(info.legacyEndsWithDeath ? "recordings.info.dies.yes" : "recordings.info.dies.no");
 		return true;
 	}
 
@@ -187,12 +179,12 @@ public class RecordingFiles
 			@Nullable String assignedPlayerName,
 			boolean legacyEndsWithDeath) implements MocapSavedRecording.Info
 	{
-		public static @Nullable RecordingFiles.Info load(CommandOutput commandOutput, String name)
+		public static @Nullable RecordingFiles.Info load(CommandOutput out, String name)
 		{
 			RecordingData recording = new RecordingData();
-			if (!recording.load(commandOutput, name) && recording.version <= VERSION)
+			if (!recording.load(out, name) && recording.version <= VERSION)
 			{
-				commandOutput.sendFailure("recordings.info.failed");
+				out.sendFailure("recordings.info.failed");
 				return null;
 			}
 

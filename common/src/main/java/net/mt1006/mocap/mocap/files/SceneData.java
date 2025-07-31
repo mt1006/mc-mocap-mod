@@ -31,7 +31,7 @@ public class SceneData
 		return sceneData;
 	}
 
-	public boolean save(CommandOutput commandOutput, File file, String sceneName, String onSuccess, String onError)
+	public boolean save(CommandOutput out, File file, String sceneName, String onSuccess, String onError)
 	{
 		JsonObject json = new JsonObject();
 		json.add("version", new JsonPrimitive(experimentalVersion ? (-version) : version)); //TODO: fix?
@@ -48,32 +48,32 @@ public class SceneData
 			writer.close();
 
 			saveToSceneElementCache(sceneName);
-			commandOutput.sendSuccess(onSuccess);
+			out.sendSuccess(onSuccess);
 			return true;
 		}
 		catch (Exception e)
 		{
-			commandOutput.sendException(e, onError);
+			out.sendException(e, onError);
 			return false;
 		}
 	}
 
-	public boolean load(CommandOutput commandOutput, String name)
+	public boolean load(CommandOutput out, String name)
 	{
-		return load(commandOutput, Files.getSceneFile(commandOutput, name));
+		return load(out, Files.getSceneFile(out, name));
 	}
 
-	public boolean load(CommandOutput commandOutput, File file)
+	public boolean load(CommandOutput out, File file)
 	{
 		byte[] data = Files.loadFile(file);
-		return data != null && load(commandOutput, data);
+		return data != null && load(out, data);
 	}
 
-	private boolean load(CommandOutput commandOutput, byte[] scene)
+	private boolean load(CommandOutput out, byte[] scene)
 	{
 		fileSize = scene.length;
 
-		LegacySceneDataParser legacyParser = new LegacySceneDataParser(this, commandOutput, scene);
+		LegacySceneDataParser legacyParser = new LegacySceneDataParser(this, out, scene);
 		if (legacyParser.isLegacy()) { return legacyParser.wasParsed(); }
 
 		try
@@ -84,7 +84,7 @@ public class SceneData
 
 			JsonElement versionElement = json.get("version");
 			if (versionElement == null) { throw new Exception("Scene version not specified!"); }
-			if (!setAndVerifyVersion(commandOutput, versionElement.getAsInt())) { return false; }
+			if (!setAndVerifyVersion(out, versionElement.getAsInt())) { return false; }
 
 			JsonElement subsceneArrayElement = json.get("subscenes");
 			if (subsceneArrayElement == null) { throw new Exception("Scene subscenes list not found!"); }
@@ -99,20 +99,20 @@ public class SceneData
 		}
 		catch (Exception e)
 		{
-			commandOutput.sendException(e, "error.failed_to_load_scene");
+			out.sendException(e, "error.failed_to_load_scene");
 			return false;
 		}
 	}
 
-	public boolean setAndVerifyVersion(CommandOutput commandOutput, int versionNumber)
+	public boolean setAndVerifyVersion(CommandOutput out, int versionNumber)
 	{
 		version = Math.abs(versionNumber);
 		experimentalVersion = (versionNumber < 0);
 
 		if (version > SceneFiles.VERSION)
 		{
-			commandOutput.sendFailure("error.failed_to_load_scene");
-			commandOutput.sendFailure("error.failed_to_load_scene.not_supported");
+			out.sendFailure("error.failed_to_load_scene");
+			out.sendFailure("error.failed_to_load_scene.not_supported");
 			return false;
 		}
 		return true;
@@ -132,27 +132,27 @@ public class SceneData
 		return elements;
 	}
 
-	public static @Nullable SceneData.Subscene loadSubscene(CommandOutput commandOutput, @Nullable SceneData sceneData,
+	public static @Nullable SceneData.Subscene loadSubscene(CommandOutput out, @Nullable SceneData sceneData,
 															Pair<Integer, @Nullable String> pair)
 	{
-		return loadSubscene(commandOutput, sceneData, pair.getFirst(), pair.getSecond());
+		return loadSubscene(out, sceneData, pair.getFirst(), pair.getSecond());
 	}
 
-	public static @Nullable SceneData.Subscene loadSubscene(CommandOutput commandOutput, @Nullable SceneData sceneData,
+	public static @Nullable SceneData.Subscene loadSubscene(CommandOutput out, @Nullable SceneData sceneData,
 															int pos, @Nullable String expectedName)
 	{
 		if (sceneData == null) { return null; }
 
 		if (sceneData.subscenes.size() < pos || pos < 1)
 		{
-			commandOutput.sendFailureWithTip("scenes.failure.wrong_element_pos");
+			out.sendFailureWithTip("scenes.failure.wrong_element_pos");
 			return null;
 		}
 
 		SceneData.Subscene subscene = sceneData.subscenes.get(pos - 1);
 		if (expectedName != null && !expectedName.equals(subscene.name))
 		{
-			commandOutput.sendFailure("scenes.failure.wrong_subscene_name");
+			out.sendFailure("scenes.failure.wrong_subscene_name");
 			return null;
 		}
 		return subscene;

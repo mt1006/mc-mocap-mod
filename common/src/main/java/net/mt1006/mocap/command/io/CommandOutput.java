@@ -7,10 +7,10 @@ public interface CommandOutput
 	CommandOutput DUMMY = new DummyCommandOutput();
 	CommandOutput LOGS = new LogsCommandOutput();
 
-	void sendSuccess(String component, Object... args);
-	void sendSuccessLiteral(String format, Object... args);
-	void sendSuccessComponent(Component component);
-	void sendFailure(String component, Object... args);
-	void sendFailureWithTip(String component, Object... args);
-	void sendException(Exception exception, String component, Object... args);
+	boolean sendSuccess(String component, Object... args);
+	boolean sendSuccessLiteral(String format, Object... args);
+	boolean sendSuccessComponent(Component component);
+	boolean sendFailure(String component, Object... args);
+	boolean sendFailureWithTip(String component, Object... args);
+	boolean sendException(Exception exception, String component, Object... args);
 }

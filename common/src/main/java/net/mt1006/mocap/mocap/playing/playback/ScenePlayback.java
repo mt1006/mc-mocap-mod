@@ -20,40 +20,40 @@ public class ScenePlayback extends Playback
 	private final List<Playback> subscenes = new ArrayList<>();
 	private final PositionTransformer transformer;
 
-	private ScenePlayback(CommandInfo commandInfo, DataManager dataManager, String name, MocapPlaybackConfig config, PlaybackModifiers parentModifiers,
-						  @Nullable SceneData.Subscene info, @Nullable PositionTransformer parentTransformer) throws StartException
+	private ScenePlayback(CommandInfo info, DataManager dataManager, String name, MocapPlaybackConfig config, PlaybackModifiers parentModifiers,
+						  @Nullable SceneData.Subscene subscene, @Nullable PositionTransformer parentTransformer) throws StartException
 	{
-		super(info == null, commandInfo.getLevel(), commandInfo.getSourcePlayer(), config, parentModifiers, info);
+		super(subscene == null, info.getLevel(), info.getSourcePlayer(), config, parentModifiers, subscene);
 
 		SceneData sceneData = dataManager.getScene(name);
 		if (sceneData == null) { throw new StartException(); }
 
 		if (sceneData.subscenes.isEmpty() && root)
 		{
-			commandInfo.sendFailureWithTip("playback.start.error.empty_scene");
+			info.sendFailureWithTip("playback.start.error.empty_scene");
 			throw new StartException();
 		}
 
-		transformer = createPosTransformer(commandInfo, parentTransformer, sceneData, dataManager);
-		for (SceneData.Subscene subscene : sceneData.subscenes)
+		transformer = createPosTransformer(info, parentTransformer, sceneData, dataManager);
+		for (SceneData.Subscene s : sceneData.subscenes)
 		{
-			Playback playback = Playback.start(commandInfo, dataManager, config, this, subscene);
+			Playback playback = Playback.start(info, dataManager, config, this, s);
 			if (playback == null) { return; }
 			subscenes.add(playback);
 		}
 	}
 
-	protected static @Nullable ScenePlayback startRoot(CommandInfo commandInfo, DataManager dataManager,
+	protected static @Nullable ScenePlayback startRoot(CommandInfo info, DataManager dataManager,
 													   MocapPlaybackConfig config, String name, PlaybackModifiers modifiers)
 	{
-		try { return new ScenePlayback(commandInfo, dataManager, name, config, modifiers, null, null); }
+		try { return new ScenePlayback(info, dataManager, name, config, modifiers, null, null); }
 		catch (StartException e) { return null; }
 	}
 
-	protected static @Nullable ScenePlayback startSubscene(CommandInfo commandInfo, DataManager dataManager,
-														   MocapPlaybackConfig config, Playback parent, SceneData.Subscene info)
+	protected static @Nullable ScenePlayback startSubscene(CommandInfo info, DataManager dataManager,
+														   MocapPlaybackConfig config, Playback parent, SceneData.Subscene subscene)
 	{
-		try { return new ScenePlayback(commandInfo, dataManager, info.name, config, parent.modifiers, info, parent.getPosTransformer()); }
+		try { return new ScenePlayback(info, dataManager, subscene.name, config, parent.modifiers, subscene, parent.getPosTransformer()); }
 		catch (StartException e) { return null; }
 	}
 
@@ -92,8 +92,8 @@ public class ScenePlayback extends Playback
 		return transformer;
 	}
 
-	private PositionTransformer createPosTransformer(CommandOutput commandOutput, @Nullable PositionTransformer parent,
-															   SceneData sceneData, DataManager dataManager) throws StartException
+	private PositionTransformer createPosTransformer(CommandOutput out, @Nullable PositionTransformer parent,
+													 SceneData sceneData, DataManager dataManager) throws StartException
 	{
 		if (modifiers.transformations.areDefault()) { return parent; }
 		TransformationsConfig.SceneCenter center = modifiers.transformations.config.sceneCenter;
@@ -103,11 +103,11 @@ public class ScenePlayback extends Playback
 			return new PositionTransformer(modifiers.transformations, parent, null);
 		}
 
-		Vec3 sceneStartPos = getSceneStartPos(commandOutput, center, sceneData, dataManager);
+		Vec3 sceneStartPos = getSceneStartPos(out, center, sceneData, dataManager);
 		return new PositionTransformer(modifiers.transformations, parent, sceneStartPos);
 	}
 
-	private static Vec3 getSceneStartPos(CommandOutput commandOutput, TransformationsConfig.SceneCenter centers,
+	private static Vec3 getSceneStartPos(CommandOutput out, TransformationsConfig.SceneCenter centers,
 										 SceneData sceneData, DataManager dataManager) throws StartException
 	{
 		TransformationsConfig.SceneCenterType centerType = centers.type;
@@ -120,7 +120,7 @@ public class ScenePlayback extends Playback
 		{
 			case COMMON_FIRST -> sceneData.subscenes.get(0);
 			case COMMON_LAST -> sceneData.subscenes.get(sceneData.subscenes.size() - 1);
-			case COMMON_SPECIFIC -> SceneData.loadSubscene(commandOutput, sceneData, CommandUtils.splitPosStr(centers.specificStr));
+			case COMMON_SPECIFIC -> SceneData.loadSubscene(out, sceneData, CommandUtils.splitPosStr(centers.specificStr));
 			default -> null;
 		};
 		if (subscene == null) { throw new StartException(); }
@@ -129,7 +129,7 @@ public class ScenePlayback extends Playback
 		if (subscene.name.startsWith("."))
 		{
 			SceneData subsceneData = dataManager.getScene(subscene.name);
-			subsceneStartPos = getSceneStartPos(commandOutput,
+			subsceneStartPos = getSceneStartPos(out,
 					subscene.modifiers.transformations.config.sceneCenter, subsceneData, dataManager);
 		}
 		else

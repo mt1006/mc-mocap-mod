@@ -26,7 +26,7 @@ public class RecordingsCommand
 		return commandBuilder;
 	}
 
-	public static boolean list(CommandOutput commandOutput)
+	public static boolean list(CommandOutput out)
 	{
 		StringBuilder recordingsListStr = new StringBuilder();
 		List<String> recordingsList = RecordingFiles.list();
@@ -44,7 +44,6 @@ public class RecordingsCommand
 			recordingsListStr.append(" ").append(Utils.stringFromComponent("list.empty"));
 		}
 
-		commandOutput.sendSuccess("recordings.list", new String(recordingsListStr));
-		return true;
+		return out.sendSuccess("recordings.list", new String(recordingsListStr));
 	}
 }

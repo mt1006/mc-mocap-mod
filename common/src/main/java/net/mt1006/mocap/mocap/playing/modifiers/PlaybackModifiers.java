@@ -83,77 +83,77 @@ public class PlaybackModifiers
 		writer.addString("entity_filter", entityFilter.save());
 	}
 
-	public void list(CommandOutput commandOutput)
+	public void list(CommandOutput out)
 	{
-		if (playerName == null) { commandOutput.sendSuccess("scenes.element_info.player_name.default"); }
-		else { commandOutput.sendSuccess("scenes.element_info.player_name.custom", playerName); }
+		if (playerName == null) { out.sendSuccess("scenes.element_info.player_name.default"); }
+		else { out.sendSuccess("scenes.element_info.player_name.custom", playerName); }
 
 		switch (playerSkin.source)
 		{
 			case DEFAULT:
-				commandOutput.sendSuccess("scenes.element_info.skin.default");
+				out.sendSuccess("scenes.element_info.skin.default");
 				break;
 
 			case FROM_PLAYER:
-				commandOutput.sendSuccess("scenes.element_info.skin.profile", playerSkin.path);
+				out.sendSuccess("scenes.element_info.skin.profile", playerSkin.path);
 				break;
 
 			case FROM_FILE:
-				commandOutput.sendSuccess("scenes.element_info.skin.file", playerSkin.path);
+				out.sendSuccess("scenes.element_info.skin.file", playerSkin.path);
 				break;
 
 			case FROM_MINESKIN:
-				commandOutput.sendSuccess("scenes.element_info.skin.mineskin");
+				out.sendSuccess("scenes.element_info.skin.mineskin");
 				Component urlComponent = Utils.getOpenUrlComponent(playerSkin.path,
 						Component.literal(String.format("  (§n%s§r)", playerSkin.path)));
-				commandOutput.sendSuccessComponent(urlComponent);
+				out.sendSuccessComponent(urlComponent);
 				break;
 		}
 
-		transformations.list(commandOutput);
-		commandOutput.sendSuccess("scenes.element_info.start_delay", startDelay.seconds, startDelay.ticks);
+		transformations.list(out);
+		out.sendSuccess("scenes.element_info.start_delay", startDelay.seconds, startDelay.ticks);
 
-		if (!playerAsEntity.isEnabled()) { commandOutput.sendSuccess("scenes.element_info.player_as_entity.disabled"); }
-		else { commandOutput.sendSuccess("scenes.element_info.player_as_entity.enabled", playerAsEntity.entityId); }
+		if (!playerAsEntity.isEnabled()) { out.sendSuccess("scenes.element_info.player_as_entity.disabled"); }
+		else { out.sendSuccess("scenes.element_info.player_as_entity.enabled", playerAsEntity.entityId); }
 
-		if (entityFilter.isDefaultForPlayback()) { commandOutput.sendSuccess("scenes.element_info.entity_filter.disabled"); }
-		else { commandOutput.sendSuccess("scenes.element_info.entity_filter.enabled", entityFilter.save()); }
+		if (entityFilter.isDefaultForPlayback()) { out.sendSuccess("scenes.element_info.entity_filter.disabled"); }
+		else { out.sendSuccess("scenes.element_info.entity_filter.enabled", entityFilter.save()); }
 	}
 
-	public boolean modify(FullCommandInfo commandInfo, String propertyName, int propertyNodePosition) throws CommandSyntaxException
+	public boolean modify(FullCommandInfo info, String propertyName, int propertyNodePosition) throws CommandSyntaxException
 	{
 		switch (propertyName)
 		{
 			case "start_delay":
-				startDelay = StartDelay.fromSeconds(commandInfo.getDouble("delay"));
+				startDelay = StartDelay.fromSeconds(info.getDouble("delay"));
 				return true;
 
 			case "transformations":
-				String transformationType = commandInfo.getNode(propertyNodePosition + 1);
+				String transformationType = info.getNode(propertyNodePosition + 1);
 				if (transformationType == null) { break; }
-				return transformations.modify(commandInfo, transformationType, propertyNodePosition + 1);
+				return transformations.modify(info, transformationType, propertyNodePosition + 1);
 
 			case "player_name":
-				playerName = commandInfo.getString("player_name");
+				playerName = info.getString("player_name");
 				return true;
 
 			case "player_skin":
-				PlayerSkin newPlayerSkin = commandInfo.getPlayerSkin();
+				PlayerSkin newPlayerSkin = info.getPlayerSkin();
 				if (newPlayerSkin == null) { return false; }
 
 				playerSkin = newPlayerSkin;
 				return true;
 
 			case "player_as_entity":
-				String playerAsEntityMode = commandInfo.getNode(propertyNodePosition + 1);
+				String playerAsEntityMode = info.getNode(propertyNodePosition + 1);
 				if (playerAsEntityMode == null) { break; }
 
 				if (playerAsEntityMode.equals("enabled"))
 				{
-					String playerAsEntityId = ResourceArgument.getEntityType(commandInfo.ctx, "entity").key().location().toString();
+					String playerAsEntityId = ResourceArgument.getEntityType(info.ctx, "entity").key().location().toString();
 
 					Tag tag;
-					try { tag = NbtTagArgument.getNbtTag(commandInfo.ctx, "nbt"); }
+					try { tag = NbtTagArgument.getNbtTag(info.ctx, "nbt"); }
 					catch (Exception e) { tag = null; }
 					CompoundTag nbt = (tag instanceof CompoundTag) ? (CompoundTag)tag : null;
 
@@ -168,16 +168,16 @@ public class PlaybackModifiers
 				break;
 
 			case "entity_filter":
-				String filterMode = commandInfo.getNode(propertyNodePosition + 1);
+				String filterMode = info.getNode(propertyNodePosition + 1);
 				if (filterMode == null) { break; }
 
 				if (filterMode.equals("enabled"))
 				{
-					String filterStr = commandInfo.getString("entity_filter");
+					String filterStr = info.getString("entity_filter");
 					EntityFilterInstance filterInstance = EntityFilterInstance.create(filterStr);
 					if (filterInstance == null)
 					{
-						commandInfo.sendFailure("failure.entity_filter.failed_to_parse");
+						info.sendFailure("failure.entity_filter.failed_to_parse");
 						return false;
 					}
 
@@ -194,21 +194,21 @@ public class PlaybackModifiers
 		return false;
 	}
 
-	public static boolean checkIfProperName(CommandOutput commandOutput, @Nullable String name)
+	public static boolean checkIfProperName(CommandOutput out, @Nullable String name)
 	{
 		if (name == null) { return true; }
 
 		if (name.length() > 16)
 		{
-			commandOutput.sendFailure("failure.improper_player_name");
-			commandOutput.sendFailure("failure.improper_player_name.too_long");
+			out.sendFailure("failure.improper_player_name");
+			out.sendFailure("failure.improper_player_name.too_long");
 			return false;
 		}
 
 		if (name.contains(" "))
 		{
-			commandOutput.sendFailure("failure.improper_player_name");
-			commandOutput.sendFailure("failure.improper_player_name.contains_spaces");
+			out.sendFailure("failure.improper_player_name");
+			out.sendFailure("failure.improper_player_name.contains_spaces");
 			return false;
 		}
 		return true;

@@ -16,13 +16,13 @@ public class DataManager
 	private final Stack<String> resourceStack = new Stack<>();
 	public boolean knownError = false;
 
-	public boolean load(CommandOutput commandOutput, String name)
+	public boolean load(CommandOutput out, String name)
 	{
 		if (name.charAt(0) == '.')
 		{
 			if (resourceStack.contains(name))
 			{
-				commandOutput.sendFailure("playback.start.error.loop");
+				out.sendFailure("playback.start.error.loop");
 				resourceStack.push(name);
 				knownError = true;
 				return false;
@@ -30,20 +30,20 @@ public class DataManager
 
 			resourceStack.push(name);
 
-			if (!loadResource(commandOutput, name)) { return false; }
+			if (!loadResource(out, name)) { return false; }
 
 			SceneData scene = getScene(name);
 			if (scene == null) { return false; }
 
 			for (SceneData.Subscene subscene : scene.subscenes)
 			{
-				if (!load(commandOutput, subscene.name)) { return false; }
+				if (!load(out, subscene.name)) { return false; }
 			}
 		}
 		else
 		{
 			resourceStack.push(name);
-			if (!loadResource(commandOutput, name)) { return false; }
+			if (!loadResource(out, name)) { return false; }
 		}
 
 		resourceStack.pop();
@@ -71,20 +71,20 @@ public class DataManager
 		return new String(retStr);
 	}
 
-	private boolean loadResource(CommandOutput commandOutput, String name)
+	private boolean loadResource(CommandOutput out, String name)
 	{
 		if (name.charAt(0) == '.')
 		{
 			if (sceneMap.containsKey(name)) { return true; }
 			SceneData sceneData = new SceneData();
-			if (!sceneData.load(commandOutput, name)) { return false; }
+			if (!sceneData.load(out, name)) { return false; }
 			sceneMap.put(name, sceneData);
 		}
 		else
 		{
 			if (recordingMap.containsKey(name)) { return true; }
 			RecordingData recording = new RecordingData();
-			if (!recording.load(commandOutput, name)) { return false; }
+			if (!recording.load(out, name)) { return false; }
 			recordingMap.put(name, recording);
 		}
 		return true;

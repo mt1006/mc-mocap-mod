@@ -151,21 +151,21 @@ public class CommandUtils
 
 	private static int stringCommand(BiFunction<FullCommandInfo, String, Boolean> function, CommandContext<CommandSourceStack> ctx, String arg, boolean nullable)
 	{
-		FullCommandInfo commandInfo = new FullCommandInfo(ctx);
+		FullCommandInfo info = new FullCommandInfo(ctx);
 		try
 		{
-			String str = commandInfo.getString(arg);
-			return function.apply(commandInfo, str) ? 1 : 0;
+			String str = info.getString(arg);
+			return function.apply(info, str) ? 1 : 0;
 		}
 		catch (IllegalArgumentException e)
 		{
 			if (nullable)
 			{
-				return function.apply(commandInfo, null) ? 1 : 0;
+				return function.apply(info, null) ? 1 : 0;
 			}
 			else
 			{
-				commandInfo.sendException(e, "error.unable_to_get_argument");
+				info.sendException(e, "error.unable_to_get_argument");
 				return 0;
 			}
 		}
@@ -173,16 +173,16 @@ public class CommandUtils
 
 	private static int twoStringCommand(TriFunction<FullCommandInfo, String, String, Boolean> function, CommandContext<CommandSourceStack> ctx, String arg1, String arg2)
 	{
-		FullCommandInfo commandInfo = new FullCommandInfo(ctx);
+		FullCommandInfo info = new FullCommandInfo(ctx);
 		try
 		{
-			String str1 = commandInfo.getString(arg1);
-			String str2 = commandInfo.getString(arg2);
-			return function.apply(commandInfo, str1, str2) ? 1 : 0;
+			String str1 = info.getString(arg1);
+			String str2 = info.getString(arg2);
+			return function.apply(info, str1, str2) ? 1 : 0;
 		}
 		catch (IllegalArgumentException e)
 		{
-			commandInfo.sendException(e, "error.unable_to_get_argument");
+			info.sendException(e, "error.unable_to_get_argument");
 			return 0;
 		}
 	}

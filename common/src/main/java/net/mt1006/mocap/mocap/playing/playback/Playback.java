@@ -25,40 +25,40 @@ public abstract class Playback
 	protected final PlaybackModifiers modifiers;
 	protected int tickCounter = 0; //TODO: StartContext?
 
-	public static @Nullable PlaybackRoot start(CommandInfo commandInfo, String name, MocapPlaybackConfig config,
+	public static @Nullable PlaybackRoot start(CommandInfo info, String name, MocapPlaybackConfig config,
 											   PlaybackModifiers modifiers, int id, boolean hideId)
 	{
 		DataManager dataManager = new DataManager();
-		if (!dataManager.load(commandInfo, name))
+		if (!dataManager.load(info, name))
 		{
-			if (!dataManager.knownError) { commandInfo.sendFailure("playback.start.error.load"); }
-			commandInfo.sendFailure("playback.start.error.load.path", dataManager.getResourcePath());
+			if (!dataManager.knownError) { info.sendFailure("playback.start.error.load"); }
+			info.sendFailure("playback.start.error.load.path", dataManager.getResourcePath());
 			return null;
 		}
 
 		Playback playback = switch (SceneType.fromName(name))
 		{
-			case RECORDING -> RecordingPlayback.startRoot(commandInfo, dataManager.getRecording(name), config, modifiers);
-			case SCENE -> ScenePlayback.startRoot(commandInfo, dataManager, config, name, modifiers);
+			case RECORDING -> RecordingPlayback.startRoot(info, dataManager.getRecording(name), config, modifiers);
+			case SCENE -> ScenePlayback.startRoot(info, dataManager, config, name, modifiers);
 		};
 		return playback != null ? new PlaybackRoot(playback, id, name, config, hideId) : null;
 	}
 
-	public static @Nullable PlaybackRoot start(CommandInfo commandInfo, RecordingData recordingData, String name,
+	public static @Nullable PlaybackRoot start(CommandInfo info, RecordingData recordingData, String name,
 											   MocapPlaybackConfig config, PlaybackModifiers modifiers, int id, boolean hideId)
 	{
-		Playback playback = RecordingPlayback.startRoot(commandInfo, recordingData, config, modifiers);
+		Playback playback = RecordingPlayback.startRoot(info, recordingData, config, modifiers);
 		return playback != null ? new PlaybackRoot(playback, id, name, config, hideId) : null;
 	}
 
-	protected static @Nullable Playback start(CommandInfo commandInfo, DataManager dataManager,
-											  MocapPlaybackConfig config, Playback parent, SceneData.Subscene info)
+	protected static @Nullable Playback start(CommandInfo info, DataManager dataManager,
+											  MocapPlaybackConfig config, Playback parent, SceneData.Subscene subscene)
 	{
-		String name = info.name;
+		String name = subscene.name;
 		return switch (SceneType.fromName(name))
 		{
-			case RECORDING -> RecordingPlayback.startSubscene(commandInfo, dataManager, config, parent, info);
-			case SCENE -> ScenePlayback.startSubscene(commandInfo, dataManager, config, parent, info);
+			case RECORDING -> RecordingPlayback.startSubscene(info, dataManager, config, parent, subscene);
+			case SCENE -> ScenePlayback.startSubscene(info, dataManager, config, parent, subscene);
 		};
 	}
 

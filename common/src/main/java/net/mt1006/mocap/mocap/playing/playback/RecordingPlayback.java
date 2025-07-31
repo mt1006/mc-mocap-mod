@@ -35,19 +35,19 @@ public class RecordingPlayback extends Playback
 	private int pos = 0;
 	private int dyingTicks = 0;
 
-	private RecordingPlayback(CommandInfo commandInfo, @Nullable RecordingData recording, MocapPlaybackConfig config, PlaybackModifiers parentModifiers,
+	private RecordingPlayback(CommandInfo info, @Nullable RecordingData recording, MocapPlaybackConfig config, PlaybackModifiers parentModifiers,
 							  @Nullable SceneData.Subscene subscene, @Nullable PositionTransformer parentTransformer) throws StartException
 	{
-		super(subscene == null, commandInfo.getLevel(), commandInfo.getSourcePlayer(), config, parentModifiers, subscene);
+		super(subscene == null, info.getLevel(), info.getSourcePlayer(), config, parentModifiers, subscene);
 
 		if (recording == null) { throw new StartException(); } //TODO: test if gives error message (especially as subscene)
 		this.recording = recording;
 
-		GameProfile profile = getGameProfile(commandInfo);
+		GameProfile profile = getGameProfile(info);
 		if (profile == null)
 		{
-			commandInfo.sendFailure("playback.start.error");
-			commandInfo.sendFailure("playback.start.error.profile");
+			info.sendFailure("playback.start.error");
+			info.sendFailure("playback.start.error.profile");
 			throw new StartException();
 		}
 
@@ -58,7 +58,7 @@ public class RecordingPlayback extends Playback
 			PropertyMap newPropertyMap = (PropertyMap)Fields.gameProfileProperties.get(newProfile);
 
 			newPropertyMap.putAll(oldPropertyMap);
-			modifiers.playerSkin.addSkinToPropertyMap(commandInfo, newPropertyMap);
+			modifiers.playerSkin.addSkinToPropertyMap(info, newPropertyMap);
 		}
 		catch (Exception ignore) {}
 
@@ -100,7 +100,7 @@ public class RecordingPlayback extends Playback
 
 			if (entity == null)
 			{
-				commandInfo.sendFailure("playback.start.warning.unknown_entity", modifiers.playerAsEntity.entityId);
+				info.sendFailure("playback.start.warning.unknown_entity", modifiers.playerAsEntity.entityId);
 				throw new StartException();
 			}
 
@@ -126,17 +126,17 @@ public class RecordingPlayback extends Playback
 		this.ctx = new ActionContext(recording, owner, packetTargets, entity, config, modifiers, ghost, transformer);
 	}
 
-	protected static @Nullable RecordingPlayback startRoot(CommandInfo commandInfo, @Nullable RecordingData recording,
+	protected static @Nullable RecordingPlayback startRoot(CommandInfo info, @Nullable RecordingData recording,
 														   MocapPlaybackConfig config, PlaybackModifiers modifiers)
 	{
-		try { return new RecordingPlayback(commandInfo, recording, config, modifiers, null, null); }
+		try { return new RecordingPlayback(info, recording, config, modifiers, null, null); }
 		catch (StartException e) { return null; }
 	}
 
-	protected static @Nullable RecordingPlayback startSubscene(CommandInfo commandInfo, DataManager dataManager, MocapPlaybackConfig config,
-															   Playback parent, SceneData.Subscene info)
+	protected static @Nullable RecordingPlayback startSubscene(CommandInfo info, DataManager dataManager, MocapPlaybackConfig config,
+															   Playback parent, SceneData.Subscene subscene)
 	{
-		try { return new RecordingPlayback(commandInfo, dataManager.getRecording(info.name), config, parent.modifiers, info, parent.getPosTransformer()); }
+		try { return new RecordingPlayback(info, dataManager.getRecording(subscene.name), config, parent.modifiers, subscene, parent.getPosTransformer()); }
 		catch (StartException e) { return null; }
 	}
 
@@ -205,11 +205,11 @@ public class RecordingPlayback extends Playback
 		return ctx.transformer;
 	}
 
-	private @Nullable GameProfile getGameProfile(CommandInfo commandInfo)
+	private @Nullable GameProfile getGameProfile(CommandInfo info)
 	{
 		String profileName = modifiers.playerName;
-		Entity entity = commandInfo.getSourceEntity();
-		Level level = commandInfo.getLevel();
+		Entity entity = info.getSourceEntity();
+		Level level = info.getLevel();
 
 		if (profileName == null)
 		{
@@ -219,6 +219,6 @@ public class RecordingPlayback extends Playback
 			else { profileName = "Player"; }
 		}
 
-		return ProfileUtils.getGameProfile(commandInfo.getServer(), profileName);
+		return ProfileUtils.getGameProfile(info.getServer(), profileName);
 	}
 }

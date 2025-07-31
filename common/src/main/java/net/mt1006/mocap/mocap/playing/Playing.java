@@ -32,33 +32,33 @@ public class Playing
 	private static double previousPlaybackSpeed = 0.0;
 	private static int nextPlaybackId = 0;
 
-	public static boolean start(CommandInfo commandInfo, String name, MocapPlaybackConfig config,
+	public static boolean start(CommandInfo info, String name, MocapPlaybackConfig config,
 								PlaybackModifiers modifiers, boolean sendModifiersWarning)
 	{
-		if (name.charAt(0) == '-') { return startCurrentlyRecorded(commandInfo, name, config, modifiers, sendModifiersWarning); }
+		if (name.charAt(0) == '-') { return startCurrentlyRecorded(info, name, config, modifiers, sendModifiersWarning); }
 
-		PlaybackRoot playback = Playback.start(commandInfo, name, config, modifiers, getNextId(), false);
+		PlaybackRoot playback = Playback.start(info, name, config, modifiers, getNextId(), false);
 		if (playback == null) { return false; }
 		addPlayback(playback);
-		sendStartMessage(commandInfo, sendModifiersWarning);
+		sendStartMessage(info, sendModifiersWarning);
 		return true;
 	}
 
-	public static @Nullable PlaybackRoot startSingleSilently(CommandInfo commandInfo, String name, MocapPlaybackConfig config,
+	public static @Nullable PlaybackRoot startSingleSilently(CommandInfo info, String name, MocapPlaybackConfig config,
 															 PlaybackModifiers modifiers, boolean hidden)
 	{
 		PlaybackRoot playback;
 		if (name.charAt(0) == '-')
 		{
-			Collection<RecordingContext> contexts = Recording.resolveContexts(commandInfo, name);
+			Collection<RecordingContext> contexts = Recording.resolveContexts(info, name);
 			if (contexts == null || contexts.size() != 1) { return null; }
 
 			RecordingContext ctx = contexts.iterator().next();
-			playback = Playback.start(commandInfo, ctx.data, ctx.id.str, config, modifiers, getNextId(), hidden);
+			playback = Playback.start(info, ctx.data, ctx.id.str, config, modifiers, getNextId(), hidden);
 		}
 		else
 		{
-			playback = Playback.start(commandInfo, name, config, modifiers, getNextId(), hidden);
+			playback = Playback.start(info, name, config, modifiers, getNextId(), hidden);
 		}
 
 		if (playback == null) { return null; }
@@ -66,10 +66,10 @@ public class Playing
 		return playback;
 	}
 
-	private static boolean startCurrentlyRecorded(CommandInfo commandInfo, String name, MocapPlaybackConfig config,
+	private static boolean startCurrentlyRecorded(CommandInfo info, String name, MocapPlaybackConfig config,
 												  PlaybackModifiers modifiers, boolean sendModifiersWarning)
 	{
-		Collection<RecordingContext> contexts = Recording.resolveContexts(commandInfo, name);
+		Collection<RecordingContext> contexts = Recording.resolveContexts(info, name);
 		if (contexts == null) { return false; }
 
 		int successes = 0;
@@ -83,7 +83,7 @@ public class Playing
 				modifiersToApply = modifiers.mergeWithParent(playerNameModifier);
 			}
 
-			PlaybackRoot playback = Playback.start(commandInfo, ctx.data, ctx.id.str, config, modifiersToApply, getNextId(), false);
+			PlaybackRoot playback = Playback.start(info, ctx.data, ctx.id.str, config, modifiersToApply, getNextId(), false);
 			if (playback != null)
 			{
 				addPlayback(playback);
@@ -92,39 +92,39 @@ public class Playing
 		}
 
 		if (successes == 0) { return false; }
-		sendStartMessage(commandInfo, sendModifiersWarning);
+		sendStartMessage(info, sendModifiersWarning);
 		return true;
 	}
 
-	private static void sendStartMessage(CommandInfo commandInfo, boolean sendModifiersWarning)
+	private static void sendStartMessage(CommandInfo info, boolean sendModifiersWarning)
 	{
 		String key = "playback.start.success";
 		if (sendModifiersWarning) { key += ".modifiers"; }
 
-		if (commandInfo.getSourcePlayer() != null)
+		if (info.getSourcePlayer() != null)
 		{
-			CommandsContext commandsContext = CommandsContext.get(commandInfo.getSourcePlayer());
+			CommandsContext commandsContext = CommandsContext.get(info.getSourcePlayer());
 			if (commandsContext.getSync()) { key += ".sync"; }
 		}
 
-		commandInfo.sendSuccess(key);
+		info.sendSuccess(key);
 	}
 
-	public static boolean stop(CommandOutput commandOutput, String id, @Nullable String expectedName)
+	public static boolean stop(CommandOutput out, String id, @Nullable String expectedName)
 	{
-		PlaybackRoot playback = findPlayback(commandOutput, id, expectedName);
+		PlaybackRoot playback = findPlayback(out, id, expectedName);
 		if (playback == null)
 		{
-			commandOutput.sendFailureWithTip("playback.stop.unable_to_find_playback");
+			out.sendFailureWithTip("playback.stop.unable_to_find_playback");
 			return false;
 		}
 
 		playback.stop();
-		commandOutput.sendSuccess("playback.stop.success");
+		out.sendSuccess("playback.stop.success");
 		return true;
 	}
 
-	public static @Nullable PlaybackRoot findPlayback(CommandOutput commandOutput, String id, @Nullable String expectedName)
+	public static @Nullable PlaybackRoot findPlayback(CommandOutput out, String id, @Nullable String expectedName)
 	{
 		for (PlaybackRoot playback : playbacks)
 		{
@@ -132,7 +132,7 @@ public class Playing
 			{
 				if (expectedName != null && !expectedName.equals(playback.getRootName()))
 				{
-					commandOutput.sendFailure("playback.stop.wrong_playback_name"); //TODO: FIX
+					out.sendFailure("playback.stop.wrong_playback_name"); //TODO: FIX
 					return null;
 				}
 				return playback;
@@ -141,12 +141,12 @@ public class Playing
 		return null;
 	}
 
-	public static void stopAll(CommandOutput commandOutput, @Nullable ServerPlayer player)
+	public static void stopAll(CommandOutput out, @Nullable ServerPlayer player)
 	{
 		if (player == null)
 		{
 			playbacks.forEach(PlaybackRoot::stop);
-			commandOutput.sendSuccess(playbacks.isEmpty() ? "playback.stop_all.empty": "playback.stop_all.all");
+			out.sendSuccess(playbacks.isEmpty() ? "playback.stop_all.empty": "playback.stop_all.all");
 		}
 		else
 		{
@@ -155,120 +155,84 @@ public class Playing
 
 			if (playerPlaybacks.isEmpty())
 			{
-				commandOutput.sendSuccess(playbacks.isEmpty()
+				out.sendSuccess(playbacks.isEmpty()
 						? "playback.stop_all.empty"
 						: "playback.stop_all.own.empty");
 			}
 			else
 			{
-				commandOutput.sendSuccess(playerPlaybacks.size() == playbacks.size()
+				out.sendSuccess(playerPlaybacks.size() == playbacks.size()
 						? "playback.stop_all.own.all"
 						: "playback.stop_all.own.not_all");
 			}
 
 			if (playerPlaybacks.size() != playbacks.size() && Settings.SHOW_TIPS.val)
 			{
-				commandOutput.sendSuccess("playback.stop_all.own.tip");
+				out.sendSuccess("playback.stop_all.own.tip");
 			}
 		}
 	}
 
-	public static boolean modifiersSet(FullCommandInfo rootCommandInfo)
+	public static boolean modifiersSet(FullCommandInfo rootInfo)
 	{
-		ServerPlayer source = rootCommandInfo.getSourcePlayer();
-		if (source == null)
-		{
-			rootCommandInfo.sendFailure("failure.resolve_player");
-			return false;
-		}
+		ServerPlayer source = rootInfo.getSourcePlayer();
+		if (source == null) { return rootInfo.sendFailure("failure.resolve_player"); }
 		CommandsContext ctx = CommandsContext.get(source);
 
-		FullCommandInfo commandInfo = rootCommandInfo.getFinalCommandInfo();
-		if (commandInfo == null)
-		{
-			rootCommandInfo.sendFailure("error.unable_to_get_argument");
-			return false;
-		}
+		FullCommandInfo info = rootInfo.getFinalCommandInfo();
+		if (info == null) { return rootInfo.sendFailure("error.unable_to_get_argument"); }
 
-		String propertyName = commandInfo.getNode(4);
-		if (propertyName == null)
-		{
-			rootCommandInfo.sendFailure("error.unable_to_get_argument");
-			return false;
-		}
+		String propertyName = info.getNode(4);
+		if (propertyName == null) { return rootInfo.sendFailure("error.unable_to_get_argument"); }
 
 		try
 		{
-			boolean success = ctx.modifiers.modify(commandInfo, propertyName, 4);
-			if (!success)
-			{
-				rootCommandInfo.sendFailure("error.generic");
-				return false;
-			}
-
-			rootCommandInfo.sendSuccess("playback.modifiers.set");
-			return true;
+			boolean success = ctx.modifiers.modify(info, propertyName, 4);
+			return success ? rootInfo.sendSuccess("playback.modifiers.set") : rootInfo.sendFailure("error.generic");
 		}
-		catch (Exception e)
-		{
-			rootCommandInfo.sendException(e, "error.unable_to_get_argument");
-			return false;
-		}
+		catch (Exception e) { return rootInfo.sendException(e, "error.unable_to_get_argument"); }
 	}
 
-	public static boolean modifiersList(CommandInfo commandInfo)
+	public static boolean modifiersList(CommandInfo info)
 	{
-		ServerPlayer source = commandInfo.getSourcePlayer();
-		if (source == null)
-		{
-			commandInfo.sendFailure("failure.resolve_player");
-			return false;
-		}
+		ServerPlayer source = info.getSourcePlayer();
+		if (source == null) { return info.sendFailure("failure.resolve_player"); }
 
 		CommandsContext ctx = CommandsContext.get(source);
-		commandInfo.sendSuccess("playback.modifiers.list");
-		ctx.modifiers.list(commandInfo);
+		info.sendSuccess("playback.modifiers.list");
+		ctx.modifiers.list(info);
 		return true;
 	}
 
-	public static boolean modifiersReset(CommandInfo commandInfo)
+	public static boolean modifiersReset(CommandInfo info)
 	{
-		ServerPlayer source = commandInfo.getSourcePlayer();
-		if (source == null)
-		{
-			commandInfo.sendFailure("failure.resolve_player");
-			return false;
-		}
+		ServerPlayer source = info.getSourcePlayer();
+		if (source == null) { return info.sendFailure("failure.resolve_player"); }
 
 		CommandsContext ctx = CommandsContext.get(source);
 		ctx.modifiers = PlaybackModifiers.empty();
-		commandInfo.sendSuccess("playback.modifiers.reset");
-		return true;
+		return info.sendSuccess("playback.modifiers.reset");
 	}
 
-	public static boolean modifiersAddTo(CommandInfo commandInfo, String sceneName, String toAdd)
+	public static boolean modifiersAddTo(CommandInfo info, String sceneName, String toAdd)
 	{
-		ServerPlayer source = commandInfo.getSourcePlayer();
-		if (source == null)
-		{
-			commandInfo.sendFailure("failure.resolve_player");
-			return false;
-		}
+		ServerPlayer source = info.getSourcePlayer();
+		if (source == null) { return info.sendFailure("failure.resolve_player"); }
 
 		SceneData.Subscene subscene = new SceneData.Subscene(toAdd, CommandsContext.get(source).modifiers);
-		return SceneFiles.addElement(commandInfo, sceneName, subscene);
+		return SceneFiles.addElement(info, sceneName, subscene);
 	}
 
-	public static boolean list(CommandOutput commandOutput)
+	public static boolean list(CommandOutput out)
 	{
 		if (playbacks.isEmpty())
 		{
-			commandOutput.sendSuccess("playback.list.empty");
+			out.sendSuccess("playback.list.empty");
 		}
 		else
 		{
-			commandOutput.sendSuccess("playback.list");
-			playbacks.forEach((p) -> commandOutput.sendSuccessLiteral("[%s] %s", p.getId(), p.getRootName()));
+			out.sendSuccess("playback.list");
+			playbacks.forEach((p) -> out.sendSuccessLiteral("[%s] %s", p.getId(), p.getRootName()));
 		}
 		return true;
 	}

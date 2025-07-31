@@ -28,16 +28,15 @@ public class MocapCommand
 		dispatcher.register(commandBuilder);
 	}
 
-	private static boolean info(CommandOutput commandOutput)
+	private static boolean info(CommandOutput out)
 	{
-		commandOutput.sendSuccessLiteral(MocapMod.getFullName());
-		commandOutput.sendSuccessLiteral("Author: mt1006");
+		out.sendSuccessLiteral(MocapMod.getFullName());
+		out.sendSuccessLiteral("Author: mt1006");
 		return true;
 	}
 
-	private static boolean help(CommandOutput commandOutput)
+	private static boolean help(CommandOutput out)
 	{
-		commandOutput.sendSuccess("help", MocapMod.getName());
-		return true;
+		return out.sendSuccess("help", MocapMod.getName());
 	}
 }

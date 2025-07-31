@@ -35,9 +35,9 @@ public class SettingsCommand
 		return commandBuilder;
 	}
 
-	private static boolean set(FullCommandInfo commandInfo)
+	private static boolean set(FullCommandInfo info)
 	{
-		return Settings.set(commandInfo);
+		return Settings.set(info);
 	}
 
 	private static void addSettingArguments(LiteralArgumentBuilder<CommandSourceStack> builder, Collection<SettingFields.Field<?>> fields)

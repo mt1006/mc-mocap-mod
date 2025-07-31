@@ -44,62 +44,54 @@ public class PlaybackCommand
 		return commandBuilder;
 	}
 
-	private static boolean start(FullCommandInfo commandInfo)
+	private static boolean start(FullCommandInfo info)
 	{
-		String name = commandInfo.getNullableString("name");
+		String name = info.getNullableString("name");
 		if (name == null)
 		{
-			commandInfo.sendFailure("error.unable_to_get_argument");
+			info.sendFailure("error.unable_to_get_argument");
 			return false;
 		}
 
-		PlaybackModifiers modifiers = commandInfo.getSimpleModifiers(commandInfo);
+		PlaybackModifiers modifiers = info.getSimpleModifiers(info);
 		if (modifiers == null) { return false; }
 
 		try
 		{
-			PlaybackModifiers finalModifiers = CommandsContext.getFinalModifiers(commandInfo.getSourcePlayer(), modifiers);
-			boolean sendModifiersWarning = !CommandsContext.hasDefaultModifiers(commandInfo.getSourcePlayer());
-			return Playing.start(commandInfo, name, MocapPlaybackConfig.createFromSettings(), finalModifiers, sendModifiersWarning);
+			PlaybackModifiers finalModifiers = CommandsContext.getFinalModifiers(info.getSourcePlayer(), modifiers);
+			boolean sendModifiersWarning = !CommandsContext.hasDefaultModifiers(info.getSourcePlayer());
+			return Playing.start(info, name, MocapPlaybackConfig.createFromSettings(), finalModifiers, sendModifiersWarning);
 		}
-		catch (Exception e)
-		{
-			commandInfo.sendException(e, "playback.start.error");
-			return false;
-		}
+		catch (Exception e) { return info.sendException(e, "playback.start.error"); }
 	}
 
-	private static boolean stop(FullCommandInfo commandInfo)
+	private static boolean stop(FullCommandInfo info)
 	{
 		try
 		{
-			Pair<String, String> idPair = CommandUtils.splitIdStr(commandInfo.getString("id"));
-			return Playing.stop(commandInfo, idPair.getFirst(), idPair.getSecond());
+			Pair<String, String> idPair = CommandUtils.splitIdStr(info.getString("id"));
+			return Playing.stop(info, idPair.getFirst(), idPair.getSecond());
 		}
-		catch (IllegalArgumentException e)
-		{
-			commandInfo.sendException(e, "error.unable_to_get_argument");
-			return false;
-		}
+		catch (IllegalArgumentException e) { return info.sendException(e, "error.unable_to_get_argument"); }
 	}
 
-	private static boolean stopAll(CommandInfo commandInfo, boolean includeOthers)
+	private static boolean stopAll(CommandInfo info, boolean includeOthers)
 	{
-		Playing.stopAll(commandInfo, includeOthers ? null : commandInfo.getSourcePlayer());
+		Playing.stopAll(info, includeOthers ? null : info.getSourcePlayer());
 		return true;
 	}
 
-	private static boolean modifiersAddTo(FullCommandInfo commandInfo)
+	private static boolean modifiersAddTo(FullCommandInfo info)
 	{
 		try
 		{
-			String name = commandInfo.getString("scene_name");
-			String toAdd = commandInfo.getString("to_add");
-			return Playing.modifiersAddTo(commandInfo, name, toAdd);
+			String name = info.getString("scene_name");
+			String toAdd = info.getString("to_add");
+			return Playing.modifiersAddTo(info, name, toAdd);
 		}
 		catch (IllegalArgumentException e)
 		{
-			commandInfo.sendException(e, "error.unable_to_get_argument");
+			info.sendException(e, "error.unable_to_get_argument");
 			return false;
 		}
 	}

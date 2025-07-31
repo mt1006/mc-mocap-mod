@@ -145,16 +145,16 @@ public class SettingFields
 			set(defVal);
 		}
 
-		public Component getInfo(CommandInfo commandInfo)
+		public Component getInfo(CommandInfo info)
 		{
 			String key = val.equals(defVal) ? "settings.list.info_def" : "settings.list.info";
-			return commandInfo.getTranslatableComponent(key, name, valToString());
+			return info.getTranslatableComponent(key, name, valToString());
 		}
 
-		public void printValues(CommandInfo commandInfo)
+		public void printValues(CommandInfo info)
 		{
-			commandInfo.sendSuccess("settings.info.current_value", valToString());
-			commandInfo.sendSuccess("settings.info.default_value", valToString(defVal));
+			info.sendSuccess("settings.info.current_value", valToString());
+			info.sendSuccess("settings.info.default_value", valToString(defVal));
 		}
 
 		public final String toFileLine()
@@ -176,14 +176,14 @@ public class SettingFields
 			}
 		}
 
-		public final boolean fromCommand(FullCommandInfo commandInfo)
+		public final boolean fromCommand(FullCommandInfo info)
 		{
 			try
 			{
-				T newVal = parseFromCommand(commandInfo);
+				T newVal = parseFromCommand(info);
 				if (newVal == null)
 				{
-					commandInfo.sendFailure("settings.set.invalid_value");
+					info.sendFailure("settings.set.invalid_value");
 					return false;
 				}
 
@@ -192,7 +192,7 @@ public class SettingFields
 			}
 			catch (Exception e)
 			{
-				commandInfo.sendException(e, "settings.set.error");
+				info.sendException(e, "settings.set.error");
 				reset();
 				return false;
 			}
@@ -214,7 +214,7 @@ public class SettingFields
 		}
 
 		public abstract T parseFromString(String str);
-		public abstract @Nullable T parseFromCommand(FullCommandInfo commandInfo);
+		public abstract @Nullable T parseFromCommand(FullCommandInfo info);
 		public abstract ArgumentType<?> getArgumentType();
 	}
 
@@ -231,9 +231,9 @@ public class SettingFields
 			return Integer.valueOf(str);
 		}
 
-		@Override public Integer parseFromCommand(CommandInfo commandInfo)
+		@Override public Integer parseFromCommand(FullCommandInfo info)
 		{
-			return commandInfo.getInteger("new_value");
+			return info.getInteger("new_value");
 		}
 
 		@Override public ArgumentType<?> getArgumentType()
@@ -254,9 +254,9 @@ public class SettingFields
 			return Boolean.valueOf(str);
 		}
 
-		@Override public Boolean parseFromCommand(FullCommandInfo commandInfo)
+		@Override public Boolean parseFromCommand(FullCommandInfo info)
 		{
-			return commandInfo.getBool("new_value");
+			return info.getBool("new_value");
 		}
 
 		@Override public ArgumentType<?> getArgumentType()
@@ -277,9 +277,9 @@ public class SettingFields
 			return Double.valueOf(str);
 		}
 
-		@Override public Double parseFromCommand(FullCommandInfo commandInfo)
+		@Override public Double parseFromCommand(FullCommandInfo info)
 		{
-			return commandInfo.getDouble("new_value");
+			return info.getDouble("new_value");
 		}
 
 		@Override public ArgumentType<?> getArgumentType()
@@ -300,9 +300,9 @@ public class SettingFields
 			return str;
 		}
 
-		@Override public @Nullable String parseFromCommand(FullCommandInfo commandInfo)
+		@Override public @Nullable String parseFromCommand(FullCommandInfo info)
 		{
-			return commandInfo.getString("new_value");
+			return info.getString("new_value");
 		}
 
 		@Override public ArgumentType<?> getArgumentType()
@@ -310,26 +310,25 @@ public class SettingFields
 			return StringArgumentType.greedyString();
 		}
 
-		@Override public void printValues(CommandInfo commandInfo)
+		@Override public void printValues(CommandInfo info)
 		{
 			String valStr = val, defValStr = defVal;
 
-			commandInfo.sendSuccess("settings.info.string_value",
-					commandInfo.getTranslatableComponent("settings.info.current_value", valStr),
-					createButton(commandInfo, valStr));
+			info.sendSuccess("settings.info.string_value",
+					info.getTranslatableComponent("settings.info.current_value", valStr),
+					createButton(info, valStr));
 
-			commandInfo.sendSuccess("settings.info.string_value",
-					commandInfo.getTranslatableComponent("settings.info.default_value", defValStr),
-					createButton(commandInfo, defValStr));
+			info.sendSuccess("settings.info.string_value",
+					info.getTranslatableComponent("settings.info.default_value", defValStr),
+					createButton(info, defValStr));
 		}
 
-		private static Component createButton(CommandInfo commandInfo, String textToCopy)
+		private static Component createButton(CommandInfo info, String textToCopy)
 		{
 			ClickEvent clickEvent = new ClickEvent.CopyToClipboard(textToCopy);
-			HoverEvent hoverEvent = new HoverEvent.ShowText(
-					commandInfo.getTranslatableComponent("settings.info.copy_button_info"));
+			HoverEvent hoverEvent = new HoverEvent.ShowText(info.getTranslatableComponent("settings.info.copy_button_info"));
 
-			return commandInfo.getTranslatableComponent("settings.info.copy_button")
+			return info.getTranslatableComponent("settings.info.copy_button")
 					.setStyle(Style.EMPTY.withClickEvent(clickEvent).withHoverEvent(hoverEvent));
 		}
 	}
@@ -346,9 +345,9 @@ public class SettingFields
 			return EntityFilterInstance.test(str) ? str : defVal;
 		}
 
-		@Override public @Nullable String parseFromCommand(FullCommandInfo commandInfo)
+		@Override public @Nullable String parseFromCommand(FullCommandInfo info)
 		{
-			String newValue = commandInfo.getString("new_value");
+			String newValue = info.getString("new_value");
 			return EntityFilterInstance.test(newValue) ? newValue : null;
 		}
 
@@ -375,9 +374,9 @@ public class SettingFields
 			return Enum.valueOf(enumClass, str.toUpperCase());
 		}
 
-		@Override public @Nullable T parseFromCommand(FullCommandInfo commandInfo)
+		@Override public @Nullable T parseFromCommand(FullCommandInfo info)
 		{
-			String newValue = commandInfo.getString("new_value");
+			String newValue = info.getString("new_value");
 			try { return Enum.valueOf(enumClass, newValue.toUpperCase()); }
 			catch (Exception e) { return null; }
 		}

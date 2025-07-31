@@ -82,67 +82,64 @@ public class Settings
 		return groups.groupMap.values();
 	}
 
-	public static boolean list(FullCommandInfo commandInfo)
+	public static boolean list(FullCommandInfo info)
 	{
-		commandInfo.sendSuccess("settings.list");
-		for (SettingFields.Field<?> field : getFields())
-		{
-			commandInfo.sendSuccessComponent(field.getInfo(commandInfo));
-		}
+		info.sendSuccess("settings.list");
+		getFields().forEach((f) -> info.sendSuccessComponent(f.getInfo(info)));
 		return true;
 	}
 
-	public static boolean info(FullCommandInfo commandInfo)
+	public static boolean info(FullCommandInfo info)
 	{
 		String settingName;
 		try
 		{
-			settingName = commandInfo.ctx.getNodes().get(commandInfo.ctx.getNodes().size() - 1).getNode().getName();
+			settingName = info.ctx.getNodes().get(info.ctx.getNodes().size() - 1).getNode().getName();
 		}
 		catch (Exception e)
 		{
-			commandInfo.sendException(e, "error.unable_to_get_argument");
+			info.sendException(e, "error.unable_to_get_argument");
 			return false;
 		}
 
 		SettingFields.Field<?> field = fields.fieldMap.get(settingName);
 		if (field == null)
 		{
-			commandInfo.sendFailure("settings.error");
+			info.sendFailure("settings.error");
 			return false;
 		}
 
-		commandInfo.sendSuccess("settings.info.name", settingName);
-		commandInfo.sendSuccess("settings.info.about", commandInfo.getTranslatableComponent("settings.info.about." + settingName));
-		field.printValues(commandInfo);
+		info.sendSuccess("settings.info.name", settingName);
+		info.sendSuccess("settings.info.about", info.getTranslatableComponent("settings.info.about." + settingName));
+		field.printValues(info);
 		return true;
 	}
 
-	public static boolean set(FullCommandInfo commandInfo)
+	public static boolean set(FullCommandInfo info)
 	{
-		String settingName = commandInfo.getNode(-2);
+		String settingName = info.getNode(-2);
 		if (settingName == null)
 		{
-			commandInfo.sendFailure("error.unable_to_get_argument");
+			info.sendFailure("error.unable_to_get_argument");
 			return false;
 		}
 
 		SettingFields.Field<?> field = fields.fieldMap.get(settingName);
 		if (field == null)
 		{
-			commandInfo.sendFailure("settings.error");
+			info.sendFailure("settings.error");
 			return false;
 		}
 
 		String oldValue = field.valToString();
-		if (!field.fromCommand(commandInfo)) { return false; }
+		if (!field.fromCommand(info)) { return false; }
 
 		String newValue = field.valToString();
 		oldValue = oldValue.isEmpty() ? "[empty]" : oldValue;
 		newValue = newValue.isEmpty() ? "[empty]" : newValue;
 
-		if (oldValue.equals(newValue)) { commandInfo.sendSuccess("settings.set.success.not_changed", newValue); }
-		else { commandInfo.sendSuccess("settings.set.success.changed", oldValue, newValue); }
+		if (oldValue.equals(newValue)) { info.sendSuccess("settings.set.success.not_changed", newValue); }
+		else { info.sendSuccess("settings.set.success.changed", oldValue, newValue); }
 		save();
 		return true;
 	}

@@ -103,46 +103,46 @@ public class TransformationsConfig implements MocapTransformationsConfig
 		return writer;
 	}
 
-	public void list(CommandOutput commandOutput)
+	public void list(CommandOutput out)
 	{
 		if (isDefault())
 		{
-			commandOutput.sendSuccess("scenes.element_info.transformations.default_config");
+			out.sendSuccess("scenes.element_info.transformations.default_config");
 			return;
 		}
 
-		commandOutput.sendSuccess("scenes.element_info.transformations.round_block_pos." + roundBlockPos);
-		commandOutput.sendSuccess("scenes.element_info.transformations.recording_center", recordingCenter.name());
-		commandOutput.sendSuccess("scenes.element_info.transformations.scene_center", sceneCenter.toString());
-		commandOutput.sendSuccess("scenes.element_info.transformations.center_offset", centerOffset.x, centerOffset.y, centerOffset.z);
+		out.sendSuccess("scenes.element_info.transformations.round_block_pos." + roundBlockPos);
+		out.sendSuccess("scenes.element_info.transformations.recording_center", recordingCenter.name());
+		out.sendSuccess("scenes.element_info.transformations.scene_center", sceneCenter.toString());
+		out.sendSuccess("scenes.element_info.transformations.center_offset", centerOffset.x, centerOffset.y, centerOffset.z);
 	}
 
-	public @Nullable TransformationsConfig modify(FullCommandInfo commandInfo, String propertyName, int propertyNodePosition)
+	public @Nullable TransformationsConfig modify(FullCommandInfo info, String propertyName, int propertyNodePosition)
 	{
 		switch (propertyName)
 		{
 			case "round_block_pos":
-				return setRoundBlockPos(commandInfo.getBool("round"));
+				return setRoundBlockPos(info.getBool("round"));
 
 			case "recording_center":
-				String centerPointStr = commandInfo.getNode(propertyNodePosition + 1);
+				String centerPointStr = info.getNode(propertyNodePosition + 1);
 				if (centerPointStr == null) { break; }
 
 				return setRecordingCenter(RecordingCenter.valueOf(centerPointStr.toUpperCase()));
 
 			case "scene_center":
-				String sceneCenterStr = commandInfo.getNode(propertyNodePosition + 1);
+				String sceneCenterStr = info.getNode(propertyNodePosition + 1);
 				if (sceneCenterStr == null) { break; }
 
 				SceneCenterType centerType = SceneCenterType.valueOf(sceneCenterStr.toUpperCase());
 				String specificStr = centerType == SceneCenterType.COMMON_SPECIFIC
-						? commandInfo.getString("specific_scene_element") : null;
+						? info.getString("specific_scene_element") : null;
 
 				return setSceneCenter(centerType, specificStr);
 
 			case "center_offset":
-				return setCenterOffset(new Vec3(commandInfo.getDouble("offset_x"),
-						commandInfo.getDouble("offset_y"), commandInfo.getDouble("offset_z")));
+				return setCenterOffset(new Vec3(info.getDouble("offset_x"),
+						info.getDouble("offset_y"), info.getDouble("offset_z")));
 		}
 		return null;
 	}

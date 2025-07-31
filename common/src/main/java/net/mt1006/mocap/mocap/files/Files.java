@@ -58,31 +58,31 @@ public class Files
 		initialized = false;
 	}
 
-	public static boolean check(CommandOutput commandOutput, String name)
+	public static boolean check(CommandOutput out, String name)
 	{
-		return checkIfInitialized(commandOutput) && checkIfProperName(commandOutput, name);
+		return checkIfInitialized(out) && checkIfProperName(out, name);
 	}
 
-	public static boolean checkIfInitialized(CommandOutput commandOutput)
+	public static boolean checkIfInitialized(CommandOutput out)
 	{
-		if (!initialized) { commandOutput.sendFailure("error.failed_to_init_directories"); }
+		if (!initialized) { out.sendFailure("error.failed_to_init_directories"); }
 		return initialized;
 	}
 
-	public static boolean checkIfProperName(CommandOutput commandOutput, String name)
+	public static boolean checkIfProperName(CommandOutput out, String name)
 	{
 		if (name.isEmpty()) { return false; }
 
 		if (name.charAt(0) == '.')
 		{
-			commandOutput.sendFailure("failure.improper_filename");
-			commandOutput.sendFailure("failure.improper_filename.dot_first");
+			out.sendFailure("failure.improper_filename");
+			out.sendFailure("failure.improper_filename.dot_first");
 			return false;
 		}
 		if (name.charAt(0) == '-')
 		{
-			commandOutput.sendFailure("failure.improper_filename");
-			commandOutput.sendFailure("failure.improper_filename.dash_first");
+			out.sendFailure("failure.improper_filename");
+			out.sendFailure("failure.improper_filename.dash_first");
 			return false;
 		}
 
@@ -90,8 +90,8 @@ public class Files
 		{
 			if (!isAllowedInInputName(c))
 			{
-				commandOutput.sendFailure("failure.improper_filename");
-				commandOutput.sendFailure("failure.improper_filename.character");
+				out.sendFailure("failure.improper_filename");
+				out.sendFailure("failure.improper_filename.character");
 				return false;
 			}
 		}
@@ -124,15 +124,15 @@ public class Files
 		return initialized ? new File(mocapDirectory, SCENE_ELEMENT_CACHE) : null;
 	}
 
-	public static @Nullable File getRecordingFile(CommandOutput commandOutput, String name)
+	public static @Nullable File getRecordingFile(CommandOutput out, String name)
 	{
-		return check(commandOutput, name) ? new File(recordingsDirectory, name + RECORDING_EXTENSION) : null;
+		return check(out, name) ? new File(recordingsDirectory, name + RECORDING_EXTENSION) : null;
 	}
 
-	public static @Nullable File getSceneFile(CommandOutput commandOutput, String name)
+	public static @Nullable File getSceneFile(CommandOutput out, String name)
 	{
 		if (name.charAt(0) == '.') { name = name.substring(1); }
-		return check(commandOutput, name) ? new File(sceneDirectory, name + SCENE_EXTENSION) : null;
+		return check(out, name) ? new File(sceneDirectory, name + SCENE_EXTENSION) : null;
 	}
 
 	public static @Nullable File getSkinFile(String name)
@@ -171,19 +171,14 @@ public class Files
 		return (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_' || c == '-' || c == '.';
 	}
 
-	public static boolean printVersionInfo(CommandOutput commandOutput, int currentVersion, int fileVersion, boolean isFileExperimental)
+	public static boolean printVersionInfo(CommandOutput out, int currentVersion, int fileVersion, boolean isFileExperimental)
 	{
 		String suffix = isFileExperimental ? ".experimental" : "";
+		if (fileVersion > currentVersion) { return out.sendFailure("file.info.version.not_supported" + suffix, fileVersion); }
 
-		if (fileVersion > currentVersion)
-		{
-			commandOutput.sendSuccess("file.info.version.not_supported" + suffix, fileVersion);
-			return false;
-		}
-
-		if (fileVersion == currentVersion) { commandOutput.sendSuccess("file.info.version.current" + suffix, fileVersion); }
-		else if (fileVersion > 0) { commandOutput.sendSuccess("file.info.version.old" + suffix, fileVersion); }
-		else { commandOutput.sendSuccess("file.info.version.undefined", fileVersion); }
+		if (fileVersion == currentVersion) { out.sendSuccess("file.info.version.current" + suffix, fileVersion); }
+		else if (fileVersion > 0) { out.sendSuccess("file.info.version.old" + suffix, fileVersion); }
+		else { out.sendSuccess("file.info.version.undefined", fileVersion); }
 		return true;
 	}
 

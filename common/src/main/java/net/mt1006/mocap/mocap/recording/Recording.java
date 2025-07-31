@@ -49,23 +49,23 @@ public class Recording
 	private static final Collection<RecordingContext> contexts = contextsBySource.values();
 	public static final BiMultimap<ServerPlayer, RecordingContext> waitingForRespawn = new BiMultimap<>();
 
-	public static @Nullable RecordingContext startOrWait(CommandInfo commandInfo, ServerPlayer player, RecordingSource source,
+	public static @Nullable RecordingContext startOrWait(CommandInfo info, ServerPlayer player, RecordingSource source,
 														 @Nullable String instantSave, boolean multiplePlayers)
 	{
-		if (!checkDoubleStart(commandInfo, player)) { return null; }
+		if (!checkDoubleStart(info, player)) { return null; }
 		boolean startInstantly = Settings.START_INSTANTLY.val || multiplePlayers;
 
 		RecordingContext ctx = start(player, source,
 				MocapRecordingConfig.createFromSettings(), instantSave, startInstantly, !multiplePlayers);
 		if (ctx != null && !startInstantly)
 		{
-			commandInfo.sendSuccess(player.equals(commandInfo.getSourcePlayer())
+			info.sendSuccess(player.equals(info.getSourcePlayer())
 					? "recording.start.waiting_for_action.self"
 					: "recording.start.waiting_for_action.another_player");
 		}
 		if (ctx == null)
 		{
-			commandInfo.sendFailure("recording.start.error");
+			info.sendFailure("recording.start.error");
 		}
 		return ctx;
 	}
@@ -84,9 +84,9 @@ public class Recording
 		return ctx;
 	}
 
-	private static boolean checkDoubleStart(CommandInfo commandInfo, ServerPlayer recordedPlayer)
+	private static boolean checkDoubleStart(CommandInfo info, ServerPlayer recordedPlayer)
 	{
-		ServerPlayer sourcePlayer = commandInfo.getSourcePlayer();
+		ServerPlayer sourcePlayer = info.getSourcePlayer();
 		if (sourcePlayer == null) { return true; }
 
 		String recordedPlayerName = recordedPlayer.getName().getString();
@@ -97,7 +97,7 @@ public class Recording
 			{
 				if (ctx.source.player == sourcePlayer && ctx.recordedPlayer == recordedPlayer)
 				{
-					handleDoubleStart(commandInfo, ctx);
+					handleDoubleStart(info, ctx);
 					return false;
 				}
 			}
@@ -106,7 +106,7 @@ public class Recording
 		return true;
 	}
 
-	private static void handleDoubleStart(CommandOutput commandOutput, RecordingContext ctx)
+	private static void handleDoubleStart(CommandOutput out, RecordingContext ctx)
 	{
 		boolean addToDoubleStart = false;
 
@@ -117,18 +117,18 @@ public class Recording
 				break;
 
 			case RECORDING:
-				commandOutput.sendFailureWithTip("recording.start.already_recording");
+				out.sendFailureWithTip("recording.start.already_recording");
 				addToDoubleStart = true;
 				break;
 
 			case WAITING_FOR_DECISION:
-				commandOutput.sendFailureWithTip("recording.start.waiting_for_decision");
+				out.sendFailureWithTip("recording.start.waiting_for_decision");
 				addToDoubleStart = true;
 				break;
 
 			default:
 				MocapMod.LOGGER.error("Undefined recording context state supplied to double start handler!");
-				commandOutput.sendFailureWithTip("recording.start.error");
+				out.sendFailureWithTip("recording.start.error");
 				break;
 		}
 
@@ -138,68 +138,57 @@ public class Recording
 		}
 	}
 
-	public static boolean startMultiple(CommandInfo commandInfo, String str)
+	public static boolean stop(CommandInfo info, @Nullable String id)
 	{
-		//TODO: replace CommandInfo with CommandOutput?
-		//TODO: finish
-		return true;
-	}
-
-	public static boolean stop(CommandInfo commandInfo, @Nullable String id)
-	{
-		ResolvedContexts resolvedContexts = ResolvedContexts.resolve(commandInfo, id, false);
+		ResolvedContexts resolvedContexts = ResolvedContexts.resolve(info, id, false);
 		if (resolvedContexts == null) { return false; }
 
 		boolean success = resolvedContexts.isSingle
-				? stopSingle(commandInfo, resolvedContexts.list.iterator().next())
-				: stopMultiple(commandInfo, resolvedContexts.list);
+				? stopSingle(info, resolvedContexts.list.iterator().next())
+				: stopMultiple(info, resolvedContexts.list);
 
 		if (CommandsContext.haveSyncEnabled != 0) { refreshSyncOnStop(resolvedContexts); }
 		return success;
 	}
 
-	public static boolean stopSingle(CommandInfo commandInfo, RecordingContext ctx)
+	public static boolean stopSingle(CommandInfo info, RecordingContext ctx)
 	{
 		if (ctx.state == RecordingContext.State.WAITING_FOR_DECISION)
 		{
 			if (!quickDiscard.allowsSingle(ctx))
 			{
 				//TODO: proper message when blocked by death
-				commandInfo.sendFailureWithTip("recording.stop.quick_discard.disabled");
-				return false;
+				return info.sendFailureWithTip("recording.stop.quick_discard.disabled");
 			}
-			return discardSingle(commandInfo, ctx);
+			return discardSingle(info, ctx);
 		}
 
-		ctx.stop(commandInfo);
+		ctx.stop(info);
 
 		switch (ctx.state)
 		{
 			case WAITING_FOR_DECISION:
-				commandInfo.sendSuccess("recording.stop.stopped");
+				info.sendSuccess("recording.stop.stopped");
 				if (Settings.SHOW_TIPS.val)
 				{
-					commandInfo.sendSuccess(quickDiscard.canBeUsed(ctx, commandInfo.getSourcePlayer())
+					info.sendSuccess(quickDiscard.canBeUsed(ctx, info.getSourcePlayer())
 							? "recording.stop.stopped.stop_tip"
 							: "recording.stop.stopped.discard_tip");
 				}
 				return true;
 
 			case CANCELED:
-				commandInfo.sendSuccess("recording.stop.canceled");
-				return true;
+				return info.sendSuccess("recording.stop.canceled");
 
 			case SAVED:
-				commandInfo.sendSuccess("recording.stop.instant_save", ctx.instantSave != null ? ctx.instantSave : "[error]");
-				return true;
+				return info.sendSuccess("recording.stop.instant_save", ctx.instantSave != null ? ctx.instantSave : "[error]");
 
 			default:
-				commandInfo.sendFailure("recording.undefined_state", ctx.state.name());
-				return false;
+				return info.sendFailure("recording.undefined_state", ctx.state.name());
 		}
 	}
 
-	private static boolean stopMultiple(CommandOutput commandOutput, Collection<RecordingContext> contexts)
+	private static boolean stopMultiple(CommandOutput out, Collection<RecordingContext> contexts)
 	{
 		int stopped = 0, cancelled = 0, saved = 0, stillWaiting = 0, unknownState = 0;
 
@@ -211,7 +200,7 @@ public class Recording
 				continue;
 			}
 
-			ctx.stop(commandOutput);
+			ctx.stop(out);
 
 			switch (ctx.state)
 			{
@@ -224,28 +213,27 @@ public class Recording
 
 		if (stopped == 0 && cancelled == 0 && saved == 0 && stillWaiting == 0 && unknownState == 0)
 		{
-			commandOutput.sendSuccess("recording.multiple.results.none");
+			out.sendSuccess("recording.multiple.results.none");
 			return true;
 		}
 
-		commandOutput.sendSuccess("recording.multiple.results");
-		if (stopped != 0) { commandOutput.sendSuccess("recording.multiple.results.stopped", stopped); }
-		if (cancelled != 0) { commandOutput.sendSuccess("recording.multiple.results.cancelled", cancelled); }
-		if (saved != 0) { commandOutput.sendSuccess("recording.multiple.results.saved", saved); }
-		if (stillWaiting != 0) { commandOutput.sendSuccess("recording.multiple.results.still_waiting", stillWaiting); }
+		out.sendSuccess("recording.multiple.results");
+		if (stopped != 0) { out.sendSuccess("recording.multiple.results.stopped", stopped); }
+		if (cancelled != 0) { out.sendSuccess("recording.multiple.results.cancelled", cancelled); }
+		if (saved != 0) { out.sendSuccess("recording.multiple.results.saved", saved); }
+		if (stillWaiting != 0) { out.sendSuccess("recording.multiple.results.still_waiting", stillWaiting); }
 
 		if (unknownState != 0)
 		{
-			commandOutput.sendSuccess("recording.multiple.results.error", unknownState);
-			commandOutput.sendFailure("recording.multiple.undefined_state");
-			return false;
+			out.sendSuccess("recording.multiple.results.error", unknownState);
+			return out.sendFailure("recording.multiple.undefined_state");
 		}
 		return true;
 	}
 
-	public static @Nullable RecordingContext resolveSingle(CommandInfo commandInfo, String id)
+	public static @Nullable RecordingContext resolveSingle(CommandInfo info, String id)
 	{
-		ResolvedContexts resolvedContexts = ResolvedContexts.resolve(commandInfo, id, false);
+		ResolvedContexts resolvedContexts = ResolvedContexts.resolve(info, id, false);
 		return (resolvedContexts != null && resolvedContexts.isSingle) ? resolvedContexts.list.iterator().next() : null;
 	}
 
@@ -273,56 +261,48 @@ public class Recording
 		}
 	}
 
-	public static boolean discard(CommandInfo commandInfo, @Nullable String id)
+	public static boolean discard(CommandInfo out, @Nullable String id)
 	{
-		ResolvedContexts resolvedContexts = ResolvedContexts.resolve(commandInfo, id, false);
+		ResolvedContexts resolvedContexts = ResolvedContexts.resolve(out, id, false);
 		if (resolvedContexts == null) { return false; }
 
 		if (resolvedContexts.isSingle)
 		{
 			RecordingContext ctx = resolvedContexts.list.iterator().next();
-			boolean showQuickDiscardTip = quickDiscard.canBeUsed(ctx, commandInfo.getSourcePlayer()) && Settings.SHOW_TIPS.val;
-			boolean success = discardSingle(commandInfo, ctx);
+			boolean showQuickDiscardTip = quickDiscard.canBeUsed(ctx, out.getSourcePlayer()) && Settings.SHOW_TIPS.val;
+			boolean success = discardSingle(out, ctx);
 
 			if (success && ctx.state == RecordingContext.State.DISCARDED && showQuickDiscardTip)
 			{
-				commandInfo.sendSuccess("recording.discard.quick_discard_tip");
+				out.sendSuccess("recording.discard.quick_discard_tip");
 			}
 			return success;
 		}
 		else
 		{
-			return discardMultiple(commandInfo, resolvedContexts.list);
+			return discardMultiple(out, resolvedContexts.list);
 		}
 	}
 
-	public static boolean discardSingle(CommandOutput commandOutput, RecordingContext ctx)
+	public static boolean discardSingle(CommandOutput out, RecordingContext ctx)
 	{
 		if (ctx.state == RecordingContext.State.RECORDING)
 		{
-			commandOutput.sendFailure("recording.discard.not_stopped");
+			out.sendFailure("recording.discard.not_stopped");
 			return false;
 		}
 
 		ctx.discard();
 
-		switch (ctx.state)
+		return switch (ctx.state)
 		{
-			case DISCARDED:
-				commandOutput.sendSuccess("recording.discard.discarded");
-				return true;
-
-			case CANCELED:
-				commandOutput.sendSuccess("recording.stop.canceled");
-				return true;
-
-			default:
-				commandOutput.sendFailure("recording.undefined_state", ctx.state.name());
-				return false;
-		}
+			case DISCARDED -> out.sendSuccess("recording.discard.discarded");
+			case CANCELED -> out.sendSuccess("recording.stop.canceled");
+			default -> out.sendFailure("recording.undefined_state", ctx.state.name());
+		};
 	}
 
-	private static boolean discardMultiple(CommandOutput commandOutput, Collection<RecordingContext> contexts)
+	private static boolean discardMultiple(CommandOutput out, Collection<RecordingContext> contexts)
 	{
 		int discarded = 0, cancelled = 0, stillRecording = 0, unknownState = 0;
 
@@ -346,53 +326,48 @@ public class Recording
 
 		if (discarded == 0 && cancelled == 0 && stillRecording == 0 && unknownState == 0)
 		{
-			commandOutput.sendSuccess("recording.multiple.results.none");
+			out.sendSuccess("recording.multiple.results.none");
 			return true;
 		}
 
-		commandOutput.sendSuccess("recording.multiple.results");
-		if (discarded != 0) { commandOutput.sendSuccess("recording.multiple.results.discarded", discarded); }
-		if (cancelled != 0) { commandOutput.sendSuccess("recording.multiple.results.cancelled", cancelled); }
-		if (stillRecording != 0) { commandOutput.sendSuccess("recording.multiple.results.still_recording", stillRecording); }
+		out.sendSuccess("recording.multiple.results");
+		if (discarded != 0) { out.sendSuccess("recording.multiple.results.discarded", discarded); }
+		if (cancelled != 0) { out.sendSuccess("recording.multiple.results.cancelled", cancelled); }
+		if (stillRecording != 0) { out.sendSuccess("recording.multiple.results.still_recording", stillRecording); }
 
 		if (unknownState != 0)
 		{
-			commandOutput.sendSuccess("recording.multiple.results.error", unknownState);
-			commandOutput.sendFailure("recording.multiple.undefined_state");
-			return false;
+			out.sendSuccess("recording.multiple.results.error", unknownState);
+			return out.sendFailure("recording.multiple.undefined_state");
 		}
 		return true;
 	}
 
-	public static boolean save(CommandInfo commandInfo, @Nullable String id, String name)
+	public static boolean save(CommandInfo info, @Nullable String id, String name)
 	{
-		ResolvedContexts resolvedContexts = ResolvedContexts.resolve(commandInfo, id, false);
+		ResolvedContexts resolvedContexts = ResolvedContexts.resolve(info, id, false);
 		if (resolvedContexts == null) { return false; }
 
 		return resolvedContexts.isSingle
-				? saveSingle(commandInfo, resolvedContexts.list.iterator().next(), name, true)
-				: saveMultiple(commandInfo, resolvedContexts.list, name);
+				? saveSingle(info, resolvedContexts.list.iterator().next(), name, true)
+				: saveMultiple(info, resolvedContexts.list, name);
 	}
 
-	public static boolean saveSingle(CommandOutput commandOutput, RecordingContext ctx, String name, boolean sendSavedMessage)
+	public static boolean saveSingle(CommandOutput out, RecordingContext ctx, String name, boolean sendSavedMessage)
 	{
-		if (ctx.state == RecordingContext.State.RECORDING)
-		{
-			commandOutput.sendFailure("recording.save.not_stopped");
-			return false;
-		}
+		if (ctx.state == RecordingContext.State.RECORDING) { return out.sendFailure("recording.save.not_stopped"); }
 
-		File recordingFile = Files.getRecordingFile(commandOutput, name);
+		File recordingFile = Files.getRecordingFile(out, name);
 		if (recordingFile == null) { return false; }
 
 		if (recordingFile.exists())
 		{
-			commandOutput.sendFailure("recording.save.already_exists");
+			out.sendFailure("recording.save.already_exists");
 
 			String alternativeName = RecordingFiles.findAlternativeName(name);
 			if (alternativeName != null)
 			{
-				commandOutput.sendFailure("recording.save.already_exists.alternative", alternativeName);
+				out.sendFailure("recording.save.already_exists.alternative", alternativeName);
 			}
 			return false;
 		}
@@ -402,20 +377,18 @@ public class Recording
 		switch (ctx.state)
 		{
 			case SAVED:
-				if (sendSavedMessage) { commandOutput.sendSuccess("recording.save.saved"); }
+				if (sendSavedMessage) { out.sendSuccess("recording.save.saved"); }
 				return true;
 
 			case WAITING_FOR_DECISION:
-				commandOutput.sendFailure("recording.save.error");
-				return false;
+				return out.sendFailure("recording.save.error");
 
 			default:
-				commandOutput.sendFailure("recording.undefined_state", ctx.state.name());
-				return false;
+				return out.sendFailure("recording.undefined_state", ctx.state.name());
 		}
 	}
 
-	private static boolean saveMultiple(CommandOutput commandOutput, Collection<RecordingContext> contexts, String namePrefix)
+	private static boolean saveMultiple(CommandOutput out, Collection<RecordingContext> contexts, String namePrefix)
 	{
 		List<RecordingContext> stopped = new ArrayList<>();
 		for (RecordingContext ctx : contexts)
@@ -425,7 +398,7 @@ public class Recording
 
 		if (stopped.isEmpty())
 		{
-			commandOutput.sendFailure("recording.save.multiple.nothing_to_save");
+			out.sendFailure("recording.save.multiple.nothing_to_save");
 			return false;
 		}
 
@@ -434,12 +407,12 @@ public class Recording
 		for (int i = 1; i <= stopped.size(); i++)
 		{
 			String filename = String.format("%s%d", namePrefix, i);
-			File recordingFile = Files.getRecordingFile(commandOutput, filename);
+			File recordingFile = Files.getRecordingFile(out, filename);
 			if (recordingFile == null) { return false; }
 
 			if (recordingFile.exists())
 			{
-				commandOutput.sendFailure("recording.save.multiple.already_exists", filename);
+				out.sendFailure("recording.save.multiple.already_exists", filename);
 				return false;
 			}
 
@@ -455,27 +428,26 @@ public class Recording
 
 			switch (ctx.state)
 			{
-				case SAVED -> commandOutput.sendSuccess("recording.save.multiple.saved", ctx.id.str, filenames.get(i));
-				case WAITING_FOR_DECISION -> commandOutput.sendFailure("recording.save.multiple.failed", ctx.id.str, filenames.get(i));
-				default -> commandOutput.sendFailure("recording.save.multiple.unknown_state", ctx.id.str, filenames.get(i), ctx.state.name());
+				case SAVED -> out.sendSuccess("recording.save.multiple.saved", ctx.id.str, filenames.get(i));
+				case WAITING_FOR_DECISION -> out.sendFailure("recording.save.multiple.failed", ctx.id.str, filenames.get(i));
+				default -> out.sendFailure("recording.save.multiple.unknown_state", ctx.id.str, filenames.get(i), ctx.state.name());
 			}
 			if (ctx.state != RecordingContext.State.SAVED) { somethingFailed = true; }
 		}
 
-		if (somethingFailed) { commandOutput.sendFailure("recording.save.multiple.error"); }
+		if (somethingFailed) { out.sendFailure("recording.save.multiple.error"); }
 		return !somethingFailed;
 	}
 
-	public static boolean list(CommandInfo commandInfo, @Nullable String id)
+	public static boolean list(CommandInfo info, @Nullable String id)
 	{
-		ResolvedContexts resolvedContexts = ResolvedContexts.resolve(commandInfo, id, true);
+		ResolvedContexts resolvedContexts = ResolvedContexts.resolve(info, id, true);
 		if (resolvedContexts == null) { return false; }
 
 		if (resolvedContexts.isSingle)
 		{
 			RecordingContext ctx = resolvedContexts.list.iterator().next();
-			commandInfo.sendSuccess("recording.list.state", resolvedContexts.fullId.str, ctx.state.name());
-			return true;
+			return info.sendSuccess("recording.list.state", resolvedContexts.fullId.str, ctx.state.name());
 		}
 
 		ArrayList<String> waitingForAction = new ArrayList<>(), recording = new ArrayList<>(),
@@ -499,21 +471,21 @@ public class Recording
 		Collections.sort(waitingForDecision);
 		Collections.sort(error);
 
-		commandInfo.sendSuccess("recording.list.list", resolvedContexts.fullId.str);
+		info.sendSuccess("recording.list.list", resolvedContexts.fullId.str);
 
-		if (waitingForAction.isEmpty()) { commandInfo.sendSuccess("recording.list.waiting_for_action.none"); }
-		else { commandInfo.sendSuccess("recording.list.waiting_for_action", StringUtils.join(waitingForAction, " ")); }
+		if (waitingForAction.isEmpty()) { info.sendSuccess("recording.list.waiting_for_action.none"); }
+		else { info.sendSuccess("recording.list.waiting_for_action", StringUtils.join(waitingForAction, " ")); }
 
-		if (recording.isEmpty()) { commandInfo.sendSuccess("recording.list.recording.none"); }
-		else { commandInfo.sendSuccess("recording.list.recording", StringUtils.join(recording, " ")); }
+		if (recording.isEmpty()) { info.sendSuccess("recording.list.recording.none"); }
+		else { info.sendSuccess("recording.list.recording", StringUtils.join(recording, " ")); }
 
-		if (waitingForDecision.isEmpty()) { commandInfo.sendSuccess("recording.list.waiting_for_decision.none"); }
-		else { commandInfo.sendSuccess("recording.list.waiting_for_decision", StringUtils.join(waitingForDecision, " ")); }
+		if (waitingForDecision.isEmpty()) { info.sendSuccess("recording.list.waiting_for_decision.none"); }
+		else { info.sendSuccess("recording.list.waiting_for_decision", StringUtils.join(waitingForDecision, " ")); }
 
 		if (!error.isEmpty())
 		{
-			commandInfo.sendSuccess("recording.list.unknown_state", StringUtils.join(error, " "));
-			commandInfo.sendSuccess("recording.list.unknown_state.error");
+			info.sendSuccess("recording.list.unknown_state", StringUtils.join(error, " "));
+			info.sendSuccess("recording.list.unknown_state.error");
 		}
 		return true;
 	}
@@ -561,9 +533,9 @@ public class Recording
 		return list;
 	}
 
-	public static @Nullable Collection<RecordingContext> resolveContexts(CommandInfo commandInfo, String id)
+	public static @Nullable Collection<RecordingContext> resolveContexts(CommandInfo info, String id)
 	{
-		ResolvedContexts resolvedContexts = ResolvedContexts.resolve(commandInfo, id, false);
+		ResolvedContexts resolvedContexts = ResolvedContexts.resolve(info, id, false);
 		return resolvedContexts != null ? resolvedContexts.list : null;
 	}
 
@@ -638,28 +610,28 @@ public class Recording
 
 	private record ResolvedContexts(Collection<RecordingContext> list, boolean isSingle, RecordingId fullId)
 	{
-		public static @Nullable ResolvedContexts resolve(CommandInfo commandInfo, @Nullable String idStr, boolean listMode)
+		public static @Nullable ResolvedContexts resolve(CommandInfo info, @Nullable String idStr, boolean listMode)
 		{
 			//TODO: test when empty
 			if (idStr == null)
 			{
 				if (listMode) { return new ResolvedContexts(contexts, false, RecordingId.ALL); }
-				RecordingContext ctx = resolveEmpty(commandInfo);
+				RecordingContext ctx = resolveEmpty(info);
 				return ctx != null ? new ResolvedContexts(List.of(ctx), true, ctx.id) : null;
 			}
 
-			RecordingId id = new RecordingId(idStr, commandInfo.getSourceName());
+			RecordingId id = new RecordingId(idStr, info.getSourceName());
 
 			if (!id.isProper())
 			{
 				if (idStr.contains("_"))
 				{
-					commandInfo.sendFailureWithTip("recording.resolve.improper_group_structure");
+					info.sendFailureWithTip("recording.resolve.improper_group_structure");
 				}
 				else
 				{
-					commandInfo.sendFailure("recording.resolve.improper_structure");
-					if (!listMode && Settings.SHOW_TIPS.val) { commandInfo.sendFailure("recording.resolve.list_tip"); }
+					info.sendFailure("recording.resolve.improper_structure");
+					if (!listMode && Settings.SHOW_TIPS.val) { info.sendFailure("recording.resolve.list_tip"); }
 				}
 				return null;
 			}
@@ -677,8 +649,8 @@ public class Recording
 				if (matchingContexts.size() > 1) { MocapMod.LOGGER.error("Multiple recording contexts are matching single id!"); }
 				if (matchingContexts.isEmpty())
 				{
-					commandInfo.sendFailure("recording.resolve.not_found");
-					if (!listMode && Settings.SHOW_TIPS.val) { commandInfo.sendFailure("recording.resolve.list_tip"); }
+					info.sendFailure("recording.resolve.not_found");
+					if (!listMode && Settings.SHOW_TIPS.val) { info.sendFailure("recording.resolve.list_tip"); }
 					return null;
 				}
 			}
@@ -686,12 +658,12 @@ public class Recording
 			return new ResolvedContexts(matchingContexts, isSingle, id);
 		}
 
-		private static @Nullable RecordingContext resolveEmpty(CommandInfo commandInfo)
+		private static @Nullable RecordingContext resolveEmpty(CommandInfo info)
 		{
-			ServerPlayer source = commandInfo.getSourcePlayer();
+			ServerPlayer source = info.getSourcePlayer();
 			if (source == null)
 			{
-				commandInfo.sendFailure("failure.resolve_player");
+				info.sendFailure("failure.resolve_player");
 				return null;
 			}
 
@@ -699,13 +671,13 @@ public class Recording
 
 			if (sourceContexts.size() > 1)
 			{
-				commandInfo.sendFailureWithTip("recording.resolve.multiple_recordings");
+				info.sendFailureWithTip("recording.resolve.multiple_recordings");
 				return null;
 			}
 			else if (sourceContexts.isEmpty())
 			{
-				if (contexts.isEmpty()) { commandInfo.sendFailure("recording.resolve.server_not_recording"); }
-				else { commandInfo.sendFailureWithTip("recording.resolve.player_not_recording"); }
+				if (contexts.isEmpty()) { info.sendFailure("recording.resolve.server_not_recording"); }
+				else { info.sendFailureWithTip("recording.resolve.player_not_recording"); }
 				return null;
 			}
 
