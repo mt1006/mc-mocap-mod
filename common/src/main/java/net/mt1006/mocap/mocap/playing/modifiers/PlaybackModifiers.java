@@ -6,6 +6,7 @@ import net.minecraft.commands.arguments.ResourceArgument;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.mt1006.mocap.api.v1.modifiers.MocapPlayerAsEntity;
 import net.mt1006.mocap.api.v1.modifiers.MocapPlayerSkin;
 import net.mt1006.mocap.command.io.CommandOutput;
 import net.mt1006.mocap.command.io.FullCommandInfo;
@@ -16,14 +17,14 @@ import org.jetbrains.annotations.Nullable;
 public class PlaybackModifiers
 {
 	public @Nullable String playerName;
-	public PlayerSkin playerSkin;
+	public MocapPlayerSkin playerSkin;
 	public Transformations transformations;
-	public PlayerAsEntity playerAsEntity;
+	public MocapPlayerAsEntity playerAsEntity;
 	public StartDelay startDelay;
 	public EntityFilter entityFilter;
 
-	private PlaybackModifiers(@Nullable String playerName, PlayerSkin playerSkin, Transformations transformations,
-							  PlayerAsEntity playerAsEntity, StartDelay startDelay, EntityFilter entityFilter)
+	private PlaybackModifiers(@Nullable String playerName, MocapPlayerSkin playerSkin, Transformations transformations,
+							  MocapPlayerAsEntity playerAsEntity, StartDelay startDelay, EntityFilter entityFilter)
 	{
 		this.playerName = playerName;
 		this.playerSkin = playerSkin;
@@ -68,7 +69,7 @@ public class PlaybackModifiers
 
 	public boolean areDefault()
 	{
-		return playerName == null && playerSkin.source == MocapPlayerSkin.Source.DEFAULT
+		return playerName == null && playerSkin.getSource() == MocapPlayerSkin.Source.DEFAULT
 				&& transformations.areDefault() && !playerAsEntity.isEnabled() && startDelay == StartDelay.ZERO
 				&& entityFilter.isDefaultForPlayback();
 	}
@@ -88,24 +89,24 @@ public class PlaybackModifiers
 		if (playerName == null) { out.sendSuccess("scenes.element_info.player_name.default"); }
 		else { out.sendSuccess("scenes.element_info.player_name.custom", playerName); }
 
-		switch (playerSkin.source)
+		switch (playerSkin.getSource())
 		{
 			case DEFAULT:
 				out.sendSuccess("scenes.element_info.skin.default");
 				break;
 
 			case FROM_PLAYER:
-				out.sendSuccess("scenes.element_info.skin.profile", playerSkin.path);
+				out.sendSuccess("scenes.element_info.skin.profile", playerSkin.getPath());
 				break;
 
 			case FROM_FILE:
-				out.sendSuccess("scenes.element_info.skin.file", playerSkin.path);
+				out.sendSuccess("scenes.element_info.skin.file", playerSkin.getPath());
 				break;
 
 			case FROM_MINESKIN:
 				out.sendSuccess("scenes.element_info.skin.mineskin");
-				Component urlComponent = Utils.getOpenUrlComponent(playerSkin.path,
-						Component.literal(String.format("  (§n%s§r)", playerSkin.path)));
+				Component urlComponent = Utils.getOpenUrlComponent(playerSkin.getPath(),
+						Component.literal(String.format("  (§n%s§r)", playerSkin.getPath())));
 				out.sendSuccessComponent(urlComponent);
 				break;
 		}
@@ -114,7 +115,7 @@ public class PlaybackModifiers
 		out.sendSuccess("scenes.element_info.start_delay", startDelay.seconds, startDelay.ticks);
 
 		if (!playerAsEntity.isEnabled()) { out.sendSuccess("scenes.element_info.player_as_entity.disabled"); }
-		else { out.sendSuccess("scenes.element_info.player_as_entity.enabled", playerAsEntity.entityId); }
+		else { out.sendSuccess("scenes.element_info.player_as_entity.enabled", playerAsEntity.getRawEntityId()); }
 
 		if (entityFilter.isDefaultForPlayback()) { out.sendSuccess("scenes.element_info.entity_filter.disabled"); }
 		else { out.sendSuccess("scenes.element_info.entity_filter.enabled", entityFilter.save()); }

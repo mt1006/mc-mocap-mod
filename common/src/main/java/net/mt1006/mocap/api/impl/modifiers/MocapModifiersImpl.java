@@ -39,7 +39,7 @@ public class MocapModifiersImpl implements MocapModifiers
 		return new MocapModifiersImpl(copy);
 	}
 
-	public PlaybackModifiers getPlaybackModifiers()
+	@Override public PlaybackModifiers getPlaybackModifiers()
 	{
 		return modifiers;
 	}
@@ -61,8 +61,7 @@ public class MocapModifiersImpl implements MocapModifiers
 
 	@Override public MocapModifiers setPlayerSkin(MocapPlayerSkin skin)
 	{
-		if (!(skin instanceof PlayerSkin)) { throw new RuntimeException("MocapPlayerSkin isn't instance of PlayerSkin!"); }
-		return modify((m) -> m.playerSkin = (PlayerSkin)skin);
+		return modify((m) -> m.playerSkin = skin);
 	}
 
 	@Override public MocapTransformations getTransformations()
@@ -72,8 +71,7 @@ public class MocapModifiersImpl implements MocapModifiers
 
 	@Override public MocapModifiers setTransformations(MocapTransformations transformations)
 	{
-		if (!(transformations instanceof MocapTransformationsImpl)) { throw new RuntimeException("MocapTransformations isn't instance of MocapTransformationsImpl!"); }
-		return modify((m) -> m.transformations = ((MocapTransformationsImpl)transformations).getCopy());
+		return modify((m) -> m.transformations = transformations.getCopy());
 	}
 
 	@Override public MocapPlayerAsEntity getPlayerAsEntity()
@@ -83,8 +81,7 @@ public class MocapModifiersImpl implements MocapModifiers
 
 	@Override public MocapModifiers setPlayerAsEntity(MocapPlayerAsEntity playerAsEntity)
 	{
-		if (!(playerAsEntity instanceof PlayerAsEntity)) { throw new RuntimeException("MocapPlayerAsEntity isn't instance of PlayerAsEntity!"); }
-		return modify((m) -> m.playerAsEntity = (PlayerAsEntity)playerAsEntity);
+		return modify((m) -> m.playerAsEntity = playerAsEntity);
 	}
 
 	@Override public double getStartDelay()

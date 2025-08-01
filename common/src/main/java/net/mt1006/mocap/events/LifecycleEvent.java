@@ -5,7 +5,7 @@ import net.mt1006.mocap.MocapMod;
 import net.mt1006.mocap.command.CommandSuggestions;
 import net.mt1006.mocap.command.io.CommandOutput;
 import net.mt1006.mocap.mocap.files.Files;
-import net.mt1006.mocap.mocap.playing.Playing;
+import net.mt1006.mocap.mocap.playing.PlaybackManager;
 import net.mt1006.mocap.mocap.playing.skins.CustomClientSkinManager;
 import net.mt1006.mocap.mocap.recording.Recording;
 import net.mt1006.mocap.mocap.settings.Settings;
@@ -22,7 +22,7 @@ public class LifecycleEvent
 
 	public static void onServerStop()
 	{
-		Playing.stopAll(CommandOutput.DUMMY, null);
+		PlaybackManager.stopAll(CommandOutput.DUMMY, null);
 		Settings.unload();
 		Files.deinit();
 		Recording.onServerStop();

@@ -6,7 +6,7 @@ import net.minecraft.world.entity.player.Player;
 import net.mt1006.mocap.api.v1.extension.MocapActiveRecordingActions;
 import net.mt1006.mocap.mixin.fields.LevelFields;
 import net.mt1006.mocap.mocap.actions.EntityUpdate;
-import net.mt1006.mocap.mocap.playing.Playing;
+import net.mt1006.mocap.mocap.playing.PlaybackManager;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -52,7 +52,7 @@ public class EntityTracker
 		for (Entity entity : ((LevelFields)ctx.recordedPlayer.level()).callGetEntities().getAll())
 		{
 			if ((limitDistance && ctx.recordedPlayer.distanceToSqr(entity) > maxDistanceSqr) || entity instanceof Player
-					|| (ctx.config.getPreventTrackingPlayedEntities() && entity.getTags().contains(Playing.MOCAP_ENTITY_TAG)))
+					|| (ctx.config.getPreventTrackingPlayedEntities() && entity.getTags().contains(PlaybackManager.MOCAP_ENTITY_TAG)))
 			{
 				continue;
 			}

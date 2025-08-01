@@ -18,7 +18,7 @@ public class MocapExtensionImpl implements MocapExtension
 	private final String id;
 	private final short version;
 	private Supplier<MocapRecordingData.ExtensionHeader> headerSupplier = DefaultHeader.INSTANCE_SUPPLIER;
-	public ActionType.Registry actionRegistry = new ActionType.Registry(this);
+	private final ActionType.Registry actionRegistry = new ActionType.Registry(this);
 
 	public MocapExtensionImpl(String id, short version)
 	{
@@ -61,9 +61,14 @@ public class MocapExtensionImpl implements MocapExtension
 		return Recording.listTrackedEntities(entity);
 	}
 
-	public MocapRecordingData.ExtensionHeader createHeader()
+	@Override public MocapRecordingData.ExtensionHeader createHeader()
 	{
 		return headerSupplier.get();
+	}
+
+	@Override public ActionType.Registry getActionRegistry()
+	{
+		return actionRegistry;
 	}
 
 	private static class DefaultHeader implements MocapRecordingData.ExtensionHeader

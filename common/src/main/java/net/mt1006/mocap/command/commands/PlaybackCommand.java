@@ -12,7 +12,7 @@ import net.mt1006.mocap.command.CommandUtils;
 import net.mt1006.mocap.command.CommandsContext;
 import net.mt1006.mocap.command.io.CommandInfo;
 import net.mt1006.mocap.command.io.FullCommandInfo;
-import net.mt1006.mocap.mocap.playing.Playing;
+import net.mt1006.mocap.mocap.playing.PlaybackManager;
 import net.mt1006.mocap.mocap.playing.modifiers.PlaybackModifiers;
 
 public class PlaybackCommand
@@ -32,14 +32,14 @@ public class PlaybackCommand
 			then(Commands.literal("including_others").executes(CommandUtils.command((info) -> PlaybackCommand.stopAll(info, true)))).
 			then(Commands.literal("excluding_others").executes(CommandUtils.command((info) -> PlaybackCommand.stopAll(info, false)))));
 		commandBuilder.then(Commands.literal("modifiers").
-			then(CommandUtils.withModifiers(buildContext, Commands.literal("set"), CommandUtils.command(Playing::modifiersSet), false)).
-			then(Commands.literal("list").executes(CommandUtils.command(Playing::modifiersList))).
-			then(Commands.literal("reset").executes(CommandUtils.command(Playing::modifiersReset))).
+			then(CommandUtils.withModifiers(buildContext, Commands.literal("set"), CommandUtils.command(PlaybackManager::modifiersSet), false)).
+			then(Commands.literal("list").executes(CommandUtils.command(PlaybackManager::modifiersList))).
+			then(Commands.literal("reset").executes(CommandUtils.command(PlaybackManager::modifiersReset))).
 			then(Commands.literal("add_to").
 				then(Commands.argument("scene_name", StringArgumentType.string()).suggests(CommandSuggestions::scene).
 				then(Commands.argument("to_add", StringArgumentType.string()).suggests(CommandSuggestions::playable).
 					executes(CommandUtils.command(PlaybackCommand::modifiersAddTo))))));
-		commandBuilder.then(Commands.literal("list").executes(CommandUtils.command(Playing::list)));
+		commandBuilder.then(Commands.literal("list").executes(CommandUtils.command(PlaybackManager::list)));
 
 		return commandBuilder;
 	}
@@ -60,7 +60,7 @@ public class PlaybackCommand
 		{
 			PlaybackModifiers finalModifiers = CommandsContext.getFinalModifiers(info.getSourcePlayer(), modifiers);
 			boolean sendModifiersWarning = !CommandsContext.hasDefaultModifiers(info.getSourcePlayer());
-			return Playing.start(info, name, MocapPlaybackConfig.createFromSettings(), finalModifiers, sendModifiersWarning);
+			return PlaybackManager.start(info, name, MocapPlaybackConfig.createFromSettings(), finalModifiers, sendModifiersWarning);
 		}
 		catch (Exception e) { return info.sendException(e, "playback.start.error"); }
 	}
@@ -70,14 +70,14 @@ public class PlaybackCommand
 		try
 		{
 			Pair<String, String> idPair = CommandUtils.splitIdStr(info.getString("id"));
-			return Playing.stop(info, idPair.getFirst(), idPair.getSecond());
+			return PlaybackManager.stop(info, idPair.getFirst(), idPair.getSecond());
 		}
 		catch (IllegalArgumentException e) { return info.sendException(e, "error.unable_to_get_argument"); }
 	}
 
 	private static boolean stopAll(CommandInfo info, boolean includeOthers)
 	{
-		Playing.stopAll(info, includeOthers ? null : info.getSourcePlayer());
+		PlaybackManager.stopAll(info, includeOthers ? null : info.getSourcePlayer());
 		return true;
 	}
 
@@ -87,7 +87,7 @@ public class PlaybackCommand
 		{
 			String name = info.getString("scene_name");
 			String toAdd = info.getString("to_add");
-			return Playing.modifiersAddTo(info, name, toAdd);
+			return PlaybackManager.modifiersAddTo(info, name, toAdd);
 		}
 		catch (IllegalArgumentException e)
 		{

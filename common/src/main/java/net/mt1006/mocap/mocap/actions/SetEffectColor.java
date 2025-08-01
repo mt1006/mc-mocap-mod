@@ -26,9 +26,8 @@ public class SetEffectColor implements MocapStateAction
 			int color = 0;
 			for (ParticleOptions particle : EntityData.LIVING_ENTITY_EFFECT_PARTICLES.valOrDef(entity, List.of()))
 			{
-				if (particle instanceof ColorParticleOption && particle.getType() == ParticleTypes.ENTITY_EFFECT)
+				if (particle instanceof ColorParticleOption colorParticle && particle.getType() == ParticleTypes.ENTITY_EFFECT)
 				{
-					ColorParticleOption colorParticle = (ColorParticleOption)particle;
 					color = ARGB.colorFromFloat(colorParticle.getAlpha(),
 							colorParticle.getRed(), colorParticle.getGreen(), colorParticle.getBlue());
 					break;

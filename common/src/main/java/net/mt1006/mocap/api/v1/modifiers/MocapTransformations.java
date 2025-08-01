@@ -2,6 +2,8 @@ package net.mt1006.mocap.api.v1.modifiers;
 
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
+import net.mt1006.mocap.mocap.playing.modifiers.Transformations;
+import org.jetbrains.annotations.ApiStatus;
 
 public interface MocapTransformations
 {
@@ -15,12 +17,12 @@ public interface MocapTransformations
 	 */
 	MocapTransformations setRotation(double rot);
 
-	MirrorVariant getMirror();
+	MocapMirror getMirror();
 
-	MocapTransformations setMirror(MirrorVariant mirror);
+	MocapTransformations setMirror(MocapMirror mirror);
 
 	/**
-	 * Sets scale of player or other main playback entity in case when player_as_entity modifier is active.
+	 * Gets scale of player or other main playback entity in case when player_as_entity modifier is active.
 	 * Scale of player (or main playback entity in general) is only applied to this entity and doesn't affect its speed
 	 * or position. It's similar to setting just the scale attribute. Final player scale (scale attribute value)
 	 * is equal to player_scale * scene_scale.
@@ -36,7 +38,7 @@ public interface MocapTransformations
 	MocapTransformations setScaleOfPlayer(double scale);
 
 	/**
-	 * Sets scale of entire scene.
+	 * Gets scale of entire scene.
 	 * Scale of scene is applied to all entities. It affects entity scale attribute and transforms all positions
 	 * in the playback (so it affects speed). It's similar to scale transformation in geometric sense.
 	 * Final player scale (scale attribute value) is equal to player_scale * scene_scale.
@@ -62,8 +64,6 @@ public interface MocapTransformations
 
 	void applyScaleToEntity(Entity entity);
 
-	enum MirrorVariant
-	{
-		NONE, X, Z, XZ
-	}
+	@ApiStatus.Internal
+	Transformations getCopy();
 }

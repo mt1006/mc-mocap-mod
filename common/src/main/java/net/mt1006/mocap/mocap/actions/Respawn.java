@@ -60,9 +60,8 @@ public class Respawn implements MocapAction
 		Entity entity = ctx.getEntity();
 		entity.setPose(Pose.STANDING);
 
-		if (entity instanceof LivingEntity)
+		if (entity instanceof LivingEntity livingEntity)
 		{
-			LivingEntity livingEntity = (LivingEntity)entity;
 			livingEntity.setHealth(livingEntity.getMaxHealth());
 			livingEntity.deathTime = 0;
 		}

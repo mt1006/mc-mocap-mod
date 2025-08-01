@@ -121,8 +121,7 @@ public enum ActionType
 				return DummyAction.INSTANCE;
 			}
 
-			if (!(extension instanceof MocapExtensionImpl)) { throw new RuntimeException("MocapExtension isn't instance of MocapExtensionImpl!"); }
-			registry = ((MocapExtensionImpl)extension).actionRegistry;
+			registry = extension.getActionRegistry();
 		}
 
 		MocapAction.FromReader constructor = registry.actions.get(Byte.toUnsignedInt(id));

@@ -97,11 +97,7 @@ public class SceneData
 			}
 			return true;
 		}
-		catch (Exception e)
-		{
-			out.sendException(e, "error.failed_to_load_scene");
-			return false;
-		}
+		catch (Exception e) { return out.sendException(e, "error.failed_to_load_scene"); }
 	}
 
 	public boolean setAndVerifyVersion(CommandOutput out, int versionNumber)

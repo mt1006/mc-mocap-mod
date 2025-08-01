@@ -15,9 +15,8 @@ public class Swing implements MocapStateAction
 
 	public Swing(Entity entity)
 	{
-		if (entity instanceof LivingEntity)
+		if (entity instanceof LivingEntity livingEntity)
 		{
-			LivingEntity livingEntity = (LivingEntity)entity;
 			swinging = livingEntity.swinging;
 			swingingTime = livingEntity.swingTime;
 			hand = livingEntity.swingingArm;

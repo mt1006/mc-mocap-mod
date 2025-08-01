@@ -45,9 +45,8 @@ public class VehicleData implements MocapStateAction
 			flag2 = ((AgeableMob)entity).getAge() < 0;
 		}
 
-		if (entity instanceof AbstractHorse)
+		if (entity instanceof AbstractHorse abstractHorse)
 		{
-			AbstractHorse abstractHorse = (AbstractHorse)entity;
 			if (abstractHorse.isTamed()) { flags |= 0x02; }
 			if (abstractHorse.isSaddled()) { flags |= 0x04; }
 			if (abstractHorse.isBred()) { flags |= 0x08; }

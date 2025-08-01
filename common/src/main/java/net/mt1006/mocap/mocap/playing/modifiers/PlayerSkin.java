@@ -25,8 +25,8 @@ public class PlayerSkin implements MocapPlayerSkin
 	private static final String MINESKIN_URL_PREFIX1 = "minesk.in/";
 	private static final String MINESKIN_URL_PREFIX2 = "mineskin.org/skins/";
 	private static final String MINESKIN_API_URL = "https://api.mineskin.org/get/uuid/";
-	public final Source source;
-	public final @Nullable String path;
+	private final Source source;
+	private final @Nullable String path;
 
 	public PlayerSkin(Source source, @Nullable String path)
 	{
@@ -75,7 +75,7 @@ public class PlayerSkin implements MocapPlayerSkin
 		return path;
 	}
 
-	public @Nullable SceneFiles.Writer save()
+	@Override public @Nullable SceneFiles.Writer save()
 	{
 		if (source == Source.DEFAULT) { return null; }
 
@@ -86,7 +86,7 @@ public class PlayerSkin implements MocapPlayerSkin
 		return writer;
 	}
 
-	public void addSkinToPropertyMap(CommandInfo info, PropertyMap propertyMap)
+	@Override public void addSkinToPropertyMap(CommandInfo info, PropertyMap propertyMap)
 			throws IllegalArgumentException, IllegalAccessException
 	{
 		if (path == null) { return; }
@@ -127,11 +127,11 @@ public class PlayerSkin implements MocapPlayerSkin
 		}
 	}
 
-	public PlayerSkin mergeWithParent(PlayerSkin parent)
+	@Override public MocapPlayerSkin mergeWithParent(MocapPlayerSkin parent)
 	{
 		return (source != Source.DEFAULT)
 				? new PlayerSkin(source, path)
-				: new PlayerSkin(parent.source, parent.path);
+				: new PlayerSkin(parent.getSource(), parent.getPath());
 	}
 
 	private @Nullable Property propertyFromMineskinURL(String mineskinURL)
@@ -144,8 +144,7 @@ public class PlayerSkin implements MocapPlayerSkin
 			URL url = new URI(mineskinApiURL).toURL();
 
 			URLConnection connection = url.openConnection();
-			if (!(connection instanceof HttpsURLConnection)) { return null; }
-			HttpsURLConnection httpsConnection = (HttpsURLConnection)connection;
+			if (!(connection instanceof HttpsURLConnection httpsConnection)) { return null; }
 
 			httpsConnection.setUseCaches(false);
 			httpsConnection.setRequestMethod("GET");

@@ -13,7 +13,7 @@ import net.mt1006.mocap.mocap.files.Files;
 import net.mt1006.mocap.mocap.files.RecordingFiles;
 import net.mt1006.mocap.mocap.files.SceneData;
 import net.mt1006.mocap.mocap.files.SceneFiles;
-import net.mt1006.mocap.mocap.playing.Playing;
+import net.mt1006.mocap.mocap.playing.PlaybackManager;
 import net.mt1006.mocap.mocap.playing.playback.PlaybackRoot;
 import net.mt1006.mocap.mocap.recording.Recording;
 
@@ -75,7 +75,7 @@ public class CommandSuggestions
 	public static CompletableFuture<Suggestions> playbackId(CommandContext<?> ctx, SuggestionsBuilder builder)
 	{
 		String remaining = builder.getRemaining();
-		for (PlaybackRoot playback : Playing.playbacks)
+		for (PlaybackRoot playback : PlaybackManager.playbacks)
 		{
 			String str = playback.getSuggestedId();
 			if (str.startsWith(remaining)) { builder.suggest(str); }

@@ -10,7 +10,7 @@ import net.mt1006.mocap.api.v1.controller.config.MocapRecordingConfig;
 import net.mt1006.mocap.api.v1.controller.playable.MocapActiveRecording;
 import net.mt1006.mocap.api.v1.controller.playable.MocapPlayable;
 import net.mt1006.mocap.command.io.BasicCommandInfo;
-import net.mt1006.mocap.mocap.playing.Playing;
+import net.mt1006.mocap.mocap.playing.PlaybackManager;
 import net.mt1006.mocap.mocap.recording.Recording;
 import net.mt1006.mocap.mocap.recording.RecordingContext;
 import net.mt1006.mocap.mocap.recording.RecordingSource;
@@ -41,12 +41,12 @@ public class MocapControllerImpl implements MocapController
 
 	@Override public @Nullable MocapPlayback findPlayback(String id)
 	{
-		return Playing.findPlayback(commandInfo, id, null);
+		return PlaybackManager.findPlayback(commandInfo, id, null);
 	}
 
 	@Override public List<? extends MocapPlayback> getActivePlaybacks()
 	{
-		return List.copyOf(Playing.playbacks);
+		return List.copyOf(PlaybackManager.playbacks);
 	}
 
 	@Override public @Nullable MocapActiveRecording startRecording(ServerPlayer player)

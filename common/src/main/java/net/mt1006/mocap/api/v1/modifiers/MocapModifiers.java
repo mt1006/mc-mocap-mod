@@ -1,6 +1,8 @@
 package net.mt1006.mocap.api.v1.modifiers;
 
 import net.mt1006.mocap.api.impl.modifiers.MocapModifiersImpl;
+import net.mt1006.mocap.mocap.playing.modifiers.PlaybackModifiers;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 public interface MocapModifiers
@@ -33,4 +35,7 @@ public interface MocapModifiers
 	MocapEntityFilter getEntityFilter();
 
 	MocapModifiers setEntityFilter(@Nullable String filter);
+
+	@ApiStatus.Internal
+	PlaybackModifiers getPlaybackModifiers();
 }

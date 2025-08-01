@@ -5,7 +5,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.mt1006.mocap.mocap.actions.EntityUpdate;
 import net.mt1006.mocap.mocap.actions.Hurt;
-import net.mt1006.mocap.mocap.playing.Playing;
+import net.mt1006.mocap.mocap.playing.PlaybackManager;
 import net.mt1006.mocap.mocap.recording.Recording;
 
 public class EntityEvent
@@ -21,7 +21,7 @@ public class EntityEvent
 
 	public static boolean onEntityDrop(LivingEntity entity)
 	{
-		return !Playing.playbacks.isEmpty() && entity.getTags().contains(Playing.MOCAP_ENTITY_TAG);
+		return !PlaybackManager.playbacks.isEmpty() && entity.getTags().contains(PlaybackManager.MOCAP_ENTITY_TAG);
 	}
 
 	public static void onPlayerRespawn(ServerPlayer oldPlayer, ServerPlayer newPlayer)

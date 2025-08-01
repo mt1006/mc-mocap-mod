@@ -12,7 +12,7 @@ public class SettingGroups
 	public Group add(String name)
 	{
 		Group group = new Group(name);
-		if (groupMap.put(name, group) != null) { throw new RuntimeException("Duplicate group names!"); };
+		if (groupMap.put(name, group) != null) { throw new RuntimeException("Duplicate group names!"); }
 		return group;
 	}
 

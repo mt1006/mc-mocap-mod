@@ -2,8 +2,10 @@ package net.mt1006.mocap.api.impl.modifiers;
 
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
+import net.mt1006.mocap.api.v1.modifiers.MocapMirror;
 import net.mt1006.mocap.api.v1.modifiers.MocapTransformations;
 import net.mt1006.mocap.api.v1.modifiers.MocapTransformationsConfig;
+import net.mt1006.mocap.api.v1.modifiers.MocapOffset;
 import net.mt1006.mocap.mocap.playing.modifiers.*;
 
 import java.util.function.Consumer;
@@ -22,7 +24,7 @@ public class MocapTransformationsImpl implements MocapTransformations
 		return new MocapTransformationsImpl(transformations.copy());
 	}
 
-	public Transformations getCopy()
+	@Override public Transformations getCopy()
 	{
 		return transformations.copy();
 	}
@@ -44,27 +46,14 @@ public class MocapTransformationsImpl implements MocapTransformations
 		return modify((t) -> t.rotation = new Rotation(rot));
 	}
 
-	@Override public MirrorVariant getMirror()
+	@Override public MocapMirror getMirror()
 	{
-		return switch (transformations.mirror)
-		{
-			case NONE -> MirrorVariant.NONE;
-			case X -> MirrorVariant.X;
-			case Z -> MirrorVariant.Z;
-			case XZ -> MirrorVariant.XZ;
-		};
+		return transformations.mirror;
 	}
 
-	@Override public MocapTransformations setMirror(MirrorVariant mirror)
+	@Override public MocapTransformations setMirror(MocapMirror mirror)
 	{
-		Mirror properMirror = switch (mirror)
-		{
-			case NONE -> Mirror.NONE;
-			case X -> Mirror.X;
-			case Z -> Mirror.Z;
-			case XZ -> Mirror.XZ;
-		};
-		return modify((t) -> t.mirror = properMirror);
+		return modify((t) -> t.mirror = mirror);
 	}
 
 	@Override public double getScaleOfPlayer()
@@ -94,7 +83,7 @@ public class MocapTransformationsImpl implements MocapTransformations
 
 	@Override public MocapTransformations setOffset(Vec3 offset)
 	{
-		return modify((t) -> t.offset = new Offset(offset.x, offset.y, offset.z));
+		return modify((t) -> t.offset = new MocapOffset(offset.x, offset.y, offset.z));
 	}
 
 	@Override public MocapTransformationsConfig getConfig()
@@ -104,8 +93,7 @@ public class MocapTransformationsImpl implements MocapTransformations
 
 	@Override public MocapTransformations setConfig(MocapTransformationsConfig config)
 	{
-		if (!(config instanceof TransformationsConfig)) { throw new RuntimeException("MocapTransformationsConfig isn't instance of TransformationsConfig!"); }
-		return modify((t) -> t.config = (TransformationsConfig)config);
+		return modify((t) -> t.config = config);
 	}
 
 	@Override public void applyScaleToEntity(Entity entity)

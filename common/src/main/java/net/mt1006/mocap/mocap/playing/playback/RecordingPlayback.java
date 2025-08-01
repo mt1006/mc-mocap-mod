@@ -100,7 +100,7 @@ public class RecordingPlayback extends Playback
 
 			if (entity == null)
 			{
-				info.sendFailure("playback.start.warning.unknown_entity", modifiers.playerAsEntity.entityId);
+				info.sendFailure("playback.start.warning.unknown_entity", modifiers.playerAsEntity.getRawEntityId());
 				throw new StartException();
 			}
 

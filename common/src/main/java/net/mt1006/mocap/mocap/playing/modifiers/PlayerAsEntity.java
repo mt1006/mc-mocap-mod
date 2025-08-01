@@ -21,7 +21,7 @@ public class PlayerAsEntity implements MocapPlayerAsEntity
 {
 	public static final PlayerAsEntity DISABLED = new PlayerAsEntity(null, null);
 
-	public final @Nullable String entityId;
+	private final @Nullable String entityId;
 	public final @Nullable String entityNbt;
 	private final @Nullable EntityType<?> entityType;
 	private final @Nullable CompoundTag compoundTag;
@@ -47,8 +47,8 @@ public class PlayerAsEntity implements MocapPlayerAsEntity
 
 		entityId = reader.readString("id");
 		entityNbt = reader.readString("nbt");
-		this.entityType = prepareEntityType(entityId, entityNbt);
-		this.compoundTag = prepareCompoundTag(entityId, entityNbt);
+		entityType = prepareEntityType(entityId, entityNbt);
+		compoundTag = prepareCompoundTag(entityId, entityNbt);
 	}
 
 	@Override public boolean isEnabled()
@@ -69,12 +69,17 @@ public class PlayerAsEntity implements MocapPlayerAsEntity
 		return entityTypeRef != null ? entityTypeRef.value() : null;
 	}
 
+	@Override public @Nullable String getRawEntityId()
+	{
+		return entityId;
+	}
+
 	@Override public @Nullable String getNbt()
 	{
 		return entityNbt;
 	}
 
-	public @Nullable SceneFiles.Writer save()
+	@Override public @Nullable SceneFiles.Writer save()
 	{
 		if (!isEnabled()) { return null; }
 
@@ -85,7 +90,7 @@ public class PlayerAsEntity implements MocapPlayerAsEntity
 		return writer;
 	}
 
-	public @Nullable Entity createEntity(Level level)
+	@Override public @Nullable Entity createEntity(Level level)
 	{
 		if (entityType == null && compoundTag == null) { return null; }
 

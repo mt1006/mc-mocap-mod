@@ -4,7 +4,7 @@ import net.mt1006.mocap.api.impl.controller.MocapControllerImpl;
 import net.mt1006.mocap.api.v1.controller.MocapPlayback;
 import net.mt1006.mocap.api.v1.controller.config.MocapPlaybackConfig;
 import net.mt1006.mocap.api.v1.controller.playable.MocapPlayable;
-import net.mt1006.mocap.mocap.playing.Playing;
+import net.mt1006.mocap.mocap.playing.PlaybackManager;
 import net.mt1006.mocap.mocap.playing.modifiers.PlaybackModifiers;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,6 +35,6 @@ public abstract class MocapPlayableImpl implements MocapPlayable
 	@Override public @Nullable MocapPlayback startPlayback(String playerName, MocapPlaybackConfig config)
 	{
 		//TODO: set playerName
-		return Playing.startSingleSilently(ctrl.commandInfo, getId(), config, PlaybackModifiers.empty(), ctrl.hideStuff);
+		return PlaybackManager.startSingleSilently(ctrl.commandInfo, getId(), config, PlaybackModifiers.empty(), ctrl.hideStuff);
 	}
 }

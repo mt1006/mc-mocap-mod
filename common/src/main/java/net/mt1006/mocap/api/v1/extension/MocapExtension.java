@@ -3,6 +3,8 @@ package net.mt1006.mocap.api.v1.extension;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.mt1006.mocap.api.v1.extension.actions.MocapAction;
+import net.mt1006.mocap.mocap.actions.ActionType;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
@@ -23,4 +25,10 @@ public interface MocapExtension
 	Collection<? extends MocapActiveRecordingActions> findRecordedByPlayer(Player player);
 
 	Collection<? extends MocapActiveRecordingActions.TrackedEntity> findTrackedEntities(Entity entity);
+
+	@ApiStatus.Internal
+	MocapRecordingData.ExtensionHeader createHeader();
+
+	@ApiStatus.Internal
+	ActionType.Registry getActionRegistry();
 }

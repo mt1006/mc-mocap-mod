@@ -19,12 +19,6 @@ public class MocapSceneElementImpl implements MocapSceneElement
 		this.modifiers = MocapModifiersImpl.ofCopy(subscene.modifiers);
 	}
 
-	public SceneData.Subscene toSubscene()
-	{
-		if (!(modifiers instanceof MocapModifiersImpl)) { throw new RuntimeException("MocapModifiers isn't instance of MocapModifiersImpl!"); }
-		return new SceneData.Subscene(playable.getId(), ((MocapModifiersImpl)modifiers).getPlaybackModifiers());
-	}
-
 	@Override public MocapPlayable getPlayable()
 	{
 		return playable;
@@ -33,5 +27,10 @@ public class MocapSceneElementImpl implements MocapSceneElement
 	@Override public MocapModifiers getModifiers()
 	{
 		return modifiers;
+	}
+
+	@Override public SceneData.Subscene toSubscene()
+	{
+		return new SceneData.Subscene(playable.getId(), modifiers.getPlaybackModifiers());
 	}
 }

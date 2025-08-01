@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class Playing
+public class PlaybackManager
 {
 	public static final String MOCAP_ENTITY_TAG = "mocap_entity";
 	public static final Multimap<String, PlaybackRoot> playbacksByOwner = HashMultimap.create();
@@ -113,11 +113,7 @@ public class Playing
 	public static boolean stop(CommandOutput out, String id, @Nullable String expectedName)
 	{
 		PlaybackRoot playback = findPlayback(out, id, expectedName);
-		if (playback == null)
-		{
-			out.sendFailureWithTip("playback.stop.unable_to_find_playback");
-			return false;
-		}
+		if (playback == null) { return out.sendFailureWithTip("playback.stop.unable_to_find_playback"); }
 
 		playback.stop();
 		out.sendSuccess("playback.stop.success");
@@ -286,7 +282,7 @@ public class Playing
 		}
 	}
 
-	public static int getNextId()
+	private static int getNextId()
 	{
 		return nextPlaybackId++;
 	}

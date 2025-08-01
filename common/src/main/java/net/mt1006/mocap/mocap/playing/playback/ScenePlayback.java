@@ -96,7 +96,7 @@ public class ScenePlayback extends Playback
 													 SceneData sceneData, DataManager dataManager) throws StartException
 	{
 		if (modifiers.transformations.areDefault()) { return parent; }
-		TransformationsConfig.SceneCenter center = modifiers.transformations.config.sceneCenter;
+		TransformationsConfig.SceneCenter center = modifiers.transformations.config.getSceneCenter();
 
 		if (center.type == TransformationsConfig.SceneCenterType.INDIVIDUAL || sceneData.subscenes.isEmpty())
 		{
@@ -130,7 +130,7 @@ public class ScenePlayback extends Playback
 		{
 			SceneData subsceneData = dataManager.getScene(subscene.name);
 			subsceneStartPos = getSceneStartPos(out,
-					subscene.modifiers.transformations.config.sceneCenter, subsceneData, dataManager);
+					subscene.modifiers.transformations.config.getSceneCenter(), subsceneData, dataManager);
 		}
 		else
 		{

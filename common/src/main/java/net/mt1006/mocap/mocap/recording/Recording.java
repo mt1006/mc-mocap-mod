@@ -13,7 +13,7 @@ import net.mt1006.mocap.command.io.CommandInfo;
 import net.mt1006.mocap.command.io.CommandOutput;
 import net.mt1006.mocap.mocap.files.Files;
 import net.mt1006.mocap.mocap.files.RecordingFiles;
-import net.mt1006.mocap.mocap.playing.Playing;
+import net.mt1006.mocap.mocap.playing.PlaybackManager;
 import net.mt1006.mocap.mocap.settings.Settings;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
@@ -257,7 +257,7 @@ public class Recording
 				}
 			}
 
-			if (!stillRecording) { Playing.stopAll(CommandOutput.DUMMY, player); }
+			if (!stillRecording) { PlaybackManager.stopAll(CommandOutput.DUMMY, player); }
 		}
 	}
 

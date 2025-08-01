@@ -17,7 +17,7 @@ import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
 import net.mt1006.mocap.api.v1.extension.actions.MocapActionContext;
 import net.mt1006.mocap.api.v1.modifiers.MocapModifiers;
 import net.mt1006.mocap.events.PlayerConnectionEvent;
-import net.mt1006.mocap.mocap.playing.Playing;
+import net.mt1006.mocap.mocap.playing.PlaybackManager;
 import net.mt1006.mocap.mocap.playing.modifiers.PlaybackModifiers;
 import net.mt1006.mocap.mocap.settings.Settings;
 import net.mt1006.mocap.network.MocapPacketS2C;
@@ -298,7 +298,7 @@ public class ActionContext implements MocapActionContext
 			case RELEASE_AS_NORMAL:
 				entity.setNoGravity(false);
 				entity.setInvulnerable(false);
-				entity.removeTag(Playing.MOCAP_ENTITY_TAG);
+				entity.removeTag(PlaybackManager.MOCAP_ENTITY_TAG);
 				if (entity instanceof Mob) { ((Mob)entity).setNoAi(false); }
 				break;
 

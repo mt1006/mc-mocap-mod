@@ -1,6 +1,11 @@
 package net.mt1006.mocap.api.v1.modifiers;
 
 import net.minecraft.world.phys.Vec3;
+import net.mt1006.mocap.command.io.CommandOutput;
+import net.mt1006.mocap.command.io.FullCommandInfo;
+import net.mt1006.mocap.mocap.files.SceneFiles;
+import net.mt1006.mocap.mocap.playing.modifiers.TransformationsConfig;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 public interface MocapTransformationsConfig
@@ -19,9 +24,29 @@ public interface MocapTransformationsConfig
 
 	MocapTransformationsConfig setSceneCenter(SceneCenterType center, @Nullable String specificStr);
 
-	Vec3 getCenterOffset();
+	MocapOffset getCenterOffset();
 
-	MocapTransformationsConfig setCenterOffset(Vec3 offset);
+	default MocapTransformationsConfig setCenterOffset(Vec3 offset)
+	{
+		return setCenterOffset(MocapOffset.fromVec3(offset));
+	}
+
+	MocapTransformationsConfig setCenterOffset(MocapOffset offset);
+
+	@ApiStatus.Internal
+	TransformationsConfig.SceneCenter getSceneCenter();
+
+	@ApiStatus.Internal
+	boolean isDefault();
+
+	@ApiStatus.Internal
+	@Nullable SceneFiles.Writer save();
+
+	@ApiStatus.Internal
+	void list(CommandOutput out);
+
+	@ApiStatus.Internal
+	@Nullable MocapTransformationsConfig modify(FullCommandInfo info, String propertyName, int propertyNodePos);
 
 	enum RecordingCenter
 	{

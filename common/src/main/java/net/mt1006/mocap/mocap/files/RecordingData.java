@@ -213,8 +213,7 @@ public class RecordingData implements MocapRecordingData
 				continue;
 			}
 
-			if (!(extension instanceof MocapExtensionImpl)) { throw new RuntimeException("MocapExtension isn't instance of MocapExtensionImpl!"); }
-			ExtensionHeader extensionHeader = ((MocapExtensionImpl)extension).createHeader();
+			ExtensionHeader extensionHeader = extension.createHeader();
 			if (!extensionHeader.load(reader))
 			{
 				out.sendFailure("playback.start.error.extension.load_header", extension.getId());
@@ -314,10 +313,8 @@ public class RecordingData implements MocapRecordingData
 		Byte id = extensionToId.get(extension);
 		if (id == null)
 		{
-			if (!(extension instanceof MocapExtensionImpl)) { throw new RuntimeException("MocapExtension isn't instance of MocapExtensionImpl!"); }
-
 			int nextId = extensionById.size();
-			addExtension(nextId, extension, ((MocapExtensionImpl)extension).createHeader());
+			addExtension(nextId, extension, extension.createHeader());
 			return (byte)nextId;
 		}
 		return id;

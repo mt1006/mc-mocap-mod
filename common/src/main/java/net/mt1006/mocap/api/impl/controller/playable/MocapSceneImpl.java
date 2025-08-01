@@ -73,12 +73,10 @@ public class MocapSceneImpl extends MocapPlayableImpl implements MocapScene
 
 	@Override public boolean add(MocapPlayable playable, MocapModifiers modifiers)
 	{
-		if (!(modifiers instanceof MocapModifiersImpl)) { throw new RuntimeException("MocapModifiers should be instance of PlaybackModifiers!"); }
-		return SceneFiles.addElement(ctrl.commandInfo, name, new SceneData.Subscene(
-				playable.getId(), ((MocapModifiersImpl) modifiers).getPlaybackModifiers()));
+		return SceneFiles.addElement(ctrl.commandInfo, name, new SceneData.Subscene(playable.getId(), modifiers.getPlaybackModifiers()));
 	}
 
-	@Override public @Nullable List<MocapSceneElement> getAll()
+	@Override public @Nullable List<? extends MocapSceneElement> getAll()
 	{
 		SceneData data = SceneFiles.loadSceneData(ctrl.commandInfo, name);
 		if (data == null) { return null; }
@@ -95,11 +93,7 @@ public class MocapSceneImpl extends MocapPlayableImpl implements MocapScene
 		if (data == null) { return false; }
 
 		data.subscenes.clear();
-		for (MocapSceneElement element : elements)
-		{
-			if (!(element instanceof MocapSceneElementImpl)) { throw new RuntimeException("MocapSceneElement isn't instance of MocapSceneElementImpl!"); }
-			data.subscenes.add(((MocapSceneElementImpl)element).toSubscene());
-		}
+		elements.forEach((e) -> data.subscenes.add(e.toSubscene()));
 		return data.save(ctrl.commandInfo, file, name, "scenes.modify.success", "scenes.modify.error");
 	}
 

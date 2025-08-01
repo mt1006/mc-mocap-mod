@@ -31,13 +31,12 @@ public class ChangeItem implements MocapStateAction
 
 	public ChangeItem(Entity entity)
 	{
-		if (!(entity instanceof LivingEntity))
+		if (!(entity instanceof LivingEntity livingEntity))
 		{
 			itemCount = 0;
 			for (int i = 0; i < 7; i++) { items.add(ItemData.EMPTY); }
 			return;
 		}
-		LivingEntity livingEntity = (LivingEntity)entity;
 		DynamicOps<Tag> ops = entity.registryAccess().createSerializationContext(NbtOps.INSTANCE);
 
 		addItem(livingEntity.getMainHandItem(), ops);
