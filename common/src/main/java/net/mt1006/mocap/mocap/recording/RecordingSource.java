@@ -1,7 +1,7 @@
 package net.mt1006.mocap.mocap.recording;
 
 import net.minecraft.server.level.ServerPlayer;
-import net.mt1006.mocap.command.io.CommandInfo;
+import net.mt1006.mocap.api.v1.io.CommandInfo;
 import org.jetbrains.annotations.Nullable;
 
 public class RecordingSource

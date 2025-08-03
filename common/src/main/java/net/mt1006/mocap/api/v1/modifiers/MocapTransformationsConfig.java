@@ -1,7 +1,7 @@
 package net.mt1006.mocap.api.v1.modifiers;
 
 import net.minecraft.world.phys.Vec3;
-import net.mt1006.mocap.command.io.CommandOutput;
+import net.mt1006.mocap.api.v1.io.CommandOutput;
 import net.mt1006.mocap.command.io.FullCommandInfo;
 import net.mt1006.mocap.mocap.files.SceneFiles;
 import net.mt1006.mocap.mocap.playing.modifiers.TransformationsConfig;

@@ -11,7 +11,7 @@ import net.minecraft.world.entity.Entity;
 import net.mt1006.mocap.command.CommandSuggestions;
 import net.mt1006.mocap.command.CommandUtils;
 import net.mt1006.mocap.command.io.FullCommandInfo;
-import net.mt1006.mocap.mocap.recording.Recording;
+import net.mt1006.mocap.mocap.recording.RecordingManager;
 import net.mt1006.mocap.mocap.recording.RecordingSource;
 import net.mt1006.mocap.mocap.settings.Settings;
 
@@ -74,7 +74,7 @@ public class RecordingCommand
 			String instantSaveName = (players.size() > 1 && instantSave != null)
 					? (instantSave + "_" + player.getName().getString())
 					: instantSave;
-			successes += (Recording.startOrWait(info, player, source, instantSaveName, players.size() > 1) != null) ? 1 : 0;
+			successes += (RecordingManager.startOrWait(info, player, source, instantSaveName, players.size() > 1) != null) ? 1 : 0;
 		}
 
 		if (players.size() > 1)
@@ -88,17 +88,17 @@ public class RecordingCommand
 
 	private static boolean stop(FullCommandInfo info)
 	{
-		return Recording.stop(info, info.getNullableString("id"));
+		return RecordingManager.stop(info, info.getNullableString("id"));
 	}
 
 	private static boolean discard(FullCommandInfo info)
 	{
-		return Recording.discard(info, info.getNullableString("id"));
+		return RecordingManager.discard(info, info.getNullableString("id"));
 	}
 
 	private static boolean saveAuto(FullCommandInfo info, String name)
 	{
-		return Recording.save(info, null, name);
+		return RecordingManager.save(info, null, name);
 	}
 
 	private static boolean saveSpecific(FullCommandInfo info)
@@ -106,11 +106,11 @@ public class RecordingCommand
 		String name = info.getNullableString("name");
 		if (name == null) { return info.sendFailure("error.unable_to_get_argument"); }
 
-		return Recording.save(info, info.getNullableString("id"), name);
+		return RecordingManager.save(info, info.getNullableString("id"), name);
 	}
 
 	private static boolean list(FullCommandInfo info)
 	{
-		return Recording.list(info, info.getNullableString("id"));
+		return RecordingManager.list(info, info.getNullableString("id"));
 	}
 }

@@ -1,7 +1,7 @@
 package net.mt1006.mocap.api.v1.modifiers;
 
 import com.mojang.authlib.properties.PropertyMap;
-import net.mt1006.mocap.command.io.CommandInfo;
+import net.mt1006.mocap.api.v1.io.CommandInfo;
 import net.mt1006.mocap.mocap.files.SceneFiles;
 import net.mt1006.mocap.mocap.playing.modifiers.PlayerSkin;
 import org.jetbrains.annotations.ApiStatus;

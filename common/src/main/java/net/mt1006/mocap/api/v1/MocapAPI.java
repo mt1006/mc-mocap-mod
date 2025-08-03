@@ -7,7 +7,7 @@ import net.mt1006.mocap.api.impl.controller.MocapControllerImpl;
 import net.mt1006.mocap.api.impl.extenstion.Extensions;
 import net.mt1006.mocap.api.v1.controller.MocapController;
 import net.mt1006.mocap.api.v1.extension.MocapExtension;
-import net.mt1006.mocap.command.io.CommandOutput;
+import net.mt1006.mocap.api.v1.io.CommandOutput;
 import net.mt1006.mocap.mocap.files.Files;
 import org.jetbrains.annotations.Nullable;
 

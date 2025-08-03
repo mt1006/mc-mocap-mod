@@ -6,8 +6,8 @@ import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.mt1006.mocap.MocapMod;
+import net.mt1006.mocap.api.v1.io.CommandOutput;
 import net.mt1006.mocap.command.CommandUtils;
-import net.mt1006.mocap.command.io.CommandOutput;
 
 public class MocapCommand
 {

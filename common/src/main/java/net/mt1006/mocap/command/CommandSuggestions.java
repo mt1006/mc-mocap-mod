@@ -7,15 +7,16 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.mt1006.mocap.MocapMod;
+import net.mt1006.mocap.api.v1.io.CommandOutput;
 import net.mt1006.mocap.api.v1.modifiers.MocapEntityFilterBuilder;
-import net.mt1006.mocap.command.io.CommandOutput;
 import net.mt1006.mocap.mocap.files.Files;
 import net.mt1006.mocap.mocap.files.RecordingFiles;
 import net.mt1006.mocap.mocap.files.SceneData;
 import net.mt1006.mocap.mocap.files.SceneFiles;
 import net.mt1006.mocap.mocap.playing.PlaybackManager;
+import net.mt1006.mocap.mocap.playing.playable.SceneFile;
 import net.mt1006.mocap.mocap.playing.playback.PlaybackRoot;
-import net.mt1006.mocap.mocap.recording.Recording;
+import net.mt1006.mocap.mocap.recording.RecordingManager;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -25,26 +26,32 @@ public class CommandSuggestions
 	private static final int RECORDINGS = 1;
 	private static final int SCENES = 2;
 	private static final int CURRENTLY_RECORDED = 4;
-	private static final int PLAYABLE = RECORDINGS | SCENES | CURRENTLY_RECORDED;
+	private static final int VIRTUAL = 8;
+	private static final int PLAYABLE = RECORDINGS | SCENES | CURRENTLY_RECORDED | VIRTUAL;
 
 	public static final Set<String> inputSet = new HashSet<>();
 	public static final Set<String> skinFileSet = new HashSet<>();
 	public static final Map<String, List<String>> sceneElementCache = new HashMap<>();
 
-	private static CompletableFuture<Suggestions> inputSuggestions(SuggestionsBuilder builder, int suggestionFlags, boolean ignoreFirstChar)
+	private static CompletableFuture<Suggestions> inputSuggestions(SuggestionsBuilder builder, int suggestionFlags)
 	{
 		String remaining = builder.getRemaining();
+
+		if (suggestionFlags == SCENES && !remaining.startsWith(".")) { remaining = "." + remaining; }
+		else if (suggestionFlags == CURRENTLY_RECORDED && !remaining.startsWith("-")) { remaining = "-" + remaining; }
+		else if (suggestionFlags == VIRTUAL && !remaining.startsWith("+")) { remaining = "+" + remaining; }
+
 		for (String input : inputSet)
 		{
 			int type = switch (input.charAt(0))
 			{
 				case '.' -> SCENES;
 				case '-' -> CURRENTLY_RECORDED;
+				case '+' -> VIRTUAL;
 				default -> RECORDINGS;
 			};
 
-			if ((suggestionFlags & type) != 0 && (input.startsWith(remaining)
-					|| (ignoreFirstChar && input.substring(1).startsWith(remaining))))
+			if ((suggestionFlags & type) != 0 && input.startsWith(remaining))
 			{
 				builder.suggest(input);
 			}
@@ -54,22 +61,22 @@ public class CommandSuggestions
 
 	public static CompletableFuture<Suggestions> recording(CommandContext<?> ctx, SuggestionsBuilder builder)
 	{
-		return inputSuggestions(builder, RECORDINGS, false);
+		return inputSuggestions(builder, RECORDINGS);
 	}
 
 	public static CompletableFuture<Suggestions> scene(CommandContext<?> ctx, SuggestionsBuilder builder)
 	{
-		return inputSuggestions(builder, SCENES, true);
+		return inputSuggestions(builder, SCENES);
 	}
 
 	public static CompletableFuture<Suggestions> currentlyRecorded(CommandContext<?> ctx, SuggestionsBuilder builder)
 	{
-		return inputSuggestions(builder, CURRENTLY_RECORDED, true);
+		return inputSuggestions(builder, CURRENTLY_RECORDED);
 	}
 
 	public static CompletableFuture<Suggestions> playable(CommandContext<?> ctx, SuggestionsBuilder builder)
 	{
-		return inputSuggestions(builder, PLAYABLE, false);
+		return inputSuggestions(builder, PLAYABLE);
 	}
 
 	public static CompletableFuture<Suggestions> playbackId(CommandContext<?> ctx, SuggestionsBuilder builder)
@@ -95,7 +102,7 @@ public class CommandSuggestions
 		if (elements == null)
 		{
 			SceneData sceneData = new SceneData();
-			if (!sceneData.load(CommandOutput.LOGS, sceneName)) { builder.buildFuture(); }
+			if (!sceneData.load(CommandOutput.LOGS, SceneFile.get(CommandOutput.LOGS, sceneName))) { builder.buildFuture(); }
 			elements = sceneData.saveToSceneElementCache(sceneName);
 		}
 		if (elements == null) { return builder.buildFuture(); }
@@ -196,7 +203,7 @@ public class CommandSuggestions
 		List<String> sceneList = SceneFiles.list();
 		if (sceneList != null) { inputSet.addAll(sceneList); }
 
-		Recording.allContexts().forEach((ctx) -> inputSet.add(ctx.id.str));
+		RecordingManager.allContexts().forEach((ctx) -> inputSet.add(ctx.id.str));
 	}
 
 	private static void initSkinSet()

@@ -3,14 +3,19 @@ package net.mt1006.mocap.mocap.files;
 import com.google.gson.*;
 import com.mojang.datafixers.util.Pair;
 import net.mt1006.mocap.MocapMod;
+import net.mt1006.mocap.api.impl.modifiers.MocapModifiersImpl;
+import net.mt1006.mocap.api.v1.controller.playable.MocapPlayable;
+import net.mt1006.mocap.api.v1.controller.playable.MocapSceneElement;
+import net.mt1006.mocap.api.v1.io.CommandInfo;
+import net.mt1006.mocap.api.v1.io.CommandOutput;
+import net.mt1006.mocap.api.v1.modifiers.MocapModifiers;
 import net.mt1006.mocap.command.CommandSuggestions;
-import net.mt1006.mocap.command.io.CommandOutput;
 import net.mt1006.mocap.mocap.playing.modifiers.PlaybackModifiers;
+import net.mt1006.mocap.mocap.playing.playable.SceneFile;
 import net.mt1006.mocap.mocap.settings.Settings;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -18,7 +23,7 @@ import java.util.List;
 
 public class SceneData
 {
-	public final List<Subscene> subscenes = new ArrayList<>();
+	public final List<MocapSceneElement> elements = new ArrayList<>();
 	public int version = 0;
 	public boolean experimentalVersion = false;
 	public long fileSize = 0;
@@ -31,18 +36,18 @@ public class SceneData
 		return sceneData;
 	}
 
-	public boolean save(CommandOutput out, File file, String sceneName, String onSuccess, String onError)
+	public boolean save(CommandOutput out, SceneFile file, String sceneName, String onSuccess, String onError)
 	{
 		JsonObject json = new JsonObject();
 		json.add("version", new JsonPrimitive(experimentalVersion ? (-version) : version)); //TODO: fix?
 
 		JsonArray subscenesArray = new JsonArray();
-		subscenes.forEach((s) -> subscenesArray.add(s.toJson()));
+		elements.forEach((s) -> subscenesArray.add(s.toJson()));
 		json.add("subscenes", subscenesArray);
 
 		try
 		{
-			FileWriter writer = new FileWriter(file);
+			FileWriter writer = new FileWriter(file.getFile());
 			GsonBuilder gsonBuilder = Settings.PRETTY_SCENE_FILES.val ? new GsonBuilder().setPrettyPrinting() : new GsonBuilder();
 			gsonBuilder.create().toJson(json, writer);
 			writer.close();
@@ -58,14 +63,10 @@ public class SceneData
 		}
 	}
 
-	public boolean load(CommandOutput out, String name)
+	public boolean load(CommandOutput out, @Nullable SceneFile file)
 	{
-		return load(out, Files.getSceneFile(out, name));
-	}
-
-	public boolean load(CommandOutput out, File file)
-	{
-		byte[] data = Files.loadFile(file);
+		if (file == null) { return false; }
+		byte[] data = Files.loadFile(file.getFile());
 		return data != null && load(out, data);
 	}
 
@@ -93,7 +94,7 @@ public class SceneData
 			{
 				JsonObject subsceneObject = subsceneElement.getAsJsonObject();
 				if (subsceneObject == null) { throw new Exception("Scene subscene isn't a JSON object!"); }
-				subscenes.add(new Subscene(subsceneObject));
+				elements.add(new Element(subsceneObject));
 			}
 			return true;
 		}
@@ -116,11 +117,11 @@ public class SceneData
 
 	public @Nullable List<String> saveToSceneElementCache(String sceneName)
 	{
-		List<String> elements = new ArrayList<>(subscenes.size());
+		List<String> elements = new ArrayList<>(this.elements.size());
 		int id = 1;
-		for (SceneData.Subscene subscene : subscenes)
+		for (MocapSceneElement element : this.elements)
 		{
-			elements.add(String.format("%03d-%s", id, subscene.name));
+			elements.add(String.format("%03d-%s", id, element.getName()));
 			id++;
 		}
 
@@ -128,44 +129,45 @@ public class SceneData
 		return elements;
 	}
 
-	public static @Nullable SceneData.Subscene loadSubscene(CommandOutput out, @Nullable SceneData sceneData,
-															Pair<Integer, @Nullable String> pair)
+	public static @Nullable MocapSceneElement loadSubscene(CommandOutput out, @Nullable SceneData sceneData,
+														   Pair<Integer, @Nullable String> pair)
 	{
 		return loadSubscene(out, sceneData, pair.getFirst(), pair.getSecond());
 	}
 
-	public static @Nullable SceneData.Subscene loadSubscene(CommandOutput out, @Nullable SceneData sceneData,
-															int pos, @Nullable String expectedName)
+	public static @Nullable MocapSceneElement loadSubscene(CommandOutput out, @Nullable SceneData sceneData,
+														   int pos, @Nullable String expectedName)
 	{
 		if (sceneData == null) { return null; }
 
-		if (sceneData.subscenes.size() < pos || pos < 1)
+		if (sceneData.elements.size() < pos || pos < 1)
 		{
 			out.sendFailureWithTip("scenes.failure.wrong_element_pos");
 			return null;
 		}
 
-		SceneData.Subscene subscene = sceneData.subscenes.get(pos - 1);
-		if (expectedName != null && !expectedName.equals(subscene.name))
+		MocapSceneElement element = sceneData.elements.get(pos - 1);
+		if (expectedName != null && !expectedName.equals(element.getName()))
 		{
 			out.sendFailure("scenes.failure.wrong_subscene_name");
 			return null;
 		}
-		return subscene;
+		return element;
 	}
 
-	public static class Subscene
+	//TODO: make it immutable
+	public static class Element implements MocapSceneElement
 	{
 		public String name;
 		public PlaybackModifiers modifiers;
 
-		public Subscene(String name, PlaybackModifiers modifiers)
+		public Element(String name, PlaybackModifiers modifiers)
 		{
 			this.name = name;
 			this.modifiers = modifiers;
 		}
 
-		public Subscene(JsonObject json) throws Exception
+		public Element(JsonObject json) throws Exception
 		{
 			JsonElement nameElement = json.get("name");
 			if (nameElement == null) { throw new Exception("JSON \"name\" element not found!"); }
@@ -174,7 +176,22 @@ public class SceneData
 			modifiers = new PlaybackModifiers(new SceneFiles.Reader(json));
 		}
 
-		public JsonObject toJson()
+		@Override public String getName()
+		{
+			return name;
+		}
+
+		@Override public MocapModifiers getModifiers()
+		{
+			return MocapModifiersImpl.ofCopy(modifiers);
+		}
+
+		@Override public @Nullable MocapPlayable getPlayable(CommandInfo info)
+		{
+			return MocapPlayable.get(info, name);
+		}
+
+		@Override public JsonObject toJson()
 		{
 			JsonObject json = new JsonObject();
 			json.add("name", new JsonPrimitive(name));
@@ -182,11 +199,18 @@ public class SceneData
 			return json;
 		}
 
-		public Subscene copy()
+		//TODO: remove
+		@Override public PlaybackModifiers getPlaybackModifiers()
 		{
+			return modifiers;
+		}
+
+		public Element copy()
+		{
+			//TODO: do it in a normal way after modifiers are immutable
 			try
 			{
-				return new Subscene(toJson());
+				return new Element(toJson());
 			}
 			catch (Exception e) { throw new RuntimeException("Something went wrong when copying subscene!"); }
 		}

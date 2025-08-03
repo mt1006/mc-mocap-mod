@@ -11,7 +11,7 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.vehicle.AbstractMinecart;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.entity.vehicle.Minecart;
-import net.mt1006.mocap.command.io.CommandOutput;
+import net.mt1006.mocap.api.v1.io.CommandOutput;
 import net.mt1006.mocap.mocap.files.Files;
 import org.jetbrains.annotations.Nullable;
 

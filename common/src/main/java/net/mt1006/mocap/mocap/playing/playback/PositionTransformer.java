@@ -17,15 +17,9 @@ public class PositionTransformer implements MocapPositionTransformer
 
 	public PositionTransformer(Transformations transformations, @Nullable PositionTransformer parent, @Nullable Vec3 center)
 	{
-		this.parent = getProperParent(parent, transformations);
 		this.transformations = transformations;
+		this.parent = parent;
 		this.center = center;
-	}
-
-	private static @Nullable PositionTransformer getProperParent(@Nullable PositionTransformer parent, Transformations transformations)
-	{
-		if (parent != null && transformations.parent != parent.transformations) { throw new RuntimeException(); }
-		return (parent == null && transformations.parent != null) ? new PositionTransformer(transformations.parent, null, null) : parent;
 	}
 
 	@Override public Vec3 transformPos(Vec3 point)

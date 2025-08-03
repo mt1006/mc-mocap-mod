@@ -15,6 +15,8 @@ public interface MocapPlaybackConfig
 		return new PlaybackConfig(false);
 	}
 
+	MocapPlaybackConfig copy();
+
 	boolean getCanPushEntities();
 
 	void setCanPushEntities(@Nullable Boolean val);

@@ -6,16 +6,17 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.mt1006.mocap.MocapMod;
+import net.mt1006.mocap.api.v1.io.CommandInfo;
 import net.mt1006.mocap.utils.Utils;
 import org.jetbrains.annotations.Nullable;
 
-public class BasicCommandInfo implements CommandInfo
+public class APICommandInfo implements CommandInfo
 {
 	private final MinecraftServer server;
 	private final ServerLevel level;
 	private final String sourceName;
 
-	public BasicCommandInfo(ServerLevel level, String sourceName)
+	public APICommandInfo(ServerLevel level, String sourceName)
 	{
 		this.server = level.getServer();
 		this.level = level;
@@ -28,13 +29,13 @@ public class BasicCommandInfo implements CommandInfo
 
 	@Override public boolean sendFailure(String component, Object... args)
 	{
-		MocapMod.LOGGER.error(Utils.stringFromComponent(component, args));
+		// unlike with LogsCommandOutput failures can be caused by using API, so it's warning, not error
+		MocapMod.LOGGER.warn(Utils.stringFromComponent(component, args));
 		return false;
 	}
 
 	@Override public boolean sendFailureWithTip(String component, Object... args)
 	{
-		// unlike with LogsCommandOutput failures can be caused by using API, so it's warning, not error
 		MocapMod.LOGGER.warn(Utils.stringFromComponent(component, args));
 		return false;
 	}

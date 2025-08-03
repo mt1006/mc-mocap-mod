@@ -11,7 +11,7 @@ import net.minecraft.world.level.block.CandleBlock;
 import net.minecraft.world.level.block.CandleCakeBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.mt1006.mocap.events.BlockInteractionEvent;
-import net.mt1006.mocap.mocap.recording.Recording;
+import net.mt1006.mocap.mocap.recording.RecordingManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -23,10 +23,10 @@ public class FlintAndSteelItemMixin
 	@Inject(method = "useOn", at = @At(value = "HEAD"))
 	private void atPlaceBlock(UseOnContext useOnContext, CallbackInfoReturnable<InteractionResult> cir)
 	{
-		if (Recording.isActive() && !useOnContext.getLevel().isClientSide)
+		if (RecordingManager.isActive() && !useOnContext.getLevel().isClientSide)
 		{
 			Player player = useOnContext.getPlayer();
-			if (!Recording.isRecordedPlayer(player)) { return; }
+			if (!RecordingManager.isRecordedPlayer(player)) { return; }
 
 			Level level = useOnContext.getLevel();
 			BlockPos blockPos = useOnContext.getClickedPos();

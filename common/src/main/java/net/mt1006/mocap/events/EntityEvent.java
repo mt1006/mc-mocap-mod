@@ -6,16 +6,16 @@ import net.minecraft.world.entity.LivingEntity;
 import net.mt1006.mocap.mocap.actions.EntityUpdate;
 import net.mt1006.mocap.mocap.actions.Hurt;
 import net.mt1006.mocap.mocap.playing.PlaybackManager;
-import net.mt1006.mocap.mocap.recording.Recording;
+import net.mt1006.mocap.mocap.recording.RecordingManager;
 
 public class EntityEvent
 {
 	public static void onEntityHurt(LivingEntity entity)
 	{
-		if (Recording.isActive() && entity.level() instanceof ServerLevel)
+		if (RecordingManager.isActive() && entity.level() instanceof ServerLevel)
 		{
-			Recording.byRecordedPlayer(entity).forEach((ctx) -> ctx.addAction(Hurt.INSTANCE));
-			Recording.listTrackedEntities(entity).forEach((e) -> e.getParent().addAction(EntityUpdate.hurt(e.getId())));
+			RecordingManager.byRecordedPlayer(entity).forEach((ctx) -> ctx.addAction(Hurt.INSTANCE));
+			RecordingManager.listTrackedEntities(entity).forEach((e) -> e.getParent().addAction(EntityUpdate.hurt(e.getId())));
 		}
 	}
 
@@ -26,10 +26,10 @@ public class EntityEvent
 
 	public static void onPlayerRespawn(ServerPlayer oldPlayer, ServerPlayer newPlayer)
 	{
-		if (!Recording.isActive() && !Recording.waitingForRespawn.isEmpty()) { Recording.waitingForRespawn.clear(); }
-		if (Recording.waitingForRespawn.isEmpty()) { return; }
+		if (!RecordingManager.isActive() && !RecordingManager.waitingForRespawn.isEmpty()) { RecordingManager.waitingForRespawn.clear(); }
+		if (RecordingManager.waitingForRespawn.isEmpty()) { return; }
 
-		Recording.waitingForRespawn.byKey.get(oldPlayer).forEach((ctx) -> ctx.onRespawn(newPlayer));
-		Recording.waitingForRespawn.byKey.removeAll(oldPlayer);
+		RecordingManager.waitingForRespawn.byKey.get(oldPlayer).forEach((ctx) -> ctx.onRespawn(newPlayer));
+		RecordingManager.waitingForRespawn.byKey.removeAll(oldPlayer);
 	}
 }

@@ -8,16 +8,17 @@ import com.mojang.datafixers.util.Pair;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.mt1006.mocap.api.v1.io.CommandOutput;
 import net.mt1006.mocap.command.CommandSuggestions;
 import net.mt1006.mocap.command.CommandUtils;
-import net.mt1006.mocap.command.io.CommandOutput;
 import net.mt1006.mocap.command.io.FullCommandInfo;
 import net.mt1006.mocap.mocap.files.RecordingFiles;
 import net.mt1006.mocap.mocap.files.SceneData;
 import net.mt1006.mocap.mocap.files.SceneFiles;
 import net.mt1006.mocap.mocap.playing.modifiers.PlaybackModifiers;
 import net.mt1006.mocap.mocap.playing.modifiers.StartDelay;
-import net.mt1006.mocap.mocap.recording.Recording;
+import net.mt1006.mocap.mocap.playing.playable.SceneFile;
+import net.mt1006.mocap.mocap.recording.RecordingManager;
 import net.mt1006.mocap.utils.Utils;
 
 import java.util.ArrayList;
@@ -32,9 +33,9 @@ public class ScenesCommand
 		LiteralArgumentBuilder<CommandSourceStack> commandBuilder = Commands.literal("scenes");
 
 		commandBuilder.then(Commands.literal("add").then(CommandUtils.withStringArgument(SceneFiles::add, "name")));
-		commandBuilder.then(Commands.literal("copy").then(CommandUtils.withInputAndStringArgument(SceneFiles::copy, CommandSuggestions::scene, "src_name", "dest_name")));
-		commandBuilder.then(Commands.literal("rename").then(CommandUtils.withInputAndStringArgument(SceneFiles::rename, CommandSuggestions::scene, "old_name", "new_name")));
-		commandBuilder.then(Commands.literal("remove").then(CommandUtils.withInputArgument(SceneFiles::remove, CommandSuggestions::scene, "name")));
+		commandBuilder.then(Commands.literal("copy").then(CommandUtils.withInputAndStringArgument(ScenesCommand::copy, CommandSuggestions::scene, "src_name", "dest_name")));
+		commandBuilder.then(Commands.literal("rename").then(CommandUtils.withInputAndStringArgument(ScenesCommand::rename, CommandSuggestions::scene, "old_name", "new_name")));
+		commandBuilder.then(Commands.literal("remove").then(CommandUtils.withInputArgument(ScenesCommand::remove, CommandSuggestions::scene, "name")));
 		commandBuilder.then(Commands.literal("add_to").
 			then(Commands.argument("scene_name", StringArgumentType.string()).suggests(CommandSuggestions::scene).
 			then(Commands.argument("to_add", StringArgumentType.string()).suggests(CommandSuggestions::playable).executes(CommandUtils.command(ScenesCommand::addToMinimal)).
@@ -54,6 +55,30 @@ public class ScenesCommand
 		return commandBuilder;
 	}
 
+	public static boolean copy(CommandOutput out, String srcName, String destName)
+	{
+		SceneFile srcFile = SceneFile.get(out, srcName);
+		SceneFile destFile = SceneFile.get(out, destName);
+		if (srcFile == null || destFile == null) { return false; }
+
+		return srcFile.copy(out, destFile) != null;
+	}
+
+	public static boolean rename(CommandOutput out, String srcName, String destName)
+	{
+		SceneFile srcFile = SceneFile.get(out, srcName);
+		SceneFile destFile = SceneFile.get(out, destName);
+		if (srcFile == null || destFile == null) { return false; }
+
+		return srcFile.rename(out, destFile) != null;
+	}
+
+	public static boolean remove(CommandOutput out, String name)
+	{
+		SceneFile file = SceneFile.get(out, name);
+		return file != null && file.remove(out);
+	}
+
 	private static boolean addToMinimal(FullCommandInfo info)
 	{
 		// separated from addTo because it supports name pattern (adding multiple elements with single command)
@@ -64,8 +89,8 @@ public class ScenesCommand
 
 			if (!toAdd.contains("*"))
 			{
-				SceneData.Subscene subscene = new SceneData.Subscene(toAdd, PlaybackModifiers.empty());
-				return SceneFiles.addElement(info, name, subscene);
+				SceneData.Element element = new SceneData.Element(toAdd, PlaybackModifiers.empty());
+				return SceneFiles.addElement(info, name, element);
 			}
 			else
 			{
@@ -85,7 +110,7 @@ public class ScenesCommand
 				else if (toAdd.startsWith("-"))
 				{
 					playableList = new ArrayList<>();
-					Recording.allContexts().forEach((ctx) -> playableList.add(ctx.id.str));
+					RecordingManager.allContexts().forEach((ctx) -> playableList.add(ctx.id.str));
 				}
 				else
 				{
@@ -98,8 +123,8 @@ public class ScenesCommand
 				{
 					if (str.startsWith(parts[0]) && str.endsWith(parts[1]))
 					{
-						SceneData.Subscene subscene = new SceneData.Subscene(str, PlaybackModifiers.empty());
-						successes += SceneFiles.addElement(CommandOutput.LOGS, name, subscene) ? 1 : 0;
+						SceneData.Element element = new SceneData.Element(str, PlaybackModifiers.empty());
+						successes += SceneFiles.addElement(CommandOutput.LOGS, name, element) ? 1 : 0;
 						matched++;
 					}
 				}
@@ -137,8 +162,8 @@ public class ScenesCommand
 			if (modifiers == null) { return false; }
 			modifiers.startDelay = StartDelay.fromSeconds(delay);
 
-			SceneData.Subscene subscene = new SceneData.Subscene(toAdd, modifiers);
-			return SceneFiles.addElement(info, name, subscene);
+			SceneData.Element element = new SceneData.Element(toAdd, modifiers);
+			return SceneFiles.addElement(info, name, element);
 		}
 		catch (IllegalArgumentException e) { return info.sendException(e, "error.unable_to_get_argument"); }
 	}

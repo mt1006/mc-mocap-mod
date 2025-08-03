@@ -2,7 +2,7 @@ package net.mt1006.mocap.mocap.files;
 
 import net.minecraft.world.level.storage.LevelResource;
 import net.mt1006.mocap.MocapMod;
-import net.mt1006.mocap.command.io.CommandOutput;
+import net.mt1006.mocap.api.v1.io.CommandOutput;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -17,9 +17,8 @@ public class Files
 	private static final String SLIM_SKIN_DIR_NAME = "slim";
 
 	private static final String CONFIG_FILE_NAME = "settings.txt";
-	private static final String SCENE_ELEMENT_CACHE = "scene_element_cache";
-	private static final String RECORDING_EXTENSION = ".mcmocap_rec";
-	private static final String SCENE_EXTENSION = ".mcmocap_scene";
+	public static final String RECORDING_EXTENSION = ".mcmocap_rec";
+	public static final String SCENE_EXTENSION = ".mcmocap_scene";
 	private static final String SKIN_EXTENSION = ".png";
 	public static final String SLIM_SKIN_PREFIX = "slim/";
 
@@ -117,22 +116,6 @@ public class Files
 	public static @Nullable File getSettingsFile()
 	{
 		return initialized ? new File(mocapDirectory, CONFIG_FILE_NAME) : null;
-	}
-
-	public static @Nullable File getSceneElementCache()
-	{
-		return initialized ? new File(mocapDirectory, SCENE_ELEMENT_CACHE) : null;
-	}
-
-	public static @Nullable File getRecordingFile(CommandOutput out, String name)
-	{
-		return check(out, name) ? new File(recordingsDirectory, name + RECORDING_EXTENSION) : null;
-	}
-
-	public static @Nullable File getSceneFile(CommandOutput out, String name)
-	{
-		if (name.charAt(0) == '.') { name = name.substring(1); }
-		return check(out, name) ? new File(sceneDirectory, name + SCENE_EXTENSION) : null;
 	}
 
 	public static @Nullable File getSkinFile(String name)

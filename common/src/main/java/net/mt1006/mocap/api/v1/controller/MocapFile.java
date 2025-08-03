@@ -1,5 +1,6 @@
 package net.mt1006.mocap.api.v1.controller;
 
+import net.mt1006.mocap.api.v1.io.CommandOutput;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -8,11 +9,11 @@ public interface MocapFile<T extends MocapFile<T>>
 {
 	boolean exists();
 
-	boolean remove();
+	@Nullable T copy(CommandOutput out, T destFile);
 
-	boolean rename(String name);
+	@Nullable T rename(CommandOutput out, T destFile);
 
-	@Nullable T copy(String name);
+	boolean remove(CommandOutput out);
 
-	@Nullable File getFile();
+	File getFile();
 }

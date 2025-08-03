@@ -15,6 +15,8 @@ public interface MocapRecordingConfig
 		return new RecordingConfig(false);
 	}
 
+	MocapRecordingConfig copy();
+
 	boolean getPreventTrackingPlayedEntities();
 
 	void setPreventTrackingPlayedEntities(@Nullable Boolean val);

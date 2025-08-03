@@ -3,6 +3,7 @@ package net.mt1006.mocap.mocap.playing.playback;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.PropertyMap;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.world.entity.Entity;
@@ -15,11 +16,10 @@ import net.mt1006.mocap.MocapMod;
 import net.mt1006.mocap.api.impl.modifiers.MocapModifiersImpl;
 import net.mt1006.mocap.api.v1.controller.config.MocapPlaybackConfig;
 import net.mt1006.mocap.api.v1.extension.actions.MocapAction;
-import net.mt1006.mocap.command.io.CommandInfo;
+import net.mt1006.mocap.api.v1.io.CommandInfo;
+import net.mt1006.mocap.api.v1.modifiers.MocapPlayerSkin;
 import net.mt1006.mocap.events.PlayerConnectionEvent;
 import net.mt1006.mocap.mocap.files.RecordingData;
-import net.mt1006.mocap.mocap.files.SceneData;
-import net.mt1006.mocap.mocap.playing.DataManager;
 import net.mt1006.mocap.mocap.playing.modifiers.PlaybackModifiers;
 import net.mt1006.mocap.mocap.settings.Settings;
 import net.mt1006.mocap.network.MocapPacketS2C;
@@ -35,34 +35,32 @@ public class RecordingPlayback extends Playback
 	private int pos = 0;
 	private int dyingTicks = 0;
 
-	private RecordingPlayback(CommandInfo info, @Nullable RecordingData recording, MocapPlaybackConfig config, PlaybackModifiers parentModifiers,
-							  @Nullable SceneData.Subscene subscene, @Nullable PositionTransformer parentTransformer) throws StartException
+	private RecordingPlayback(boolean isRoot, ServerLevel level, @Nullable ServerPlayer owner, MocapPlaybackConfig config,
+							  PlaybackModifiers modifiers, RecordingData recording, ActionContext ctx)
 	{
-		super(subscene == null, info.getLevel(), info.getSourcePlayer(), config, parentModifiers, subscene);
-
-		if (recording == null) { throw new StartException(); } //TODO: test if gives error message (especially as subscene)
+		super(isRoot, level, owner, config, modifiers);
 		this.recording = recording;
+		this.ctx = ctx;
+	}
 
-		GameProfile profile = getGameProfile(info);
-		if (profile == null)
+	public static @Nullable RecordingPlayback start(CommandInfo info, boolean isRoot, RecordingData recording, MocapPlaybackConfig config,
+													PlaybackModifiers modifiers, @Nullable PositionTransformer parentTransformer)
+	{
+
+
+		if (recording == null) { throw new RuntimeException("Provided recording data is null!"); }
+
+		GameProfile oldProfile = getGameProfile(info, modifiers.playerName, recording.playerName, config.getStartAsRecorded());
+		if (oldProfile == null)
 		{
 			info.sendFailure("playback.start.error");
 			info.sendFailure("playback.start.error.profile");
-			throw new StartException();
+			return null;
 		}
+		GameProfile newProfile = createNewProfile(info, oldProfile, modifiers.playerSkin);
 
-		GameProfile newProfile = new GameProfile(UUID.randomUUID(), profile.getName());
-		try
-		{
-			PropertyMap oldPropertyMap = (PropertyMap)Fields.gameProfileProperties.get(profile);
-			PropertyMap newPropertyMap = (PropertyMap)Fields.gameProfileProperties.get(newProfile);
-
-			newPropertyMap.putAll(oldPropertyMap);
-			modifiers.playerSkin.addSkinToPropertyMap(info, newPropertyMap);
-		}
-		catch (Exception ignore) {}
-
-		PlayerList packetTargets = level.getServer().getPlayerList();
+		ServerLevel level = info.getLevel();
+		PlayerList packetTargets = info.getServer().getPlayerList();
 		Entity entity;
 		FakePlayer ghost = null;
 
@@ -71,17 +69,18 @@ public class RecordingPlayback extends Playback
 
 		if (!modifiers.playerAsEntity.isEnabled())
 		{
-			FakePlayer fakePlayer = new FakePlayer(level, newProfile, this);
+			FakePlayer fakePlayer = new FakePlayer(level, newProfile, config.getInvulnerablePlayback());
 			entity = fakePlayer;
 
-			EntityData.PLAYER_SKIN_PARTS.set(fakePlayer, (byte)0b01111111);
 			fakePlayer.gameMode.changeGameModeForPlayer(Settings.USE_CREATIVE_GAME_MODE.val ? GameType.CREATIVE : GameType.SURVIVAL);
 			recording.initEntityPosition(fakePlayer, transformer);
-			recording.preExecute(new PreExecuteContext(recording, entity, level, config, MocapModifiersImpl.ofCopy(modifiers), transformer));
 			modifiers.transformations.scale.applyToPlayer(fakePlayer);
 
 			packetTargets.broadcastAll(new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER, fakePlayer));
 			level.addNewPlayer(fakePlayer);
+
+			recording.preExecute(new PreExecuteContext(recording, entity, level, config, MocapModifiersImpl.ofCopy(modifiers), transformer));
+			EntityData.PLAYER_SKIN_PARTS.set(fakePlayer, (byte)0b01111111);
 
 			if (!config.getCanPushEntities())
 			{
@@ -91,17 +90,14 @@ public class RecordingPlayback extends Playback
 					PlayerConnectionEvent.addNocolPlayer(fakePlayer.getUUID());
 				}
 			}
-
-			EntityData.PLAYER_SKIN_PARTS.set(fakePlayer, (byte)0b01111111);
 		}
 		else
 		{
 			entity = modifiers.playerAsEntity.createEntity(level);
-
 			if (entity == null)
 			{
 				info.sendFailure("playback.start.warning.unknown_entity", modifiers.playerAsEntity.getRawEntityId());
-				throw new StartException();
+				return null;
 			}
 
 			recording.initEntityPosition(entity, transformer);
@@ -116,17 +112,57 @@ public class RecordingPlayback extends Playback
 
 			if (Settings.ALLOW_GHOSTS.val)
 			{
-				ghost = new FakePlayer(level, newProfile, this);
+				ghost = new FakePlayer(level, newProfile, config.getInvulnerablePlayback());
 				ghost.gameMode.changeGameModeForPlayer(Settings.USE_CREATIVE_GAME_MODE.val ? GameType.CREATIVE : GameType.SURVIVAL);
 				recording.initEntityPosition(ghost, transformer);
 				level.addNewPlayer(ghost);
 			}
 		}
 
-		this.ctx = new ActionContext(recording, owner, packetTargets, entity, config, modifiers, ghost, transformer);
+		ActionContext ctx = new ActionContext(recording, info.getSourcePlayer(), packetTargets, entity, config, modifiers, ghost, transformer);
+		RecordingPlayback playback = new RecordingPlayback(isRoot, info.getLevel(), info.getSourcePlayer(), config, modifiers, recording, ctx);
+
+		if (entity instanceof FakePlayer) { ((FakePlayer)entity).playback = playback; }
+		else if (ghost != null) { ghost.playback = playback; }
+
+		return playback;
 	}
 
-	protected static @Nullable RecordingPlayback startRoot(CommandInfo info, @Nullable RecordingData recording,
+	private static @Nullable GameProfile getGameProfile(CommandInfo info, @Nullable String profileName,
+														@Nullable String recordedName, boolean startAsRecorded)
+	{
+		Entity entity = info.getSourceEntity();
+		Level level = info.getLevel();
+
+		if (profileName == null)
+		{
+			if (startAsRecorded && recordedName != null) { profileName = recordedName; }
+			else if (entity instanceof ServerPlayer) { profileName = ((ServerPlayer)entity).getGameProfile().getName(); }
+			else if (!level.players().isEmpty()) { profileName = level.players().get(0).getGameProfile().getName(); }
+			else { profileName = "Player"; }
+		}
+
+		return ProfileUtils.getGameProfile(info.getServer(), profileName);
+	}
+
+	private static GameProfile createNewProfile(CommandInfo info, GameProfile oldProfile, MocapPlayerSkin playerSkin)
+	{
+		// duplicates oldProfile but with random UUID and proper player skin
+		GameProfile newProfile = new GameProfile(UUID.randomUUID(), oldProfile.getName());
+		try
+		{
+			PropertyMap oldPropertyMap = (PropertyMap)Fields.gameProfileProperties.get(oldProfile);
+			PropertyMap newPropertyMap = (PropertyMap)Fields.gameProfileProperties.get(newProfile);
+
+			newPropertyMap.putAll(oldPropertyMap);
+			playerSkin.addSkinToPropertyMap(info, newPropertyMap);
+		}
+		catch (Exception ignore) {}
+
+		return newProfile;
+	}
+
+	/*protected static @Nullable RecordingPlayback startRoot(CommandInfo info, @Nullable RecordingData recording,
 														   MocapPlaybackConfig config, PlaybackModifiers modifiers)
 	{
 		try { return new RecordingPlayback(info, recording, config, modifiers, null, null); }
@@ -138,7 +174,7 @@ public class RecordingPlayback extends Playback
 	{
 		try { return new RecordingPlayback(info, dataManager.getRecording(subscene.name), config, parent.modifiers, subscene, parent.getPosTransformer()); }
 		catch (StartException e) { return null; }
-	}
+	}*/
 
 	@Override public boolean tick()
 	{
@@ -183,7 +219,7 @@ public class RecordingPlayback extends Playback
 			}
 		}
 
-		if (root && finished && dyingTicks == 0) { stop(); }
+		if (isRoot && finished && dyingTicks == 0) { stop(); }
 
 		tickCounter++;
 		return finished && dyingTicks == 0;
@@ -203,22 +239,5 @@ public class RecordingPlayback extends Playback
 	@Override protected PositionTransformer getPosTransformer()
 	{
 		return ctx.transformer;
-	}
-
-	private @Nullable GameProfile getGameProfile(CommandInfo info)
-	{
-		String profileName = modifiers.playerName;
-		Entity entity = info.getSourceEntity();
-		Level level = info.getLevel();
-
-		if (profileName == null)
-		{
-			if (config.getStartAsRecorded() && recording.playerName != null) { profileName = recording.playerName; }
-			else if (entity instanceof ServerPlayer) { profileName = ((ServerPlayer)entity).getGameProfile().getName(); }
-			else if (!level.players().isEmpty()) { profileName = level.players().get(0).getGameProfile().getName(); }
-			else { profileName = "Player"; }
-		}
-
-		return ProfileUtils.getGameProfile(info.getServer(), profileName);
 	}
 }

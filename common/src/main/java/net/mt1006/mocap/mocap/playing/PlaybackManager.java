@@ -3,18 +3,16 @@ package net.mt1006.mocap.mocap.playing;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import net.minecraft.server.level.ServerPlayer;
-import net.mt1006.mocap.api.v1.controller.config.MocapPlaybackConfig;
+import net.mt1006.mocap.api.v1.io.CommandInfo;
+import net.mt1006.mocap.api.v1.io.CommandOutput;
 import net.mt1006.mocap.command.CommandsContext;
-import net.mt1006.mocap.command.io.CommandInfo;
-import net.mt1006.mocap.command.io.CommandOutput;
 import net.mt1006.mocap.command.io.FullCommandInfo;
 import net.mt1006.mocap.mocap.files.SceneData;
 import net.mt1006.mocap.mocap.files.SceneFiles;
 import net.mt1006.mocap.mocap.playing.modifiers.PlaybackModifiers;
+import net.mt1006.mocap.mocap.playing.playable.Playable;
 import net.mt1006.mocap.mocap.playing.playback.Playback;
 import net.mt1006.mocap.mocap.playing.playback.PlaybackRoot;
-import net.mt1006.mocap.mocap.recording.Recording;
-import net.mt1006.mocap.mocap.recording.RecordingContext;
 import net.mt1006.mocap.mocap.settings.Settings;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,82 +30,16 @@ public class PlaybackManager
 	private static double previousPlaybackSpeed = 0.0;
 	private static int nextPlaybackId = 0;
 
-	public static boolean start(CommandInfo info, String name, MocapPlaybackConfig config,
-								PlaybackModifiers modifiers, boolean sendModifiersWarning)
+	public static PlaybackRoot addPlayback(Playable playable, Playback playback, boolean isHidden)
 	{
-		if (name.charAt(0) == '-') { return startCurrentlyRecorded(info, name, config, modifiers, sendModifiersWarning); }
-
-		PlaybackRoot playback = Playback.start(info, name, config, modifiers, getNextId(), false);
-		if (playback == null) { return false; }
-		addPlayback(playback);
-		sendStartMessage(info, sendModifiersWarning);
-		return true;
+		PlaybackRoot playbackRoot = new PlaybackRoot(playback, getNextId(), playable.getName(), playback.config, isHidden);
+		playbacksByOwner.put(playback.owner != null ? playback.owner.getName().getString() : "", playbackRoot);
+		return playbackRoot;
 	}
 
-	public static @Nullable PlaybackRoot startSingleSilently(CommandInfo info, String name, MocapPlaybackConfig config,
-															 PlaybackModifiers modifiers, boolean hidden)
+	private static int getNextId()
 	{
-		PlaybackRoot playback;
-		if (name.charAt(0) == '-')
-		{
-			Collection<RecordingContext> contexts = Recording.resolveContexts(info, name);
-			if (contexts == null || contexts.size() != 1) { return null; }
-
-			RecordingContext ctx = contexts.iterator().next();
-			playback = Playback.start(info, ctx.data, ctx.id.str, config, modifiers, getNextId(), hidden);
-		}
-		else
-		{
-			playback = Playback.start(info, name, config, modifiers, getNextId(), hidden);
-		}
-
-		if (playback == null) { return null; }
-		addPlayback(playback);
-		return playback;
-	}
-
-	private static boolean startCurrentlyRecorded(CommandInfo info, String name, MocapPlaybackConfig config,
-												  PlaybackModifiers modifiers, boolean sendModifiersWarning)
-	{
-		Collection<RecordingContext> contexts = Recording.resolveContexts(info, name);
-		if (contexts == null) { return false; }
-
-		int successes = 0;
-		for (RecordingContext ctx : contexts)
-		{
-			PlaybackModifiers modifiersToApply = modifiers;
-			if (config.getStartAsRecorded())
-			{
-				PlaybackModifiers playerNameModifier = PlaybackModifiers.empty();
-				playerNameModifier.playerName = ctx.recordedPlayer.getName().getString();
-				modifiersToApply = modifiers.mergeWithParent(playerNameModifier);
-			}
-
-			PlaybackRoot playback = Playback.start(info, ctx.data, ctx.id.str, config, modifiersToApply, getNextId(), false);
-			if (playback != null)
-			{
-				addPlayback(playback);
-				successes++;
-			}
-		}
-
-		if (successes == 0) { return false; }
-		sendStartMessage(info, sendModifiersWarning);
-		return true;
-	}
-
-	private static void sendStartMessage(CommandInfo info, boolean sendModifiersWarning)
-	{
-		String key = "playback.start.success";
-		if (sendModifiersWarning) { key += ".modifiers"; }
-
-		if (info.getSourcePlayer() != null)
-		{
-			CommandsContext commandsContext = CommandsContext.get(info.getSourcePlayer());
-			if (commandsContext.getSync()) { key += ".sync"; }
-		}
-
-		info.sendSuccess(key);
+		return nextPlaybackId++;
 	}
 
 	public static boolean stop(CommandOutput out, String id, @Nullable String expectedName)
@@ -215,8 +147,8 @@ public class PlaybackManager
 		ServerPlayer source = info.getSourcePlayer();
 		if (source == null) { return info.sendFailure("failure.resolve_player"); }
 
-		SceneData.Subscene subscene = new SceneData.Subscene(toAdd, CommandsContext.get(source).modifiers);
-		return SceneFiles.addElement(info, sceneName, subscene);
+		SceneData.Element element = new SceneData.Element(toAdd, CommandsContext.get(source).modifiers);
+		return SceneFiles.addElement(info, sceneName, element);
 	}
 
 	public static boolean list(CommandOutput out)
@@ -267,12 +199,6 @@ public class PlaybackManager
 		tickCounter++;
 	}
 
-	private static void addPlayback(PlaybackRoot playback)
-	{
-		ServerPlayer owner = playback.getOwner();
-		playbacksByOwner.put(owner != null ? owner.getName().getString() : "", playback);
-	}
-
 	private static void removePlaybacks(Collection<PlaybackRoot> toRemove)
 	{
 		for (PlaybackRoot playback : toRemove)
@@ -280,10 +206,5 @@ public class PlaybackManager
 			ServerPlayer owner = playback.getOwner();
 			playbacksByOwner.remove(owner != null ? owner.getName().getString() : "", playback);
 		}
-	}
-
-	private static int getNextId()
-	{
-		return nextPlaybackId++;
 	}
 }

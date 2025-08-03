@@ -2,17 +2,15 @@ package net.mt1006.mocap.api.impl.controller;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.mt1006.mocap.api.impl.controller.playable.MocapActiveRecordingImpl;
-import net.mt1006.mocap.api.impl.controller.playable.MocapPlayableImpl;
 import net.mt1006.mocap.api.v1.controller.MocapController;
-import net.mt1006.mocap.api.v1.controller.MocapPlayback;
+import net.mt1006.mocap.api.v1.controller.MocapPlaybackRoot;
 import net.mt1006.mocap.api.v1.controller.config.MocapRecordingConfig;
 import net.mt1006.mocap.api.v1.controller.playable.MocapActiveRecording;
-import net.mt1006.mocap.api.v1.controller.playable.MocapPlayable;
-import net.mt1006.mocap.command.io.BasicCommandInfo;
+import net.mt1006.mocap.api.v1.io.CommandInfo;
+import net.mt1006.mocap.command.io.APICommandInfo;
 import net.mt1006.mocap.mocap.playing.PlaybackManager;
-import net.mt1006.mocap.mocap.recording.Recording;
-import net.mt1006.mocap.mocap.recording.RecordingContext;
+import net.mt1006.mocap.mocap.playing.playable.ActiveRecording;
+import net.mt1006.mocap.mocap.recording.RecordingManager;
 import net.mt1006.mocap.mocap.recording.RecordingSource;
 import net.mt1006.mocap.mocap.settings.SettingFields;
 import net.mt1006.mocap.mocap.settings.Settings;
@@ -22,29 +20,28 @@ import java.util.List;
 
 public class MocapControllerImpl implements MocapController
 {
-	public final BasicCommandInfo commandInfo;
+	public final APICommandInfo commandInfo;
 	private final RecordingSource recordingSource;
 	public final boolean hideStuff;
 
 	public MocapControllerImpl(String name, ServerLevel level, boolean hideStuff)
 	{
-		this.commandInfo = new BasicCommandInfo(level, name);
+		this.commandInfo = new APICommandInfo(level, name);
 		this.recordingSource = RecordingSource.forAPI(name);
 		this.hideStuff = hideStuff;
 	}
 
-	@Override public @Nullable MocapPlayable findPlayable(String name)
+	@Override public CommandInfo getCommandInfo()
 	{
-		MocapPlayable playable = MocapPlayableImpl.fromName(this, name);
-		return playable.exists() ? playable : null;
+		return commandInfo;
 	}
 
-	@Override public @Nullable MocapPlayback findPlayback(String id)
+	@Override public @Nullable MocapPlaybackRoot findPlayback(String id)
 	{
 		return PlaybackManager.findPlayback(commandInfo, id, null);
 	}
 
-	@Override public List<? extends MocapPlayback> getActivePlaybacks()
+	@Override public List<? extends MocapPlaybackRoot> getActivePlaybacks()
 	{
 		return List.copyOf(PlaybackManager.playbacks);
 	}
@@ -56,8 +53,7 @@ public class MocapControllerImpl implements MocapController
 
 	@Override public @Nullable MocapActiveRecording startRecording(ServerPlayer player, MocapRecordingConfig config, boolean startInstantly)
 	{
-		RecordingContext ctx = Recording.start(player, recordingSource, config, null, startInstantly, false);
-		return new MocapActiveRecordingImpl(this, ctx);
+		return ActiveRecording.get(RecordingManager.start(player, recordingSource, config, null, startInstantly, false));
 	}
 
 	@Override public @Nullable String getSetting(String name)

@@ -1,15 +1,24 @@
 package net.mt1006.mocap.api.v1.controller.playable;
 
+import com.google.gson.JsonObject;
+import net.mt1006.mocap.api.v1.io.CommandInfo;
 import net.mt1006.mocap.api.v1.modifiers.MocapModifiers;
-import net.mt1006.mocap.mocap.files.SceneData;
+import net.mt1006.mocap.mocap.playing.modifiers.PlaybackModifiers;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
 
 public interface MocapSceneElement
 {
-	MocapPlayable getPlayable();
+	String getName();
 
 	MocapModifiers getModifiers();
 
+	@Nullable MocapPlayable getPlayable(CommandInfo info);
+
 	@ApiStatus.Internal
-	SceneData.Subscene toSubscene();
+	JsonObject toJson();
+
+	//TODO: remove
+	@ApiStatus.Internal
+	PlaybackModifiers getPlaybackModifiers();
 }

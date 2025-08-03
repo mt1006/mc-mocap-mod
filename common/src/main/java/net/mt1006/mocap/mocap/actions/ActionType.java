@@ -1,7 +1,6 @@
 package net.mt1006.mocap.mocap.actions;
 
 import com.mojang.datafixers.util.Pair;
-import net.mt1006.mocap.api.impl.extenstion.MocapExtensionImpl;
 import net.mt1006.mocap.api.v1.extension.MocapExtension;
 import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
 import net.mt1006.mocap.api.v1.extension.actions.MocapAction;

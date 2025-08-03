@@ -6,12 +6,12 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.world.phys.Vec3;
 import net.mt1006.mocap.MocapMod;
-import net.mt1006.mocap.api.v1.controller.playable.MocapSavedRecording;
+import net.mt1006.mocap.api.v1.controller.playable.MocapRecordingFile;
 import net.mt1006.mocap.api.v1.extension.actions.MocapAction;
+import net.mt1006.mocap.api.v1.io.CommandOutput;
 import net.mt1006.mocap.command.CommandSuggestions;
-import net.mt1006.mocap.command.io.CommandOutput;
+import net.mt1006.mocap.mocap.playing.playable.RecordingFile;
 import net.mt1006.mocap.utils.Utils;
-import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedOutputStream;
@@ -52,78 +52,30 @@ public class RecordingFiles
 		return true;
 	}
 
-	public static boolean copy(CommandOutput out, String srcName, String destName)
+	public static boolean info(CommandOutput out, @Nullable RecordingFile file)
 	{
-		File srcFile = Files.getRecordingFile(out, srcName);
-		if (srcFile == null) { return false; }
-
-		File destFile = Files.getRecordingFile(out, destName);
-		if (destFile == null) { return false; }
-
-		try { FileUtils.copyFile(srcFile, destFile); }
-		catch (IOException e)
-		{
-			out.sendException(e, "recordings.copy.failed");
-			return false;
-		}
-
-		CommandSuggestions.inputSet.add(destName);
-		return out.sendSuccess("recordings.copy.success");
-	}
-
-	public static boolean rename(CommandOutput out, String oldName, String newName)
-	{
-		File oldFile = Files.getRecordingFile(out, oldName);
-		if (oldFile == null) { return false; }
-
-		File newFile = Files.getRecordingFile(out, newName);
-		if (newFile == null) { return false; }
-
-		if (!oldFile.renameTo(newFile))
-		{
-			out.sendFailure("recordings.rename.failed");
-			return false;
-		}
-
-		CommandSuggestions.inputSet.remove(oldName);
-		CommandSuggestions.inputSet.add(newName);
-		return out.sendSuccess("recordings.rename.success");
-	}
-
-	public static boolean remove(CommandOutput out, String name)
-	{
-		File recordingFile = Files.getRecordingFile(out, name);
-		if (recordingFile == null) { return false; }
-		if (!recordingFile.delete()) { return out.sendFailure("recordings.remove.failed"); }
-
-		CommandSuggestions.inputSet.remove(name);
-		return out.sendSuccess("recordings.remove.success");
-	}
-
-	public static boolean info(CommandOutput out, String name)
-	{
-		Info info = Info.load(out, name);
-		if (info == null) { return false; }
+		MocapRecordingFile.Info info = RecordingFile.Info.load(out, file);
+		if (file == null || info == null) { return false; }
 
 		out.sendSuccess("recordings.info.info");
-		out.sendSuccess("file.info.name", name);
-		if (!Files.printVersionInfo(out, VERSION, info.version, info.experimental)) { return true; }
+		out.sendSuccess("file.info.name", file.getName());
+		if (!Files.printVersionInfo(out, VERSION, info.version(), info.experimental())) { return true; }
 
-		out.sendSuccess("recordings.info.length", String.format("%.2f", info.lengthInTicks / 20.0), info.lengthInTicks);
-		out.sendSuccess("recordings.info.size", String.format("%.2f", info.sizeInBytes / 1024.0), info.sizeInOps);
+		out.sendSuccess("recordings.info.length", String.format("%.2f", info.lengthInTicks() / 20.0), info.lengthInTicks());
+		out.sendSuccess("recordings.info.size", String.format("%.2f", info.sizeInBytes() / 1024.0), info.sizeInOps());
 
-		String xStr = String.format(Locale.US, "%.2f", info.startPos.x);
-		String yStr = String.format(Locale.US, "%.2f", info.startPos.y);
-		String zStr = String.format(Locale.US, "%.2f", info.startPos.z);
+		String xStr = String.format(Locale.US, "%.2f", info.startPos().x);
+		String yStr = String.format(Locale.US, "%.2f", info.startPos().y);
+		String zStr = String.format(Locale.US, "%.2f", info.startPos().z);
 		MutableComponent tpSuggestionComponent = Utils.getSuggestCommandComponent(
 				String.format("/tp @p %s %s %s", xStr, yStr, zStr), Component.literal(String.format("%s %s %s", xStr, yStr, zStr)));
 		tpSuggestionComponent.withStyle(Style.EMPTY.withUnderlined(true));
 		out.sendSuccess("recordings.info.start_pos", tpSuggestionComponent);
 
-		if (info.assignedPlayerName != null) { out.sendSuccess("recordings.info.player_name_assigned.yes", info.assignedPlayerName); }
+		if (info.assignedPlayerName() != null) { out.sendSuccess("recordings.info.player_name_assigned.yes", info.assignedPlayerName()); }
 		else { out.sendSuccess("recordings.info.player_name_assigned.no"); }
 
-		out.sendSuccess(info.legacyEndsWithDeath ? "recordings.info.dies.yes" : "recordings.info.dies.no");
+		out.sendSuccess(info.legacyEndsWithDeath() ? "recordings.info.dies.yes" : "recordings.info.dies.no");
 		return true;
 	}
 
@@ -167,37 +119,6 @@ public class RecordingFiles
 			if (!CommandSuggestions.inputSet.contains(possibleName)) { return possibleName; }
 		}
 		return null;
-	}
-
-	public record Info(
-			int version,
-			boolean experimental,
-			long lengthInTicks,
-			long sizeInBytes,
-			long sizeInOps,
-			Vec3 startPos,
-			@Nullable String assignedPlayerName,
-			boolean legacyEndsWithDeath) implements MocapSavedRecording.Info
-	{
-		public static @Nullable RecordingFiles.Info load(CommandOutput out, String name)
-		{
-			RecordingData recording = new RecordingData();
-			if (!recording.load(out, name) && recording.version <= VERSION)
-			{
-				out.sendFailure("recordings.info.failed");
-				return null;
-			}
-
-			return new Info(
-					recording.version,
-					recording.experimentalVersion,
-					recording.tickCount,
-					recording.fileSize,
-					recording.actions.size(),
-					recording.startPos,
-					recording.playerName,
-					recording.endsWithDeath);
-		}
 	}
 
 	public static class Writer implements MocapAction.Writer

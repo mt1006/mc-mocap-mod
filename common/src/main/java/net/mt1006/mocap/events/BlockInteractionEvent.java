@@ -9,40 +9,40 @@ import net.mt1006.mocap.mocap.actions.BreakBlock;
 import net.mt1006.mocap.mocap.actions.PlaceBlock;
 import net.mt1006.mocap.mocap.actions.PlaceBlockSilently;
 import net.mt1006.mocap.mocap.actions.RightClickBlock;
-import net.mt1006.mocap.mocap.recording.Recording;
+import net.mt1006.mocap.mocap.recording.RecordingManager;
 
 public class BlockInteractionEvent
 {
 	public static void onBlockBreak(Player player, BlockPos pos, BlockState blockState)
 	{
-		if (Recording.isActive())
+		if (RecordingManager.isActive())
 		{
-			Recording.byRecordedPlayer(player).forEach((ctx) -> ctx.addAction(new BreakBlock(blockState, pos)));
+			RecordingManager.byRecordedPlayer(player).forEach((ctx) -> ctx.addAction(new BreakBlock(blockState, pos)));
 		}
 	}
 
 	public static void onBlockPlace(Player player, BlockState replacedBlock, BlockState placedBlock, BlockPos blockPos)
 	{
-		if (Recording.isActive())
+		if (RecordingManager.isActive())
 		{
-			Recording.byRecordedPlayer(player).forEach((ctx) -> ctx.addAction(new PlaceBlock(replacedBlock, placedBlock, blockPos)));
+			RecordingManager.byRecordedPlayer(player).forEach((ctx) -> ctx.addAction(new PlaceBlock(replacedBlock, placedBlock, blockPos)));
 		}
 	}
 
 	public static void onSilentBlockPlace(Player player, BlockState replacedBlock, BlockState placedBlock, BlockPos blockPos)
 	{
-		if (Recording.isActive())
+		if (RecordingManager.isActive())
 		{
-			Recording.byRecordedPlayer(player).forEach((ctx) -> ctx.addAction(new PlaceBlockSilently(replacedBlock, placedBlock, blockPos)));
+			RecordingManager.byRecordedPlayer(player).forEach((ctx) -> ctx.addAction(new PlaceBlockSilently(replacedBlock, placedBlock, blockPos)));
 		}
 	}
 
 	public static void onRightClickBlock(Player player, InteractionHand hand, BlockHitResult hitResult, boolean doesSneakBypassUse)
 	{
-		if (Recording.isActive() && !usedOnShift(player, doesSneakBypassUse))
+		if (RecordingManager.isActive() && !usedOnShift(player, doesSneakBypassUse))
 		{
 			boolean isOffHand = (hand == InteractionHand.OFF_HAND);
-			Recording.byRecordedPlayer(player).forEach((ctx) -> ctx.addAction(new RightClickBlock(hitResult, isOffHand)));
+			RecordingManager.byRecordedPlayer(player).forEach((ctx) -> ctx.addAction(new RightClickBlock(hitResult, isOffHand)));
 		}
 	}
 

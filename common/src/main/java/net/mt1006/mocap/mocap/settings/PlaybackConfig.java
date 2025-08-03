@@ -29,6 +29,24 @@ public class PlaybackConfig implements MocapPlaybackConfig
 		invulnerablePlayback = setDefault ? Settings.INVULNERABLE_PLAYBACK.defVal : null;
 	}
 
+	private PlaybackConfig(PlaybackConfig toCopy)
+	{
+		canPushEntities = toCopy.canPushEntities;
+		entitiesAfterPlayback = toCopy.entitiesAfterPlayback;
+		blockActionsPlayback = toCopy.blockActionsPlayback;
+		blockInitialization = toCopy.blockInitialization;
+		blockAllowScaled = toCopy.blockAllowScaled;
+		dropFromBlocks = toCopy.dropFromBlocks;
+		startAsRecorded = toCopy.startAsRecorded;
+		chatPlayback = toCopy.chatPlayback;
+		invulnerablePlayback = toCopy.invulnerablePlayback;
+	}
+
+	@Override public MocapPlaybackConfig copy()
+	{
+		return new PlaybackConfig(this);
+	}
+
 	@Override public boolean getCanPushEntities()
 	{
 		return canPushEntities != null ? canPushEntities : Settings.CAN_PUSH_ENTITIES.val;

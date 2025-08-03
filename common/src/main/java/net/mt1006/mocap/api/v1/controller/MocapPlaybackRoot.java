@@ -4,7 +4,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.mt1006.mocap.api.v1.controller.config.MocapPlaybackConfig;
 import org.jetbrains.annotations.Nullable;
 
-public interface MocapPlayback
+public interface MocapPlaybackRoot
 {
 	String getId();
 

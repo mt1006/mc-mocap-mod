@@ -1,7 +1,7 @@
 package net.mt1006.mocap.mocap.files;
 
+import net.mt1006.mocap.api.v1.io.CommandOutput;
 import net.mt1006.mocap.api.v1.modifiers.MocapPlayerSkin;
-import net.mt1006.mocap.command.io.CommandOutput;
 import net.mt1006.mocap.mocap.playing.modifiers.*;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,7 +33,7 @@ public class LegacySceneDataParser
 
 			while (scanner.hasNextLine())
 			{
-				sceneData.subscenes.add(parseSubscene(new Scanner(scanner.nextLine())));
+				sceneData.elements.add(parseSubscene(new Scanner(scanner.nextLine())));
 			}
 			parsed = true;
 		}
@@ -50,23 +50,23 @@ public class LegacySceneDataParser
 		return parsed;
 	}
 
-	private static SceneData.Subscene parseSubscene(Scanner scanner)
+	private static SceneData.Element parseSubscene(Scanner scanner)
 	{
-		SceneData.Subscene subscene = new SceneData.Subscene(scanner.next(), PlaybackModifiers.empty());
+		SceneData.Element element = new SceneData.Element(scanner.next(), PlaybackModifiers.empty());
 		try
 		{
-			subscene.modifiers.startDelay = StartDelay.fromSeconds(Double.parseDouble(scanner.next()));
-			subscene.modifiers.transformations = Transformations.fromLegacyScene(
+			element.modifiers.startDelay = StartDelay.fromSeconds(Double.parseDouble(scanner.next()));
+			element.modifiers.transformations = Transformations.fromLegacyScene(
 					Double.parseDouble(scanner.next()), Double.parseDouble(scanner.next()), Double.parseDouble(scanner.next()));
-			subscene.modifiers.playerName = parsePlayerName(scanner);
-			subscene.modifiers.playerSkin = parsePlayerSkin(scanner);
+			element.modifiers.playerName = parsePlayerName(scanner);
+			element.modifiers.playerSkin = parsePlayerSkin(scanner);
 
 			String playerAsEntityStr = scanner.next();
 			if (playerAsEntityStr.equals(NULL_STR)) { playerAsEntityStr = null; }
-			subscene.modifiers.playerAsEntity = new PlayerAsEntity(playerAsEntityStr, null);
+			element.modifiers.playerAsEntity = new PlayerAsEntity(playerAsEntityStr, null);
 		}
 		catch (Exception ignore) {}
-		return subscene;
+		return element;
 	}
 
 	private static @Nullable String parsePlayerName(Scanner scanner)

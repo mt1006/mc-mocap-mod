@@ -7,13 +7,13 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.mt1006.mocap.MocapMod;
 import net.mt1006.mocap.api.v1.controller.config.MocapRecordingConfig;
+import net.mt1006.mocap.api.v1.io.CommandInfo;
+import net.mt1006.mocap.api.v1.io.CommandOutput;
 import net.mt1006.mocap.command.CommandSuggestions;
 import net.mt1006.mocap.command.CommandsContext;
-import net.mt1006.mocap.command.io.CommandInfo;
-import net.mt1006.mocap.command.io.CommandOutput;
-import net.mt1006.mocap.mocap.files.Files;
 import net.mt1006.mocap.mocap.files.RecordingFiles;
 import net.mt1006.mocap.mocap.playing.PlaybackManager;
+import net.mt1006.mocap.mocap.playing.playable.RecordingFile;
 import net.mt1006.mocap.mocap.settings.Settings;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.util.*;
 
-public class Recording
+public class RecordingManager
 {
 	//TODO: add second "recording stop" required after stopped by death
 	//TODO: temporary enum and variable, move it to config
@@ -144,47 +144,47 @@ public class Recording
 		if (resolvedContexts == null) { return false; }
 
 		boolean success = resolvedContexts.isSingle
-				? stopSingle(info, resolvedContexts.list.iterator().next())
+				? stopSingle(info, resolvedContexts.list.iterator().next(), info.getSourcePlayer())
 				: stopMultiple(info, resolvedContexts.list);
 
 		if (CommandsContext.haveSyncEnabled != 0) { refreshSyncOnStop(resolvedContexts); }
 		return success;
 	}
 
-	public static boolean stopSingle(CommandInfo info, RecordingContext ctx)
+	public static boolean stopSingle(CommandOutput out, RecordingContext ctx, @Nullable ServerPlayer sourcePlayer)
 	{
 		if (ctx.state == RecordingContext.State.WAITING_FOR_DECISION)
 		{
 			if (!quickDiscard.allowsSingle(ctx))
 			{
 				//TODO: proper message when blocked by death
-				return info.sendFailureWithTip("recording.stop.quick_discard.disabled");
+				return out.sendFailureWithTip("recording.stop.quick_discard.disabled");
 			}
-			return discardSingle(info, ctx);
+			return discardSingle(out, ctx);
 		}
 
-		ctx.stop(info);
+		ctx.stop(out);
 
 		switch (ctx.state)
 		{
 			case WAITING_FOR_DECISION:
-				info.sendSuccess("recording.stop.stopped");
+				out.sendSuccess("recording.stop.stopped");
 				if (Settings.SHOW_TIPS.val)
 				{
-					info.sendSuccess(quickDiscard.canBeUsed(ctx, info.getSourcePlayer())
+					out.sendSuccess(quickDiscard.canBeUsed(ctx, sourcePlayer)
 							? "recording.stop.stopped.stop_tip"
 							: "recording.stop.stopped.discard_tip");
 				}
 				return true;
 
 			case CANCELED:
-				return info.sendSuccess("recording.stop.canceled");
+				return out.sendSuccess("recording.stop.canceled");
 
 			case SAVED:
-				return info.sendSuccess("recording.stop.instant_save", ctx.instantSave != null ? ctx.instantSave : "[error]");
+				return out.sendSuccess("recording.stop.instant_save", ctx.instantSave != null ? ctx.instantSave : "[error]");
 
 			default:
-				return info.sendFailure("recording.undefined_state", ctx.state.name());
+				return out.sendFailure("recording.undefined_state", ctx.state.name());
 		}
 	}
 
@@ -357,7 +357,7 @@ public class Recording
 	{
 		if (ctx.state == RecordingContext.State.RECORDING) { return out.sendFailure("recording.save.not_stopped"); }
 
-		File recordingFile = Files.getRecordingFile(out, name);
+		RecordingFile recordingFile = RecordingFile.get(out, name);
 		if (recordingFile == null) { return false; }
 
 		if (recordingFile.exists())
@@ -372,7 +372,7 @@ public class Recording
 			return false;
 		}
 
-		ctx.save(recordingFile, name);
+		ctx.save(recordingFile.getFile(), name);
 
 		switch (ctx.state)
 		{
@@ -407,7 +407,7 @@ public class Recording
 		for (int i = 1; i <= stopped.size(); i++)
 		{
 			String filename = String.format("%s%d", namePrefix, i);
-			File recordingFile = Files.getRecordingFile(out, filename);
+			RecordingFile recordingFile = RecordingFile.get(out, filename);
 			if (recordingFile == null) { return false; }
 
 			if (recordingFile.exists())
@@ -417,7 +417,7 @@ public class Recording
 			}
 
 			filenames.add(filename);
-			files.add(recordingFile);
+			files.add(recordingFile.getFile());
 		}
 
 		boolean somethingFailed = false;

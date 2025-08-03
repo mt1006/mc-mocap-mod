@@ -7,7 +7,7 @@ import net.mt1006.mocap.api.v1.controller.config.MocapRecordingConfig;
 import net.mt1006.mocap.api.v1.extension.MocapActiveRecordingActions;
 import net.mt1006.mocap.api.v1.extension.actions.MocapAction;
 import net.mt1006.mocap.api.v1.extension.actions.MocapBlockAction;
-import net.mt1006.mocap.command.io.CommandOutput;
+import net.mt1006.mocap.api.v1.io.CommandOutput;
 import net.mt1006.mocap.mocap.actions.*;
 import net.mt1006.mocap.mocap.files.RecordingData;
 import net.mt1006.mocap.mocap.files.RecordingFiles;
@@ -70,10 +70,10 @@ public class RecordingContext implements MocapActiveRecordingActions
 
 		if (state == State.WAITING_FOR_DECISION && instantSave != null)
 		{
-			Recording.saveSingle(out, this, instantSave, false);
+			RecordingManager.saveSingle(out, this, instantSave, false);
 		}
 
-		if (state.removed) { Recording.removeContext(this); }
+		if (state.removed) { RecordingManager.removeContext(this); }
 	}
 
 	public void discard()
@@ -85,7 +85,7 @@ public class RecordingContext implements MocapActiveRecordingActions
 			default -> State.UNDEFINED;
 		};
 
-		if (state.removed) { Recording.removeContext(this); }
+		if (state.removed) { RecordingManager.removeContext(this); }
 	}
 
 	public void save(File recordingFile, String name)
@@ -100,7 +100,7 @@ public class RecordingContext implements MocapActiveRecordingActions
 			state = State.UNDEFINED;
 		}
 
-		if (state.removed) { Recording.removeContext(this); }
+		if (state.removed) { RecordingManager.removeContext(this); }
 	}
 
 	public void onTick()
@@ -154,7 +154,7 @@ public class RecordingContext implements MocapActiveRecordingActions
 			died = true;
 			diedOnTick = tick;
 
-			if (config.getOnDeath() != MocapOnDeath.END_RECORDING) { Recording.waitingForRespawn.put(recordedPlayer, this); }
+			if (config.getOnDeath() != MocapOnDeath.END_RECORDING) { RecordingManager.waitingForRespawn.put(recordedPlayer, this); }
 		}
 		else if (recordedPlayer.isRemoved())
 		{
@@ -187,7 +187,7 @@ public class RecordingContext implements MocapActiveRecordingActions
 	public void splitRecording(ServerPlayer newPlayer)
 	{
 		stopRecording("recording.stop.split");
-		boolean success = (Recording.start(newPlayer, source, config, null, true, false) != null);
+		boolean success = (RecordingManager.start(newPlayer, source, config, null, true, false) != null);
 		if (!success) { Utils.sendMessage(source.player, "recording.stop.split.error"); }
 	}
 

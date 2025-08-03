@@ -1,4 +1,4 @@
-package net.mt1006.mocap.command.io;
+package net.mt1006.mocap.api.v1.io;
 
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.MinecraftServer;

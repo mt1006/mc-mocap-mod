@@ -21,6 +21,20 @@ public class RecordingConfig implements MocapRecordingConfig
 		chatRecording = setDefault ? Settings.CHAT_RECORDING.defVal : null;
 	}
 
+	private RecordingConfig(RecordingConfig toCopy)
+	{
+		preventTrackingPlayedEntities = toCopy.preventTrackingPlayedEntities;
+		entityTrackingDistance = toCopy.entityTrackingDistance;
+		onDeath = toCopy.onDeath;
+		assignPlayerName = toCopy.assignPlayerName;
+		chatRecording = toCopy.chatRecording;
+	}
+
+	@Override public MocapRecordingConfig copy()
+	{
+		return new RecordingConfig(this);
+	}
+
 	@Override public boolean getPreventTrackingPlayedEntities()
 	{
 		return preventTrackingPlayedEntities != null ? preventTrackingPlayedEntities : Settings.PREVENT_TRACKING_PLAYED_ENTITIES.val;

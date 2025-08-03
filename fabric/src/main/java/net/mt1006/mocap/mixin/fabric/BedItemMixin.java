@@ -8,7 +8,7 @@ import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BedPart;
 import net.mt1006.mocap.events.BlockInteractionEvent;
-import net.mt1006.mocap.mocap.recording.Recording;
+import net.mt1006.mocap.mocap.recording.RecordingManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -20,7 +20,7 @@ public class BedItemMixin
 	@Inject(method = "placeBlock", at = @At(value = "HEAD"))
 	private void atPlaceBlock(BlockPlaceContext blockPlaceContext, BlockState blockState, CallbackInfoReturnable<Boolean> cir)
 	{
-		if (Recording.isActive() && !blockPlaceContext.getLevel().isClientSide)
+		if (RecordingManager.isActive() && !blockPlaceContext.getLevel().isClientSide)
 		{
 			BlockPos pos = blockPlaceContext.getClickedPos();
 
@@ -32,7 +32,7 @@ public class BedItemMixin
 	@Inject(method = "placeBlock", at = @At(value = "TAIL"))
 	private void atPlaceBlockEnd(BlockPlaceContext blockPlaceContext, BlockState blockState, CallbackInfoReturnable<Boolean> cir)
 	{
-		if (Recording.isActive() && !blockPlaceContext.getLevel().isClientSide)
+		if (RecordingManager.isActive() && !blockPlaceContext.getLevel().isClientSide)
 		{
 			if (!( blockState.getBlock() instanceof BedBlock) || blockState.getValue(BedBlock.PART) != BedPart.FOOT) { return; }
 

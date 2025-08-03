@@ -17,17 +17,17 @@ import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.Vec3;
 import net.mt1006.mocap.MocapMod;
 import net.mt1006.mocap.api.impl.extenstion.Extensions;
-import net.mt1006.mocap.api.impl.extenstion.MocapExtensionImpl;
 import net.mt1006.mocap.api.v1.controller.config.MocapPlaybackConfig;
 import net.mt1006.mocap.api.v1.extension.MocapExtension;
 import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
 import net.mt1006.mocap.api.v1.extension.actions.MocapAction;
 import net.mt1006.mocap.api.v1.extension.actions.MocapBlockAction;
-import net.mt1006.mocap.command.io.CommandOutput;
+import net.mt1006.mocap.api.v1.io.CommandOutput;
 import net.mt1006.mocap.mocap.actions.ActionType;
 import net.mt1006.mocap.mocap.actions.BlockStateData;
 import net.mt1006.mocap.mocap.actions.NextTick;
 import net.mt1006.mocap.mocap.actions.SkipTicks;
+import net.mt1006.mocap.mocap.playing.playable.RecordingFile;
 import net.mt1006.mocap.mocap.playing.playback.ActionContext;
 import net.mt1006.mocap.mocap.playing.playback.PositionTransformer;
 import net.mt1006.mocap.mocap.playing.playback.PreExecuteContext;
@@ -90,9 +90,10 @@ public class RecordingData implements MocapRecordingData
 		stream.write(writer.toByteArray());
 	}
 
-	public boolean load(CommandOutput out, String name)
+	public boolean load(CommandOutput out, @Nullable RecordingFile file)
 	{
-		byte[] data = Files.loadFile(Files.getRecordingFile(out, name));
+		if (file == null) { return false; }
+		byte[] data = Files.loadFile(file.getFile());
 		return data != null && load(out, new RecordingFiles.FileReader(data, true));
 	}
 

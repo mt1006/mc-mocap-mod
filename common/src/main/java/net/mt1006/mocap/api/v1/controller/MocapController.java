@@ -3,18 +3,18 @@ package net.mt1006.mocap.api.v1.controller;
 import net.minecraft.server.level.ServerPlayer;
 import net.mt1006.mocap.api.v1.controller.config.MocapRecordingConfig;
 import net.mt1006.mocap.api.v1.controller.playable.MocapActiveRecording;
-import net.mt1006.mocap.api.v1.controller.playable.MocapPlayable;
+import net.mt1006.mocap.api.v1.io.CommandInfo;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
 public interface MocapController
 {
-	@Nullable MocapPlayable findPlayable(String name);
+	CommandInfo getCommandInfo();
 
-	@Nullable MocapPlayback findPlayback(String id);
+	@Nullable MocapPlaybackRoot findPlayback(String id);
 
-	List<? extends MocapPlayback> getActivePlaybacks();
+	List<? extends MocapPlaybackRoot> getActivePlaybacks();
 
 	@Nullable MocapActiveRecording startRecording(ServerPlayer player);
 

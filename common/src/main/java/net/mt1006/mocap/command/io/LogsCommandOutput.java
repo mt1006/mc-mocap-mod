@@ -2,9 +2,10 @@ package net.mt1006.mocap.command.io;
 
 import net.minecraft.network.chat.Component;
 import net.mt1006.mocap.MocapMod;
+import net.mt1006.mocap.api.v1.io.CommandOutput;
 import net.mt1006.mocap.utils.Utils;
 
-class LogsCommandOutput implements CommandOutput
+public class LogsCommandOutput implements CommandOutput
 {
 	@Override public boolean sendSuccess(String component, Object... args) { return true; }
 	@Override public boolean sendSuccessLiteral(String format, Object... args) { return true; }

@@ -3,10 +3,11 @@ package net.mt1006.mocap.api.impl.modifiers;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import net.mt1006.mocap.api.v1.modifiers.MocapMirror;
+import net.mt1006.mocap.api.v1.modifiers.MocapOffset;
 import net.mt1006.mocap.api.v1.modifiers.MocapTransformations;
 import net.mt1006.mocap.api.v1.modifiers.MocapTransformationsConfig;
-import net.mt1006.mocap.api.v1.modifiers.MocapOffset;
-import net.mt1006.mocap.mocap.playing.modifiers.*;
+import net.mt1006.mocap.mocap.playing.modifiers.Rotation;
+import net.mt1006.mocap.mocap.playing.modifiers.Transformations;
 
 import java.util.function.Consumer;
 

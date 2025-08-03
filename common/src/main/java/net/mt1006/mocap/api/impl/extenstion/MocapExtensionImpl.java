@@ -7,7 +7,7 @@ import net.mt1006.mocap.api.v1.extension.MocapExtension;
 import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
 import net.mt1006.mocap.api.v1.extension.actions.MocapAction;
 import net.mt1006.mocap.mocap.actions.ActionType;
-import net.mt1006.mocap.mocap.recording.Recording;
+import net.mt1006.mocap.mocap.recording.RecordingManager;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
@@ -53,12 +53,12 @@ public class MocapExtensionImpl implements MocapExtension
 
 	@Override public Collection<? extends MocapActiveRecordingActions> findRecordedByPlayer(Player player)
 	{
-		return Recording.byRecordedPlayer(player);
+		return RecordingManager.byRecordedPlayer(player);
 	}
 
 	@Override public Collection<? extends MocapActiveRecordingActions.TrackedEntity> findTrackedEntities(Entity entity)
 	{
-		return Recording.listTrackedEntities(entity);
+		return RecordingManager.listTrackedEntities(entity);
 	}
 
 	@Override public MocapRecordingData.ExtensionHeader createHeader()

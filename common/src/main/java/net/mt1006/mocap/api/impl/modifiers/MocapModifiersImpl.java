@@ -1,7 +1,9 @@
 package net.mt1006.mocap.api.impl.modifiers;
 
 import net.mt1006.mocap.api.v1.modifiers.*;
-import net.mt1006.mocap.mocap.playing.modifiers.*;
+import net.mt1006.mocap.mocap.playing.modifiers.EntityFilter;
+import net.mt1006.mocap.mocap.playing.modifiers.PlaybackModifiers;
+import net.mt1006.mocap.mocap.playing.modifiers.StartDelay;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;

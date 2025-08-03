@@ -3,11 +3,10 @@ package net.mt1006.mocap.mocap.playing.modifiers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.mt1006.mocap.MocapMod;
+import net.mt1006.mocap.api.v1.io.CommandOutput;
 import net.mt1006.mocap.api.v1.modifiers.MocapMirror;
-import net.mt1006.mocap.api.v1.modifiers.MocapTransformationsConfig;
 import net.mt1006.mocap.api.v1.modifiers.MocapOffset;
-import net.mt1006.mocap.command.io.CommandOutput;
+import net.mt1006.mocap.api.v1.modifiers.MocapTransformationsConfig;
 import net.mt1006.mocap.command.io.FullCommandInfo;
 import net.mt1006.mocap.mocap.files.SceneFiles;
 import org.jetbrains.annotations.Nullable;
@@ -18,7 +17,6 @@ import java.util.List;
 
 public class Transformations
 {
-	public @Nullable Transformations parent;
 	public Rotation rotation;
 	public MocapMirror mirror;
 	public Scale scale;
@@ -26,10 +24,9 @@ public class Transformations
 	public MocapTransformationsConfig config;
 	private boolean ignorable;
 
-	private Transformations(@Nullable Transformations parent, Rotation rotation, MocapMirror mirror,
+	private Transformations(Rotation rotation, MocapMirror mirror,
 							Scale scale, MocapOffset offset, MocapTransformationsConfig config)
 	{
-		this.parent = (parent != null && !parent.areDefault()) ? parent : null;
 		this.rotation = rotation;
 		this.mirror = mirror;
 		this.scale = scale;
@@ -40,7 +37,6 @@ public class Transformations
 
 	private Transformations(SceneFiles.Reader reader)
 	{
-		parent = null;
 		rotation = Rotation.fromDouble(reader.readDouble("rotation", 0.0));
 		mirror = MocapMirror.fromString(reader.readString("mirror"));
 		scale = Scale.fromObject(reader.readObject("scale"));
@@ -56,12 +52,12 @@ public class Transformations
 
 	public static Transformations fromLegacyScene(double x, double y, double z)
 	{
-		return new Transformations(null, Rotation.ZERO, MocapMirror.NONE, Scale.NORMAL, new MocapOffset(x, y, z), TransformationsConfig.LEGACY);
+		return new Transformations(Rotation.ZERO, MocapMirror.NONE, Scale.NORMAL, new MocapOffset(x, y, z), TransformationsConfig.LEGACY);
 	}
 
 	public static Transformations empty()
 	{
-		return new Transformations(null, Rotation.ZERO, MocapMirror.NONE, Scale.NORMAL, MocapOffset.ZERO, TransformationsConfig.DEFAULT);
+		return new Transformations(Rotation.ZERO, MocapMirror.NONE, Scale.NORMAL, MocapOffset.ZERO, TransformationsConfig.DEFAULT);
 	}
 
 	public Vec3 calculateCenter(Vec3 startPos)
@@ -111,8 +107,6 @@ public class Transformations
 	{
 		Transformations copy = copy();
 
-		if (copy.parent != null) { MocapMod.LOGGER.warn("copy.parent != null"); }
-		copy.parent = parent.areDefault() ? null : parent;
 		copy.scale = copy.scale.mergeWithParent(parent.scale);
 		// "ignorable" value shouldn't change after merging
 
@@ -121,12 +115,12 @@ public class Transformations
 
 	public Transformations copy()
 	{
-		return new Transformations(parent, rotation, mirror, scale, offset, config);
+		return new Transformations(rotation, mirror, scale, offset, config);
 	}
 
 	public boolean areDefault()
 	{
-		return parent == null && rotation.deg == 0.0 && mirror == MocapMirror.NONE
+		return rotation.deg == 0.0 && mirror == MocapMirror.NONE
 				&& scale.isNormal() && offset.isZero && config.isDefault();
 	}
 

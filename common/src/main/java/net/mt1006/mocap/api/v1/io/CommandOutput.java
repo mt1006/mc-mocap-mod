@@ -1,6 +1,8 @@
-package net.mt1006.mocap.command.io;
+package net.mt1006.mocap.api.v1.io;
 
 import net.minecraft.network.chat.Component;
+import net.mt1006.mocap.command.io.DummyCommandOutput;
+import net.mt1006.mocap.command.io.LogsCommandOutput;
 
 public interface CommandOutput
 {
