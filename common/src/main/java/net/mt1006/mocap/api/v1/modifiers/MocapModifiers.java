@@ -1,6 +1,9 @@
 package net.mt1006.mocap.api.v1.modifiers;
 
-import net.mt1006.mocap.api.impl.modifiers.MocapModifiersImpl;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.mt1006.mocap.api.v1.io.CommandOutput;
+import net.mt1006.mocap.command.io.FullCommandInfo;
+import net.mt1006.mocap.mocap.files.SceneFiles;
 import net.mt1006.mocap.mocap.playing.modifiers.PlaybackModifiers;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
@@ -9,33 +12,50 @@ public interface MocapModifiers
 {
 	static MocapModifiers empty()
 	{
-		return MocapModifiersImpl.empty();
+		return PlaybackModifiers.EMPTY;
+	}
+
+	static MocapModifiers playerName(@Nullable String name)
+	{
+		return PlaybackModifiers.EMPTY.withPlayerName(name);
 	}
 
 	@Nullable String getPlayerName();
 
-	MocapModifiers setPlayerName(@Nullable String name);
+	MocapModifiers withPlayerName(@Nullable String name);
 
 	MocapPlayerSkin getPlayerSkin();
 
-	MocapModifiers setPlayerSkin(MocapPlayerSkin skin);
+	MocapModifiers withPlayerSkin(MocapPlayerSkin skin);
 
 	MocapTransformations getTransformations();
 
-	MocapModifiers setTransformations(MocapTransformations transformations);
+	MocapModifiers withTransformations(MocapTransformations transformations);
 
 	MocapPlayerAsEntity getPlayerAsEntity();
 
-	MocapModifiers setPlayerAsEntity(MocapPlayerAsEntity playerAsEntity);
+	MocapModifiers withPlayerAsEntity(MocapPlayerAsEntity playerAsEntity);
 
-	double getStartDelay();
+	MocapStartDelay getStartDelay();
 
-	MocapModifiers setStartDelay(double seconds);
+	MocapModifiers withStartDelay(MocapStartDelay startDelay);
 
 	MocapEntityFilter getEntityFilter();
 
-	MocapModifiers setEntityFilter(@Nullable String filter);
+	MocapModifiers withEntityFilter(MocapEntityFilter filter);
 
 	@ApiStatus.Internal
-	PlaybackModifiers getPlaybackModifiers();
+	boolean areDefault();
+
+	@ApiStatus.Internal
+	MocapModifiers mergeWithParent(MocapModifiers parent);
+
+	@ApiStatus.Internal
+	void save(SceneFiles.Writer writer);
+
+	@ApiStatus.Internal
+	void list(CommandOutput out);
+
+	@ApiStatus.Internal
+	@Nullable MocapModifiers modify(FullCommandInfo info, String propertyName, int propertyNodePosition) throws CommandSyntaxException;
 }

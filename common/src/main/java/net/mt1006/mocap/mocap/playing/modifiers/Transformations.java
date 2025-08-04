@@ -1,11 +1,14 @@
 package net.mt1006.mocap.mocap.playing.modifiers;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.mt1006.mocap.api.v1.io.CommandOutput;
 import net.mt1006.mocap.api.v1.modifiers.MocapMirror;
 import net.mt1006.mocap.api.v1.modifiers.MocapOffset;
+import net.mt1006.mocap.api.v1.modifiers.MocapTransformations;
 import net.mt1006.mocap.api.v1.modifiers.MocapTransformationsConfig;
 import net.mt1006.mocap.command.io.FullCommandInfo;
 import net.mt1006.mocap.mocap.files.SceneFiles;
@@ -15,39 +18,39 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class Transformations
+public class Transformations implements MocapTransformations
 {
-	public Rotation rotation;
-	public MocapMirror mirror;
-	public Scale scale;
-	public MocapOffset offset;
-	public MocapTransformationsConfig config;
-	private boolean ignorable;
+	public static final Transformations EMPTY = new Transformations(Rotation.ZERO,
+			MocapMirror.NONE, Scale.NORMAL, MocapOffset.ZERO, TransformationsConfig.DEFAULT);
+	private final Rotation rotation;
+	private final MocapMirror mirror;
+	private final Scale scale;
+	private final MocapOffset offset;
+	private final MocapTransformationsConfig config;
+	private final boolean ignorable;
 
-	private Transformations(Rotation rotation, MocapMirror mirror,
-							Scale scale, MocapOffset offset, MocapTransformationsConfig config)
+	private Transformations(Rotation rotation, MocapMirror mirror, Scale scale, MocapOffset offset, MocapTransformationsConfig config)
 	{
 		this.rotation = rotation;
 		this.mirror = mirror;
 		this.scale = scale;
 		this.offset = offset;
 		this.config = config;
-		refreshIgnorable();
+		this.ignorable = (rotation.deg == 0.0 && mirror == MocapMirror.NONE && scale.sceneScale == 1.0 && offset.isZero && config.isDefault());
 	}
 
 	private Transformations(SceneFiles.Reader reader)
 	{
-		rotation = Rotation.fromDouble(reader.readDouble("rotation", 0.0));
-		mirror = MocapMirror.fromString(reader.readString("mirror"));
-		scale = Scale.fromObject(reader.readObject("scale"));
-		offset = MocapOffset.fromVec3(reader.readVec3("offset"));
-		config = TransformationsConfig.fromObject(reader.readObject("config"));
-		refreshIgnorable();
+		this(Rotation.fromDouble(reader.readDouble("rotation", 0.0)),
+				MocapMirror.fromString(reader.readString("mirror")),
+				Scale.fromObject(reader.readObject("scale")),
+				MocapOffset.fromVec3(reader.readVec3("offset")),
+				TransformationsConfig.fromObject(reader.readObject("config")));
 	}
 
 	public static Transformations fromObject(@Nullable SceneFiles.Reader reader)
 	{
-		return reader != null ? new Transformations(reader) : empty();
+		return reader != null ? new Transformations(reader) : EMPTY;
 	}
 
 	public static Transformations fromLegacyScene(double x, double y, double z)
@@ -55,12 +58,67 @@ public class Transformations
 		return new Transformations(Rotation.ZERO, MocapMirror.NONE, Scale.NORMAL, new MocapOffset(x, y, z), TransformationsConfig.LEGACY);
 	}
 
-	public static Transformations empty()
+	@Override public double getRotation()
 	{
-		return new Transformations(Rotation.ZERO, MocapMirror.NONE, Scale.NORMAL, MocapOffset.ZERO, TransformationsConfig.DEFAULT);
+		return rotation.deg;
 	}
 
-	public Vec3 calculateCenter(Vec3 startPos)
+	@Override public MocapTransformations withRotation(double rot)
+	{
+		return new Transformations(Rotation.fromDouble(rot), mirror, scale, offset, config);
+	}
+
+	@Override public MocapMirror getMirror()
+	{
+		return mirror;
+	}
+
+	@Override public MocapTransformations withMirror(MocapMirror mirror)
+	{
+		return new Transformations(rotation, mirror, scale, offset, config);
+	}
+
+	@Override public double getScaleOfPlayer()
+	{
+		return scale.playerScale;
+	}
+
+	@Override public MocapTransformations withScaleOfPlayer(double scale)
+	{
+		return new Transformations(rotation, mirror, this.scale.ofPlayer(scale), offset, config);
+	}
+
+	@Override public double getScaleOfScene()
+	{
+		return scale.sceneScale;
+	}
+
+	@Override public MocapTransformations withScaleOfScene(double scale)
+	{
+		return new Transformations(rotation, mirror, this.scale.ofScene(scale), offset, config);
+	}
+
+	@Override public MocapOffset getOffset()
+	{
+		return offset;
+	}
+
+	@Override public MocapTransformations withOffset(MocapOffset offset)
+	{
+		return new Transformations(rotation, mirror, scale, offset, config);
+	}
+
+	@Override public MocapTransformationsConfig getConfig()
+	{
+		return config;
+	}
+
+	@Override public MocapTransformations withConfig(MocapTransformationsConfig config)
+	{
+		return new Transformations(rotation, mirror, scale, offset, config);
+	}
+
+	@Override public Vec3 calculateCenter(Vec3 startPos)
 	{
 		Vec3 center = calculateCenterWithoutOffset(startPos);
 		return config.getCenterOffset().isZero ? center : center.add(config.getCenterOffset());
@@ -79,8 +137,7 @@ public class Transformations
 			};
 		}
 
-		double sceneScale = scale.sceneScale;
-		if (sceneScale == 1 || sceneScale != (int)sceneScale)
+		if (scale.sceneScale == 1 || scale.sceneScale != (int)scale.sceneScale)
 		{
 			Vec3 blockCenter = getBlockCenter(startPos);
 			Vec3 blockCorner = getBlockCorner(startPos);
@@ -89,7 +146,7 @@ public class Transformations
 		}
 		else
 		{
-			return ((int)sceneScale % 2 == 1) ? getBlockCenter(startPos) : getBlockCorner(startPos);
+			return ((int)scale.sceneScale % 2 == 1) ? getBlockCenter(startPos) : getBlockCorner(startPos);
 		}
 	}
 
@@ -103,111 +160,7 @@ public class Transformations
 		return new Vec3((double)Math.round(vec.x), Math.floor(vec.y), (double)Math.round(vec.z));
 	}
 
-	public Transformations mergeWithParent(Transformations parent)
-	{
-		Transformations copy = copy();
-
-		copy.scale = copy.scale.mergeWithParent(parent.scale);
-		// "ignorable" value shouldn't change after merging
-
-		return copy;
-	}
-
-	public Transformations copy()
-	{
-		return new Transformations(rotation, mirror, scale, offset, config);
-	}
-
-	public boolean areDefault()
-	{
-		return rotation.deg == 0.0 && mirror == MocapMirror.NONE
-				&& scale.isNormal() && offset.isZero && config.isDefault();
-	}
-
-	public void refreshIgnorable()
-	{
-		ignorable = (rotation.deg == 0.0 && mirror == MocapMirror.NONE
-				&& scale.sceneScale == 1.0 && offset.isZero && config.isDefault());
-	}
-
-	public @Nullable SceneFiles.Writer save()
-	{
-		if (areDefault()) { return null; }
-
-		SceneFiles.Writer writer = new SceneFiles.Writer();
-		writer.addDouble("rotation", rotation.deg, 0.0);
-		writer.addString("mirror", mirror.save());
-		writer.addVec3("offset", offset.save());
-		writer.addObject("scale", scale.save());
-		writer.addObject("config", config.save());
-
-		return writer;
-	}
-
-	public void list(CommandOutput out)
-	{
-		out.sendSuccess("scenes.element_info.transformations.rotation", rotation.deg);
-		out.sendSuccess("scenes.element_info.transformations.mirror." + mirror.name().toLowerCase());
-
-		if (scale.playerScale == 1.0) { out.sendSuccess("scenes.element_info.transformations.player_scale.normal"); }
-		else { out.sendSuccess("scenes.element_info.transformations.player_scale.custom", scale.playerScale); }
-
-		if (scale.sceneScale == 1.0) { out.sendSuccess("scenes.element_info.transformations.scene_scale.normal"); }
-		else { out.sendSuccess("scenes.element_info.transformations.scene_scale.custom", scale.sceneScale); }
-		
-		out.sendSuccess("scenes.element_info.transformations.offset", offset.x, offset.y, offset.z);
-		config.list(out);
-	}
-
-	public boolean modify(FullCommandInfo info, String propertyName, int propertyNodePosition)
-	{
-		switch (propertyName)
-		{
-			case "rotation":
-				rotation = new Rotation(info.getDouble("deg"));
-				break;
-
-			case "mirror":
-				MocapMirror newMirror = MocapMirror.fromStringOrNull(info.getNode(propertyNodePosition + 1));
-				if (newMirror == null) { return false; }
-				mirror = newMirror;
-				break;
-
-			case "scale":
-				String scaleType = info.getNode(propertyNodePosition + 1);
-				if (scaleType == null) { return false; }
-
-				double scaleVal = info.getDouble("scale");
-				if (scaleType.equals("of_player")) { scale = scale.ofPlayer(scaleVal); }
-				else if (scaleType.equals("of_scene")) { scale = scale.ofScene(scaleVal); }
-				else { return false; }
-				break;
-
-			case "offset":
-				offset = new MocapOffset(info.getDouble("offset_x"), info.getDouble("offset_y"), info.getDouble("offset_z"));
-				break;
-
-			case "config":
-				String transformationType = info.getNode(propertyNodePosition + 1);
-				if (transformationType == null) { return false; }
-
-				MocapTransformationsConfig newConfig = config.modify(info, transformationType, propertyNodePosition + 1);
-				if (newConfig != null)
-				{
-					config = newConfig;
-					break;
-				}
-				return false;
-
-			default:
-				return false;
-		}
-
-		refreshIgnorable();
-		return true;
-	}
-
-	public Vec3 apply(Vec3 point, Vec3 center)
+	@Override public Vec3 apply(Vec3 point, Vec3 center)
 	{
 		if (ignorable) { return point; }
 
@@ -219,7 +172,7 @@ public class Transformations
 		return point;
 	}
 
-	public List<BlockPos> applyToBlockPos(List<BlockPos> inputList, Vec3 center)
+	@Override public List<? extends BlockPos> applyToBlockPos(List<? extends BlockPos> inputList, Vec3 center)
 	{
 		if (ignorable) { return inputList; }
 		if (inputList.size() == 1) { return applyToBlockPos(inputList.get(0), center); }
@@ -325,17 +278,17 @@ public class Transformations
 		return vec.x == (int)vec.x && vec.y == (int)vec.y && vec.z == (int)vec.z;
 	}
 
-	public BlockState applyToBlockState(BlockState blockState)
+	@Override public BlockState applyToBlockState(BlockState blockState)
 	{
 		if (ignorable) { return blockState; }
 
 		if (rotation.deg != 0.0) { blockState = blockState.rotate(rotation.blockRotation); }
-		if (mirror.mirrorX) { blockState = blockState.mirror(net.minecraft.world.level.block.Mirror.FRONT_BACK); }
-		if (mirror.mirrorZ) { blockState = blockState.mirror(net.minecraft.world.level.block.Mirror.LEFT_RIGHT); }
+		if (mirror.mirrorX) { blockState = blockState.mirror(Mirror.FRONT_BACK); }
+		if (mirror.mirrorZ) { blockState = blockState.mirror(Mirror.LEFT_RIGHT); }
 		return blockState;
 	}
 
-	public double applyToRotation(double rot)
+	@Override public double applyToRotation(double rot)
 	{
 		if (ignorable) { return rot; }
 
@@ -343,5 +296,90 @@ public class Transformations
 		if (mirror.mirrorX) { rot = -rot; }
 		if (mirror.mirrorZ) { rot = -(rot + 90.0) - 90.0; }
 		return Rotation.clampRot(rot);
+	}
+
+	@Override public void applyScaleToPlayer(Entity entity)
+	{
+		scale.applyToPlayer(entity);
+	}
+
+	@Override public void applyScaleToEntity(Entity entity)
+	{
+		scale.applyToEntity(entity);
+	}
+
+	@Override public boolean areDefault()
+	{
+		return rotation.deg == 0.0 && mirror == MocapMirror.NONE && scale.isNormal() && offset.isZero && config.isDefault();
+	}
+
+	@Override public MocapTransformations mergeWithParent(MocapTransformations parent)
+	{
+		// it only changes player scale as parent position transformations are applied by PositionTransformer
+		return withScaleOfPlayer(scale.playerScale * parent.getScaleOfPlayer());
+	}
+
+	@Override public @Nullable SceneFiles.Writer save()
+	{
+		if (areDefault()) { return null; }
+
+		SceneFiles.Writer writer = new SceneFiles.Writer();
+		writer.addDouble("rotation", rotation.deg, 0.0);
+		writer.addString("mirror", mirror.save());
+		writer.addVec3("offset", offset.save());
+		writer.addObject("scale", scale.save());
+		writer.addObject("config", config.save());
+
+		return writer;
+	}
+
+	@Override public void list(CommandOutput out)
+	{
+		out.sendSuccess("scenes.element_info.transformations.rotation", rotation.deg);
+		out.sendSuccess("scenes.element_info.transformations.mirror." + mirror.name().toLowerCase());
+
+		if (scale.playerScale == 1.0) {out.sendSuccess("scenes.element_info.transformations.player_scale.normal");}
+		else {out.sendSuccess("scenes.element_info.transformations.player_scale.custom", scale.playerScale);}
+
+		if (scale.sceneScale == 1.0) {out.sendSuccess("scenes.element_info.transformations.scene_scale.normal");}
+		else {out.sendSuccess("scenes.element_info.transformations.scene_scale.custom", scale.sceneScale);}
+
+		out.sendSuccess("scenes.element_info.transformations.offset", offset.x, offset.y, offset.z);
+		config.list(out);
+	}
+
+	@Override public @Nullable MocapTransformations modify(FullCommandInfo info, String propertyName, int propertyNodePosition)
+	{
+		switch (propertyName)
+		{
+			case "rotation":
+				return withRotation(info.getDouble("deg"));
+
+			case "mirror":
+				MocapMirror newMirror = MocapMirror.fromStringOrNull(info.getNode(propertyNodePosition + 1));
+				return newMirror != null ? withMirror(newMirror) : null;
+
+			case "scale":
+				double scaleVal = info.getDouble("scale");
+				return switch (info.getNode(propertyNodePosition + 1))
+				{
+					case "of_player" -> withScaleOfPlayer(scaleVal);
+					case "of_scene" -> withScaleOfScene(scaleVal);
+					case null, default -> null;
+				};
+
+			case "offset":
+				return withOffset(new MocapOffset(info.getDouble("offset_x"), info.getDouble("offset_y"), info.getDouble("offset_z")));
+
+			case "config":
+				String transformationType = info.getNode(propertyNodePosition + 1);
+				if (transformationType == null) { return null; }
+
+				MocapTransformationsConfig newConfig = config.modify(info, transformationType, propertyNodePosition + 1);
+				return newConfig != null ? withConfig(newConfig) : null;
+
+			default:
+				return null;
+		}
 	}
 }

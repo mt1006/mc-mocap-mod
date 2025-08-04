@@ -85,16 +85,16 @@ public class ActiveRecording extends Playable implements MocapActiveRecording
 	{
 		if (config.getStartAsRecorded() && modifiers.getPlayerName() == null)
 		{
-			modifiers = modifiers.setPlayerName(ctx.recordedPlayer.getName().getString());
+			modifiers = modifiers.withPlayerName(ctx.recordedPlayer.getName().getString());
 		}
 
-		RecordingPlayback playback = RecordingPlayback.start(info, true, ctx.data, config, modifiers.getPlaybackModifiers(), null);
+		RecordingPlayback playback = RecordingPlayback.start(info, true, ctx.data, config, modifiers, null);
 		return playback != null ? PlaybackManager.addPlayback(this, playback, isHidden) : null;
 	}
 
 	@Override public @Nullable Playback startAsSubscene(CommandInfo info, MocapModifiers modifiers, MocapPlaybackConfig config,
 														PlaybackDataManager dataManager, PositionTransformer parentTransformer)
 	{
-		return RecordingPlayback.start(info, false, ctx.data, config, modifiers.getPlaybackModifiers(), parentTransformer);
+		return RecordingPlayback.start(info, false, ctx.data, config, modifiers, parentTransformer);
 	}
 }

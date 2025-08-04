@@ -12,26 +12,26 @@ public interface MocapTransformationsConfig
 {
 	boolean getRoundBlockPos();
 
-	MocapTransformationsConfig setRoundBlockPos(boolean roundBlockPos);
+	MocapTransformationsConfig withRoundBlockPos(boolean roundBlockPos);
 
 	RecordingCenter getRecordingCenter();
 
-	MocapTransformationsConfig setRecordingCenter(RecordingCenter center);
+	MocapTransformationsConfig withRecordingCenter(RecordingCenter center);
 
 	SceneCenterType getSceneCenterType();
 
 	@Nullable String getSceneCenterSpecificStr();
 
-	MocapTransformationsConfig setSceneCenter(SceneCenterType center, @Nullable String specificStr);
+	MocapTransformationsConfig withSceneCenter(SceneCenterType center, @Nullable String specificStr);
 
 	MocapOffset getCenterOffset();
 
-	default MocapTransformationsConfig setCenterOffset(Vec3 offset)
+	default MocapTransformationsConfig withCenterOffset(Vec3 offset)
 	{
-		return setCenterOffset(MocapOffset.fromVec3(offset));
+		return withCenterOffset(MocapOffset.fromVec3(offset));
 	}
 
-	MocapTransformationsConfig setCenterOffset(MocapOffset offset);
+	MocapTransformationsConfig withCenterOffset(MocapOffset offset);
 
 	@ApiStatus.Internal
 	TransformationsConfig.SceneCenter getSceneCenter();

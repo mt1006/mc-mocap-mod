@@ -7,6 +7,8 @@ import org.jetbrains.annotations.Nullable;
 public class MocapOffset extends Vec3
 {
 	public static final MocapOffset ZERO = new MocapOffset(0.0, 0.0, 0.0);
+
+	@ApiStatus.Internal
 	public final boolean isZero, isInt;
 
 	public MocapOffset(double x, double y, double z)

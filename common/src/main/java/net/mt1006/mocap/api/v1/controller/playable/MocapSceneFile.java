@@ -1,6 +1,5 @@
 package net.mt1006.mocap.api.v1.controller.playable;
 
-import net.mt1006.mocap.api.impl.modifiers.MocapModifiersImpl;
 import net.mt1006.mocap.api.v1.controller.MocapFile;
 import net.mt1006.mocap.api.v1.io.CommandOutput;
 import net.mt1006.mocap.api.v1.modifiers.MocapModifiers;
@@ -13,17 +12,17 @@ public interface MocapSceneFile extends MocapPlayable, MocapFile<MocapSceneFile>
 {
 	default boolean add(CommandOutput out, MocapPlayable playable)
 	{
-		return add(out, new SceneData.Element(playable.getName(), MocapModifiersImpl.empty().getPlaybackModifiers()));
+		return add(out, new SceneData.Element(playable.getName(), MocapModifiers.empty()));
 	}
 
 	default boolean add(CommandOutput out, MocapPlayable playable, MocapModifiers modifiers)
 	{
-		return add(out, new SceneData.Element(playable.getName(), modifiers.getPlaybackModifiers()));
+		return add(out, new SceneData.Element(playable.getName(), modifiers));
 	}
 
 	default boolean add(CommandOutput out, String playableName, MocapModifiers modifiers)
 	{
-		return add(out, new SceneData.Element(playableName, modifiers.getPlaybackModifiers()));
+		return add(out, new SceneData.Element(playableName, modifiers));
 	}
 
 	boolean add(CommandOutput out, MocapSceneElement element);

@@ -9,6 +9,7 @@ import net.minecraft.world.phys.Vec3;
 import net.mt1006.mocap.MocapMod;
 import net.mt1006.mocap.api.v1.controller.playable.MocapSceneElement;
 import net.mt1006.mocap.api.v1.io.CommandOutput;
+import net.mt1006.mocap.api.v1.modifiers.MocapModifiers;
 import net.mt1006.mocap.command.CommandSuggestions;
 import net.mt1006.mocap.command.CommandUtils;
 import net.mt1006.mocap.command.io.FullCommandInfo;
@@ -74,10 +75,8 @@ public class SceneFiles
 		return sceneData.save(info, file, name, "scenes.modify.success", "scenes.modify.error");
 	}
 
-	private static @Nullable MocapSceneElement modifySubscene(FullCommandInfo rootCommandInfo, MocapSceneElement oldElement)
+	private static @Nullable MocapSceneElement modifySubscene(FullCommandInfo rootCommandInfo, MocapSceneElement element)
 	{
-		MocapSceneElement element = ((SceneData.Element)oldElement).copy();
-
 		FullCommandInfo info = rootCommandInfo.getFinalCommandInfo();
 		if (info == null)
 		{
@@ -96,17 +95,18 @@ public class SceneFiles
 		{
 			if (propertyName.equals("subscene_name"))
 			{
-				//TODO: remove cast - make scene element immutable
-				((SceneData.Element)element).name = info.getString("new_name");
-				return element;
+				return element.withName(info.getString("new_name"));
 			}
-
-			if (!element.getPlaybackModifiers().modify(info, propertyName, 5))
+			else
 			{
-				rootCommandInfo.sendFailure("error.generic");
-				return null;
+				MocapModifiers newModifiers = element.getModifiers().modify(info, propertyName, 5);
+				if (newModifiers == null)
+				{
+					rootCommandInfo.sendFailure("error.generic");
+					return null;
+				}
+				return element.withModifiers(newModifiers);
 			}
-			return element;
 		}
 		catch (Exception e)
 		{
@@ -129,7 +129,7 @@ public class SceneFiles
 		out.sendSuccess("scenes.element_info.id", name, pos);
 		out.sendSuccess("scenes.element_info.name", element.getName());
 
-		element.getPlaybackModifiers().list(out);
+		element.getModifiers().list(out);
 		return true;
 	}
 
@@ -145,7 +145,7 @@ public class SceneFiles
 		for (MocapSceneElement element : sceneData.elements)
 		{
 			out.sendSuccessLiteral("[%d] %s <%.3f> (%s)", i++, element.getName(),
-					element.getPlaybackModifiers().startDelay.seconds, element.getPlaybackModifiers().playerName);
+					element.getModifiers().getStartDelay().seconds, element.getModifiers().getPlayerName());
 		}
 
 		return out.sendSuccessLiteral("[id] name <start_delay> (player_name)");

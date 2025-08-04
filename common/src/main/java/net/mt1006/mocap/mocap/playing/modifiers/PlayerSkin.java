@@ -21,7 +21,6 @@ import java.util.Scanner;
 
 public class PlayerSkin implements MocapPlayerSkin
 {
-	public static final PlayerSkin DEFAULT = new PlayerSkin(Source.DEFAULT, null);
 	private static final String MINESKIN_URL_PREFIX1 = "minesk.in/";
 	private static final String MINESKIN_URL_PREFIX2 = "mineskin.org/skins/";
 	private static final String MINESKIN_API_URL = "https://api.mineskin.org/get/uuid/";

@@ -3,7 +3,6 @@ package net.mt1006.mocap.mocap.files;
 import com.google.gson.*;
 import com.mojang.datafixers.util.Pair;
 import net.mt1006.mocap.MocapMod;
-import net.mt1006.mocap.api.impl.modifiers.MocapModifiersImpl;
 import net.mt1006.mocap.api.v1.controller.playable.MocapPlayable;
 import net.mt1006.mocap.api.v1.controller.playable.MocapSceneElement;
 import net.mt1006.mocap.api.v1.io.CommandInfo;
@@ -155,13 +154,12 @@ public class SceneData
 		return element;
 	}
 
-	//TODO: make it immutable
 	public static class Element implements MocapSceneElement
 	{
-		public String name;
-		public PlaybackModifiers modifiers;
+		public final String name;
+		public final MocapModifiers modifiers;
 
-		public Element(String name, PlaybackModifiers modifiers)
+		public Element(String name, MocapModifiers modifiers)
 		{
 			this.name = name;
 			this.modifiers = modifiers;
@@ -181,9 +179,19 @@ public class SceneData
 			return name;
 		}
 
+		@Override public MocapSceneElement withName(String name)
+		{
+			return new Element(name, modifiers);
+		}
+
 		@Override public MocapModifiers getModifiers()
 		{
-			return MocapModifiersImpl.ofCopy(modifiers);
+			return modifiers;
+		}
+
+		@Override public MocapSceneElement withModifiers(MocapModifiers modifiers)
+		{
+			return new Element(name, modifiers);
 		}
 
 		@Override public @Nullable MocapPlayable getPlayable(CommandInfo info)
@@ -197,22 +205,6 @@ public class SceneData
 			json.add("name", new JsonPrimitive(name));
 			modifiers.save(new SceneFiles.Writer(json));
 			return json;
-		}
-
-		//TODO: remove
-		@Override public PlaybackModifiers getPlaybackModifiers()
-		{
-			return modifiers;
-		}
-
-		public Element copy()
-		{
-			//TODO: do it in a normal way after modifiers are immutable
-			try
-			{
-				return new Element(toJson());
-			}
-			catch (Exception e) { throw new RuntimeException("Something went wrong when copying subscene!"); }
 		}
 	}
 }

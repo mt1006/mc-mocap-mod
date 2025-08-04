@@ -1,8 +1,13 @@
 package net.mt1006.mocap.mocap.files;
 
 import net.mt1006.mocap.api.v1.io.CommandOutput;
+import net.mt1006.mocap.api.v1.modifiers.MocapModifiers;
 import net.mt1006.mocap.api.v1.modifiers.MocapPlayerSkin;
-import net.mt1006.mocap.mocap.playing.modifiers.*;
+import net.mt1006.mocap.api.v1.modifiers.MocapStartDelay;
+import net.mt1006.mocap.mocap.playing.modifiers.PlaybackModifiers;
+import net.mt1006.mocap.mocap.playing.modifiers.PlayerAsEntity;
+import net.mt1006.mocap.mocap.playing.modifiers.PlayerSkin;
+import net.mt1006.mocap.mocap.playing.modifiers.Transformations;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.ByteArrayInputStream;
@@ -52,21 +57,23 @@ public class LegacySceneDataParser
 
 	private static SceneData.Element parseSubscene(Scanner scanner)
 	{
-		SceneData.Element element = new SceneData.Element(scanner.next(), PlaybackModifiers.empty());
+		String elementName = scanner.next();
+		MocapModifiers modifiers = PlaybackModifiers.EMPTY;
 		try
 		{
-			element.modifiers.startDelay = StartDelay.fromSeconds(Double.parseDouble(scanner.next()));
-			element.modifiers.transformations = Transformations.fromLegacyScene(
-					Double.parseDouble(scanner.next()), Double.parseDouble(scanner.next()), Double.parseDouble(scanner.next()));
-			element.modifiers.playerName = parsePlayerName(scanner);
-			element.modifiers.playerSkin = parsePlayerSkin(scanner);
+			modifiers = modifiers.withStartDelay(MocapStartDelay.fromSeconds(Double.parseDouble(scanner.next())));
+			modifiers = modifiers.withTransformations(Transformations.fromLegacyScene(
+					Double.parseDouble(scanner.next()), Double.parseDouble(scanner.next()), Double.parseDouble(scanner.next())));
+			modifiers = modifiers.withPlayerName(parsePlayerName(scanner));
+			modifiers = modifiers.withPlayerSkin(parsePlayerSkin(scanner));
 
 			String playerAsEntityStr = scanner.next();
 			if (playerAsEntityStr.equals(NULL_STR)) { playerAsEntityStr = null; }
-			element.modifiers.playerAsEntity = new PlayerAsEntity(playerAsEntityStr, null);
+			modifiers = modifiers.withPlayerAsEntity(new PlayerAsEntity(playerAsEntityStr, null));
 		}
 		catch (Exception ignore) {}
-		return element;
+
+		return new SceneData.Element(elementName, modifiers);
 	}
 
 	private static @Nullable String parsePlayerName(Scanner scanner)

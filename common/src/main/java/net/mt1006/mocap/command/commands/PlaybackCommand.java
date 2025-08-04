@@ -6,7 +6,6 @@ import com.mojang.datafixers.util.Pair;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.mt1006.mocap.api.impl.modifiers.MocapModifiersImpl;
 import net.mt1006.mocap.api.v1.controller.config.MocapPlaybackConfig;
 import net.mt1006.mocap.api.v1.controller.playable.MocapPlayable;
 import net.mt1006.mocap.api.v1.io.CommandInfo;
@@ -16,7 +15,6 @@ import net.mt1006.mocap.command.CommandUtils;
 import net.mt1006.mocap.command.CommandsContext;
 import net.mt1006.mocap.command.io.FullCommandInfo;
 import net.mt1006.mocap.mocap.playing.PlaybackManager;
-import net.mt1006.mocap.mocap.playing.modifiers.PlaybackModifiers;
 import net.mt1006.mocap.mocap.playing.playable.ActiveRecording;
 import net.mt1006.mocap.mocap.recording.RecordingContext;
 import net.mt1006.mocap.mocap.recording.RecordingManager;
@@ -63,7 +61,7 @@ public class PlaybackCommand
 			return false;
 		}
 
-		PlaybackModifiers simpleModifiers = info.getSimpleModifiers(info);
+		MocapModifiers simpleModifiers = info.getSimpleModifiers(info);
 		if (simpleModifiers == null) { return false; }
 
 		try
@@ -71,14 +69,13 @@ public class PlaybackCommand
 			List<MocapPlayable> playableList = getPlayable(info, name);
 			if (playableList.isEmpty()) { return false; }
 
-			PlaybackModifiers finalModifiers = CommandsContext.getFinalModifiers(info.getSourcePlayer(), simpleModifiers);
-			MocapModifiers modifiers = MocapModifiersImpl.ofCopy(finalModifiers);
+			MocapModifiers finalModifiers = CommandsContext.getFinalModifiers(info.getSourcePlayer(), simpleModifiers);
 
 			int successes = 0;
 			for (MocapPlayable playable : playableList)
 			{
 				// each playback should have own copy of config, as it's mutable
-				if (playable.startPlayback(info, modifiers, MocapPlaybackConfig.createFromSettings(), false) != null) { successes++; }
+				if (playable.startPlayback(info, finalModifiers, MocapPlaybackConfig.createFromSettings(), false) != null) { successes++; }
 			}
 
 			if (successes != 0)

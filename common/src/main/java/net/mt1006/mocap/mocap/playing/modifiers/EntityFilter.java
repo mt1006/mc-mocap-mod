@@ -23,7 +23,7 @@ public class EntityFilter implements MocapEntityFilter
 		return str != null ? new EntityFilter(EntityFilterInstance.create(str)) : FOR_PLAYBACK;
 	}
 
-	public @Nullable String save()
+	@Override public @Nullable String save()
 	{
 		if (this == FOR_PLAYBACK) { return null; }
 		if (this == FOR_RECORDING) { throw new RuntimeException("Trying to save FOR_RECORDING EntityFilter!"); }

@@ -62,11 +62,6 @@ public class Scale
 		return (playerScale == 1.0 && sceneScale == 1.0);
 	}
 
-	public Scale mergeWithParent(Scale parent)
-	{
-		return new Scale(playerScale * parent.playerScale, sceneScale, totalSceneScale * parent.totalSceneScale);
-	}
-
 	public boolean canScaleInt(Vec3 startPos)
 	{
 		if (sceneScale == 1.0) { return true; }

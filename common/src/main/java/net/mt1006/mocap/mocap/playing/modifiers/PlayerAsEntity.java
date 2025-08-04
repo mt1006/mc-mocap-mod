@@ -19,8 +19,6 @@ import org.jetbrains.annotations.Nullable;
 
 public class PlayerAsEntity implements MocapPlayerAsEntity
 {
-	public static final PlayerAsEntity DISABLED = new PlayerAsEntity(null, null);
-
 	private final @Nullable String entityId;
 	public final @Nullable String entityNbt;
 	private final @Nullable EntityType<?> entityType;

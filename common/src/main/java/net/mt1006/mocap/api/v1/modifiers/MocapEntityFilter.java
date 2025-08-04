@@ -2,6 +2,7 @@ package net.mt1006.mocap.api.v1.modifiers;
 
 import net.minecraft.world.entity.Entity;
 import net.mt1006.mocap.mocap.playing.modifiers.EntityFilter;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 public interface MocapEntityFilter
@@ -25,4 +26,7 @@ public interface MocapEntityFilter
 	boolean isDefaultForPlayback();
 
 	@Nullable String getFilterString();
+
+	@ApiStatus.Internal
+	@Nullable String save();
 }

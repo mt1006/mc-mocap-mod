@@ -150,14 +150,14 @@ public class SceneFile extends Playable implements MocapSceneFile
 		PlaybackDataManager dataManager = new PlaybackDataManager();
 		dataManager.loadScene(info, this);
 
-		ScenePlayback playback = ScenePlayback.start(info, true, dataManager, dataManager.getScene(this), config, modifiers.getPlaybackModifiers(), null);
+		ScenePlayback playback = ScenePlayback.start(info, true, dataManager, dataManager.getScene(this), config, modifiers, null);
 		return playback != null ? PlaybackManager.addPlayback(this, playback, isHidden) : null;
 	}
 
 	@Override public @Nullable Playback startAsSubscene(CommandInfo info, MocapModifiers modifiers, MocapPlaybackConfig config,
 														PlaybackDataManager dataManager, PositionTransformer parentTransformer)
 	{
-		return ScenePlayback.start(info, false, dataManager, dataManager.getScene(this), config, modifiers.getPlaybackModifiers(), parentTransformer);
+		return ScenePlayback.start(info, false, dataManager, dataManager.getScene(this), config, modifiers, parentTransformer);
 	}
 
 	public @Nullable SceneData loadSceneData(CommandOutput out)

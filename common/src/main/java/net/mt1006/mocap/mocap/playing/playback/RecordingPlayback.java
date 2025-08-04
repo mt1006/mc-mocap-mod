@@ -13,14 +13,13 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.mt1006.mocap.MocapMod;
-import net.mt1006.mocap.api.impl.modifiers.MocapModifiersImpl;
 import net.mt1006.mocap.api.v1.controller.config.MocapPlaybackConfig;
 import net.mt1006.mocap.api.v1.extension.actions.MocapAction;
 import net.mt1006.mocap.api.v1.io.CommandInfo;
+import net.mt1006.mocap.api.v1.modifiers.MocapModifiers;
 import net.mt1006.mocap.api.v1.modifiers.MocapPlayerSkin;
 import net.mt1006.mocap.events.PlayerConnectionEvent;
 import net.mt1006.mocap.mocap.files.RecordingData;
-import net.mt1006.mocap.mocap.playing.modifiers.PlaybackModifiers;
 import net.mt1006.mocap.mocap.settings.Settings;
 import net.mt1006.mocap.network.MocapPacketS2C;
 import net.mt1006.mocap.utils.*;
@@ -36,7 +35,7 @@ public class RecordingPlayback extends Playback
 	private int dyingTicks = 0;
 
 	private RecordingPlayback(boolean isRoot, ServerLevel level, @Nullable ServerPlayer owner, MocapPlaybackConfig config,
-							  PlaybackModifiers modifiers, RecordingData recording, ActionContext ctx)
+							  MocapModifiers modifiers, RecordingData recording, ActionContext ctx)
 	{
 		super(isRoot, level, owner, config, modifiers);
 		this.recording = recording;
@@ -44,42 +43,40 @@ public class RecordingPlayback extends Playback
 	}
 
 	public static @Nullable RecordingPlayback start(CommandInfo info, boolean isRoot, RecordingData recording, MocapPlaybackConfig config,
-													PlaybackModifiers modifiers, @Nullable PositionTransformer parentTransformer)
+													MocapModifiers modifiers, @Nullable PositionTransformer parentTransformer)
 	{
-
-
 		if (recording == null) { throw new RuntimeException("Provided recording data is null!"); }
 
-		GameProfile oldProfile = getGameProfile(info, modifiers.playerName, recording.playerName, config.getStartAsRecorded());
+		GameProfile oldProfile = getGameProfile(info, modifiers.getPlayerName(), recording.playerName, config.getStartAsRecorded());
 		if (oldProfile == null)
 		{
 			info.sendFailure("playback.start.error");
 			info.sendFailure("playback.start.error.profile");
 			return null;
 		}
-		GameProfile newProfile = createNewProfile(info, oldProfile, modifiers.playerSkin);
+		GameProfile newProfile = createNewProfile(info, oldProfile, modifiers.getPlayerSkin());
 
 		ServerLevel level = info.getLevel();
 		PlayerList packetTargets = info.getServer().getPlayerList();
 		Entity entity;
 		FakePlayer ghost = null;
 
-		Vec3 center = modifiers.transformations.calculateCenter(recording.startPos);
-		PositionTransformer transformer = new PositionTransformer(modifiers.transformations, parentTransformer, center);
+		Vec3 center = modifiers.getTransformations().calculateCenter(recording.startPos);
+		PositionTransformer transformer = new PositionTransformer(modifiers.getTransformations(), parentTransformer, center);
 
-		if (!modifiers.playerAsEntity.isEnabled())
+		if (!modifiers.getPlayerAsEntity().isEnabled())
 		{
 			FakePlayer fakePlayer = new FakePlayer(level, newProfile, config.getInvulnerablePlayback());
 			entity = fakePlayer;
 
 			fakePlayer.gameMode.changeGameModeForPlayer(Settings.USE_CREATIVE_GAME_MODE.val ? GameType.CREATIVE : GameType.SURVIVAL);
 			recording.initEntityPosition(fakePlayer, transformer);
-			modifiers.transformations.scale.applyToPlayer(fakePlayer);
+			modifiers.getTransformations().applyScaleToPlayer(fakePlayer);
 
 			packetTargets.broadcastAll(new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER, fakePlayer));
 			level.addNewPlayer(fakePlayer);
 
-			recording.preExecute(new PreExecuteContext(recording, entity, level, config, MocapModifiersImpl.ofCopy(modifiers), transformer));
+			recording.preExecute(new PreExecuteContext(recording, entity, level, config, modifiers, transformer));
 			EntityData.PLAYER_SKIN_PARTS.set(fakePlayer, (byte)0b01111111);
 
 			if (!config.getCanPushEntities())
@@ -93,10 +90,10 @@ public class RecordingPlayback extends Playback
 		}
 		else
 		{
-			entity = modifiers.playerAsEntity.createEntity(level);
+			entity = modifiers.getPlayerAsEntity().createEntity(level);
 			if (entity == null)
 			{
-				info.sendFailure("playback.start.warning.unknown_entity", modifiers.playerAsEntity.getRawEntityId());
+				info.sendFailure("playback.start.warning.unknown_entity", modifiers.getPlayerAsEntity().getRawEntityId());
 				return null;
 			}
 
@@ -105,10 +102,10 @@ public class RecordingPlayback extends Playback
 			entity.setInvulnerable(config.getInvulnerablePlayback());
 			entity.setNoGravity(true);
 			if (entity instanceof Mob) { ((Mob)entity).setNoAi(true); }
-			modifiers.transformations.scale.applyToPlayer(entity);
+			modifiers.getTransformations().applyScaleToPlayer(entity);
 
 			level.addFreshEntity(entity);
-			recording.preExecute(new PreExecuteContext(recording, entity, level, config, MocapModifiersImpl.ofCopy(modifiers), transformer));
+			recording.preExecute(new PreExecuteContext(recording, entity, level, config, modifiers, transformer));
 
 			if (Settings.ALLOW_GHOSTS.val)
 			{

@@ -5,6 +5,7 @@ import com.google.common.collect.Multimap;
 import net.minecraft.server.level.ServerPlayer;
 import net.mt1006.mocap.api.v1.io.CommandInfo;
 import net.mt1006.mocap.api.v1.io.CommandOutput;
+import net.mt1006.mocap.api.v1.modifiers.MocapModifiers;
 import net.mt1006.mocap.command.CommandsContext;
 import net.mt1006.mocap.command.io.FullCommandInfo;
 import net.mt1006.mocap.mocap.files.SceneData;
@@ -115,8 +116,9 @@ public class PlaybackManager
 
 		try
 		{
-			boolean success = ctx.modifiers.modify(info, propertyName, 4);
-			return success ? rootInfo.sendSuccess("playback.modifiers.set") : rootInfo.sendFailure("error.generic");
+			MocapModifiers newModifiers = ctx.modifiers.modify(info, propertyName, 4);
+			if (newModifiers != null) { ctx.modifiers = newModifiers; }
+			return newModifiers != null ? rootInfo.sendSuccess("playback.modifiers.set") : rootInfo.sendFailure("error.generic");
 		}
 		catch (Exception e) { return rootInfo.sendException(e, "error.unable_to_get_argument"); }
 	}
@@ -138,7 +140,7 @@ public class PlaybackManager
 		if (source == null) { return info.sendFailure("failure.resolve_player"); }
 
 		CommandsContext ctx = CommandsContext.get(source);
-		ctx.modifiers = PlaybackModifiers.empty();
+		ctx.modifiers = PlaybackModifiers.EMPTY;
 		return info.sendSuccess("playback.modifiers.reset");
 	}
 

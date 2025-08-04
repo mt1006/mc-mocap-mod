@@ -12,7 +12,7 @@ public class Rotation
 	public final boolean canRotateInt;
 	public final net.minecraft.world.level.block.Rotation blockRotation;
 
-	public Rotation(double deg)
+	private Rotation(double deg)
 	{
 		deg = clampRot(deg);
 		this.deg = deg;

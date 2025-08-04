@@ -3,8 +3,8 @@ package net.mt1006.mocap.mocap.playing.playback;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.mt1006.mocap.api.v1.controller.config.MocapPlaybackConfig;
+import net.mt1006.mocap.api.v1.modifiers.MocapModifiers;
 import net.mt1006.mocap.command.CommandsContext;
-import net.mt1006.mocap.mocap.playing.modifiers.PlaybackModifiers;
 import net.mt1006.mocap.mocap.recording.RecordingContext;
 import net.mt1006.mocap.mocap.recording.RecordingManager;
 import org.jetbrains.annotations.Nullable;
@@ -18,10 +18,10 @@ public abstract class Playback
 	public final @Nullable ServerPlayer owner;
 	public final MocapPlaybackConfig config;
 	protected boolean finished = false;
-	protected final PlaybackModifiers modifiers;
+	protected final MocapModifiers modifiers;
 	protected int tickCounter = 0; //TODO: StartContext?
 
-	protected Playback(boolean isRoot, ServerLevel level, @Nullable ServerPlayer owner, MocapPlaybackConfig config, PlaybackModifiers modifiers)
+	protected Playback(boolean isRoot, ServerLevel level, @Nullable ServerPlayer owner, MocapPlaybackConfig config, MocapModifiers modifiers)
 	{
 		this.isRoot = isRoot;
 		this.level = level;
@@ -43,7 +43,7 @@ public abstract class Playback
 	{
 		if (tickCounter == 0) { return true; }
 
-		if (modifiers.startDelay.ticks <= tickCounter)
+		if (modifiers.getStartDelay().ticks <= tickCounter)
 		{
 			if (CommandsContext.haveSyncEnabled == 0 || owner == null) { return true; }
 

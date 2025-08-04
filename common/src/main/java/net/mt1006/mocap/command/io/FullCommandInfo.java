@@ -17,6 +17,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.mt1006.mocap.api.v1.io.CommandInfo;
 import net.mt1006.mocap.api.v1.io.CommandOutput;
+import net.mt1006.mocap.api.v1.modifiers.MocapModifiers;
+import net.mt1006.mocap.api.v1.modifiers.MocapPlayerAsEntity;
 import net.mt1006.mocap.api.v1.modifiers.MocapPlayerSkin;
 import net.mt1006.mocap.command.CommandUtils;
 import net.mt1006.mocap.mocap.playing.modifiers.PlaybackModifiers;
@@ -152,7 +154,7 @@ public class FullCommandInfo implements CommandInfo
 		catch (Exception e) { return null; }
 	}
 
-	public @Nullable PlayerSkin getPlayerSkin()
+	public @Nullable MocapPlayerSkin getPlayerSkin()
 	{
 		String fromPlayer = getNullableString("skin_player_name");
 		if (fromPlayer != null) { return PlayerSkin.createVerified(this, MocapPlayerSkin.Source.FROM_PLAYER, fromPlayer); }
@@ -166,15 +168,15 @@ public class FullCommandInfo implements CommandInfo
 		return PlayerSkin.DEFAULT;
 	}
 
-	public @Nullable PlaybackModifiers getSimpleModifiers(CommandOutput out)
+	public @Nullable MocapModifiers getSimpleModifiers(CommandOutput out)
 	{
 		String playerName = getNullableString("player_name");
-		if (!PlaybackModifiers.checkIfProperName(out, playerName)) { return null; }
+		if (!PlaybackModifiers.checkIfProperPlayerName(out, playerName)) { return null; }
 
-		PlayerSkin playerSkin = getPlayerSkin();
+		MocapPlayerSkin playerSkin = getPlayerSkin();
 		if (playerSkin == null) { return null; }
 
-		PlayerAsEntity playerAsEntity = PlayerAsEntity.DISABLED;
+		MocapPlayerAsEntity playerAsEntity = PlayerAsEntity.DISABLED;
 
 		try
 		{
@@ -189,10 +191,6 @@ public class FullCommandInfo implements CommandInfo
 		}
 		catch (Exception ignore) {}
 
-		PlaybackModifiers modifiers = PlaybackModifiers.empty();
-		modifiers.playerName = playerName;
-		modifiers.playerSkin = playerSkin;
-		modifiers.playerAsEntity = playerAsEntity;
-		return modifiers;
+		return PlaybackModifiers.EMPTY.withPlayerName(playerName).withPlayerSkin(playerSkin).withPlayerAsEntity(playerAsEntity);
 	}
 }

@@ -3,15 +3,14 @@ package net.mt1006.mocap.mocap.playing.playback;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.Vec3;
-import net.mt1006.mocap.api.impl.modifiers.MocapModifiersImpl;
 import net.mt1006.mocap.api.v1.controller.config.MocapPlaybackConfig;
 import net.mt1006.mocap.api.v1.controller.playable.*;
 import net.mt1006.mocap.api.v1.io.CommandInfo;
+import net.mt1006.mocap.api.v1.modifiers.MocapModifiers;
+import net.mt1006.mocap.api.v1.modifiers.MocapTransformations;
 import net.mt1006.mocap.command.CommandUtils;
 import net.mt1006.mocap.mocap.files.SceneData;
 import net.mt1006.mocap.mocap.playing.PlaybackDataManager;
-import net.mt1006.mocap.mocap.playing.modifiers.PlaybackModifiers;
-import net.mt1006.mocap.mocap.playing.modifiers.Transformations;
 import net.mt1006.mocap.mocap.playing.modifiers.TransformationsConfig;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,7 +23,7 @@ public class ScenePlayback extends Playback
 	private final PositionTransformer transformer;
 
 	private ScenePlayback(boolean isRoot, ServerLevel level, @Nullable ServerPlayer owner, MocapPlaybackConfig config,
-						  PlaybackModifiers modifiers, List<Playback> subscenes, PositionTransformer transformer)
+						  MocapModifiers modifiers, List<Playback> subscenes, PositionTransformer transformer)
 	{
 		super(isRoot, level, owner, config, modifiers);
 		this.subscenes = subscenes;
@@ -32,7 +31,7 @@ public class ScenePlayback extends Playback
 	}
 
 	public static @Nullable ScenePlayback start(CommandInfo info, boolean isRoot, PlaybackDataManager dataManager, @Nullable SceneData sceneData,
-												MocapPlaybackConfig config, PlaybackModifiers modifiers, @Nullable PositionTransformer parentTransformer)
+												MocapPlaybackConfig config, MocapModifiers modifiers, @Nullable PositionTransformer parentTransformer)
 	{
 		if (sceneData == null) { return null; }
 
@@ -42,7 +41,7 @@ public class ScenePlayback extends Playback
 			return null;
 		}
 
-		PositionTransformer transformer = createPosTransformer(info, modifiers.transformations, parentTransformer, sceneData, dataManager);
+		PositionTransformer transformer = createPosTransformer(info, modifiers.getTransformations(), parentTransformer, sceneData, dataManager);
 		if (transformer == null) { return null; }
 
 		List<Playback> subscenes = new ArrayList<>();
@@ -51,8 +50,8 @@ public class ScenePlayback extends Playback
 			MocapPlayable playable = element.getPlayable(info);
 			if (playable == null) { return null; }
 
-			PlaybackModifiers subsceneModifiers = element.getPlaybackModifiers().mergeWithParent(modifiers);
-			Playback playback = playable.startAsSubscene(info, MocapModifiersImpl.ofCopy(subsceneModifiers), config, dataManager, transformer);
+			MocapModifiers subsceneModifiers = element.getModifiers().mergeWithParent(modifiers);
+			Playback playback = playable.startAsSubscene(info, subsceneModifiers, config, dataManager, transformer);
 			if (playback == null) { return null; }
 			subscenes.add(playback);
 		}
@@ -81,21 +80,21 @@ public class ScenePlayback extends Playback
 		Vec3 subsceneStartPos = switch (element.getPlayable(info))
 		{
 			case MocapSceneFile sceneFile -> getSceneStartPos(info,
-					element.getPlaybackModifiers().transformations.config.getSceneCenter(), dataManager.getScene(sceneFile), dataManager);
+					element.getModifiers().getTransformations().getConfig().getSceneCenter(), dataManager.getScene(sceneFile), dataManager);
 			case MocapRecordingFile recordingFile -> dataManager.getRecording(recordingFile).startPos;
 			case MocapActiveRecording activeRecording -> activeRecording.getRecordingData().startPos;
 			case null -> throw new NullPointerException("Playable is null");
 			default -> throw new IllegalStateException("Unexpected value: " + element.getPlayable(info));
 		};
-		return element.getPlaybackModifiers().transformations.calculateCenter(subsceneStartPos);
+		return element.getModifiers().getTransformations().calculateCenter(subsceneStartPos);
 	}
 
-	private static @Nullable PositionTransformer createPosTransformer(CommandInfo info, Transformations transformations,
+	private static @Nullable PositionTransformer createPosTransformer(CommandInfo info, MocapTransformations transformations,
 																	  @Nullable PositionTransformer parent, SceneData sceneData,
 																	  PlaybackDataManager dataManager)
 	{
 		if (parent != null && transformations.areDefault()) { return parent; }
-		TransformationsConfig.SceneCenter center = transformations.config.getSceneCenter();
+		TransformationsConfig.SceneCenter center = transformations.getConfig().getSceneCenter();
 
 		if (center.type == TransformationsConfig.SceneCenterType.INDIVIDUAL || sceneData.elements.isEmpty())
 		{

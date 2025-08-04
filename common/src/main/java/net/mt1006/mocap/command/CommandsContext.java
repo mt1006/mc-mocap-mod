@@ -1,6 +1,7 @@
 package net.mt1006.mocap.command;
 
 import net.minecraft.server.level.ServerPlayer;
+import net.mt1006.mocap.api.v1.modifiers.MocapModifiers;
 import net.mt1006.mocap.mocap.playing.modifiers.PlaybackModifiers;
 import org.jetbrains.annotations.Nullable;
 
@@ -11,7 +12,7 @@ public class CommandsContext
 {
 	private static final Map<ServerPlayer, CommandsContext> contexts = new HashMap<>();
 	public static int haveSyncEnabled = 0;
-	public PlaybackModifiers modifiers = PlaybackModifiers.empty();
+	public MocapModifiers modifiers = PlaybackModifiers.EMPTY;
 	private boolean sync = false;
 	public @Nullable String doubleStart = null;
 
@@ -40,20 +41,17 @@ public class CommandsContext
 		return source == null || CommandsContext.get(source).modifiers.areDefault();
 	}
 
-	public static PlaybackModifiers getFinalModifiers(@Nullable ServerPlayer source, PlaybackModifiers simpleModifiers)
+	public static MocapModifiers getFinalModifiers(@Nullable ServerPlayer source, MocapModifiers simpleModifiers)
 	{
-		PlaybackModifiers modifiers = source != null
-				? CommandsContext.get(source).modifiers.copy()
-				: PlaybackModifiers.empty();
+		MocapModifiers contextModifiers = source != null ? CommandsContext.get(source).modifiers : PlaybackModifiers.EMPTY;
+		MocapModifiers modifiers = simpleModifiers.mergeWithParent(contextModifiers);
 
-		PlaybackModifiers mergedModifiers = simpleModifiers.mergeWithParent(modifiers);
-
-		// This is done to make PositionTransformer center calculating work properly for starting recording (outside of scene)
-		// when playback modifiers are enabled. This can be done because simpleModifiers transformations are default transformations.
-		mergedModifiers.transformations = modifiers.transformations;
-		//TODO: make it in a better way
-
-		return mergedModifiers;
+		// mergeWithParent() doesn't merge transformations, as it expects PositionTransformer to call parent transformer,
+		// but before starting playback PositionTransformer doesn't exist, so we need to manually merge transformations.
+		// In this case it's quite easy, as simpleModifiers should always use default (empty) transformations,
+		// so we can just copy them from contextModifiers (these set with "/mocap playback modifiers").
+		// Simple modifiers are these defined as optional arguments of "/mocap playback start" command.
+		return modifiers.withTransformations(contextModifiers.getTransformations());
 	}
 
 	public boolean setSync(boolean sync)

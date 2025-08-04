@@ -9,6 +9,8 @@ import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.mt1006.mocap.api.v1.io.CommandOutput;
+import net.mt1006.mocap.api.v1.modifiers.MocapModifiers;
+import net.mt1006.mocap.api.v1.modifiers.MocapStartDelay;
 import net.mt1006.mocap.command.CommandSuggestions;
 import net.mt1006.mocap.command.CommandUtils;
 import net.mt1006.mocap.command.io.FullCommandInfo;
@@ -16,7 +18,6 @@ import net.mt1006.mocap.mocap.files.RecordingFiles;
 import net.mt1006.mocap.mocap.files.SceneData;
 import net.mt1006.mocap.mocap.files.SceneFiles;
 import net.mt1006.mocap.mocap.playing.modifiers.PlaybackModifiers;
-import net.mt1006.mocap.mocap.playing.modifiers.StartDelay;
 import net.mt1006.mocap.mocap.playing.playable.SceneFile;
 import net.mt1006.mocap.mocap.recording.RecordingManager;
 import net.mt1006.mocap.utils.Utils;
@@ -89,7 +90,7 @@ public class ScenesCommand
 
 			if (!toAdd.contains("*"))
 			{
-				SceneData.Element element = new SceneData.Element(toAdd, PlaybackModifiers.empty());
+				SceneData.Element element = new SceneData.Element(toAdd, PlaybackModifiers.EMPTY);
 				return SceneFiles.addElement(info, name, element);
 			}
 			else
@@ -123,7 +124,7 @@ public class ScenesCommand
 				{
 					if (str.startsWith(parts[0]) && str.endsWith(parts[1]))
 					{
-						SceneData.Element element = new SceneData.Element(str, PlaybackModifiers.empty());
+						SceneData.Element element = new SceneData.Element(str, PlaybackModifiers.EMPTY);
 						successes += SceneFiles.addElement(CommandOutput.LOGS, name, element) ? 1 : 0;
 						matched++;
 					}
@@ -158,11 +159,10 @@ public class ScenesCommand
 			}
 			catch (IllegalArgumentException ignore) {}
 
-			PlaybackModifiers modifiers = info.getSimpleModifiers(info);
+			MocapModifiers modifiers = info.getSimpleModifiers(info);
 			if (modifiers == null) { return false; }
-			modifiers.startDelay = StartDelay.fromSeconds(delay);
 
-			SceneData.Element element = new SceneData.Element(toAdd, modifiers);
+			SceneData.Element element = new SceneData.Element(toAdd, modifiers.withStartDelay(MocapStartDelay.fromSeconds(delay)));
 			return SceneFiles.addElement(info, name, element);
 		}
 		catch (IllegalArgumentException e) { return info.sendException(e, "error.unable_to_get_argument"); }

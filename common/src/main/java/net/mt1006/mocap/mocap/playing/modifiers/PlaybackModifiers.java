@@ -7,24 +7,25 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.mt1006.mocap.api.v1.io.CommandOutput;
-import net.mt1006.mocap.api.v1.modifiers.MocapPlayerAsEntity;
-import net.mt1006.mocap.api.v1.modifiers.MocapPlayerSkin;
+import net.mt1006.mocap.api.v1.modifiers.*;
 import net.mt1006.mocap.command.io.FullCommandInfo;
 import net.mt1006.mocap.mocap.files.SceneFiles;
 import net.mt1006.mocap.utils.Utils;
 import org.jetbrains.annotations.Nullable;
 
-public class PlaybackModifiers
+public class PlaybackModifiers implements MocapModifiers
 {
-	public @Nullable String playerName;
-	public MocapPlayerSkin playerSkin;
-	public Transformations transformations;
-	public MocapPlayerAsEntity playerAsEntity;
-	public StartDelay startDelay;
-	public EntityFilter entityFilter;
+	public static final PlaybackModifiers EMPTY = new PlaybackModifiers(null, PlayerSkin.DEFAULT,
+			Transformations.EMPTY, PlayerAsEntity.DISABLED, MocapStartDelay.ZERO, EntityFilter.FOR_PLAYBACK);
+	public final @Nullable String playerName;
+	public final MocapPlayerSkin playerSkin;
+	public final MocapTransformations transformations;
+	public final MocapPlayerAsEntity playerAsEntity;
+	public final MocapStartDelay startDelay;
+	public final MocapEntityFilter entityFilter;
 
-	private PlaybackModifiers(@Nullable String playerName, MocapPlayerSkin playerSkin, Transformations transformations,
-							  MocapPlayerAsEntity playerAsEntity, StartDelay startDelay, EntityFilter entityFilter)
+	private PlaybackModifiers(@Nullable String playerName, MocapPlayerSkin playerSkin, MocapTransformations transformations,
+							  MocapPlayerAsEntity playerAsEntity, MocapStartDelay startDelay, MocapEntityFilter entityFilter)
 	{
 		this.playerName = playerName;
 		this.playerSkin = playerSkin;
@@ -40,41 +41,90 @@ public class PlaybackModifiers
 		playerSkin = new PlayerSkin(reader.readObject("player_skin"));
 		transformations = Transformations.fromObject(reader.readObject("transformations"));
 		playerAsEntity = new PlayerAsEntity(reader.readObject("player_as_entity"));
-		startDelay = StartDelay.fromSeconds(reader.readDouble("start_delay", 0.0));
+		startDelay = MocapStartDelay.fromSeconds(reader.readDouble("start_delay", 0.0));
 		entityFilter = EntityFilter.fromString(reader.readString("entity_filter"));
 	}
 
-	public static PlaybackModifiers empty()
+	@Override public @Nullable String getPlayerName()
 	{
-		return new PlaybackModifiers(null, PlayerSkin.DEFAULT, Transformations.empty(),
-				PlayerAsEntity.DISABLED, StartDelay.ZERO, EntityFilter.FOR_PLAYBACK);
+		return playerName;
 	}
 
-	public PlaybackModifiers mergeWithParent(PlaybackModifiers parent)
+	@Override public MocapModifiers withPlayerName(@Nullable String name)
 	{
-		return new PlaybackModifiers(
-				playerName != null ? playerName : parent.playerName,
-				playerSkin.mergeWithParent(parent.playerSkin),
-				transformations.mergeWithParent(parent.transformations),
-				playerAsEntity.isEnabled() ? playerAsEntity : parent.playerAsEntity,
-				//startDelay.add(parent.startDelay), //TODO: fix how delaying start works?
-				startDelay,
-				!entityFilter.isDefaultForPlayback() ? entityFilter : parent.entityFilter);
+		return new PlaybackModifiers(name, playerSkin, transformations, playerAsEntity, startDelay, entityFilter);
 	}
 
-	public PlaybackModifiers copy()
+	@Override public MocapPlayerSkin getPlayerSkin()
 	{
-		return new PlaybackModifiers(playerName, playerSkin, transformations.copy(), playerAsEntity, startDelay, entityFilter);
+		return playerSkin;
 	}
 
-	public boolean areDefault()
+	@Override public MocapModifiers withPlayerSkin(MocapPlayerSkin skin)
+	{
+		return new PlaybackModifiers(playerName, skin, transformations, playerAsEntity, startDelay, entityFilter);
+	}
+
+	@Override public MocapTransformations getTransformations()
+	{
+		return transformations;
+	}
+
+	@Override public MocapModifiers withTransformations(MocapTransformations transformations)
+	{
+		return new PlaybackModifiers(playerName, playerSkin, transformations, playerAsEntity, startDelay, entityFilter);
+	}
+
+	@Override public MocapPlayerAsEntity getPlayerAsEntity()
+	{
+		return playerAsEntity;
+	}
+
+	@Override public MocapModifiers withPlayerAsEntity(MocapPlayerAsEntity playerAsEntity)
+	{
+		return new PlaybackModifiers(playerName, playerSkin, transformations, playerAsEntity, startDelay, entityFilter);
+	}
+
+	@Override public MocapStartDelay getStartDelay()
+	{
+		return startDelay;
+	}
+
+	@Override public MocapModifiers withStartDelay(MocapStartDelay startDelay)
+	{
+		return new PlaybackModifiers(playerName, playerSkin, transformations, playerAsEntity, startDelay, entityFilter);
+	}
+
+	@Override public MocapEntityFilter getEntityFilter()
+	{
+		return entityFilter;
+	}
+
+	@Override public MocapModifiers withEntityFilter(MocapEntityFilter filter)
+	{
+		return new PlaybackModifiers(playerName, playerSkin, transformations, playerAsEntity, startDelay, filter);
+	}
+
+	@Override public boolean areDefault()
 	{
 		return playerName == null && playerSkin.getSource() == MocapPlayerSkin.Source.DEFAULT
-				&& transformations.areDefault() && !playerAsEntity.isEnabled() && startDelay == StartDelay.ZERO
+				&& transformations.areDefault() && !playerAsEntity.isEnabled() && startDelay == MocapStartDelay.ZERO
 				&& entityFilter.isDefaultForPlayback();
 	}
 
-	public void save(SceneFiles.Writer writer)
+	@Override public MocapModifiers mergeWithParent(MocapModifiers parent)
+	{
+		return new PlaybackModifiers(
+				playerName != null ? playerName : parent.getPlayerName(),
+				playerSkin.mergeWithParent(parent.getPlayerSkin()),
+				transformations.mergeWithParent(parent.getTransformations()),
+				playerAsEntity.isEnabled() ? playerAsEntity : parent.getPlayerAsEntity(),
+				//startDelay.add(parent.startDelay), //TODO: fix how delaying start works?
+				startDelay,
+				!entityFilter.isDefaultForPlayback() ? entityFilter : parent.getEntityFilter());
+	}
+
+	@Override public void save(SceneFiles.Writer writer)
 	{
 		writer.addString("player_name", playerName);
 		writer.addObject("player_skin", playerSkin.save());
@@ -84,7 +134,7 @@ public class PlaybackModifiers
 		writer.addString("entity_filter", entityFilter.save());
 	}
 
-	public void list(CommandOutput out)
+	@Override public void list(CommandOutput out)
 	{
 		if (playerName == null) { out.sendSuccess("scenes.element_info.player_name.default"); }
 		else { out.sendSuccess("scenes.element_info.player_name.custom", playerName); }
@@ -121,35 +171,36 @@ public class PlaybackModifiers
 		else { out.sendSuccess("scenes.element_info.entity_filter.enabled", entityFilter.save()); }
 	}
 
-	public boolean modify(FullCommandInfo info, String propertyName, int propertyNodePosition) throws CommandSyntaxException
+	@Override public @Nullable MocapModifiers modify(FullCommandInfo info, String propertyName, int propertyNodePosition) throws CommandSyntaxException
 	{
 		switch (propertyName)
 		{
 			case "start_delay":
-				startDelay = StartDelay.fromSeconds(info.getDouble("delay"));
-				return true;
+				return withStartDelay(MocapStartDelay.fromSeconds(info.getDouble("delay")));
 
 			case "transformations":
 				String transformationType = info.getNode(propertyNodePosition + 1);
-				if (transformationType == null) { break; }
-				return transformations.modify(info, transformationType, propertyNodePosition + 1);
+				if (transformationType == null) { return null; }
+
+				MocapTransformations newTransformations = transformations.modify(info, transformationType, propertyNodePosition + 1);
+				return newTransformations != null ? withTransformations(newTransformations) : null;
 
 			case "player_name":
-				playerName = info.getString("player_name");
-				return true;
+				return withPlayerName(info.getString("player_name"));
 
 			case "player_skin":
-				PlayerSkin newPlayerSkin = info.getPlayerSkin();
-				if (newPlayerSkin == null) { return false; }
-
-				playerSkin = newPlayerSkin;
-				return true;
+				MocapPlayerSkin newPlayerSkin = info.getPlayerSkin();
+				return newPlayerSkin != null ? withPlayerSkin(newPlayerSkin) : null;
 
 			case "player_as_entity":
 				String playerAsEntityMode = info.getNode(propertyNodePosition + 1);
-				if (playerAsEntityMode == null) { break; }
+				if (playerAsEntityMode == null) { return null; }
 
-				if (playerAsEntityMode.equals("enabled"))
+				if (playerAsEntityMode.equals("disabled"))
+				{
+					return withPlayerAsEntity(PlayerAsEntity.DISABLED);
+				}
+				else if (playerAsEntityMode.equals("enabled"))
 				{
 					String playerAsEntityId = ResourceArgument.getEntityType(info.ctx, "entity").key().location().toString();
 
@@ -158,44 +209,38 @@ public class PlaybackModifiers
 					catch (Exception e) { tag = null; }
 					CompoundTag nbt = (tag instanceof CompoundTag) ? (CompoundTag)tag : null;
 
-					playerAsEntity = new PlayerAsEntity(playerAsEntityId, nbt != null ? nbt.toString() : null);
-					return true;
+					return withPlayerAsEntity(new PlayerAsEntity(playerAsEntityId, nbt != null ? nbt.toString() : null));
 				}
-				else if (playerAsEntityMode.equals("disabled"))
-				{
-					playerAsEntity = PlayerAsEntity.DISABLED;
-					return true;
-				}
-				break;
+				return null;
 
 			case "entity_filter":
 				String filterMode = info.getNode(propertyNodePosition + 1);
-				if (filterMode == null) { break; }
+				if (filterMode == null) { return null; }
 
-				if (filterMode.equals("enabled"))
+				if (filterMode.equals("disabled"))
+				{
+					return withEntityFilter(EntityFilter.FOR_PLAYBACK);
+				}
+				else if (filterMode.equals("enabled"))
 				{
 					String filterStr = info.getString("entity_filter");
 					EntityFilterInstance filterInstance = EntityFilterInstance.create(filterStr);
 					if (filterInstance == null)
 					{
 						info.sendFailure("failure.entity_filter.failed_to_parse");
-						return false;
+						return null;
 					}
 
-					entityFilter = new EntityFilter(filterInstance);
-					return true;
+					return withEntityFilter(new EntityFilter(filterInstance));
 				}
-				else if (filterMode.equals("disabled"))
-				{
-					entityFilter = EntityFilter.FOR_PLAYBACK;
-					return true;
-				}
-				break;
+				return null;
+
+			default:
+				return null;
 		}
-		return false;
 	}
 
-	public static boolean checkIfProperName(CommandOutput out, @Nullable String name)
+	public static boolean checkIfProperPlayerName(CommandOutput out, @Nullable String name)
 	{
 		if (name == null) { return true; }
 

@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 
 public interface MocapPlayerSkin
 {
-	MocapPlayerSkin DEFAULT = PlayerSkin.DEFAULT;
+	MocapPlayerSkin DEFAULT = new PlayerSkin(Source.DEFAULT, null);
 
 	static MocapPlayerSkin fromPlayer(String path)
 	{

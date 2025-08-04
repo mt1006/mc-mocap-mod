@@ -44,7 +44,7 @@ public class TransformationsConfig implements MocapTransformationsConfig
 		return roundBlockPos;
 	}
 
-	@Override public TransformationsConfig setRoundBlockPos(boolean roundBlockPos)
+	@Override public TransformationsConfig withRoundBlockPos(boolean roundBlockPos)
 	{
 		return new TransformationsConfig(roundBlockPos, recordingCenter, sceneCenter, centerOffset);
 	}
@@ -54,7 +54,7 @@ public class TransformationsConfig implements MocapTransformationsConfig
 		return recordingCenter;
 	}
 
-	@Override public TransformationsConfig setRecordingCenter(RecordingCenter center)
+	@Override public TransformationsConfig withRecordingCenter(RecordingCenter center)
 	{
 		return new TransformationsConfig(roundBlockPos, center, sceneCenter, centerOffset);
 	}
@@ -69,7 +69,7 @@ public class TransformationsConfig implements MocapTransformationsConfig
 		return sceneCenter.specificStr;
 	}
 
-	@Override public TransformationsConfig setSceneCenter(SceneCenterType center, @Nullable String specificStr)
+	@Override public TransformationsConfig withSceneCenter(SceneCenterType center, @Nullable String specificStr)
 	{
 		if (center != SceneCenterType.COMMON_SPECIFIC) { specificStr = null; }
 		return new TransformationsConfig(roundBlockPos, recordingCenter, new SceneCenter(center, specificStr), centerOffset);
@@ -80,7 +80,7 @@ public class TransformationsConfig implements MocapTransformationsConfig
 		return centerOffset;
 	}
 
-	@Override public TransformationsConfig setCenterOffset(MocapOffset offset)
+	@Override public TransformationsConfig withCenterOffset(MocapOffset offset)
 	{
 		return new TransformationsConfig(roundBlockPos, recordingCenter, sceneCenter, offset);
 	}
@@ -128,13 +128,13 @@ public class TransformationsConfig implements MocapTransformationsConfig
 		switch (propertyName)
 		{
 			case "round_block_pos":
-				return setRoundBlockPos(info.getBool("round"));
+				return withRoundBlockPos(info.getBool("round"));
 
 			case "recording_center":
 				String centerPointStr = info.getNode(propertyNodePos + 1);
 				if (centerPointStr == null) { break; }
 
-				return setRecordingCenter(RecordingCenter.valueOf(centerPointStr.toUpperCase()));
+				return withRecordingCenter(RecordingCenter.valueOf(centerPointStr.toUpperCase()));
 
 			case "scene_center":
 				String sceneCenterStr = info.getNode(propertyNodePos + 1);
@@ -143,10 +143,10 @@ public class TransformationsConfig implements MocapTransformationsConfig
 				SceneCenterType centerType = SceneCenterType.valueOf(sceneCenterStr.toUpperCase());
 				String specificStr = centerType == SceneCenterType.COMMON_SPECIFIC ? info.getString("specific_scene_element") : null;
 
-				return setSceneCenter(centerType, specificStr);
+				return withSceneCenter(centerType, specificStr);
 
 			case "center_offset":
-				return setCenterOffset(new Vec3(info.getDouble("offset_x"), info.getDouble("offset_y"), info.getDouble("offset_z")));
+				return withCenterOffset(new Vec3(info.getDouble("offset_x"), info.getDouble("offset_y"), info.getDouble("offset_z")));
 		}
 		return null;
 	}
