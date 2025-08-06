@@ -1,5 +1,6 @@
 package net.mt1006.mocap.api.impl.controller;
 
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.mt1006.mocap.api.v1.controller.MocapController;
@@ -20,20 +21,24 @@ import java.util.List;
 
 public class MocapControllerImpl implements MocapController
 {
-	public final APICommandInfo commandInfo;
+	private final CommandInfo commandInfo;
 	private final RecordingSource recordingSource;
-	public final boolean hideStuff;
 
-	public MocapControllerImpl(String name, ServerLevel level, boolean hideStuff)
+	public MocapControllerImpl(MinecraftServer server, String name)
 	{
-		this.commandInfo = new APICommandInfo(level, name);
+		this.commandInfo = new APICommandInfo(server, server.overworld(), name);
 		this.recordingSource = RecordingSource.forAPI(name);
-		this.hideStuff = hideStuff;
 	}
 
 	@Override public CommandInfo getCommandInfo()
 	{
 		return commandInfo;
+	}
+
+	@Override public CommandInfo getCommandInfoForLevel(ServerLevel level)
+	{
+		if (level == commandInfo.getLevel()) { return commandInfo; }
+		return new APICommandInfo(level.getServer(), level, commandInfo.getSourceName());
 	}
 
 	@Override public @Nullable MocapPlaybackRoot findPlayback(String id)

@@ -1,7 +1,6 @@
 package net.mt1006.mocap.api.v1;
 
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerLevel;
 import net.mt1006.mocap.MocapMod;
 import net.mt1006.mocap.api.impl.controller.MocapControllerImpl;
 import net.mt1006.mocap.api.impl.extenstion.Extensions;
@@ -13,19 +12,14 @@ import org.jetbrains.annotations.Nullable;
 
 public final class MocapAPI
 {
-	public static @Nullable MocapController createController(String name, ServerLevel level)
-	{
-		return createController(name, level, true);
-	}
-
-	public static @Nullable MocapController createController(String name, ServerLevel level, boolean hideStuff)
+	public static @Nullable MocapController createController(MinecraftServer server, String name)
 	{
 		if (Files.checkIfProperName(CommandOutput.DUMMY, name))
 		{
 			MocapMod.LOGGER.warn("Failed to create MocapController - improper name!");
 			return null;
 		}
-		return new MocapControllerImpl(name, level, hideStuff);
+		return new MocapControllerImpl(server, name);
 	}
 
 	public static @Nullable MocapExtension registerExtension(MinecraftServer server, String id, short version)

@@ -1,5 +1,6 @@
 package net.mt1006.mocap.api.v1.controller;
 
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.mt1006.mocap.api.v1.controller.config.MocapRecordingConfig;
 import net.mt1006.mocap.api.v1.controller.playable.MocapActiveRecording;
@@ -11,6 +12,8 @@ import java.util.List;
 public interface MocapController
 {
 	CommandInfo getCommandInfo();
+
+	CommandInfo getCommandInfoForLevel(ServerLevel level);
 
 	@Nullable MocapPlaybackRoot findPlayback(String id);
 

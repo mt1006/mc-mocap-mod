@@ -43,12 +43,12 @@ public class RecordingData implements MocapRecordingData
 {
 	public static final RecordingData DUMMY = new RecordingData();
 
-	private static final byte FLAGS1_ENDS_WITH_DEATH =           0b00000001;
-	private static final byte FLAGS1_PACKED_SIZE_STRINGS =       0b00000010;
-	private static final byte FLAGS1_HAS_ID_MAPS =               0b00000100;
-	private static final byte FLAGS1_START_DIMENSION_SPECIFIED = 0b00001000;
-	private static final byte FLAGS1_PLAYER_NAME_SPECIFIED =     0b00010000;
-	private static final byte FLAGS1_HAS_EXTENSIONS =            0b00100000;
+	private static final byte FLAGS1_ENDS_WITH_DEATH =        0b00000001;
+	private static final byte FLAGS1_PACKED_SIZE_STRINGS =    0b00000010;
+	private static final byte FLAGS1_HAS_ID_MAPS =            0b00000100;
+	private static final byte FLAGS1_DIMENSION_SPECIFIED =    0b00001000;
+	private static final byte FLAGS1_PLAYER_NAME_SPECIFIED =  0b00010000;
+	private static final byte FLAGS1_HAS_EXTENSIONS =         0b00100000;
 
 	public long fileSize = 0;
 	public byte version = 0;
@@ -59,7 +59,7 @@ public class RecordingData implements MocapRecordingData
 	private boolean usesIdMaps = true;
 	private final ItemIdMap itemIdMap = new ItemIdMap(this);
 	private final BlockStateIdMap blockStateIdMap = new BlockStateIdMap(this);
-	private @Nullable String startDimension = null; //TODO: use it
+	public @Nullable ResourceLocation dimensionId = null; //TODO: use it
 	public @Nullable String playerName = null;
 	private final SortedMap<Integer, MocapExtension> extensionById = new TreeMap<>();
 	private final Map<MocapExtension, Byte> extensionToId = new HashMap<>();
@@ -138,7 +138,7 @@ public class RecordingData implements MocapRecordingData
 		flags1 |= endsWithDeath ? FLAGS1_ENDS_WITH_DEATH : 0;
 		flags1 |= FLAGS1_PACKED_SIZE_STRINGS;
 		flags1 |= hasIdMaps ? FLAGS1_HAS_ID_MAPS : 0;
-		flags1 |= startDimension != null ? FLAGS1_START_DIMENSION_SPECIFIED : 0;
+		flags1 |= dimensionId != null ? FLAGS1_DIMENSION_SPECIFIED : 0;
 		flags1 |= playerName != null ? FLAGS1_PLAYER_NAME_SPECIFIED : 0;
 		flags1 |= !extensionById.isEmpty() ? FLAGS1_HAS_EXTENSIONS : 0;
 		writer.addByte(flags1);
@@ -149,7 +149,7 @@ public class RecordingData implements MocapRecordingData
 			blockStateIdMap.save(writer);
 		}
 
-		if (startDimension != null) { writer.addString(startDimension); }
+		if (dimensionId != null) { writer.addString(dimensionId.toString()); }
 		if (playerName != null) { writer.addString(playerName); }
 		if (!extensionById.isEmpty()) { saveExtensionHeaders(writer); }
 	}
@@ -185,7 +185,7 @@ public class RecordingData implements MocapRecordingData
 		endsWithDeath = (flags1 & FLAGS1_ENDS_WITH_DEATH) != 0;
 		reader.setStringMode((flags1 & FLAGS1_PACKED_SIZE_STRINGS) == 0);
 		usesIdMaps = (flags1 & FLAGS1_HAS_ID_MAPS) != 0;
-		boolean startDimensionSpecified = (flags1 & FLAGS1_START_DIMENSION_SPECIFIED) != 0;
+		boolean startDimensionSpecified = (flags1 & FLAGS1_DIMENSION_SPECIFIED) != 0;
 		boolean playerNameSpecified = (flags1 & FLAGS1_PLAYER_NAME_SPECIFIED) != 0;
 		boolean hasExtensions = (flags1 & FLAGS1_HAS_EXTENSIONS) != 0;
 
@@ -195,7 +195,7 @@ public class RecordingData implements MocapRecordingData
 			blockStateIdMap.load(reader);
 		}
 
-		if (startDimensionSpecified) { startDimension = reader.readString(); }
+		if (startDimensionSpecified) { dimensionId = ResourceLocation.parse(reader.readString()); }
 		if (playerNameSpecified) { playerName = reader.readString(); }
 		if (hasExtensions && !loadExtensionHeaders(out, reader)) { return false; }
 		return true;

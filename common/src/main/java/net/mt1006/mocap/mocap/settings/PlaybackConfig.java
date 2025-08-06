@@ -1,5 +1,6 @@
 package net.mt1006.mocap.mocap.settings;
 
+import net.mt1006.mocap.api.v1.controller.config.MocapDimensionSource;
 import net.mt1006.mocap.api.v1.controller.config.MocapEntitiesAfterPlayback;
 import net.mt1006.mocap.api.v1.controller.config.MocapPlaybackConfig;
 import org.jetbrains.annotations.Nullable;
@@ -15,6 +16,7 @@ public class PlaybackConfig implements MocapPlaybackConfig
 	private @Nullable Boolean startAsRecorded;
 	private @Nullable Boolean chatPlayback;
 	private @Nullable Boolean invulnerablePlayback;
+	private @Nullable MocapDimensionSource dimensionSource;
 
 	public PlaybackConfig(boolean setDefault)
 	{
@@ -27,6 +29,7 @@ public class PlaybackConfig implements MocapPlaybackConfig
 		startAsRecorded = setDefault ? Settings.START_AS_RECORDED.defVal : null;
 		chatPlayback = setDefault ? Settings.CHAT_PLAYBACK.defVal : null;
 		invulnerablePlayback = setDefault ? Settings.INVULNERABLE_PLAYBACK.defVal : null;
+		dimensionSource = setDefault ? Settings.DIMENSION_SOURCE.defVal : null;
 	}
 
 	private PlaybackConfig(PlaybackConfig toCopy)
@@ -40,6 +43,7 @@ public class PlaybackConfig implements MocapPlaybackConfig
 		startAsRecorded = toCopy.startAsRecorded;
 		chatPlayback = toCopy.chatPlayback;
 		invulnerablePlayback = toCopy.invulnerablePlayback;
+		dimensionSource = toCopy.dimensionSource;
 	}
 
 	@Override public MocapPlaybackConfig copy()
@@ -135,5 +139,15 @@ public class PlaybackConfig implements MocapPlaybackConfig
 	@Override public void setInvulnerablePlayback(@Nullable Boolean val)
 	{
 		invulnerablePlayback = val;
+	}
+
+	@Override public MocapDimensionSource getDimensionSource()
+	{
+		return dimensionSource != null ? dimensionSource : Settings.DIMENSION_SOURCE.val;
+	}
+
+	@Override public void setDimensionSource(@Nullable MocapDimensionSource val)
+	{
+		dimensionSource = val;
 	}
 }

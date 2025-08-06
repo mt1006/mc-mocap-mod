@@ -1,5 +1,6 @@
 package net.mt1006.mocap.mocap.settings;
 
+import net.mt1006.mocap.api.v1.controller.config.MocapOnChangeDimension;
 import net.mt1006.mocap.api.v1.controller.config.MocapOnDeath;
 import net.mt1006.mocap.api.v1.controller.config.MocapRecordingConfig;
 import org.jetbrains.annotations.Nullable;
@@ -9,6 +10,8 @@ public class RecordingConfig implements MocapRecordingConfig
 	private @Nullable Boolean preventTrackingPlayedEntities;
 	private @Nullable Double entityTrackingDistance;
 	private @Nullable MocapOnDeath onDeath;
+	private @Nullable MocapOnChangeDimension onChangeDimension;
+	private @Nullable Boolean assignDimension;
 	private @Nullable Boolean assignPlayerName;
 	private @Nullable Boolean chatRecording;
 
@@ -17,6 +20,8 @@ public class RecordingConfig implements MocapRecordingConfig
 		preventTrackingPlayedEntities = setDefault ? Settings.PREVENT_TRACKING_PLAYED_ENTITIES.defVal : null;
 		entityTrackingDistance = setDefault ? Settings.ENTITY_TRACKING_DISTANCE.defVal : null;
 		onDeath = setDefault ? Settings.ON_DEATH.defVal : null;
+		onChangeDimension = setDefault ? Settings.ON_CHANGE_DIMENSION.defVal : null;
+		assignDimension = setDefault ? Settings.ASSIGN_DIMENSION.defVal : null;
 		assignPlayerName = setDefault ? Settings.ASSIGN_PLAYER_NAME.defVal : null;
 		chatRecording = setDefault ? Settings.CHAT_RECORDING.defVal : null;
 	}
@@ -26,6 +31,8 @@ public class RecordingConfig implements MocapRecordingConfig
 		preventTrackingPlayedEntities = toCopy.preventTrackingPlayedEntities;
 		entityTrackingDistance = toCopy.entityTrackingDistance;
 		onDeath = toCopy.onDeath;
+		onChangeDimension = toCopy.onChangeDimension;
+		assignDimension = toCopy.assignDimension;
 		assignPlayerName = toCopy.assignPlayerName;
 		chatRecording = toCopy.chatRecording;
 	}
@@ -63,6 +70,26 @@ public class RecordingConfig implements MocapRecordingConfig
 	@Override public void setOnDeath(@Nullable MocapOnDeath val)
 	{
 		onDeath = val;
+	}
+
+	@Override public MocapOnChangeDimension getOnChangeDimension()
+	{
+		return onChangeDimension != null ? onChangeDimension : Settings.ON_CHANGE_DIMENSION.val;
+	}
+
+	@Override public void setOnChangeDimension(@Nullable MocapOnChangeDimension val)
+	{
+		onChangeDimension = val;
+	}
+
+	@Override public boolean getAssignDimension()
+	{
+		return assignDimension != null ? assignDimension : Settings.ASSIGN_DIMENSION.val;
+	}
+
+	@Override public void setAssignDimension(@Nullable Boolean val)
+	{
+		assignDimension = val;
 	}
 
 	@Override public boolean getAssignPlayerName()

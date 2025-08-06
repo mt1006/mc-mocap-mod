@@ -10,11 +10,6 @@ public class NextTick implements MocapAction
 
 	private NextTick() {}
 
-	public static NextTick fromReader(Reader ignore)
-	{
-		return INSTANCE;
-	}
-
 	@Override public void write(Writer writer, MocapRecordingData data) {}
 
 	@Override public Result execute(MocapActionContext ctx)

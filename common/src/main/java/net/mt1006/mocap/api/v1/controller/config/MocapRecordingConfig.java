@@ -29,6 +29,14 @@ public interface MocapRecordingConfig
 
 	void setOnDeath(@Nullable MocapOnDeath val);
 
+	MocapOnChangeDimension getOnChangeDimension();
+
+	void setOnChangeDimension(@Nullable MocapOnChangeDimension val);
+
+	boolean getAssignDimension();
+
+	void setAssignDimension(@Nullable Boolean val);
+
 	boolean getAssignPlayerName();
 
 	void setAssignPlayerName(@Nullable Boolean val);

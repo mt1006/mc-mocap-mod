@@ -180,24 +180,15 @@
   "mocap.settings.info.name": "§l名稱：§r %s",
   "mocap.settings.info.about": "§l關於：§r %s",
   
-  "mocap.settings.info.about.track_vehicle_entities": "啟用載具實體 (如船或馬) 的追蹤 (錄製)",
-  "mocap.settings.info.about.track_projectile_entities": "啟用投射物 (如箭或雪球) 的追蹤 (錄製)",
-  "mocap.settings.info.about.track_item_entities": "啟用物品實體的追蹤 (錄製)",
-  "mocap.settings.info.about.track_other_entities": "啟用載具和物品以外實體的追蹤 (錄製)",
   "mocap.settings.info.about.prevent_tracking_played_entities": "防止追蹤 (錄製) 目前正在播放的實體",
   "mocap.settings.info.about.entity_tracking_distance": "限制實體追蹤距離 (>0 - 追蹤半徑 (格)；0 - 停用追蹤；-1 - 距離無限制)",
   
   "mocap.settings.info.about.playback_speed": "允許你變更播放錄製或場景的速度",
-  "mocap.settings.info.about.play_vehicle_entities": "啟用載具實體 (如船或馬) 的播放",
-  "mocap.settings.info.about.play_projectile_entities": "啟用投射物 (如箭或雪球) 的播放",
-  "mocap.settings.info.about.play_item_entities": "啟用物品實體的播放",
-  "mocap.settings.info.about.play_other_entities": "啟用載具和物品以外實體的播放",
   "mocap.settings.info.about.can_push_entities": "讓假玩家推動其他實體",
   "mocap.settings.info.about.entities_after_playback": "決定播放後實體的處理方式 (remove - 移除；kill - 以動畫方式殺死；left_untouched - 不做任何處理；release_as_normal - 作為正常實體釋放)",
   "mocap.settings.info.about.block_actions_playback": "播放放置、破壞和與方塊互動的動作",
   "mocap.settings.info.about.block_initialization": "在播放開始時，將方塊狀態設定為錄製開始前的狀態",
-  "mocap.settings.info.about.drop_from_blocks": "啟用破壞方塊的掉落物 (建議在停用「playItemEntities」時使用，以防止重複)",
-  
+
   "mocap.settings.info.about.fluent_movements": "設定玩家與播放實體之間的距離，以便接收額外的封包以實現更流暢的動作 (>0 - 距離 (格)；0 - 停用流暢動作；-1 - 無限制)",
   "mocap.settings.info.about.movement_precision": "設定錄製玩家移動的精確度 - 期望位置偏移與計算偏移之間的絕對值差異不會高於 1/val",
   "mocap.settings.info.about.precise_rotation_recording": "提高錄製頭部旋轉的精確度",

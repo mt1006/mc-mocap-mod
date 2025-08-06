@@ -16,42 +16,9 @@ import java.util.UUID;
 
 public class Respawn implements MocapAction
 {
-	/*private final Vec3 pos;
-	private final float rotY, rotX;
-	private final @Nullable ResourceLocation dimensionId;
+	public static final Respawn INSTANCE = new Respawn();
 
-	public Respawn(Vec3 pos, float rotY, float rotX, @Nullable ResourceLocation dimensionId)
-	{
-		this.pos = pos;
-		this.rotY = rotY;
-		this.rotX = rotX;
-		this.dimensionId = dimensionId;
-	}
-
-	public Respawn(RecordingFiles.Reader reader)
-	{
-		pos = reader.readVec3();
-		rotY = reader.readFloat();
-		rotX = reader.readFloat();
-
-		//TODO: test when bad input
-		String dimensionStr = reader.readString();
-		dimensionId = dimensionStr.isEmpty() ? null : ResourceLocation.parse(dimensionStr);
-	}
-
-	@Override public void write(RecordingFiles.Writer writer)
-	{
-		writer.addByte(Type.RESPAWN.id);
-
-		writer.addVec3(pos);
-		writer.addFloat(rotY);
-		writer.addFloat(rotX);
-		writer.addString(dimensionId != null ? dimensionId.toString() : "");
-	}*/
-
-	public Respawn() {}
-
-	public Respawn(Reader ignore) {}
+	private Respawn() {}
 
 	@Override public void write(Writer writer, MocapRecordingData data) {}
 

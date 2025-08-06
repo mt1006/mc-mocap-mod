@@ -1,6 +1,5 @@
 package net.mt1006.mocap.mocap.playing.playback;
 
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.Vec3;
 import net.mt1006.mocap.api.v1.controller.config.MocapPlaybackConfig;
@@ -22,10 +21,10 @@ public class ScenePlayback extends Playback
 	private final List<Playback> subscenes;
 	private final PositionTransformer transformer;
 
-	private ScenePlayback(boolean isRoot, ServerLevel level, @Nullable ServerPlayer owner, MocapPlaybackConfig config,
+	private ScenePlayback(boolean isRoot, @Nullable ServerPlayer owner, MocapPlaybackConfig config,
 						  MocapModifiers modifiers, List<Playback> subscenes, PositionTransformer transformer)
 	{
-		super(isRoot, level, owner, config, modifiers);
+		super(isRoot, owner, config, modifiers);
 		this.subscenes = subscenes;
 		this.transformer = transformer;
 	}
@@ -56,7 +55,7 @@ public class ScenePlayback extends Playback
 			subscenes.add(playback);
 		}
 
-		return new ScenePlayback(isRoot, info.getLevel(), info.getSourcePlayer(), config, modifiers, subscenes, transformer);
+		return new ScenePlayback(isRoot, info.getSourcePlayer(), config, modifiers, subscenes, transformer);
 	}
 
 	private static @Nullable Vec3 getSceneStartPos(CommandInfo info, TransformationsConfig.SceneCenter centers,

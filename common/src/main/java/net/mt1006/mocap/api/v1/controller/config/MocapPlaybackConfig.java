@@ -52,4 +52,8 @@ public interface MocapPlaybackConfig
 	boolean getInvulnerablePlayback();
 
 	void setInvulnerablePlayback(@Nullable Boolean val);
+
+	MocapDimensionSource getDimensionSource();
+
+	void setDimensionSource(@Nullable MocapDimensionSource val);
 }

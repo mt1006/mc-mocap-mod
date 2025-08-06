@@ -1,6 +1,8 @@
 package net.mt1006.mocap.mocap.settings;
 
+import net.mt1006.mocap.api.v1.controller.config.MocapDimensionSource;
 import net.mt1006.mocap.api.v1.controller.config.MocapEntitiesAfterPlayback;
+import net.mt1006.mocap.api.v1.controller.config.MocapOnChangeDimension;
 import net.mt1006.mocap.api.v1.controller.config.MocapOnDeath;
 import net.mt1006.mocap.command.io.FullCommandInfo;
 import net.mt1006.mocap.mocap.playing.modifiers.EntityFilter;
@@ -20,10 +22,10 @@ public class Settings
 	public static final SettingFields.EntityFilterField TRACK_ENTITIES = RECORDING.add(fields.addFilterField("track_entities", "@vehicles;@projectiles;@items", EntityFilter::onTrackEntitiesSet));
 	static final SettingFields.BooleanField PREVENT_TRACKING_PLAYED_ENTITIES = RECORDING.add(fields.add("prevent_tracking_played_entities", true));
 	static final SettingFields.DoubleField ENTITY_TRACKING_DISTANCE = RECORDING.add(fields.add("entity_tracking_distance", 128.0));
-	//public static final SettingFields.BooleanField ASSIGN_DIMENSIONS = RECORDING.add(fields.add("assign_dimensions", true));
 	static final SettingFields.EnumField<MocapOnDeath> ON_DEATH = RECORDING.add(fields.add("on_death", MocapOnDeath.END_RECORDING));
-	//public static final SettingFields.IntegerField ON_CHANGE_DIMENSION = RECORDING.add(fields.add("on_change_dimension", 2)); //TODO: implement
+	static final SettingFields.EnumField<MocapOnChangeDimension> ON_CHANGE_DIMENSION = RECORDING.add(fields.add("on_change_dimension", MocapOnChangeDimension.END_RECORDING));
 	public static final SettingFields.BooleanField START_INSTANTLY = RECORDING.add(fields.add("start_instantly", false));
+	static final SettingFields.BooleanField ASSIGN_DIMENSION = RECORDING.add(fields.add("assign_dimension", true));
 	static final SettingFields.BooleanField ASSIGN_PLAYER_NAME = RECORDING.add(fields.add("assign_player_name", false));
 	static final SettingFields.BooleanField CHAT_RECORDING = RECORDING.add(fields.add("chat_recording", false));
 
@@ -38,6 +40,7 @@ public class Settings
 	static final SettingFields.BooleanField START_AS_RECORDED = PLAYBACK.add(fields.add("start_as_recorded", false));
 	static final SettingFields.BooleanField CHAT_PLAYBACK = PLAYBACK.add(fields.add("chat_playback", true));
 	static final SettingFields.BooleanField INVULNERABLE_PLAYBACK = PLAYBACK.add(fields.add("invulnerable_playback", true));
+	public static final SettingFields.EnumField<MocapDimensionSource> DIMENSION_SOURCE = PLAYBACK.add(fields.add("dimension_source", MocapDimensionSource.ASSIGNED_OR_CURRENT));
 
 	public static final SettingFields.DoubleField FLUENT_MOVEMENTS = ADVANCED.add(fields.add("fluent_movements", 32.0));
 	public static final SettingFields.DoubleField MAX_FLOAT_POS_VALUE = ADVANCED.add(fields.add("max_float_pos_value", 1024.0));
@@ -91,14 +94,10 @@ public class Settings
 
 	public static boolean info(FullCommandInfo info)
 	{
-		String settingName;
-		try
+		String settingName = info.getNode(-1);
+		if (settingName == null)
 		{
-			settingName = info.ctx.getNodes().get(info.ctx.getNodes().size() - 1).getNode().getName();
-		}
-		catch (Exception e)
-		{
-			info.sendException(e, "error.unable_to_get_argument");
+			info.sendFailure("error.unable_to_get_argument");
 			return false;
 		}
 

@@ -492,7 +492,9 @@ public class RecordingManager
 
 	public static void onTick()
 	{
-		contexts.forEach(RecordingContext::onTick);
+		// copies list of contexts to prevent concurrent modification exception,
+		// e.g. when splitting recording or when external (API) controllers start/stop recording
+		new ArrayList<>(contexts).forEach(RecordingContext::onTick);
 	}
 
 	public static boolean isRecordedPlayer(@Nullable Entity entity)

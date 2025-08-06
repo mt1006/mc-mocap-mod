@@ -64,6 +64,7 @@ public class CustomClientSkinManager
 	public static void register(Pair<String, byte[]> customSkinData)
 	{
 		//TODO: test!!!
+		//TODO: fix memory leak?
 		String name = customSkinData.getFirst();
 		byte[] array = customSkinData.getSecond();
 
@@ -86,7 +87,7 @@ public class CustomClientSkinManager
 
 			if (nativeImage.getWidth() > 4096 || nativeImage.getHeight() > 4096)
 			{
-				MocapMod.LOGGER.error("Skin texture too big!");
+				MocapMod.LOGGER.warn("Skin texture too big!");
 				return;
 			}
 

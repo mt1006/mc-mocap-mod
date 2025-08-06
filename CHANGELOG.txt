@@ -24,6 +24,10 @@
 -Added setting "assign_player_name" to assign recorded player names to a recording (false by default).
 -Added setting "show_tips" to enable/disable command tips (true by default).
 -Settings are now divided into 3 categories - recording, playback and advanced.
+-Improved tracking of dimension changes (thanks to damiendier for reporting).
+-Added setting "on_change_dimension" which determines what will happen when recorded player changes dimension (end_recording by default).
+-Added setting "assign_dimension" to assign dimension to a recording (true by default).
+-Added setting "dimension_source" to specify dimension in which dimension playback will start (assigned_or_current by default).
 -Merged "/mocap scenes list_elements" into "/mocap scenes list" and "/mocap scenes element_info" into "/mocap scenes info".
 -Split "player_info" modifier into "player_name" and "player_skin".
 -Removed position offset arguments from "/mocap scenes add_to".

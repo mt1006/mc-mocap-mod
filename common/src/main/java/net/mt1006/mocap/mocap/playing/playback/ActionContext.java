@@ -223,30 +223,6 @@ public class ActionContext implements MocapActionContext
 		if (ghostPlayer != null && entity == mainEntityData.entity) { ghostPlayer.snapTo(finPos, finRotY, rotX); }
 	}
 
-	//TODO: restore?
-	/*public void changePosition(double x, double y, double z, float rotY, float rotX, @Nullable ResourceLocation dimensionId)
-	{
-		ServerLevel newLevel = dimensionId != null
-				? level.getServer().getLevel(ResourceKey.create(Registries.DIMENSION, dimensionId))
-				: null;
-
-		if (newLevel == level || newLevel == null)
-		{
-			changePosition(x, y, z, rotY, rotX, false, false);
-			return;
-		}
-
-		position[0] = modifiers.offset.x + x;
-		position[1] = modifiers.offset.y + y;
-		position[2] = modifiers.offset.z + z;
-
-		DimensionTransition dimensionTransition = new DimensionTransition(
-				newLevel, new Vec3(position[0], position[1], position[2]), Vec3.ZERO, rotY, rotX, (ctx) -> {});
-
-		entity.changeDimension(dimensionTransition);
-		if (ghostPlayer != null) { ghostPlayer.changeDimension(dimensionTransition); }
-	}*/
-
 	@Override public void addEntity(int id, Entity entity, Vec3 position)
 	{
 		entityDataMap.put(id, new EntityData(entity, position));

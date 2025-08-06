@@ -2,7 +2,9 @@ package net.mt1006.mocap.mocap.playing.playback;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.PropertyMap;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
@@ -10,9 +12,9 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.GameType;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.mt1006.mocap.MocapMod;
+import net.mt1006.mocap.api.v1.controller.config.MocapDimensionSource;
 import net.mt1006.mocap.api.v1.controller.config.MocapPlaybackConfig;
 import net.mt1006.mocap.api.v1.extension.actions.MocapAction;
 import net.mt1006.mocap.api.v1.io.CommandInfo;
@@ -34,10 +36,10 @@ public class RecordingPlayback extends Playback
 	private int pos = 0;
 	private int dyingTicks = 0;
 
-	private RecordingPlayback(boolean isRoot, ServerLevel level, @Nullable ServerPlayer owner, MocapPlaybackConfig config,
+	private RecordingPlayback(boolean isRoot, @Nullable ServerPlayer owner, MocapPlaybackConfig config,
 							  MocapModifiers modifiers, RecordingData recording, ActionContext ctx)
 	{
-		super(isRoot, level, owner, config, modifiers);
+		super(isRoot, owner, config, modifiers);
 		this.recording = recording;
 		this.ctx = ctx;
 	}
@@ -56,7 +58,7 @@ public class RecordingPlayback extends Playback
 		}
 		GameProfile newProfile = createNewProfile(info, oldProfile, modifiers.getPlayerSkin());
 
-		ServerLevel level = info.getLevel();
+		ServerLevel level = getLevel(info, recording, config.getDimensionSource());
 		PlayerList packetTargets = info.getServer().getPlayerList();
 		Entity entity;
 		FakePlayer ghost = null;
@@ -117,7 +119,7 @@ public class RecordingPlayback extends Playback
 		}
 
 		ActionContext ctx = new ActionContext(recording, info.getSourcePlayer(), packetTargets, entity, config, modifiers, ghost, transformer);
-		RecordingPlayback playback = new RecordingPlayback(isRoot, info.getLevel(), info.getSourcePlayer(), config, modifiers, recording, ctx);
+		RecordingPlayback playback = new RecordingPlayback(isRoot, info.getSourcePlayer(), config, modifiers, recording, ctx);
 
 		if (entity instanceof FakePlayer) { ((FakePlayer)entity).playback = playback; }
 		else if (ghost != null) { ghost.playback = playback; }
@@ -125,17 +127,39 @@ public class RecordingPlayback extends Playback
 		return playback;
 	}
 
+	private static ServerLevel getLevel(CommandInfo info, RecordingData recording, MocapDimensionSource dimensionSource)
+	{
+		if (recording.dimensionId == null)
+		{
+			return switch (dimensionSource)
+			{
+				case ASSIGNED_OR_CURRENT, CURRENT -> info.getLevel();
+				case ASSIGNED_OR_OVERWORLD, OVERWORLD -> info.getServer().overworld();
+			};
+		}
+		else
+		{
+			return switch (dimensionSource)
+			{
+				case ASSIGNED_OR_CURRENT, ASSIGNED_OR_OVERWORLD -> info.getServer()
+						.getLevel(ResourceKey.create(Registries.DIMENSION, recording.dimensionId));
+				case CURRENT -> info.getLevel();
+				case OVERWORLD -> info.getServer().overworld();
+			};
+		}
+	}
+
 	private static @Nullable GameProfile getGameProfile(CommandInfo info, @Nullable String profileName,
 														@Nullable String recordedName, boolean startAsRecorded)
 	{
 		Entity entity = info.getSourceEntity();
-		Level level = info.getLevel();
+		PlayerList playerList = info.getServer().getPlayerList();
 
 		if (profileName == null)
 		{
 			if (startAsRecorded && recordedName != null) { profileName = recordedName; }
 			else if (entity instanceof ServerPlayer) { profileName = ((ServerPlayer)entity).getGameProfile().getName(); }
-			else if (!level.players().isEmpty()) { profileName = level.players().get(0).getGameProfile().getName(); }
+			else if (!playerList.getPlayers().isEmpty()) { profileName = playerList.getPlayers().get(0).getGameProfile().getName(); }
 			else { profileName = "Player"; }
 		}
 
@@ -158,20 +182,6 @@ public class RecordingPlayback extends Playback
 
 		return newProfile;
 	}
-
-	/*protected static @Nullable RecordingPlayback startRoot(CommandInfo info, @Nullable RecordingData recording,
-														   MocapPlaybackConfig config, PlaybackModifiers modifiers)
-	{
-		try { return new RecordingPlayback(info, recording, config, modifiers, null, null); }
-		catch (StartException e) { return null; }
-	}
-
-	protected static @Nullable RecordingPlayback startSubscene(CommandInfo info, DataManager dataManager, MocapPlaybackConfig config,
-															   Playback parent, SceneData.Subscene subscene)
-	{
-		try { return new RecordingPlayback(info, dataManager.getRecording(subscene.name), config, parent.modifiers, subscene, parent.getPosTransformer()); }
-		catch (StartException e) { return null; }
-	}*/
 
 	@Override public boolean tick()
 	{

@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
 public class PlaybackRoot implements MocapPlaybackRoot
 {
 	private final Playback instance;
-	private final String id; //TODO: turn them into string ids? (1.5)
+	private final String id;
 	private final String name;
 	private final String suggestedId;
 	private final MocapPlaybackConfig config;

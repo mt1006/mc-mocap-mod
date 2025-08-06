@@ -1,7 +1,9 @@
 package net.mt1006.mocap.mocap.recording;
 
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
 import net.mt1006.mocap.api.v1.controller.config.MocapOnDeath;
 import net.mt1006.mocap.api.v1.controller.config.MocapRecordingConfig;
 import net.mt1006.mocap.api.v1.extension.MocapActiveRecordingActions;
@@ -33,6 +35,7 @@ public class RecordingContext implements MocapActiveRecordingActions
 	public final @Nullable String instantSave;
 	private int tick = 0, diedOnTick = 0;
 	private boolean died = false;
+	private ResourceKey<Level> lastDimension;
 
 	public RecordingContext(RecordingId id, ServerPlayer recordedPlayer, RecordingSource source,
 							MocapRecordingConfig config, @Nullable String instantSave)
@@ -44,10 +47,11 @@ public class RecordingContext implements MocapActiveRecordingActions
 		this.positionTracker = new PositionTracker(recordedPlayer, false, recordedPlayer.position());
 		this.entityFilter = EntityFilter.FOR_RECORDING;
 		this.instantSave = instantSave;
+		this.lastDimension = recordedPlayer.level().dimension();
 
 		this.positionTracker.writeStartPos(data);
 
-		//if (Settings.ASSIGN_DIMENSIONS.val) { data.startDimension = recordedPlayer.level().dimension().location().toString(); } //TODO: restore
+		if (config.getAssignDimension()) { data.dimensionId = recordedPlayer.level().dimension().location(); }
 		if (config.getAssignPlayerName()) { data.playerName = recordedPlayer.getName().getString(); }
 	}
 
@@ -156,12 +160,37 @@ public class RecordingContext implements MocapActiveRecordingActions
 
 			if (config.getOnDeath() != MocapOnDeath.END_RECORDING) { RecordingManager.waitingForRespawn.put(recordedPlayer, this); }
 		}
+		else if (recordedPlayer.level().dimension() != lastDimension)
+		{
+			onDimensionChange();
+			lastDimension = recordedPlayer.level().dimension();
+		}
 		else if (recordedPlayer.isRemoved())
 		{
 			stopRecording("recording.stop.stopped");
 		}
 
 		addTickAction();
+	}
+
+	private void onDimensionChange()
+	{
+		switch (config.getOnChangeDimension())
+		{
+			case NOTHING:
+				break;
+
+			case END_RECORDING:
+				stopRecording("recording.stop.stopped");
+				break;
+
+			case SPLIT_RECORDING:
+				splitRecording(recordedPlayer);
+				break;
+
+			default:
+				throw new RuntimeException("Unknown state: " + config.getOnChangeDimension());
+		}
 	}
 
 	public void onRespawn(ServerPlayer newPlayer)
@@ -175,7 +204,7 @@ public class RecordingContext implements MocapActiveRecordingActions
 		died = false;
 		recordedPlayer = newPlayer;
 		positionTracker.setEntity(newPlayer);
-		addAction(new Respawn());
+		addAction(Respawn.INSTANCE);
 	}
 
 	public void stopRecording(String message)

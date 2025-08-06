@@ -10,11 +10,6 @@ public class DummyAction implements MocapAction
 
 	private DummyAction() {}
 
-	public static DummyAction fromReader(Reader ignore)
-	{
-		return INSTANCE;
-	}
-
 	@Override public void write(Writer writer, MocapRecordingData data) {}
 
 	@Override public Result execute(MocapActionContext ctx)

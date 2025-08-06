@@ -16,11 +16,11 @@ public class APICommandInfo implements CommandInfo
 	private final ServerLevel level;
 	private final String sourceName;
 
-	public APICommandInfo(ServerLevel level, String sourceName)
+	public APICommandInfo(MinecraftServer server, ServerLevel level, String sourceName)
 	{
-		this.server = level.getServer();
+		this.server = server;
 		this.level = level;
-		this.sourceName = String.format("+%s", sourceName);
+		this.sourceName = "+" + sourceName;
 	}
 
 	@Override public boolean sendSuccess(String component, Object... args) { return true; }

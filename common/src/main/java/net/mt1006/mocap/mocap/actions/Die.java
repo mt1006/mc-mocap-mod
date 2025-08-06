@@ -11,11 +11,6 @@ public class Die implements MocapAction
 
 	private Die() {}
 
-	public static Die fromReader(Reader ignore)
-	{
-		return INSTANCE;
-	}
-
 	@Override public void write(Writer writer, MocapRecordingData data) {}
 
 	@Override public Result execute(MocapActionContext ctx)

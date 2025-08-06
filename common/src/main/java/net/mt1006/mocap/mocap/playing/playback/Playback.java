@@ -1,6 +1,5 @@
 package net.mt1006.mocap.mocap.playing.playback;
 
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.mt1006.mocap.api.v1.controller.config.MocapPlaybackConfig;
 import net.mt1006.mocap.api.v1.modifiers.MocapModifiers;
@@ -14,17 +13,15 @@ public abstract class Playback
 	//TODO: "playback.start.error.loop" and "playback.start.error.load" as failures, not errors
 
 	protected final boolean isRoot;
-	protected final ServerLevel level;
 	public final @Nullable ServerPlayer owner;
 	public final MocapPlaybackConfig config;
 	protected boolean finished = false;
 	protected final MocapModifiers modifiers;
 	protected int tickCounter = 0; //TODO: StartContext?
 
-	protected Playback(boolean isRoot, ServerLevel level, @Nullable ServerPlayer owner, MocapPlaybackConfig config, MocapModifiers modifiers)
+	protected Playback(boolean isRoot, @Nullable ServerPlayer owner, MocapPlaybackConfig config, MocapModifiers modifiers)
 	{
 		this.isRoot = isRoot;
-		this.level = level;
 		this.owner = owner;
 		this.config = config;
 		this.modifiers = modifiers;

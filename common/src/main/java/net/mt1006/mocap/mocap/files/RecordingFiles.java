@@ -1,16 +1,22 @@
 package net.mt1006.mocap.mocap.files;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 import net.mt1006.mocap.MocapMod;
+import net.mt1006.mocap.api.v1.controller.config.MocapDimensionSource;
 import net.mt1006.mocap.api.v1.controller.playable.MocapRecordingFile;
 import net.mt1006.mocap.api.v1.extension.actions.MocapAction;
+import net.mt1006.mocap.api.v1.io.CommandInfo;
 import net.mt1006.mocap.api.v1.io.CommandOutput;
 import net.mt1006.mocap.command.CommandSuggestions;
 import net.mt1006.mocap.mocap.playing.playable.RecordingFile;
+import net.mt1006.mocap.mocap.settings.Settings;
 import net.mt1006.mocap.utils.Utils;
 import org.jetbrains.annotations.Nullable;
 
@@ -52,7 +58,7 @@ public class RecordingFiles
 		return true;
 	}
 
-	public static boolean info(CommandOutput out, @Nullable RecordingFile file)
+	public static boolean info(CommandInfo out, @Nullable RecordingFile file) //TODO: rename out
 	{
 		MocapRecordingFile.Info info = RecordingFile.Info.load(out, file);
 		if (file == null || info == null) { return false; }
@@ -64,19 +70,42 @@ public class RecordingFiles
 		out.sendSuccess("recordings.info.length", String.format("%.2f", info.lengthInTicks() / 20.0), info.lengthInTicks());
 		out.sendSuccess("recordings.info.size", String.format("%.2f", info.sizeInBytes() / 1024.0), info.sizeInOps());
 
-		String xStr = String.format(Locale.US, "%.2f", info.startPos().x);
-		String yStr = String.format(Locale.US, "%.2f", info.startPos().y);
-		String zStr = String.format(Locale.US, "%.2f", info.startPos().z);
-		MutableComponent tpSuggestionComponent = Utils.getSuggestCommandComponent(
-				String.format("/tp @p %s %s %s", xStr, yStr, zStr), Component.literal(String.format("%s %s %s", xStr, yStr, zStr)));
-		tpSuggestionComponent.withStyle(Style.EMPTY.withUnderlined(true));
-		out.sendSuccess("recordings.info.start_pos", tpSuggestionComponent);
+		printPosInfo(out, info);
+
+		if (info.assignedDimensionId() != null) { out.sendSuccess("recordings.info.dimension", info.assignedDimensionId().toString()); }
+		else { out.sendSuccess("recordings.info.dimension.not_assigned"); }
 
 		if (info.assignedPlayerName() != null) { out.sendSuccess("recordings.info.player_name_assigned.yes", info.assignedPlayerName()); }
 		else { out.sendSuccess("recordings.info.player_name_assigned.no"); }
 
 		out.sendSuccess(info.legacyEndsWithDeath() ? "recordings.info.dies.yes" : "recordings.info.dies.no");
 		return true;
+	}
+
+	private static void printPosInfo(CommandInfo out, MocapRecordingFile.Info info) //TODO: rename out
+	{
+		ResourceLocation dimensionId = info.assignedDimensionId();
+		boolean anotherDimension = (dimensionId != null && out.getLevel().dimension() != ResourceKey.create(Registries.DIMENSION, dimensionId)
+				&& (Settings.DIMENSION_SOURCE.val == MocapDimensionSource.ASSIGNED_OR_CURRENT
+				|| Settings.DIMENSION_SOURCE.val == MocapDimensionSource.ASSIGNED_OR_OVERWORLD));
+
+		String xStr = String.format(Locale.US, "%.2f", info.startPos().x);
+		String yStr = String.format(Locale.US, "%.2f", info.startPos().y);
+		String zStr = String.format(Locale.US, "%.2f", info.startPos().z);
+		String command = anotherDimension
+				? String.format("/execute in %s run tp @p %s %s %s", dimensionId, xStr, yStr, zStr)
+				: String.format("/tp @p %s %s %s", xStr, yStr, zStr);
+
+		String text = String.format("%s %s %s", xStr, yStr, zStr);
+		if (anotherDimension)
+		{
+			String dimensionIdStr = dimensionId.getNamespace().equals("minecraft") ? dimensionId.getPath() : dimensionId.toString();
+			text += String.format(" (%s)", dimensionIdStr);
+		}
+
+		MutableComponent tpSuggestionComponent = Utils.getSuggestCommandComponent(command,
+				Component.literal(text)).withStyle(Style.EMPTY.withUnderlined(true));
+		out.sendSuccess("recordings.info.start_pos", tpSuggestionComponent);
 	}
 
 	public static @Nullable List<String> list()
@@ -210,12 +239,6 @@ public class RecordingFiles
 		public int getSize()
 		{
 			return recording.size();
-		}
-
-		//TODO: remove?
-		public List<Byte> getByteList()
-		{
-			return recording;
 		}
 
 		public byte[] toByteArray()

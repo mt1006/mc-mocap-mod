@@ -1,5 +1,6 @@
 package net.mt1006.mocap.api.v1.controller.playable;
 
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 import net.mt1006.mocap.api.v1.controller.MocapFile;
 import net.mt1006.mocap.api.v1.io.CommandOutput;
@@ -28,6 +29,8 @@ public interface MocapRecordingFile extends MocapPlayable, MocapFile<MocapRecord
 		long sizeInOps();
 
 		Vec3 startPos();
+
+		@Nullable ResourceLocation assignedDimensionId();
 
 		@Nullable String assignedPlayerName();
 

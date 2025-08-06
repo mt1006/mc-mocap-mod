@@ -18,7 +18,7 @@ import java.util.Map;
 
 public enum ActionType
 {
-	NEXT_TICK(0, NextTick::fromReader),
+	NEXT_TICK(0, (reader) -> NextTick.INSTANCE),
 	MOVEMENT_LEGACY(1, MovementLegacy::new), // deprecated
 	HEAD_ROTATION(2, HeadRotation::new), // deprecated
 	CHANGE_POSE(3, ChangePose::new, ChangePose::new),
@@ -36,16 +36,16 @@ public enum ActionType
 	PLACE_BLOCK_SILENTLY(15, PlaceBlockSilently::new),
 	ENTITY_UPDATE(16, EntityUpdate::new),
 	ENTITY_ACTION(17, EntityAction::new),
-	HURT(18, Hurt::fromReader),
+	HURT(18, (reader) -> Hurt.INSTANCE),
 	VEHICLE_DATA(19, VehicleData::new, VehicleData::new),
 	BREAK_BLOCK_PROGRESS(20, (MocapAction.FromReaderOnly)BreakBlockProgress::new),
 	MOVEMENT(21, Movement::new),
 	SKIP_TICKS(22, SkipTicks::new),
-	DIE(23, Die::fromReader),
-	RESPAWN(24, Respawn::new),
+	DIE(23, (reader) -> Die.INSTANCE),
+	RESPAWN(24, (reader) -> Respawn.INSTANCE),
 	CHAT_MESSAGE(25, ChatMessage::new),
 	SET_SPECTATOR(26, SetSpectator::new, SetSpectator::new),
-	DUMMY_ACTION(27, DummyAction::fromReader);
+	DUMMY(27, (reader) -> DummyAction.INSTANCE);
 
 	public final byte id;
 
