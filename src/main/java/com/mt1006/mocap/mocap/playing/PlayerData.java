@@ -1,11 +1,12 @@
 package com.mt1006.mocap.mocap.playing;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
 import com.mt1006.mocap.command.CommandInfo;
 import com.mt1006.mocap.mocap.settings.Settings;
-import com.mt1006.mocap.utils.Fields;
 import com.mt1006.mocap.utils.ProfileUtils;
 import com.mt1006.mocap.utils.Utils;
 import org.jetbrains.annotations.Nullable;
@@ -67,14 +68,14 @@ public class PlayerData
 		return String.format("%s %s %d", Utils.toNotNullStr(name), skinPath, skinSource.id);
 	}
 
-	public void addSkinToPropertyMap(CommandInfo commandInfo, PropertyMap propertyMap)
-			throws IllegalArgumentException, IllegalAccessException
+	public PropertyMap addSkinToPropertyMap(CommandInfo commandInfo, PropertyMap propertyMap)
 	{
+		Multimap<String, Property> mutableMap = HashMultimap.create(propertyMap);
 		switch (skinSource)
 		{
 			case FROM_PLAYER:
 				GameProfile tempProfile = ProfileUtils.getGameProfile(commandInfo.source.getServer(), skinPath);
-				PropertyMap tempPropertyMap = (PropertyMap)Fields.gameProfileProperties.get(tempProfile);
+				PropertyMap tempPropertyMap = tempProfile.properties();
 
 				if (!tempPropertyMap.containsKey("textures"))
 				{
@@ -82,16 +83,16 @@ public class PlayerData
 					break;
 				}
 
-				if (propertyMap.containsKey("textures")) { propertyMap.get("textures").clear(); }
-				propertyMap.putAll("textures", tempPropertyMap.get("textures"));
+				if (mutableMap.containsKey("textures")) { mutableMap.get("textures").clear(); }
+				mutableMap.putAll("textures", tempPropertyMap.get("textures"));
 				break;
 
 			case FROM_FILE:
-				propertyMap.put(CustomSkinManager.PROPERTY_ID, new Property(CustomSkinManager.PROPERTY_ID, skinPath));
+				mutableMap.put(CustomSkinManager.PROPERTY_ID, new Property(CustomSkinManager.PROPERTY_ID, skinPath));
 				break;
 
 			case FROM_MINESKIN:
-				if (!Settings.ALLOW_MINESKIN_REQUESTS.val) { return; }
+				if (!Settings.ALLOW_MINESKIN_REQUESTS.val) { break; }
 				Property skinProperty = propertyFromMineskinURL(skinPath);
 
 				if (skinProperty == null)
@@ -100,10 +101,11 @@ public class PlayerData
 					break;
 				}
 
-				if (propertyMap.containsKey("textures")) { propertyMap.get("textures").clear(); }
-				propertyMap.put("textures", skinProperty);
+				if (mutableMap.containsKey("textures")) { mutableMap.get("textures").clear(); }
+				mutableMap.put("textures", skinProperty);
 				break;
 		}
+		return new PropertyMap(mutableMap);
 	}
 
 	public PlayerData mergeWithParent(PlayerData parent)

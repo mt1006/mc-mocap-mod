@@ -1,6 +1,5 @@
 package com.mt1006.mocap.command;
 
-import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -12,6 +11,7 @@ import com.mt1006.mocap.utils.Utils;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.GameProfileArgument;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.players.NameAndId;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
@@ -91,7 +91,7 @@ public class CommandInfo extends CommandOutput
 		return StringArgumentType.getString(ctx, name);
 	}
 
-	public Collection<GameProfile> getGameProfiles(String name) throws CommandSyntaxException
+	public Collection<NameAndId> getGameProfiles(String name) throws CommandSyntaxException
 	{
 		return GameProfileArgument.getGameProfiles(ctx, name);
 	}

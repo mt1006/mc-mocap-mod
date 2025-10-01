@@ -11,7 +11,6 @@ import com.mt1006.mocap.mocap.settings.Settings;
 import com.mt1006.mocap.network.MocapPacketS2C;
 import com.mt1006.mocap.utils.EntityData;
 import com.mt1006.mocap.utils.FakePlayer;
-import com.mt1006.mocap.utils.Fields;
 import com.mt1006.mocap.utils.ProfileUtils;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Vec3i;
@@ -129,16 +128,8 @@ public class PlayedScene
 			return false;
 		}
 
-		GameProfile newProfile = new GameProfile(UUID.randomUUID(), profile.getName());
-		try
-		{
-			PropertyMap oldPropertyMap = (PropertyMap)Fields.gameProfileProperties.get(profile);
-			PropertyMap newPropertyMap = (PropertyMap)Fields.gameProfileProperties.get(newProfile);
-
-			newPropertyMap.putAll(oldPropertyMap);
-			playerData.addSkinToPropertyMap(commandInfo, newPropertyMap);
-		}
-		catch (Exception ignore) {}
+		PropertyMap newPropertyMap = playerData.addSkinToPropertyMap(commandInfo, profile.properties());
+		GameProfile newProfile = new GameProfile(UUID.randomUUID(), profile.name(), newPropertyMap);
 
 		recording = data.getRecording(name);
 		if (recording == null) { return false; }
@@ -294,8 +285,8 @@ public class PlayedScene
 
 		if (profileName == null)
 		{
-			if (entity instanceof ServerPlayer) { profileName = ((ServerPlayer)entity).getGameProfile().getName(); }
-			else if (!level.players().isEmpty()) { profileName = level.players().get(0).getGameProfile().getName(); }
+			if (entity instanceof ServerPlayer) { profileName = ((ServerPlayer)entity).getGameProfile().name(); }
+			else if (!level.players().isEmpty()) { profileName = level.players().get(0).getGameProfile().name(); }
 			else { profileName = "Player"; }
 		}
 

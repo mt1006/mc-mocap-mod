@@ -24,7 +24,7 @@ public class CustomSkinManager
 	public static void sendSkinToClientThread(ServerPlayer player, String name)
 	{
 		if (!checkIfProperName(CommandOutput.DUMMY, name)) { return; }
-		byte[] array = Files.loadFile(Files.getSkinFile(player.getServer(), name));
+		byte[] array = Files.loadFile(Files.getSkinFile(player.level().getServer(), name));
 
 		if (array != null)
 		{

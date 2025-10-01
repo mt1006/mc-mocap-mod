@@ -10,7 +10,7 @@
     "ServerLevelMixin",
     "fields.EntityMixin",
     "fields.LivingEntityMixin",
-    "fields.PlayerMixin",
+	"fields.AvatarMixin",
     "fields.AbstractHorseMixin",
     "fields.PigMixin",
     "fields.BoatMixin",

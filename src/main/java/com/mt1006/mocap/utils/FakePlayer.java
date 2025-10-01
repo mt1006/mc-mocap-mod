@@ -2,8 +2,6 @@ package com.mt1006.mocap.utils;
 
 import com.mojang.authlib.GameProfile;
 import io.netty.channel.*;
-import net.minecraft.network.Connection;
-import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.PlayerChatMessage;
@@ -40,7 +38,6 @@ public class FakePlayer extends ServerPlayer
 	@Override public void awardStat(@NotNull Stat stat, int amount) { }
 	@Override public void die(@NotNull DamageSource source) { }
 	@Override public void tick() { }
-	@Override public @Nullable MinecraftServer getServer() { return level().getServer(); }
 
 	@ParametersAreNonnullByDefault
 	private static class FakePlayerNetHandler extends ServerGamePacketListenerImpl
