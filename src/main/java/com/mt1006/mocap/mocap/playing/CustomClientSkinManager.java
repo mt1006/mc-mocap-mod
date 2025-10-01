@@ -9,6 +9,7 @@ import com.mt1006.mocap.utils.Utils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.core.ClientAsset;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
@@ -27,7 +28,7 @@ public class CustomClientSkinManager
 	private static final ConcurrentMap<String, Boolean> clientMap = new ConcurrentHashMap<>();
 	private static boolean clientWarned = false;
 
-	public static @Nullable ResourceLocation get(@Nullable String name)
+	public static @Nullable ClientAsset.Texture get(@Nullable String name)
 	{
 		if (name == null) { return null; }
 		Boolean accessible = clientMap.get(name);
@@ -37,7 +38,10 @@ public class CustomClientSkinManager
 			loadClientSkin(name);
 			return null;
 		}
-		return accessible ? resFromName(name) : null;
+		if (!accessible) { return null; }
+
+		ResourceLocation id = resFromName(name);
+		return new ClientAsset.ResourceTexture(id, id);
 	}
 
 	public static void loadClientSkin(String name)
@@ -95,8 +99,8 @@ public class CustomClientSkinManager
 				return;
 			}
 
-			String id = MocapMod.MOD_ID + ":" + SKIN_RES_PREFIX + (long)(Math.random() * 999999999999.0);
-			Minecraft.getInstance().getTextureManager().register(resFromName(name), new DynamicTexture(() -> id, nativeImage));
+			ResourceLocation id = resFromName(name);
+			Minecraft.getInstance().getTextureManager().register(resFromName(name), new DynamicTexture(id::toString, nativeImage));
 			clientMap.put(name, true);
 		}
 		catch (Exception exception)
@@ -118,9 +122,9 @@ public class CustomClientSkinManager
 		clientWarned = false;
 	}
 
-	public static boolean isSlimSkin(ResourceLocation res)
+	public static boolean isSlimSkin(ClientAsset.Texture texture)
 	{
-		return res.getPath().startsWith(SLIM_SKIN_RES_PREFIX);
+		return texture.texturePath().getPath().startsWith(SLIM_SKIN_RES_PREFIX);
 	}
 
 	private static ResourceLocation resFromName(String name)

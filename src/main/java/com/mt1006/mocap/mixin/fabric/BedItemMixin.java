@@ -20,7 +20,7 @@ public class BedItemMixin
 	@Inject(method = "placeBlock", at = @At(value = "HEAD"))
 	private void atPlaceBlock(BlockPlaceContext blockPlaceContext, BlockState blockState, CallbackInfoReturnable<Boolean> cir)
 	{
-		if (Recording.state == Recording.State.RECORDING && !blockPlaceContext.getLevel().isClientSide)
+		if (Recording.state == Recording.State.RECORDING && !blockPlaceContext.getLevel().isClientSide())
 		{
 			BlockPos pos = blockPlaceContext.getClickedPos();
 
@@ -32,7 +32,7 @@ public class BedItemMixin
 	@Inject(method = "placeBlock", at = @At(value = "TAIL"))
 	private void atPlaceBlockEnd(BlockPlaceContext blockPlaceContext, BlockState blockState, CallbackInfoReturnable<Boolean> cir)
 	{
-		if (Recording.state == Recording.State.RECORDING && !blockPlaceContext.getLevel().isClientSide)
+		if (Recording.state == Recording.State.RECORDING && !blockPlaceContext.getLevel().isClientSide())
 		{
 			if (!( blockState.getBlock() instanceof BedBlock) || blockState.getValue(BedBlock.PART) != BedPart.FOOT) { return; }
 

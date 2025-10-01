@@ -23,7 +23,7 @@ public class FlintAndSteelItemMixin
 	@Inject(method = "useOn", at = @At(value = "HEAD"))
 	private void atPlaceBlock(UseOnContext useOnContext, CallbackInfoReturnable<InteractionResult> cir)
 	{
-		if (Recording.state == Recording.State.RECORDING && !useOnContext.getLevel().isClientSide)
+		if (Recording.state == Recording.State.RECORDING && !useOnContext.getLevel().isClientSide())
 		{
 			Player player = useOnContext.getPlayer();
 			if (!Recording.isRecordedPlayer(player)) { return; }

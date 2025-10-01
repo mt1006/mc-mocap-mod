@@ -2,9 +2,9 @@ package com.mt1006.mocap.utils;
 
 import com.mt1006.mocap.MocapMod;
 import com.mt1006.mocap.mixin.fields.AbstractHorseMixin;
+import com.mt1006.mocap.mixin.fields.AvatarMixin;
 import com.mt1006.mocap.mixin.fields.EntityMixin;
 import com.mt1006.mocap.mixin.fields.LivingEntityMixin;
-import com.mt1006.mocap.mixin.fields.PlayerMixin;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.world.entity.Entity;
@@ -18,7 +18,7 @@ public class EntityData
 	public static final DataIndex<Byte> LIVING_ENTITY_FLAGS =                             new DataIndex<>(LivingEntityMixin.getDATA_LIVING_ENTITY_FLAGS());
 	public static final DataIndex<List<ParticleOptions>> LIVING_ENTITY_EFFECT_PARTICLES = new DataIndex<>(LivingEntityMixin.getDATA_EFFECT_PARTICLES());
 	public static final DataIndex<Boolean> LIVING_ENTITY_EFFECT_AMBIENCE =                new DataIndex<>(LivingEntityMixin.getDATA_EFFECT_AMBIENCE_ID());
-	public static final DataIndex<Byte> PLAYER_SKIN_PARTS =                               new DataIndex<>(PlayerMixin.getDATA_PLAYER_MODE_CUSTOMISATION());
+	public static final DataIndex<Byte> PLAYER_SKIN_PARTS =                               new DataIndex<>(AvatarMixin.getDATA_PLAYER_MODE_CUSTOMISATION());
 	public static final DataIndex<Byte> ABSTRACT_HORSE_FLAGS =                            new DataIndex<>(AbstractHorseMixin.getDATA_ID_FLAGS());
 
 	public static class DataIndex<T>

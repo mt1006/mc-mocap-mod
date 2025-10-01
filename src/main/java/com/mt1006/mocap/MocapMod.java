@@ -4,7 +4,6 @@ import com.mt1006.mocap.command.RegisterCommand;
 import com.mt1006.mocap.events.*;
 import com.mt1006.mocap.mocap.actions.Action;
 import com.mt1006.mocap.network.MocapPackets;
-import com.mt1006.mocap.utils.Fields;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
@@ -21,7 +20,7 @@ public class MocapMod implements ModInitializer
 {
 	public static final String MOD_ID = "mocap";
 	public static final String VERSION = "1.3.9";
-	public static final String FOR_VERSION = "1.21.6";
+	public static final String FOR_VERSION = "1.21.9";
 	public static final String FOR_LOADER = "Fabric";
 	public static final Logger LOGGER = LogManager.getLogger();
 	public static final boolean isDedicatedServer = FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER;
@@ -38,7 +37,6 @@ public class MocapMod implements ModInitializer
 		ServerLivingEntityEvents.ALLOW_DAMAGE.register(EntityEvent::onEntityHurt);
 
 		RegisterCommand.registerCommands();
-		Fields.init();
 		MocapPackets.register();
 		Action.init();
 	}

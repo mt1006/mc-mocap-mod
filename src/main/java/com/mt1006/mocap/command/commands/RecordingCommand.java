@@ -1,6 +1,5 @@
 package com.mt1006.mocap.command.commands;
 
-import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mt1006.mocap.command.CommandInfo;
 import com.mt1006.mocap.command.CommandUtils;
@@ -9,6 +8,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.GameProfileArgument;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.players.NameAndId;
 import net.minecraft.world.entity.Entity;
 
 import java.util.Collection;
@@ -34,11 +34,11 @@ public class RecordingCommand
 
 		try
 		{
-			Collection<GameProfile> gameProfiles = commandInfo.getGameProfiles("player");
+			Collection<NameAndId> gameProfiles = commandInfo.getGameProfiles("player");
 
 			if (gameProfiles.size() == 1)
 			{
-				String nickname = gameProfiles.iterator().next().getName();
+				String nickname = gameProfiles.iterator().next().name();
 				serverPlayer = commandInfo.source.getServer().getPlayerList().getPlayerByName(nickname);
 			}
 

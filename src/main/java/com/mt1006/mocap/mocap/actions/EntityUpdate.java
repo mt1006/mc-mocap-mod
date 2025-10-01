@@ -178,7 +178,7 @@ public class EntityUpdate implements Action
 			}
 			else if (type == PLAYER_MOUNT)
 			{
-				ctx.entity.startRiding(entity, true);
+				ctx.entity.startRiding(entity, true, true);
 				return Result.OK;
 			}
 			else
