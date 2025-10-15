@@ -35,15 +35,15 @@ public class ActionContext implements MocapActionContext
 	private final ServerPlayer owner;
 	private final PlayerList packetTargets;
 	private final EntityData mainEntityData;
-	public final Map<Integer, EntityData> entityDataMap = new HashMap<>();
-	public final ServerLevel level;
+	private final Map<Integer, EntityData> entityDataMap = new HashMap<>();
+	private final ServerLevel level;
 	private final MocapPlaybackConfig config;
 	private final MocapModifiers modifiers;
-	public final @Nullable FakePlayer ghostPlayer;
-	public final PositionTransformer transformer;
+	private final @Nullable FakePlayer ghostPlayer;
+	private final PositionTransformer transformer;
 	private boolean mainEntityRemoved = false;
 	private @Nullable EntityData currentEntityData = null;
-	public Entity entity;
+	private Entity entity;
 	private Vec3 position;
 	private int repeatCounter = 0;
 
@@ -164,9 +164,8 @@ public class ActionContext implements MocapActionContext
 		}
 	}
 
-	public void removeEntities()
+	public void removeAdditionalEntities()
 	{
-		removeMainEntity();
 		entityDataMap.values().forEach((data) -> removeEntity(data.entity, level));
 		entityDataMap.clear();
 	}

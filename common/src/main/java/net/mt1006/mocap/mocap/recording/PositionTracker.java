@@ -12,7 +12,7 @@ import java.util.List;
 
 public class PositionTracker
 {
-	private final Vec3 FAR_AWAY = new Vec3(0.0, 1000000.0, 0.0);
+	public static final Vec3 FAR_AWAY = new Vec3(0.0, 1000000.0, 0.0);
 	private Entity entity;
 	private final Vec3 startPos;
 	private Vec3 pos;

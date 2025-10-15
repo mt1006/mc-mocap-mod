@@ -101,5 +101,5 @@ public interface MocapTransformations
 	void list(CommandOutput out);
 
 	@ApiStatus.Internal
-	@Nullable MocapTransformations modify(FullCommandInfo info, String propertyName, int propertyNodePosition);
+	@Nullable MocapTransformations modify(FullCommandInfo info, int propertyNodePos);
 }

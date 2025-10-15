@@ -46,7 +46,7 @@ public interface MocapTransformationsConfig
 	void list(CommandOutput out);
 
 	@ApiStatus.Internal
-	@Nullable MocapTransformationsConfig modify(FullCommandInfo info, String propertyName, int propertyNodePos);
+	@Nullable MocapTransformationsConfig modify(FullCommandInfo info, int propertyNodePos);
 
 	enum RecordingCenter
 	{

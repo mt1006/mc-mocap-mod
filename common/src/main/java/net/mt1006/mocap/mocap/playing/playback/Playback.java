@@ -3,6 +3,7 @@ package net.mt1006.mocap.mocap.playing.playback;
 import net.minecraft.server.level.ServerPlayer;
 import net.mt1006.mocap.api.v1.controller.config.MocapPlaybackConfig;
 import net.mt1006.mocap.api.v1.modifiers.MocapModifiers;
+import net.mt1006.mocap.api.v1.modifiers.MocapTimeModifiers;
 import net.mt1006.mocap.command.CommandsContext;
 import net.mt1006.mocap.mocap.recording.RecordingContext;
 import net.mt1006.mocap.mocap.recording.RecordingManager;
@@ -15,9 +16,10 @@ public abstract class Playback
 	protected final boolean isRoot;
 	public final @Nullable ServerPlayer owner;
 	public final MocapPlaybackConfig config;
-	protected boolean finished = false;
+	protected boolean finished = false, stopped = false;
 	protected final MocapModifiers modifiers;
 	protected int tickCounter = 0; //TODO: StartContext?
+	protected int waitOnEnd = 0;
 
 	protected Playback(boolean isRoot, @Nullable ServerPlayer owner, MocapPlaybackConfig config, MocapModifiers modifiers)
 	{
@@ -27,31 +29,44 @@ public abstract class Playback
 		this.modifiers = modifiers;
 	}
 
-	public abstract boolean tick();
+	public abstract void tick();
 
 	public abstract void stop();
 
-	//TODO: remove?
-	public abstract boolean wasFinished();
+	protected abstract void loop();
 
-	protected abstract PositionTransformer getPosTransformer();
+	protected boolean isActive()
+	{
+		if (stopped) { return false; }
+
+		MocapTimeModifiers timeModifiers = modifiers.getTimeModifiers();
+		if (timeModifiers.getLoop()) { return !timeModifiers.getWaitForParentEnd(); }
+		return !finished;
+	}
 
 	protected boolean shouldExecuteTick()
 	{
-		if (tickCounter == 0) { return true; }
+		if (CommandsContext.haveSyncEnabled == 0 || owner == null) { return true; }
 
-		if (modifiers.getStartDelay().ticks <= tickCounter)
+		CommandsContext commandsContext = CommandsContext.get(owner);
+		if (!commandsContext.getSync()) { return true; }
+
+		for (RecordingContext ctx : RecordingManager.bySourcePlayer(owner))
 		{
-			if (CommandsContext.haveSyncEnabled == 0 || owner == null) { return true; }
-
-			CommandsContext commandsContext = CommandsContext.get(owner);
-			if (!commandsContext.getSync()) { return true; }
-
-			for (RecordingContext ctx : RecordingManager.bySourcePlayer(owner))
-			{
-				if (ctx.state == RecordingContext.State.RECORDING) { return true; }
-			}
+			if (ctx.state == RecordingContext.State.RECORDING) { return true; }
 		}
 		return false;
+	}
+
+	protected boolean shouldSelfStop()
+	{
+		return (isRoot || !modifiers.getTimeModifiers().getWaitForParentEnd()) && finished;
+	}
+
+	protected void finishOrWaitOnEnd()
+	{
+		int timeWaitOnEnd = modifiers.getTimeModifiers().getWaitOnEnd().ticks;
+		if (timeWaitOnEnd == 0) { finished = true; }
+		else { waitOnEnd = timeWaitOnEnd; }
 	}
 }

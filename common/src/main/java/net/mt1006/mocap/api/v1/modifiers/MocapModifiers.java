@@ -12,12 +12,12 @@ public interface MocapModifiers
 {
 	static MocapModifiers empty()
 	{
-		return PlaybackModifiers.EMPTY;
+		return PlaybackModifiers.DEFAULT;
 	}
 
 	static MocapModifiers playerName(@Nullable String name)
 	{
-		return PlaybackModifiers.EMPTY.withPlayerName(name);
+		return PlaybackModifiers.DEFAULT.withPlayerName(name);
 	}
 
 	@Nullable String getPlayerName();
@@ -36,9 +36,9 @@ public interface MocapModifiers
 
 	MocapModifiers withPlayerAsEntity(MocapPlayerAsEntity playerAsEntity);
 
-	MocapStartDelay getStartDelay();
+	MocapTimeModifiers getTimeModifiers();
 
-	MocapModifiers withStartDelay(MocapStartDelay startDelay);
+	MocapModifiers withTimeModifiers(MocapTimeModifiers timeModifiers);
 
 	MocapEntityFilter getEntityFilter();
 
@@ -57,5 +57,5 @@ public interface MocapModifiers
 	void list(CommandOutput out);
 
 	@ApiStatus.Internal
-	@Nullable MocapModifiers modify(FullCommandInfo info, String propertyName, int propertyNodePosition) throws CommandSyntaxException;
+	@Nullable MocapModifiers modify(FullCommandInfo info, String propertyName, int propertyNodePos) throws CommandSyntaxException;
 }

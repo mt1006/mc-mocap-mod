@@ -19,14 +19,12 @@ import java.util.List;
 public class ScenePlayback extends Playback
 {
 	private final List<Playback> subscenes;
-	private final PositionTransformer transformer;
 
 	private ScenePlayback(boolean isRoot, @Nullable ServerPlayer owner, MocapPlaybackConfig config,
-						  MocapModifiers modifiers, List<Playback> subscenes, PositionTransformer transformer)
+						  MocapModifiers modifiers, List<Playback> subscenes)
 	{
 		super(isRoot, owner, config, modifiers);
 		this.subscenes = subscenes;
-		this.transformer = transformer;
 	}
 
 	public static @Nullable ScenePlayback start(CommandInfo info, boolean isRoot, PlaybackDataManager dataManager, @Nullable SceneData sceneData,
@@ -55,7 +53,7 @@ public class ScenePlayback extends Playback
 			subscenes.add(playback);
 		}
 
-		return new ScenePlayback(isRoot, info.getSourcePlayer(), config, modifiers, subscenes, transformer);
+		return new ScenePlayback(isRoot, info.getSourcePlayer(), config, modifiers, subscenes);
 	}
 
 	private static @Nullable Vec3 getSceneStartPos(CommandInfo info, TransformationsConfig.SceneCenter centers,
@@ -106,38 +104,51 @@ public class ScenePlayback extends Playback
 		return new PositionTransformer(transformations, parent, sceneStartPos);
 	}
 
-	@Override public boolean tick()
+	@Override public void tick()
 	{
-		if (finished) { return true; }
+		if (finished) { return; }
 
 		if (shouldExecuteTick())
 		{
-			finished = true;
-			for (Playback scene : subscenes)
+			if (waitOnEnd != 0)
 			{
-				if (!scene.tick()) { finished = false; }
+				if (waitOnEnd == 1) { finished = true; }
+				waitOnEnd--;
 			}
+			else
+			{
+				boolean subscenesInactive = true, subscenesStopped = true;
+				for (Playback scene : subscenes)
+				{
+					scene.tick();
+					if (scene.isActive()) { subscenesInactive = false; }
+					if (!scene.stopped) { subscenesStopped = false; }
+				}
+
+				if (subscenesInactive) { finishOrWaitOnEnd(); }
+				if (subscenesStopped) { stop(); }
+			}
+			tickCounter++;
 		}
 
-		if (isRoot && finished) { stop(); }
-
-		tickCounter++;
-		return finished;
+		if (finished && modifiers.getTimeModifiers().getLoop()) { loop(); }
+		else if (shouldSelfStop()) { stop(); }
 	}
 
 	@Override public void stop()
 	{
-		subscenes.forEach(Playback::stop);
-		finished = true;
+		if (!stopped)
+		{
+			subscenes.forEach(Playback::stop);
+			finished = true;
+			stopped = true;
+		}
 	}
 
-	@Override public boolean wasFinished()
+	@Override protected void loop()
 	{
-		return finished;
-	}
-
-	@Override protected PositionTransformer getPosTransformer()
-	{
-		return transformer;
+		subscenes.forEach(Playback::loop);
+		tickCounter = 0;
+		finished = false;
 	}
 }

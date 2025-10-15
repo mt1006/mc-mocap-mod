@@ -44,22 +44,6 @@ public interface MocapPlayerSkin
 		DEFAULT,
 		FROM_PLAYER,
 		FROM_FILE,
-		FROM_MINESKIN;
-
-		public static Source fromName(@Nullable String name)
-		{
-			if (name == null) { return DEFAULT; }
-
-			try
-			{
-				return valueOf(name.toUpperCase());
-			}
-			catch (IllegalArgumentException e) { return DEFAULT; }
-		}
-
-		@Override public String toString()
-		{
-			return name().toLowerCase();
-		}
+		FROM_MINESKIN
 	}
 }

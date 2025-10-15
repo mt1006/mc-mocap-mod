@@ -140,7 +140,7 @@ public class PlaybackManager
 		if (source == null) { return info.sendFailure("failure.resolve_player"); }
 
 		CommandsContext ctx = CommandsContext.get(source);
-		ctx.modifiers = PlaybackModifiers.EMPTY;
+		ctx.modifiers = PlaybackModifiers.DEFAULT;
 		return info.sendSuccess("playback.modifiers.reset");
 	}
 

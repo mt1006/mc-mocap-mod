@@ -36,16 +36,22 @@ public class Transformations implements MocapTransformations
 		this.scale = scale;
 		this.offset = offset;
 		this.config = config;
-		this.ignorable = (rotation.deg == 0.0 && mirror == MocapMirror.NONE && scale.sceneScale == 1.0 && offset.isZero && config.isDefault());
+		this.ignorable = isIgnorable();
 	}
 
 	private Transformations(SceneFiles.Reader reader)
 	{
-		this(Rotation.fromDouble(reader.readDouble("rotation", 0.0)),
-				MocapMirror.fromString(reader.readString("mirror")),
-				Scale.fromObject(reader.readObject("scale")),
-				MocapOffset.fromVec3(reader.readVec3("offset")),
-				TransformationsConfig.fromObject(reader.readObject("config")));
+		this.rotation = Rotation.fromDouble(reader.readDouble("rotation", 0.0));
+		this.mirror = MocapMirror.fromString(reader.readString("mirror"));
+		this.scale = Scale.fromObject(reader.readObject("scale"));
+		this.offset = MocapOffset.fromVec3(reader.readVec3("offset"));
+		this.config = TransformationsConfig.fromObject(reader.readObject("config"));
+		this.ignorable = isIgnorable();
+	}
+
+	private boolean isIgnorable()
+	{
+		return (rotation.deg == 0.0 && mirror == MocapMirror.NONE && scale.sceneScale == 1.0 && offset.isZero && config.isDefault());
 	}
 
 	public static Transformations fromObject(@Nullable SceneFiles.Reader reader)
@@ -53,9 +59,9 @@ public class Transformations implements MocapTransformations
 		return reader != null ? new Transformations(reader) : EMPTY;
 	}
 
-	public static Transformations fromLegacyScene(double x, double y, double z)
+	public static MocapTransformations fromLegacyScene(double x, double y, double z)
 	{
-		return new Transformations(Rotation.ZERO, MocapMirror.NONE, Scale.NORMAL, new MocapOffset(x, y, z), TransformationsConfig.LEGACY);
+		return EMPTY.withOffset(new MocapOffset(x, y, z)).withConfig(TransformationsConfig.LEGACY);
 	}
 
 	@Override public double getRotation()
@@ -348,20 +354,20 @@ public class Transformations implements MocapTransformations
 		config.list(out);
 	}
 
-	@Override public @Nullable MocapTransformations modify(FullCommandInfo info, String propertyName, int propertyNodePosition)
+	@Override public @Nullable MocapTransformations modify(FullCommandInfo info, int propertyNodePos)
 	{
-		switch (propertyName)
+		switch (info.getNode(propertyNodePos))
 		{
 			case "rotation":
 				return withRotation(info.getDouble("deg"));
 
 			case "mirror":
-				MocapMirror newMirror = MocapMirror.fromStringOrNull(info.getNode(propertyNodePosition + 1));
+				MocapMirror newMirror = MocapMirror.fromStringOrNull(info.getNode(propertyNodePos + 1));
 				return newMirror != null ? withMirror(newMirror) : null;
 
 			case "scale":
 				double scaleVal = info.getDouble("scale");
-				return switch (info.getNode(propertyNodePosition + 1))
+				return switch (info.getNode(propertyNodePos + 1))
 				{
 					case "of_player" -> withScaleOfPlayer(scaleVal);
 					case "of_scene" -> withScaleOfScene(scaleVal);
@@ -372,13 +378,10 @@ public class Transformations implements MocapTransformations
 				return withOffset(new MocapOffset(info.getDouble("offset_x"), info.getDouble("offset_y"), info.getDouble("offset_z")));
 
 			case "config":
-				String transformationType = info.getNode(propertyNodePosition + 1);
-				if (transformationType == null) { return null; }
-
-				MocapTransformationsConfig newConfig = config.modify(info, transformationType, propertyNodePosition + 1);
+				MocapTransformationsConfig newConfig = config.modify(info, propertyNodePos + 1);
 				return newConfig != null ? withConfig(newConfig) : null;
 
-			default:
+			case null, default:
 				return null;
 		}
 	}

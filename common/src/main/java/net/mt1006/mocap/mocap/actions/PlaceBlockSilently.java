@@ -10,6 +10,7 @@ import net.mt1006.mocap.api.v1.extension.actions.MocapBlockAction;
 
 public class PlaceBlockSilently implements MocapBlockAction
 {
+	//TODO: make it extend PlaceBlock
 	private final MocapBlockState previousBlockState;
 	private final MocapBlockState newBlockState;
 	private final BlockPos blockPos;

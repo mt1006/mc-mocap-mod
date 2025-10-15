@@ -144,11 +144,10 @@ public class SceneFiles
 		int i = 1;
 		for (MocapSceneElement element : sceneData.elements)
 		{
-			out.sendSuccessLiteral("[%d] %s <%.3f> (%s)", i++, element.getName(),
-					element.getModifiers().getStartDelay().seconds, element.getModifiers().getPlayerName());
+			out.sendSuccessLiteral("[%d] %s (%s)", i++, element.getName(), element.getModifiers().getPlayerName());
 		}
 
-		return out.sendSuccessLiteral("[id] name <start_delay> (player_name)");
+		return out.sendSuccessLiteral("[id] name (player_name)");
 	}
 
 	public static boolean info(CommandOutput out, String name)

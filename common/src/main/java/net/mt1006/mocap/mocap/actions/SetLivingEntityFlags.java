@@ -9,32 +9,32 @@ import net.mt1006.mocap.utils.EntityData;
 
 public class SetLivingEntityFlags implements MocapStateAction
 {
-	private final byte livingEntityFlags;
+	private final byte flags;
 
 	public SetLivingEntityFlags(Entity entity)
 	{
-		livingEntityFlags = (entity instanceof LivingEntity) ? EntityData.LIVING_ENTITY_FLAGS.valOrDef(entity, (byte)0) : 0;
+		flags = (entity instanceof LivingEntity) ? EntityData.LIVING_ENTITY_FLAGS.valOrDef(entity, (byte)0) : 0;
 	}
 
 	public SetLivingEntityFlags(Reader reader)
 	{
-		livingEntityFlags = reader.readByte();
+		flags = reader.readByte();
 	}
 
 	@Override public boolean differs(MocapStateAction previousAction)
 	{
-		return livingEntityFlags != ((SetLivingEntityFlags)previousAction).livingEntityFlags;
+		return flags != ((SetLivingEntityFlags)previousAction).flags;
 	}
 
 	@Override public void write(Writer writer, MocapRecordingData data)
 	{
-		writer.addByte(livingEntityFlags);
+		writer.addByte(flags);
 	}
 
 	@Override public Result execute(MocapActionContext ctx)
 	{
 		if (!(ctx.getEntity() instanceof LivingEntity)) { return Result.IGNORED; }
-		EntityData.LIVING_ENTITY_FLAGS.set(ctx.getEntity(), livingEntityFlags);
+		EntityData.LIVING_ENTITY_FLAGS.set(ctx.getEntity(), flags);
 		return Result.OK;
 	}
 }

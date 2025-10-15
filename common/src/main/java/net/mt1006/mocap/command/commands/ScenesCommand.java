@@ -10,7 +10,8 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.mt1006.mocap.api.v1.io.CommandOutput;
 import net.mt1006.mocap.api.v1.modifiers.MocapModifiers;
-import net.mt1006.mocap.api.v1.modifiers.MocapStartDelay;
+import net.mt1006.mocap.api.v1.modifiers.MocapTime;
+import net.mt1006.mocap.api.v1.modifiers.MocapTimeModifiers;
 import net.mt1006.mocap.command.CommandSuggestions;
 import net.mt1006.mocap.command.CommandUtils;
 import net.mt1006.mocap.command.io.FullCommandInfo;
@@ -40,7 +41,7 @@ public class ScenesCommand
 		commandBuilder.then(Commands.literal("add_to").
 			then(Commands.argument("scene_name", StringArgumentType.string()).suggests(CommandSuggestions::scene).
 			then(Commands.argument("to_add", StringArgumentType.string()).suggests(CommandSuggestions::playable).executes(CommandUtils.command(ScenesCommand::addToMinimal)).
-			then(Commands.argument("start_delay", DoubleArgumentType.doubleArg(0.0)).executes(COMMAND_ADD_TO).
+			then(Commands.argument("wait_on_start", DoubleArgumentType.doubleArg(0.0)).executes(COMMAND_ADD_TO).
 			then(CommandUtils.playerArguments(buildContext, COMMAND_ADD_TO))))));
 		commandBuilder.then(Commands.literal("remove_from").
 			then(CommandUtils.withTwoInputArguments(SceneFiles::removeElement, CommandSuggestions::scene, CommandSuggestions::sceneElement, "scene_name", "to_remove")));
@@ -90,7 +91,7 @@ public class ScenesCommand
 
 			if (!toAdd.contains("*"))
 			{
-				SceneData.Element element = new SceneData.Element(toAdd, PlaybackModifiers.EMPTY);
+				SceneData.Element element = new SceneData.Element(toAdd, PlaybackModifiers.DEFAULT);
 				return SceneFiles.addElement(info, name, element);
 			}
 			else
@@ -124,7 +125,7 @@ public class ScenesCommand
 				{
 					if (str.startsWith(parts[0]) && str.endsWith(parts[1]))
 					{
-						SceneData.Element element = new SceneData.Element(str, PlaybackModifiers.EMPTY);
+						SceneData.Element element = new SceneData.Element(str, PlaybackModifiers.DEFAULT);
 						successes += SceneFiles.addElement(CommandOutput.LOGS, name, element) ? 1 : 0;
 						matched++;
 					}
@@ -152,17 +153,18 @@ public class ScenesCommand
 				return false;
 			}
 
-			double delay = 0.0;
+			double waitOnStart = 0.0;
 			try
 			{
-				delay = info.getDouble("start_delay");
+				waitOnStart = info.getDouble("wait_on_start");
 			}
 			catch (IllegalArgumentException ignore) {}
 
 			MocapModifiers modifiers = info.getSimpleModifiers(info);
 			if (modifiers == null) { return false; }
 
-			SceneData.Element element = new SceneData.Element(toAdd, modifiers.withStartDelay(MocapStartDelay.fromSeconds(delay)));
+			MocapTimeModifiers timeModifiers = modifiers.getTimeModifiers().withWaitOnStart(MocapTime.fromSeconds(waitOnStart));
+			SceneData.Element element = new SceneData.Element(toAdd, modifiers.withTimeModifiers(timeModifiers));
 			return SceneFiles.addElement(info, name, element);
 		}
 		catch (IllegalArgumentException e) { return info.sendException(e, "error.unable_to_get_argument"); }

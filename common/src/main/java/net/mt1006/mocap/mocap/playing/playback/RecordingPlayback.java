@@ -9,7 +9,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.Vec3;
@@ -21,6 +20,7 @@ import net.mt1006.mocap.api.v1.io.CommandInfo;
 import net.mt1006.mocap.api.v1.modifiers.MocapModifiers;
 import net.mt1006.mocap.api.v1.modifiers.MocapPlayerSkin;
 import net.mt1006.mocap.events.PlayerConnectionEvent;
+import net.mt1006.mocap.mocap.actions.Die;
 import net.mt1006.mocap.mocap.files.RecordingData;
 import net.mt1006.mocap.mocap.settings.Settings;
 import net.mt1006.mocap.network.MocapPacketS2C;
@@ -34,7 +34,6 @@ public class RecordingPlayback extends Playback
 	private final RecordingData recording;
 	private final ActionContext ctx;
 	private int pos = 0;
-	private int dyingTicks = 0;
 
 	private RecordingPlayback(boolean isRoot, @Nullable ServerPlayer owner, MocapPlaybackConfig config,
 							  MocapModifiers modifiers, RecordingData recording, ActionContext ctx)
@@ -65,6 +64,7 @@ public class RecordingPlayback extends Playback
 
 		Vec3 center = modifiers.getTransformations().calculateCenter(recording.startPos);
 		PositionTransformer transformer = new PositionTransformer(modifiers.getTransformations(), parentTransformer, center);
+		boolean delayedStart = (modifiers.getTimeModifiers().getStartDelay().ticks != 0);
 
 		if (!modifiers.getPlayerAsEntity().isEnabled())
 		{
@@ -72,7 +72,7 @@ public class RecordingPlayback extends Playback
 			entity = fakePlayer;
 
 			fakePlayer.gameMode.changeGameModeForPlayer(Settings.USE_CREATIVE_GAME_MODE.val ? GameType.CREATIVE : GameType.SURVIVAL);
-			recording.initEntityPosition(fakePlayer, transformer);
+			recording.initEntityPosition(fakePlayer, transformer, delayedStart);
 			modifiers.getTransformations().applyScaleToPlayer(fakePlayer);
 
 			packetTargets.broadcastAll(new ClientboundPlayerInfoUpdatePacket(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER, fakePlayer));
@@ -99,7 +99,7 @@ public class RecordingPlayback extends Playback
 				return null;
 			}
 
-			recording.initEntityPosition(entity, transformer);
+			recording.initEntityPosition(entity, transformer, delayedStart);
 			entity.setDeltaMovement(0.0, 0.0, 0.0);
 			entity.setInvulnerable(config.getInvulnerablePlayback());
 			entity.setNoGravity(true);
@@ -113,7 +113,7 @@ public class RecordingPlayback extends Playback
 			{
 				ghost = new FakePlayer(level, newProfile, config.getInvulnerablePlayback());
 				ghost.gameMode.changeGameModeForPlayer(Settings.USE_CREATIVE_GAME_MODE.val ? GameType.CREATIVE : GameType.SURVIVAL);
-				recording.initEntityPosition(ghost, transformer);
+				recording.initEntityPosition(ghost, transformer, delayedStart);
 				level.addNewPlayer(ghost);
 			}
 		}
@@ -183,68 +183,118 @@ public class RecordingPlayback extends Playback
 		return newProfile;
 	}
 
-	@Override public boolean tick()
+	@Override public void tick()
 	{
-		if (dyingTicks > 0)
-		{
-			dyingTicks--;
-			if (dyingTicks == 0)
-			{
-				ctx.removeMainEntity();
-				stop();
-				return true;
-			}
-			return false;
-		}
-		if (finished) { return true; }
+		if (finished) { return; }
 
 		if (shouldExecuteTick())
 		{
-			while (true)
+			if (waitOnEnd != 0)
 			{
-				MocapAction.Result result = recording.executeNext(ctx, config, pos++);
-
-				if (result.endsPlayback)
-				{
-					if (result == MocapAction.Result.ERROR)
-					{
-						Utils.sendMessage(owner, "error.playback_error");
-						MocapMod.LOGGER.error("Something went wrong during playback!");
-					}
-					else if (recording.endsWithDeath)
-					{
-						if (ctx.entity instanceof FakePlayer) { ((FakePlayer)ctx.entity).fakeKill(); }
-						else { ctx.entity.kill(null); }
-
-						if (ctx.entity instanceof LivingEntity) { dyingTicks = 20; }
-					}
-					finished = true;
-				}
-
-				if (result == MocapAction.Result.REPEAT_TICK) { pos--; }
-				if (result.endsTick) { break; }
+				if (waitOnEnd == 1) { finished = true; }
+				waitOnEnd--;
 			}
+			else
+			{
+				int startDelay = modifiers.getTimeModifiers().getStartDelay().ticks;
+				int waitOnStart = modifiers.getTimeModifiers().getWaitOnStart().ticks;
+
+				if (startDelay == tickCounter)
+				{
+					boolean delayedStart = (modifiers.getTimeModifiers().getStartDelay().ticks != 0);
+					if (delayedStart) { recording.initEntityPosition(ctx.getEntity(), ctx.getTransformer(), false); }
+
+					recording.firstExecute(ctx.getEntity());
+					tickInitialActions();
+				}
+				if (startDelay + waitOnStart <= tickCounter) { tickActions(); }
+			}
+			tickCounter++;
 		}
 
-		if (isRoot && finished && dyingTicks == 0) { stop(); }
+		if (finished && modifiers.getTimeModifiers().getLoop()) { loop(); }
+		else if (shouldSelfStop()) { stop(); }
+	}
 
-		tickCounter++;
-		return finished && dyingTicks == 0;
+	private void tickInitialActions()
+	{
+		int tempPos = 0;
+		while (true)
+		{
+			MocapAction.Result result = recording.executeAction(ctx, config, true, tempPos++);
+			switch (result)
+			{
+				case OK, IGNORED:
+					break;
+
+				case NEXT_TICK, REPEAT_TICK, END:
+					return;
+
+				case ERROR:
+					Utils.sendMessage(owner, "error.playback_error");
+					MocapMod.LOGGER.error("Something went wrong during initial tick!");
+					finished = true;
+					return;
+
+				default:
+					throw new IllegalStateException("Unexpected value: " + result);
+			}
+		}
+	}
+
+	private void tickActions()
+	{
+		while (true)
+		{
+			MocapAction.Result result = recording.executeAction(ctx, config, false, pos++);
+			switch (result)
+			{
+				case OK, IGNORED:
+					break;
+
+				case NEXT_TICK:
+					return;
+
+				case REPEAT_TICK:
+					pos--;
+					return;
+
+				case END:
+					if (recording.endsWithDeath) { Die.INSTANCE.execute(ctx); }
+					finishOrWaitOnEnd();
+					return;
+
+				case ERROR:
+					Utils.sendMessage(owner, "error.playback_error");
+					MocapMod.LOGGER.error("Something went wrong during playback!");
+					finished = true;
+					return;
+
+				default:
+					throw new IllegalStateException("Unexpected value: " + result);
+			}
+		}
 	}
 
 	@Override public void stop()
 	{
-		ctx.removeEntities();
-		finished = true;
+		if (!stopped)
+		{
+			ctx.removeMainEntity();
+			ctx.removeAdditionalEntities();
+			finished = true;
+			stopped = true;
+		}
 	}
 
-	@Override public boolean wasFinished()
+	@Override protected void loop()
 	{
-		return finished && dyingTicks == 0;
-	}
+		boolean delayedStart = (modifiers.getTimeModifiers().getStartDelay().ticks != 0);
+		recording.initEntityPosition(ctx.getEntity(), ctx.getTransformer(), delayedStart);
 
-	@Override protected PositionTransformer getPosTransformer()
-	{
-		return ctx.transformer;
+		ctx.removeAdditionalEntities();
+		pos = 0;
+		tickCounter = 0;
+		finished = false;
 	}
 }

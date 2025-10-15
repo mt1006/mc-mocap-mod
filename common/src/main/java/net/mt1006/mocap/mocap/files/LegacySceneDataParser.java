@@ -3,11 +3,7 @@ package net.mt1006.mocap.mocap.files;
 import net.mt1006.mocap.api.v1.io.CommandOutput;
 import net.mt1006.mocap.api.v1.modifiers.MocapModifiers;
 import net.mt1006.mocap.api.v1.modifiers.MocapPlayerSkin;
-import net.mt1006.mocap.api.v1.modifiers.MocapStartDelay;
-import net.mt1006.mocap.mocap.playing.modifiers.PlaybackModifiers;
-import net.mt1006.mocap.mocap.playing.modifiers.PlayerAsEntity;
-import net.mt1006.mocap.mocap.playing.modifiers.PlayerSkin;
-import net.mt1006.mocap.mocap.playing.modifiers.Transformations;
+import net.mt1006.mocap.mocap.playing.modifiers.*;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.ByteArrayInputStream;
@@ -18,6 +14,7 @@ public class LegacySceneDataParser
 	private static final String NULL_STR = "[null]";
 	private boolean legacy = true, parsed = false;
 
+	//TODO: separate parsing from constructor
 	public LegacySceneDataParser(SceneData sceneData, CommandOutput out, byte[] scene)
 	{
 		try (Scanner scanner = new Scanner(new ByteArrayInputStream(scene)))
@@ -58,10 +55,10 @@ public class LegacySceneDataParser
 	private static SceneData.Element parseSubscene(Scanner scanner)
 	{
 		String elementName = scanner.next();
-		MocapModifiers modifiers = PlaybackModifiers.EMPTY;
+		MocapModifiers modifiers = PlaybackModifiers.DEFAULT;
 		try
 		{
-			modifiers = modifiers.withStartDelay(MocapStartDelay.fromSeconds(Double.parseDouble(scanner.next())));
+			modifiers = modifiers.withTimeModifiers(TimeModifiers.fromLegacyScene(Double.parseDouble(scanner.next())));
 			modifiers = modifiers.withTransformations(Transformations.fromLegacyScene(
 					Double.parseDouble(scanner.next()), Double.parseDouble(scanner.next()), Double.parseDouble(scanner.next())));
 			modifiers = modifiers.withPlayerName(parsePlayerName(scanner));

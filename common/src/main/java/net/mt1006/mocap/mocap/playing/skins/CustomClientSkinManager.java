@@ -91,8 +91,8 @@ public class CustomClientSkinManager
 				return;
 			}
 
-			String id = MocapMod.MOD_ID + ":" + SKIN_RES_PREFIX + RANDOM.nextLong();
-			Minecraft.getInstance().getTextureManager().register(resFromName(name), new DynamicTexture(() -> id, nativeImage));
+			ResourceLocation id = resFromName(name);
+			Minecraft.getInstance().getTextureManager().register(id, new DynamicTexture(id::toString, nativeImage));
 			skinCache.put(name, true);
 		}
 		catch (Exception e) { Utils.exception(e, "Failed to read skin texture!"); }

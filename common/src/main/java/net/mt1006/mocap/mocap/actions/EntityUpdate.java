@@ -105,10 +105,7 @@ public class EntityUpdate implements MocapAction
 		if (type == UpdateType.ADD)
 		{
 			writer.addString(nbtString != null ? nbtString : "");
-			if (position != null)
-			{
-				writer.addVec3(position);
-			}
+			writer.addVec3(position != null ? position : Vec3.ZERO);
 		}
 	}
 

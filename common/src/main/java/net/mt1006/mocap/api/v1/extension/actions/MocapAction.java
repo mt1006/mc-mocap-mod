@@ -51,20 +51,11 @@ public interface MocapAction
 
 	enum Result
 	{
-		OK(false, false),
-		IGNORED(false, false),
-		NEXT_TICK(true, false),
-		REPEAT_TICK(true, false),
-		END(true, true),
-		ERROR(true, true);
-
-		public final boolean endsTick;
-		public final boolean endsPlayback;
-
-		Result(boolean endsTick, boolean endsPlayback)
-		{
-			this.endsTick = endsTick;
-			this.endsPlayback = endsPlayback;
-		}
+		OK,
+		IGNORED,
+		NEXT_TICK,
+		REPEAT_TICK,
+		END,
+		ERROR
 	}
 }

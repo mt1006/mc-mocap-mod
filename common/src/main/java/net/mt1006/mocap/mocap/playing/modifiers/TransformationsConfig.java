@@ -123,22 +123,20 @@ public class TransformationsConfig implements MocapTransformationsConfig
 		out.sendSuccess("scenes.element_info.transformations.center_offset", centerOffset.x, centerOffset.y, centerOffset.z);
 	}
 
-	@Override public @Nullable MocapTransformationsConfig modify(FullCommandInfo info, String propertyName, int propertyNodePos)
+	@Override public @Nullable MocapTransformationsConfig modify(FullCommandInfo info, int propertyNodePos)
 	{
-		switch (propertyName)
+		switch (info.getNode(propertyNodePos))
 		{
 			case "round_block_pos":
 				return withRoundBlockPos(info.getBool("round"));
 
 			case "recording_center":
 				String centerPointStr = info.getNode(propertyNodePos + 1);
-				if (centerPointStr == null) { break; }
-
-				return withRecordingCenter(RecordingCenter.valueOf(centerPointStr.toUpperCase()));
+				return centerPointStr != null ? withRecordingCenter(RecordingCenter.valueOf(centerPointStr.toUpperCase())) : null;
 
 			case "scene_center":
 				String sceneCenterStr = info.getNode(propertyNodePos + 1);
-				if (sceneCenterStr == null) { break; }
+				if (sceneCenterStr == null) { return null; }
 
 				SceneCenterType centerType = SceneCenterType.valueOf(sceneCenterStr.toUpperCase());
 				String specificStr = centerType == SceneCenterType.COMMON_SPECIFIC ? info.getString("specific_scene_element") : null;
@@ -147,8 +145,10 @@ public class TransformationsConfig implements MocapTransformationsConfig
 
 			case "center_offset":
 				return withCenterOffset(new Vec3(info.getDouble("offset_x"), info.getDouble("offset_y"), info.getDouble("offset_z")));
+
+			case null, default:
+				return null;
 		}
-		return null;
 	}
 
 	public static class SceneCenter

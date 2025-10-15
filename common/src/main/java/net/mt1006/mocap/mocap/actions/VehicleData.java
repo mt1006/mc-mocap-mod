@@ -59,20 +59,20 @@ public class VehicleData implements MocapStateAction
 
 			if (entity instanceof Llama) { int1 = ((Llama)entity).getVariant().getId(); }
 		}
-		else if (entity instanceof Boat)
+		else if (entity instanceof Boat boat)
 		{
-			flag1 = ((Boat)entity).getPaddleState(0);
-			flag2 = ((Boat)entity).getPaddleState(1);
-			int1 = ((Boat)entity).getHurtTime();
-			int2 = ((Boat)entity).getHurtDir();
+			flag1 = boat.getPaddleState(0);
+			flag2 = boat.getPaddleState(1);
+			int1 = boat.getHurtTime();
+			int2 = boat.getHurtDir();
 			int3 = ((BoatFields)entity).callGetBubbleTime();
-			float1 = ((Boat)entity).getDamage();
+			float1 = boat.getDamage();
 		}
-		else if (entity instanceof AbstractMinecart)
+		else if (entity instanceof AbstractMinecart minecart)
 		{
-			int1 = ((AbstractMinecart)entity).getHurtTime();
-			int2 = ((AbstractMinecart)entity).getHurtDir();
-			float1 = ((AbstractMinecart)entity).getDamage();
+			int1 = minecart.getHurtTime();
+			int2 = minecart.getHurtDir();
+			float1 = minecart.getDamage();
 		}
 
 		used = true;
@@ -150,19 +150,19 @@ public class VehicleData implements MocapStateAction
 
 			if (entity instanceof Llama) { ((LlamaFields)entity).callSetVariant(Llama.Variant.byId(int1)); }
 		}
-		else if (entity instanceof Boat)
+		else if (entity instanceof Boat boat)
 		{
-			((Boat)entity).setPaddleState(flag1, flag2);
-			((Boat)entity).setHurtTime(int1);
-			((Boat)entity).setHurtDir(int2);
+			boat.setPaddleState(flag1, flag2);
+			boat.setHurtTime(int1);
+			boat.setHurtDir(int2);
 			((BoatFields)entity).callSetBubbleTime(int3);
-			((Boat)entity).setDamage(float1);
+			boat.setDamage(float1);
 		}
-		else if (entity instanceof AbstractMinecart)
+		else if (entity instanceof AbstractMinecart minecart)
 		{
-			((AbstractMinecart)entity).setHurtTime(int1);
-			((AbstractMinecart)entity).setHurtDir(int2);
-			((AbstractMinecart)entity).setDamage(float1);
+			minecart.setHurtTime(int1);
+			minecart.setHurtDir(int2);
+			minecart.setDamage(float1);
 		}
 
 		return Result.OK;

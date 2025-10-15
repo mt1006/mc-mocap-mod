@@ -191,6 +191,6 @@ public class FullCommandInfo implements CommandInfo
 		}
 		catch (Exception ignore) {}
 
-		return PlaybackModifiers.EMPTY.withPlayerName(playerName).withPlayerSkin(playerSkin).withPlayerAsEntity(playerAsEntity);
+		return PlaybackModifiers.DEFAULT.withPlayerName(playerName).withPlayerSkin(playerSkin).withPlayerAsEntity(playerAsEntity);
 	}
 }

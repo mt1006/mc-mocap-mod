@@ -21,6 +21,7 @@ import java.util.Scanner;
 
 public class PlayerSkin implements MocapPlayerSkin
 {
+	public static final PlayerSkin DEFAULT = new PlayerSkin(Source.DEFAULT, null);
 	private static final String MINESKIN_URL_PREFIX1 = "minesk.in/";
 	private static final String MINESKIN_URL_PREFIX2 = "mineskin.org/skins/";
 	private static final String MINESKIN_API_URL = "https://api.mineskin.org/get/uuid/";
@@ -33,17 +34,11 @@ public class PlayerSkin implements MocapPlayerSkin
 		this.path = path;
 	}
 
-	public PlayerSkin(@Nullable SceneFiles.Reader reader)
+	public static PlayerSkin fromObject(@Nullable SceneFiles.Reader reader)
 	{
-		if (reader == null)
-		{
-			source = Source.DEFAULT;
-			path = null;
-			return;
-		}
-
-		source = Source.fromName(reader.readString("skin_source"));
-		path = reader.readString("skin_path");
+		return reader != null
+				? new PlayerSkin(reader.readEnum("skin_source", Source.DEFAULT), reader.readString("skin_path"))
+				: DEFAULT;
 	}
 
 	public static @Nullable PlayerSkin createVerified(CommandOutput out, Source source, @Nullable String skinPath)
@@ -79,7 +74,7 @@ public class PlayerSkin implements MocapPlayerSkin
 		if (source == Source.DEFAULT) { return null; }
 
 		SceneFiles.Writer writer = new SceneFiles.Writer();
-		writer.addString("skin_source", source.toString());
+		writer.addEnum("skin_source", source, Source.DEFAULT);
 		writer.addString("skin_path", path);
 
 		return writer;

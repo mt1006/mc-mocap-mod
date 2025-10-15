@@ -19,9 +19,11 @@ import net.mt1006.mocap.MocapMod;
 import net.mt1006.mocap.api.impl.extenstion.Extensions;
 import net.mt1006.mocap.api.v1.controller.config.MocapPlaybackConfig;
 import net.mt1006.mocap.api.v1.extension.MocapExtension;
+import net.mt1006.mocap.api.v1.extension.MocapPositionTransformer;
 import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
 import net.mt1006.mocap.api.v1.extension.actions.MocapAction;
 import net.mt1006.mocap.api.v1.extension.actions.MocapBlockAction;
+import net.mt1006.mocap.api.v1.extension.actions.MocapStateAction;
 import net.mt1006.mocap.api.v1.io.CommandOutput;
 import net.mt1006.mocap.mocap.actions.ActionType;
 import net.mt1006.mocap.mocap.actions.BlockStateData;
@@ -29,8 +31,8 @@ import net.mt1006.mocap.mocap.actions.NextTick;
 import net.mt1006.mocap.mocap.actions.SkipTicks;
 import net.mt1006.mocap.mocap.playing.playable.RecordingFile;
 import net.mt1006.mocap.mocap.playing.playback.ActionContext;
-import net.mt1006.mocap.mocap.playing.playback.PositionTransformer;
 import net.mt1006.mocap.mocap.playing.playback.PreExecuteContext;
+import net.mt1006.mocap.mocap.recording.PositionTracker;
 import net.mt1006.mocap.utils.EntityData;
 import net.mt1006.mocap.utils.Utils;
 import org.jetbrains.annotations.Nullable;
@@ -111,7 +113,7 @@ public class RecordingData implements MocapRecordingData
 			return false;
 		}
 
-		if (!loadHeader(out, reader, version <= 2)) { return false; } //TODO: test old recordings
+		if (!loadHeader(out, reader, version == 1 || version == 2)) { return false; } //TODO: test old recordings
 
 		while (reader.canRead())
 		{
@@ -207,6 +209,8 @@ public class RecordingData implements MocapRecordingData
 		for (int i = 0; i < extensionCount; i++)
 		{
 			MocapExtension extension = Extensions.getExtension(reader.readString(), reader.readShort());
+
+			//TODO: REMOVE SIZE AND THIS CHECK! it just skips ID?
 			int headerSize = reader.readPackedSize();
 			if (extension == null)
 			{
@@ -233,10 +237,11 @@ public class RecordingData implements MocapRecordingData
 		extensionHeaders.put(extension, extensionHeader);
 	}
 
-	public void initEntityPosition(Entity entity, PositionTransformer transformer)
+	public void initEntityPosition(Entity entity, MocapPositionTransformer transformer, boolean teleportFarAway)
 	{
+		Vec3 pos = teleportFarAway ? PositionTracker.FAR_AWAY : transformer.transformPos(startPos);
 		float rotY = transformer.transformRotation(startRot[0]);
-		entity.snapTo(transformer.transformPos(startPos), rotY, startRot[1]);
+		entity.snapTo(pos, rotY, startRot[1]);
 		entity.setYHeadRot(rotY);
 	}
 
@@ -251,15 +256,18 @@ public class RecordingData implements MocapRecordingData
 		}
 	}
 
-	public MocapAction.Result executeNext(ActionContext ctx, MocapPlaybackConfig config, int pos)
+	public MocapAction.Result executeAction(ActionContext ctx, MocapPlaybackConfig config, boolean initialAction, int pos)
 	{
 		if (pos >= actions.size()) { return MocapAction.Result.END; }
-		if (pos == 0) { firstExecute(ctx.entity); }
 
 		try
 		{
 			MocapAction nextAction = actions.get(pos);
 			if (!config.getBlockActionsPlayback() && nextAction instanceof BlockStateData) { return MocapAction.Result.OK; }
+			if (initialAction && (!(nextAction instanceof MocapStateAction stateAction) || !stateAction.shouldBeInitialized()))
+			{
+				return MocapAction.Result.IGNORED;
+			}
 
 			return nextAction.execute(ctx);
 		}
@@ -270,7 +278,7 @@ public class RecordingData implements MocapRecordingData
 		}
 	}
 
-	private void firstExecute(Entity entity)
+	public void firstExecute(Entity entity)
 	{
 		if (entity instanceof Player)
 		{
@@ -375,6 +383,7 @@ public class RecordingData implements MocapRecordingData
 	public static class ItemIdMap extends RefIdMap<Item>
 	{
 		public ItemIdMap(RecordingData parent) { super(parent); }
+
 		@Override protected void init() { put(Items.AIR); }
 
 		@Override public int provideId(Item item)
@@ -410,6 +419,7 @@ public class RecordingData implements MocapRecordingData
 	public static class BlockStateIdMap extends RefIdMap<BlockState>
 	{
 		public BlockStateIdMap(RecordingData parent) { super(parent); }
+
 		@Override protected void init() { put(Blocks.AIR.defaultBlockState()); }
 
 		@Override public int provideId(BlockState blockState)

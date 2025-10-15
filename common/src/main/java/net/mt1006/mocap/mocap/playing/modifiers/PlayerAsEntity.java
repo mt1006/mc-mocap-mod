@@ -19,6 +19,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class PlayerAsEntity implements MocapPlayerAsEntity
 {
+	public static final PlayerAsEntity DISABLED = new PlayerAsEntity(null, null);
 	private final @Nullable String entityId;
 	public final @Nullable String entityNbt;
 	private final @Nullable EntityType<?> entityType;
@@ -32,21 +33,9 @@ public class PlayerAsEntity implements MocapPlayerAsEntity
 		this.compoundTag = prepareCompoundTag(entityId, entityNbt);
 	}
 
-	public PlayerAsEntity(@Nullable SceneFiles.Reader reader)
+	public static PlayerAsEntity fromObject(@Nullable SceneFiles.Reader reader)
 	{
-		if (reader == null)
-		{
-			entityId = null;
-			entityNbt = null;
-			entityType = null;
-			compoundTag = null;
-			return;
-		}
-
-		entityId = reader.readString("id");
-		entityNbt = reader.readString("nbt");
-		entityType = prepareEntityType(entityId, entityNbt);
-		compoundTag = prepareCompoundTag(entityId, entityNbt);
+		return reader != null ? new PlayerAsEntity(reader.readString("id"), reader.readString("nbt")) : DISABLED;
 	}
 
 	@Override public boolean isEnabled()

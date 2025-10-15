@@ -46,6 +46,7 @@ public class ChangeItem implements MocapStateAction
 		addItem(livingEntity.getItemBySlot(EquipmentSlot.CHEST), ops);
 		addItem(livingEntity.getItemBySlot(EquipmentSlot.HEAD), ops);
 		addItem(livingEntity.getItemBySlot(EquipmentSlot.BODY), ops);
+		//TODO: add SADDLE?
 
 		int itemCounter = 0;
 		for (int i = 0; i < ITEM_COUNT; i++)
@@ -61,7 +62,7 @@ public class ChangeItem implements MocapStateAction
 
 		if (firstByte >= 0)
 		{
-			// backward compatibility
+			// backwards compatibility
 			reader.shift(-1);
 			itemCount = ITEM_COUNT_LEGACY;
 		}
@@ -70,6 +71,7 @@ public class ChangeItem implements MocapStateAction
 			itemCount = (byte)(firstByte != Byte.MIN_VALUE ? -firstByte : 0);
 		}
 
+		//TODO: fix, this most likely won't work when itemCount > ITEM_COUNT
 		if (itemCount > ITEM_COUNT)
 		{
 			// Shouldn't happen, unless loading recording from newer mc version

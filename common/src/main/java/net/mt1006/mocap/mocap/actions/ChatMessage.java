@@ -17,10 +17,12 @@ import java.util.UUID;
 
 public class ChatMessage implements MocapAction
 {
+	//TODO: add dummy value for future uses?
 	private final String messageJson;
 
 	public ChatMessage(Component component)
 	{
+		//TODO: use JsonOps.COMPRESSED?
 		String message;
 		try { message = ComponentSerialization.CODEC.encodeStart(JsonOps.INSTANCE, component).getOrThrow().toString(); }
 		catch (IllegalStateException e) { message = "{}"; }

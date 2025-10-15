@@ -55,7 +55,14 @@ public class CommandUtils
 																	   ArgumentBuilder<CommandSourceStack, ?> builder,
 																	   Command<CommandSourceStack> command, boolean isScene)
 	{
-		builder.then(Commands.literal("start_delay").then(Commands.argument("delay", DoubleArgumentType.doubleArg(0.0)).executes(command)));
+		builder.then(Commands.literal("time").
+			then(Commands.literal("start_delay").then(Commands.argument("seconds", DoubleArgumentType.doubleArg(0.0)).executes(command))).
+			then(Commands.literal("wait_on_start").then(Commands.argument("seconds", DoubleArgumentType.doubleArg(0.0)).executes(command))).
+			then(Commands.literal("wait_on_end").then(Commands.argument("seconds", DoubleArgumentType.doubleArg(0.0)).executes(command))).
+			then(Commands.literal("wait_for_parent_end").
+				then(Commands.argument("wait_for_parent_end", BoolArgumentType.bool()).executes(command))).
+			then(Commands.literal("loop").
+				then(Commands.argument("loop", BoolArgumentType.bool()).executes(command))));
 		builder.then(Commands.literal("transformations").
 			then(Commands.literal("rotation").
 				then(Commands.argument("deg", DoubleArgumentType.doubleArg()).executes(command))).

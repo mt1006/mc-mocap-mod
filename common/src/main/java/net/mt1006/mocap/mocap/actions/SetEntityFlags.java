@@ -8,32 +8,33 @@ import net.mt1006.mocap.utils.EntityData;
 
 public class SetEntityFlags implements MocapStateAction
 {
-	private final byte entityFlags;
+	private final byte flags;
 
 	public SetEntityFlags(Entity entity)
 	{
+		//TODO: create tests in case flag order changes
 		//TODO: test fire
-		this.entityFlags = EntityData.ENTITY_FLAGS.valOrDef(entity, (byte)0);
+		this.flags = EntityData.ENTITY_FLAGS.valOrDef(entity, (byte)0);
 	}
 
 	public SetEntityFlags(Reader reader)
 	{
-		entityFlags = reader.readByte();
+		flags = reader.readByte();
 	}
 
 	@Override public boolean differs(MocapStateAction previousAction)
 	{
-		return entityFlags != ((SetEntityFlags)previousAction).entityFlags;
+		return flags != ((SetEntityFlags)previousAction).flags;
 	}
 
 	public void write(Writer writer, MocapRecordingData data)
 	{
-		writer.addByte(entityFlags);
+		writer.addByte(flags);
 	}
 
 	@Override public Result execute(MocapActionContext ctx)
 	{
-		EntityData.ENTITY_FLAGS.set(ctx.getEntity(), entityFlags);
+		EntityData.ENTITY_FLAGS.set(ctx.getEntity(), flags);
 		return Result.OK;
 	}
 }

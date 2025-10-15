@@ -12,7 +12,7 @@ public class CommandsContext
 {
 	private static final Map<ServerPlayer, CommandsContext> contexts = new HashMap<>();
 	public static int haveSyncEnabled = 0;
-	public MocapModifiers modifiers = PlaybackModifiers.EMPTY;
+	public MocapModifiers modifiers = PlaybackModifiers.DEFAULT;
 	private boolean sync = false;
 	public @Nullable String doubleStart = null;
 
@@ -43,7 +43,7 @@ public class CommandsContext
 
 	public static MocapModifiers getFinalModifiers(@Nullable ServerPlayer source, MocapModifiers simpleModifiers)
 	{
-		MocapModifiers contextModifiers = source != null ? CommandsContext.get(source).modifiers : PlaybackModifiers.EMPTY;
+		MocapModifiers contextModifiers = source != null ? CommandsContext.get(source).modifiers : PlaybackModifiers.DEFAULT;
 		MocapModifiers modifiers = simpleModifiers.mergeWithParent(contextModifiers);
 
 		// mergeWithParent() doesn't merge transformations, as it expects PositionTransformer to call parent transformer,
