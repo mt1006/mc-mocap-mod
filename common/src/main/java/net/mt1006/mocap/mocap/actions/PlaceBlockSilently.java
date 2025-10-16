@@ -8,44 +8,16 @@ import net.mt1006.mocap.api.v1.extension.actions.MocapActionContext;
 import net.mt1006.mocap.api.v1.extension.actions.MocapBasicActionContext;
 import net.mt1006.mocap.api.v1.extension.actions.MocapBlockAction;
 
-public class PlaceBlockSilently implements MocapBlockAction
+public class PlaceBlockSilently extends PlaceBlock
 {
-	//TODO: make it extend PlaceBlock
-	private final MocapBlockState previousBlockState;
-	private final MocapBlockState newBlockState;
-	private final BlockPos blockPos;
-
 	public PlaceBlockSilently(BlockState previousBlockState, BlockState newBlockState, BlockPos blockPos)
 	{
-		this.previousBlockState = new BlockStateData(previousBlockState);
-		this.newBlockState = new BlockStateData(newBlockState);
-		this.blockPos = blockPos;
+		super(previousBlockState, newBlockState, blockPos);
 	}
 
 	public PlaceBlockSilently(Reader reader, MocapRecordingData data)
 	{
-		previousBlockState = new BlockStateData(reader, data);
-		newBlockState = new BlockStateData(reader, data);
-		blockPos = reader.readBlockPos();
-	}
-
-	@Override public void prepareWrite(MocapRecordingData data)
-	{
-		previousBlockState.prepareWrite(data);
-		newBlockState.prepareWrite(data);
-	}
-
-	@Override public void write(Writer writer, MocapRecordingData data)
-	{
-		previousBlockState.write(writer);
-		newBlockState.write(writer);
-
-		writer.addBlockPos(blockPos);
-	}
-
-	@Override public void initBlocks(MocapBasicActionContext ctx)
-	{
-		previousBlockState.placeSilently(ctx, blockPos);
+		super(reader, data);
 	}
 
 	@Override public Result execute(MocapActionContext ctx)
