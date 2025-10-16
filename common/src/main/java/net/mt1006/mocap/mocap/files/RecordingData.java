@@ -251,7 +251,7 @@ public class RecordingData implements MocapRecordingData
 		{
 			for (int i = blockActions.size() - 1; i >= 0; i--)
 			{
-				blockActions.get(i).preExecute(ctx);
+				blockActions.get(i).initBlocks(ctx);
 			}
 		}
 	}

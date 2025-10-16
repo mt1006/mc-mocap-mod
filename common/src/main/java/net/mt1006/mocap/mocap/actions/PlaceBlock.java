@@ -42,7 +42,7 @@ public class PlaceBlock implements MocapBlockAction
 		writer.addBlockPos(blockPos);
 	}
 
-	@Override public void preExecute(MocapBasicActionContext ctx)
+	@Override public void initBlocks(MocapBasicActionContext ctx)
 	{
 		previousBlockState.placeSilently(ctx, blockPos);
 	}

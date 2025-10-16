@@ -74,7 +74,7 @@ public class RightClickBlock implements MocapBlockAction
 		writer.addBoolean(offHand);
 	}
 
-	@Override public void preExecute(MocapBasicActionContext ctx) {}
+	@Override public void initBlocks(MocapBasicActionContext ctx) {}
 
 	@Override public Result execute(MocapActionContext ctx)
 	{

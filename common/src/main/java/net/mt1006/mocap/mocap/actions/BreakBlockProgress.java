@@ -31,7 +31,7 @@ public class BreakBlockProgress implements MocapBlockAction
 		writer.addInt(progress);
 	}
 
-	@Override public void preExecute(MocapBasicActionContext ctx) {}
+	@Override public void initBlocks(MocapBasicActionContext ctx) {}
 
 	@Override public Result execute(MocapActionContext ctx)
 	{
