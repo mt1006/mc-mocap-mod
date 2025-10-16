@@ -17,12 +17,10 @@ import java.util.UUID;
 
 public class ChatMessage implements MocapAction
 {
-	//TODO: add dummy value for future uses?
 	private final String messageJson;
 
 	public ChatMessage(Component component)
 	{
-		//TODO: use JsonOps.COMPRESSED?
 		String message;
 		try { message = ComponentSerialization.CODEC.encodeStart(JsonOps.INSTANCE, component).getOrThrow().toString(); }
 		catch (IllegalStateException e) { message = "{}"; }
@@ -31,11 +29,13 @@ public class ChatMessage implements MocapAction
 
 	public ChatMessage(Reader reader)
 	{
+		reader.readByte(); // ignored
 		this.messageJson = reader.readString();
 	}
 
 	@Override public void write(Writer writer, MocapRecordingData data)
 	{
+		writer.addByte((byte)0); // dummy value - for future uses
 		writer.addString(messageJson);
 	}
 
