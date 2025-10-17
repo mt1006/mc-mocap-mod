@@ -33,14 +33,6 @@ public class SettingFields
 {
 	public final Map<String, Field<?>> fieldMap = new HashMap<>();
 
-	//TODO: remove?
-	/*public IntegerField add(String name, int val)
-	{
-		IntegerField field = new IntegerField(name, val);
-		addField(field, name);
-		return field;
-	}*/
-
 	public BooleanField add(String name, boolean val)
 	{
 		return addField(name, new BooleanField(name, val));
@@ -217,30 +209,6 @@ public class SettingFields
 		public abstract @Nullable T parseFromCommand(FullCommandInfo info);
 		public abstract ArgumentType<?> getArgumentType();
 	}
-
-	//TODO: remove?
-	/*public static class IntegerField extends Field<Integer>
-	{
-		public IntegerField(String name, Integer val)
-		{
-			super(name, val, null);
-		}
-
-		@Override public Integer parseFromString(String str)
-		{
-			return Integer.valueOf(str);
-		}
-
-		@Override public Integer parseFromCommand(FullCommandInfo info)
-		{
-			return info.getInteger("new_value");
-		}
-
-		@Override public ArgumentType<?> getArgumentType()
-		{
-			return IntegerArgumentType.integer();
-		}
-	}*/
 
 	public static class BooleanField extends Field<Boolean>
 	{

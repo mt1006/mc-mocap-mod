@@ -48,10 +48,9 @@ public class Settings
 	//public static final SettingFields.BooleanField PRECISE_ROTATION_PLAYBACK = ADVANCED.add(fields.add("precise_rotation_playback", false)); //TODO: restore?
 	public static final SettingFields.BooleanField ALLOW_MINESKIN_REQUESTS = ADVANCED.add(fields.add("allow_mineskin_requests", true));
 	public static final SettingFields.BooleanField PREVENT_SAVING_ENTITIES = ADVANCED.add(fields.add("prevent_saving_entities", true));
-	public static final SettingFields.BooleanField USE_CREATIVE_GAME_MODE = ADVANCED.add(fields.add("use_creative_game_mode", false)); //TODO: set to true by default?
+	public static final SettingFields.BooleanField USE_CREATIVE_GAME_MODE = ADVANCED.add(fields.add("use_creative_game_mode", false));
 	public static final SettingFields.BooleanField ALLOW_GHOSTS = ADVANCED.add(fields.add("allow_ghosts", true));
 	public static final SettingFields.BooleanField EXPERIMENTAL_RELEASE_WARNING = ADVANCED.add(fields.add("experimental_release_warning", true));
-	//public static final SettingFields.IntegerField SERVER_PERFORMANCE_WARNING = ADVANCED.add(fields.add("server_performance_warning", 45)); //TODO: implement
 	public static final SettingFields.BooleanField PRETTY_SCENE_FILES = ADVANCED.add(fields.add("pretty_scene_files", true));
 	public static final SettingFields.BooleanField SHOW_TIPS = ADVANCED.add(fields.add("show_tips", true));
 
