@@ -118,6 +118,7 @@ public class RecordingFile extends Playable implements MocapRecordingFile
 	public record Info(
 			int version,
 			boolean experimental,
+			int experimentalSubversion,
 			long lengthInTicks,
 			long sizeInBytes,
 			long sizeInOps,
@@ -138,6 +139,7 @@ public class RecordingFile extends Playable implements MocapRecordingFile
 			return new Info(
 					recording.version,
 					recording.experimentalVersion,
+					recording.experimentalSubversion,
 					recording.tickCount,
 					recording.fileSize,
 					recording.actions.size(),

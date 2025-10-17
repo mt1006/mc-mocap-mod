@@ -22,6 +22,8 @@ public interface MocapRecordingFile extends MocapPlayable, MocapFile<MocapRecord
 
 		boolean experimental();
 
+		int experimentalSubversion();
+
 		long lengthInTicks();
 
 		long sizeInBytes();

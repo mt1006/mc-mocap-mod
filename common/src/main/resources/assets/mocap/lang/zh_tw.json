@@ -228,13 +228,13 @@
 
 
   "mocap.file.info.name": "§l名稱：§r %s",
-  "mocap.file.info.version.current": "§l格式版本：§r %d §7§o[目前]§r",
-  "mocap.file.info.version.old": "§l格式版本：§r %d §7§o[舊版]§r",
-  "mocap.file.info.version.not_supported": "§l格式版本：§r %d §7§o[不支援]§r",
-  "mocap.file.info.version.undefined": "§l格式版本：§r %d §7§o[未定義]§r",
-  "mocap.file.info.version.current.experimental": "§l格式版本：§r %d-exp §7§o[目前；實驗性]§r",
-  "mocap.file.info.version.old.experimental": "§l格式版本：§r %d-exp §7§o[舊版；實驗性]§r",
-  "mocap.file.info.version.not_supported.experimental": "§l格式版本：§r %d-exp §7§o[不支援；實驗性]§r",
+  "mocap.file.info.version.current": "§l格式版本：§r %s §7§o[目前]§r",
+  "mocap.file.info.version.old": "§l格式版本：§r %s §7§o[舊版]§r",
+  "mocap.file.info.version.not_supported": "§l格式版本：§r %s §7§o[不支援]§r",
+  "mocap.file.info.version.undefined": "§l格式版本：§r %s §7§o[未定義]§r",
+  "mocap.file.info.version.current.experimental": "§l格式版本：§r %s §7§o[目前；實驗性]§r",
+  "mocap.file.info.version.old.experimental": "§l格式版本：§r %s §7§o[舊版；實驗性]§r",
+  "mocap.file.info.version.not_supported.experimental": "§l格式版本：§r %s §7§o[不支援；實驗性]§r",
 
 
   "mocap.failure.improper_filename": "檔案名稱不正確！",

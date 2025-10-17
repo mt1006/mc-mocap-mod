@@ -293,13 +293,13 @@
 
 
   "mocap.file.info.name": "§lName:§r %s",
-  "mocap.file.info.version.current": "§lFormat version:§r %d §7§o[current]§r",
-  "mocap.file.info.version.old": "§lFormat version:§r %d §7§o[old]§r",
-  "mocap.file.info.version.not_supported": "§lFormat version:§r %d §7§o[not supported]§r",
-  "mocap.file.info.version.undefined": "§lFormat version:§r %d §7§o[undefined]§r",
-  "mocap.file.info.version.current.experimental": "§lFormat version:§r %d-exp §7§o[current; experimental]§r",
-  "mocap.file.info.version.old.experimental": "§lFormat version:§r %d-exp §7§o[old; experimental]§r",
-  "mocap.file.info.version.not_supported.experimental": "§lFormat version:§r %d-exp §7§o[not supported; experimental]§r",
+  "mocap.file.info.version.current": "§lFormat version:§r %s §7§o[current]§r",
+  "mocap.file.info.version.old": "§lFormat version:§r %s §7§o[old]§r",
+  "mocap.file.info.version.not_supported": "§lFormat version:§r %s §7§o[not supported]§r",
+  "mocap.file.info.version.undefined": "§lFormat version:§r %s §7§o[undefined]§r",
+  "mocap.file.info.version.current.experimental": "§lFormat version:§r %s §7§o[current; experimental]§r",
+  "mocap.file.info.version.old.experimental": "§lFormat version:§r %s §7§o[old; experimental]§r",
+  "mocap.file.info.version.not_supported.experimental": "§lFormat version:§r %s §7§o[not supported; experimental]§r",
 
 
   "mocap.failure.improper_filename": "Improper filename!",

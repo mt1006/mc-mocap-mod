@@ -161,7 +161,7 @@ public class SceneFiles
 
 		out.sendSuccess("scenes.info.info");
 		out.sendSuccess("file.info.name", name);
-		if (!Files.printVersionInfo(out, VERSION, sceneData.version, sceneData.experimentalVersion)) { return true; }
+		if (!Files.printVersionInfo(out, VERSION, sceneData.version, sceneData.experimentalVersion, 0)) { return true; }
 
 		return out.sendSuccess("scenes.info.size", String.format("%.2f", sceneData.fileSize / 1024.0), sceneData.elements.size());
 	}

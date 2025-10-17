@@ -17,6 +17,7 @@ public class MocapMod
 	public static final boolean EXPERIMENTAL = true; //TODO: change it to false
 
 	public static final byte RECORDING_FORMAT_VERSION = 5;
+	public static final byte RECORDING_FORMAT_EXP_SUBVERSION = 1;
 	public static final byte SCENE_FORMAT_VERSION = 4;
 	public static final int NETWORK_PACKETS_VERSION = 5;
 

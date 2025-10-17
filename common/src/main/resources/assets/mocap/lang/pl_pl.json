@@ -286,13 +286,13 @@
 
 
   "mocap.file.info.name": "§lNazwa:§r %s",
-  "mocap.file.info.version.current": "§lWersja formatu:§r %d §7§o[obecna]§r",
-  "mocap.file.info.version.old": "§lWersja formatu:§r %d §7§o[stara]§r",
-  "mocap.file.info.version.not_supported": "§lWersja formatu:§r %d §7§o[niewspierana]§r",
-  "mocap.file.info.version.undefined": "§lWersja formatu:§r %d §7§o[niezdefiniowana]§r",
-  "mocap.file.info.version.current.experimental": "§lWersja formatu:§r %d-exp §7§o[obecna; eksperymentalna]§r",
-  "mocap.file.info.version.old.experimental": "§lWersja formatu:§r %d-exp §7§o[stara; eksperymentalna]§r",
-  "mocap.file.info.version.not_supported.experimental": "§lWersja formatu:§r %d-exp §7§o[niewspierana; eksperymentalna]§r",
+  "mocap.file.info.version.current": "§lWersja formatu:§r %s §7§o[obecna]§r",
+  "mocap.file.info.version.old": "§lWersja formatu:§r %s §7§o[stara]§r",
+  "mocap.file.info.version.not_supported": "§lWersja formatu:§r %s §7§o[niewspierana]§r",
+  "mocap.file.info.version.undefined": "§lWersja formatu:§r %s §7§o[niezdefiniowana]§r",
+  "mocap.file.info.version.current.experimental": "§lWersja formatu:§r %s §7§o[obecna; eksperymentalna]§r",
+  "mocap.file.info.version.old.experimental": "§lWersja formatu:§r %s §7§o[stara; eksperymentalna]§r",
+  "mocap.file.info.version.not_supported.experimental": "§lWersja formatu:§r %s §7§o[niewspierana; eksperymentalna]§r",
 
 
   "mocap.failure.improper_filename": "Niewłaściwa nazwa nagrania!",

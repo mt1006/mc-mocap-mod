@@ -45,12 +45,14 @@ public class RecordingData implements MocapRecordingData
 {
 	public static final RecordingData DUMMY = new RecordingData();
 
-	private static final byte FLAGS1_ENDS_WITH_DEATH =        0b00000001;
-	private static final byte FLAGS1_PACKED_SIZE_STRINGS =    0b00000010;
-	private static final byte FLAGS1_HAS_ID_MAPS =            0b00000100;
-	private static final byte FLAGS1_DIMENSION_SPECIFIED =    0b00001000;
-	private static final byte FLAGS1_PLAYER_NAME_SPECIFIED =  0b00010000;
-	private static final byte FLAGS1_HAS_EXTENSIONS =         0b00100000;
+	private static final byte FLAGS1_ENDS_WITH_DEATH =         0b00000001;
+	private static final byte FLAGS1_PACKED_SIZE_STRINGS =     0b00000010;
+	private static final byte FLAGS1_HAS_ID_MAPS =             0b00000100;
+	private static final byte FLAGS1_DIMENSION_SPECIFIED =     0b00001000;
+	private static final byte FLAGS1_PLAYER_NAME_SPECIFIED =   0b00010000;
+	private static final byte FLAGS1_HAS_EXTENSIONS =          0b00100000;
+	private static final byte FLAGS1_EXPERIMENTAL_SUBVERSION = 0b01000000;
+	private static final byte FLAGS1_HAS_FLAGS2 =        (byte)0b10000000;
 
 	public long fileSize = 0;
 	public byte version = 0;
@@ -66,6 +68,7 @@ public class RecordingData implements MocapRecordingData
 	private final SortedMap<Integer, MocapExtension> extensionById = new TreeMap<>();
 	private final Map<MocapExtension, Byte> extensionToId = new HashMap<>();
 	private final Map<MocapExtension, ExtensionHeader> extensionHeaders = new HashMap<>();
+	public byte experimentalSubversion = 0;
 	public final List<MocapAction> actions = new ArrayList<>();
 	public final List<MocapBlockAction> blockActions = new ArrayList<>();
 	public long tickCount = 0;
@@ -75,6 +78,7 @@ public class RecordingData implements MocapRecordingData
 		RecordingData data = new RecordingData();
 		data.version = RecordingFiles.VERSION;
 		data.experimentalVersion = MocapMod.EXPERIMENTAL;
+		data.experimentalSubversion = MocapMod.EXPERIMENTAL ? MocapMod.RECORDING_FORMAT_EXP_SUBVERSION : 0;
 		return data;
 	}
 
@@ -143,6 +147,7 @@ public class RecordingData implements MocapRecordingData
 		flags1 |= dimensionId != null ? FLAGS1_DIMENSION_SPECIFIED : 0;
 		flags1 |= playerName != null ? FLAGS1_PLAYER_NAME_SPECIFIED : 0;
 		flags1 |= !extensionById.isEmpty() ? FLAGS1_HAS_EXTENSIONS : 0;
+		flags1 |= experimentalSubversion != 0 ? FLAGS1_EXPERIMENTAL_SUBVERSION : 0;
 		writer.addByte(flags1);
 
 		if (hasIdMaps)
@@ -154,6 +159,7 @@ public class RecordingData implements MocapRecordingData
 		if (dimensionId != null) { writer.addString(dimensionId.toString()); }
 		if (playerName != null) { writer.addString(playerName); }
 		if (!extensionById.isEmpty()) { saveExtensionHeaders(writer); }
+		if (experimentalSubversion != 0) { writer.addByte(experimentalSubversion); }
 	}
 
 	private void saveExtensionHeaders(RecordingFiles.Writer writer)
@@ -190,6 +196,7 @@ public class RecordingData implements MocapRecordingData
 		boolean startDimensionSpecified = (flags1 & FLAGS1_DIMENSION_SPECIFIED) != 0;
 		boolean playerNameSpecified = (flags1 & FLAGS1_PLAYER_NAME_SPECIFIED) != 0;
 		boolean hasExtensions = (flags1 & FLAGS1_HAS_EXTENSIONS) != 0;
+		boolean hasExperimentalSubversion = (flags1 & FLAGS1_EXPERIMENTAL_SUBVERSION) != 0;
 
 		if (usesIdMaps)
 		{
@@ -200,6 +207,7 @@ public class RecordingData implements MocapRecordingData
 		if (startDimensionSpecified) { dimensionId = ResourceLocation.parse(reader.readString()); }
 		if (playerNameSpecified) { playerName = reader.readString(); }
 		if (hasExtensions && !loadExtensionHeaders(out, reader)) { return false; }
+		if (hasExperimentalSubversion) { experimentalSubversion = reader.readByte(); }
 		return true;
 	}
 

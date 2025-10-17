@@ -154,14 +154,16 @@ public class Files
 		return (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_' || c == '-' || c == '.';
 	}
 
-	public static boolean printVersionInfo(CommandOutput out, int currentVersion, int fileVersion, boolean isFileExperimental)
+	public static boolean printVersionInfo(CommandOutput out, int currentVersion, int fileVersion,
+										   boolean isFileExperimental, int experimentalSubversion)
 	{
 		String suffix = isFileExperimental ? ".experimental" : "";
-		if (fileVersion > currentVersion) { return out.sendFailure("file.info.version.not_supported" + suffix, fileVersion); }
+		String versionStr = fileVersion + (isFileExperimental ? ("-exp." + experimentalSubversion) : "");
+		if (fileVersion > currentVersion) { return out.sendFailure("file.info.version.not_supported" + suffix, versionStr); }
 
-		if (fileVersion == currentVersion) { out.sendSuccess("file.info.version.current" + suffix, fileVersion); }
-		else if (fileVersion > 0) { out.sendSuccess("file.info.version.old" + suffix, fileVersion); }
-		else { out.sendSuccess("file.info.version.undefined", fileVersion); }
+		if (fileVersion == currentVersion) { out.sendSuccess("file.info.version.current" + suffix, versionStr); }
+		else if (fileVersion > 0) { out.sendSuccess("file.info.version.old" + suffix, versionStr); }
+		else { out.sendSuccess("file.info.version.undefined", versionStr); }
 		return true;
 	}
 

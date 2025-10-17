@@ -65,7 +65,7 @@ public class RecordingFiles
 
 		out.sendSuccess("recordings.info.info");
 		out.sendSuccess("file.info.name", file.getName());
-		if (!Files.printVersionInfo(out, VERSION, info.version(), info.experimental())) { return true; }
+		if (!Files.printVersionInfo(out, VERSION, info.version(), info.experimental(), info.experimentalSubversion())) { return true; }
 
 		out.sendSuccess("recordings.info.length", String.format("%.2f", info.lengthInTicks() / 20.0), info.lengthInTicks());
 		out.sendSuccess("recordings.info.size", String.format("%.2f", info.sizeInBytes() / 1024.0), info.sizeInOps());
