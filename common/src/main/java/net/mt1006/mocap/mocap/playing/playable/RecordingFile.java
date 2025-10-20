@@ -130,7 +130,7 @@ public class RecordingFile extends Playable implements MocapRecordingFile
 		public static @Nullable Info load(CommandOutput out, @Nullable RecordingFile file)
 		{
 			RecordingData recording = new RecordingData();
-			if (!recording.load(out, file) && recording.version <= RecordingFiles.VERSION)
+			if (!recording.load(out, file, false) && recording.version <= RecordingFiles.VERSION)
 			{
 				out.sendFailure("recordings.info.failed");
 				return null;

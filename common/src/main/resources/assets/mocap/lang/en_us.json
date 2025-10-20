@@ -284,6 +284,13 @@
   "mocap.misc.extensions.info": "%s (version %d)",
   "mocap.misc.extensions.info.experimental": "%s (version %d-exp)",
 
+  "mocap.misc.converter.failure": "Failed to convert recording to a new format!",
+  "mocap.misc.converter.renamed": "Renamed %s to %s",
+  "mocap.misc.converter.failed_to_rename": "Failed to rename %s to %s! Aborting conversion!",
+  "mocap.misc.converter.failed_to_save": "Failed to remove save new recording! You can restore your original recording from %s!",
+  "mocap.misc.converter.not_convertible": "Specified recording uses supported format or is not convertible!",
+  "mocap.misc.converter.success": "Successfully converted recording to a new format!",
+
 
   "mocap.help": "%s - §lHelp§r\n  /mocap recording [...] - Recording player movements\n  /mocap recordings [...] - Managing recording files\n  /mocap scenes [...] - Creating and modifying scenes\n  /mocap playback [...] - Playback of scenes and recordings\n  /mocap settings [...] - Shows and modifies settings\n  /mocap info - Displays information about mod\n  /mocap help - Displays this message\n§lHow to use:§r\n- First, you need to start recording using \"/mocap recording start\". It will record all your movements or movements of a player given as an argument. \n- Then, you can stop recording using \"/mocap recording stop\" and save it with \"/mocap recording save <name>\".\n- Use \"/mocap playback start <name>\" to play recording.\n- You can also create scenes to which you can add multiple recordings or other scenes, with parameters like player name, position offset, or start delay.\n- To create scene use \"/mocap scenes add <scene_name>\". Then, add your recording using \"/mocap scenes add_to <scene_name> <recording_name> [player_name] [skin_source_type] [skin_source]\" (you can skip arguments in square brackets if you want).\n- To play scene use \"/mocap playback start .<scene_name>\" - you need to put a dot before the scene name.\n- By putting a dot before name, when using \"/mocap scenes add_to ...\", you can also add scenes to other scenes.",
 
@@ -312,6 +319,9 @@
   "mocap.failure.resolve_player": "Failed to resolve player - this command needs to be invoked by player!",
   "mocap.failure.entity_filter.failed_to_parse": "Failed to parse entity filter - make sure it has correct syntax!",
   "mocap.failure.improper_mineskin_link": "Improper mineskin.org skin URL!",
+  "mocap.failure.not_supported_experimental_format": "Recording uses experimental format that isn't supported by current version.",
+  "mocap.failure.not_supported_experimental_format.suggest_converter.1": "Use \"/mocap misc convert\" to convert it to latest version!",
+  "mocap.failure.not_supported_experimental_format.suggest_converter.2": "Note that conversion functionality will be removed before release of stable 1.4 version.",
 
   "mocap.warning.custom_skin_cache_limit": "§lWarning:§r custom skin cache size reached limit!",
   "mocap.warning.custom_skin_cache_limit.tip": "Rejoin the world to clear it",

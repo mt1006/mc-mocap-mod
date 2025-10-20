@@ -14,6 +14,7 @@ import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
 import net.mt1006.mocap.api.v1.extension.actions.MocapAction;
 import net.mt1006.mocap.api.v1.extension.actions.MocapActionContext;
 import net.mt1006.mocap.api.v1.modifiers.MocapEntityFilter;
+import net.mt1006.mocap.command.converter.AlphaConverter;
 import net.mt1006.mocap.mixin.fields.EntityIdFields;
 import net.mt1006.mocap.mocap.playing.PlaybackManager;
 import net.mt1006.mocap.utils.Utils;
@@ -65,7 +66,14 @@ public class EntityUpdate implements MocapAction
 		this.position = position;
 	}
 
+	//TODO: [CONVERTER] remove
 	public EntityUpdate(Reader reader)
+	{
+		this(reader, null, 0);
+	}
+
+	//TODO: [CONVERTER] remove two last args
+	public EntityUpdate(Reader reader, @Nullable AlphaConverter converter, int dummy)
 	{
 		type = UpdateType.fromId(reader.readByte());
 		id = reader.readInt();
@@ -74,6 +82,12 @@ public class EntityUpdate implements MocapAction
 		{
 			nbtString = reader.readString();
 			position = reader.readVec3();
+
+			//TODO: [CONVERTER] remove
+			if (converter != null)
+			{
+				converter.posByEntity.put(id, new double[]{position.x, position.y, position.z});
+			}
 		}
 		else
 		{

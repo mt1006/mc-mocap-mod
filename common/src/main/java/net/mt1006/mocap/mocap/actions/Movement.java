@@ -58,7 +58,8 @@ public class Movement implements MocapAction
 	private final float[] rotation; // [0]=xRot, [1]=yRot
 	private final float headRot;
 
-	private Movement(byte flags, Vec3 position, float[] rotation, float headRot)
+	//TODO: [CONVERTER] make it private
+	public Movement(byte flags, Vec3 position, float[] rotation, float headRot)
 	{
 		this.flags = flags;
 		this.position = position;
@@ -158,8 +159,6 @@ public class Movement implements MocapAction
 			}
 		}
 
-		// unlike oldPos, oldRot and oldHeadRot should be actual old position, not calculated using previous Movement action
-		// for this reason their difference is compared to 0, not MAX_ERROR
 		if (newRotX - oldRot[0] != 0.0f || newRotY - oldRot[1] != 0.0f
 				|| newHeadRot - oldHeadRot != 0.0f || forceNonPosData)
 		{
@@ -266,7 +265,6 @@ public class Movement implements MocapAction
 		Vec3 startPos = ctx.getRecordingData().getStartPos(), oldPos = ctx.getPosition();
 		double x = (flags & MASK_XZ) != XZ_DELTA0 ? (position.x + startPos.x) : oldPos.x;
 		double z = (flags & MASK_XZ) != XZ_DELTA0 ? (position.z + startPos.z) : oldPos.z;
-
 
 		double y = switch (flags & MASK_Y)
 		{
