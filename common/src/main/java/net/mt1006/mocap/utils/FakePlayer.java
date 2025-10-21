@@ -62,8 +62,9 @@ public class FakePlayer extends ServerPlayer
 
 	@Override public boolean hasClientLoaded()
 	{
-		// when killed by playback hasClientLoaded is required for animation to be shown
-		return !isInvulnerable || killedByPlayback;
+		// it's necessary for damage playback to work with invulnerability enabled
+		// also when killed by playback it's required for animation to be shown
+		return true;
 	}
 	
 	public void fakeKill()
