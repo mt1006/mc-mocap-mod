@@ -19,6 +19,8 @@
   "mocap.recording.stop.canceled": "Recording canceled - no longer waiting for action",
   "mocap.recording.stop.quick_discard.disabled": "Recording already stopped!",
   "mocap.recording.stop.quick_discard.disabled.tip": "Use \"/mocap recording discard\" to discard it\nor change quick discard mode in the settings.",
+  "mocap.recording.stop.quick_discard.safe_discard_required": "Recording already stopped - preventing accidental discard!",
+  "mocap.recording.stop.quick_discard.safe_discard_required.tip": "Use \"/mocap recording stop\" again to discard it.",
   "mocap.recording.stop.split": "Recording split - previous recording is waiting for decision",
   "mocap.recording.stop.split.error": "§lError:§r something went wrong when trying to split recording!",
   "mocap.recording.stop.instant_save": "Recording stopped and saved as %s",
@@ -257,6 +259,7 @@
   "mocap.settings.info.about.experimental_release_warning": "Warns players when a server is using experimental (alpha or beta) release of Motion Capture mod",
   "mocap.settings.info.about.pretty_scene_files": "Makes scene JSON files look pretty, at cost of slightly bigger file size (scene files are very small anyway, so it shouldn't be a problem unless you're using punch cards for storing them)",
   "mocap.settings.info.about.show_tips": "Gives tips that may help with using the mod",
+  "mocap.settings.info.about.quick_discard": "Allows to quickly discard single recording by reusing \"stop\" command",
 
   "mocap.settings.info.current_value": "§lCurrent value:§r %s",
   "mocap.settings.info.default_value": "§lDefault value:§r %s",

@@ -20,31 +20,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.*;
+import java.util.function.Consumer;
 
 public class RecordingManager
 {
-	//TODO: add second "recording stop" required after stopped by death
-	//TODO: temporary enum and variable, move it to config
-	private enum QuickDiscard
-	{
-		ALLOW,
-		DISALLOW,
-		SAFE;
-
-		public boolean allowsSingle(RecordingContext ctx)
-		{
-			//TODO: test if ends with death
-			return this == SAFE || this == ALLOW;
-		}
-
-		public boolean canBeUsed(RecordingContext ctx, @Nullable ServerPlayer source)
-		{
-			return allowsSingle(ctx) && source != null && bySourcePlayer(source).size() == 1;
-		}
-	}
-
-	private static final QuickDiscard quickDiscard = QuickDiscard.SAFE;
-
 	private static final Multimap<String, RecordingContext> contextsBySource = HashMultimap.create();
 	private static final Collection<RecordingContext> contexts = contextsBySource.values();
 	public static final BiMultimap<ServerPlayer, RecordingContext> waitingForRespawn = new BiMultimap<>();
@@ -155,37 +134,43 @@ public class RecordingManager
 	{
 		if (ctx.state == RecordingContext.State.WAITING_FOR_DECISION)
 		{
-			if (!quickDiscard.allowsSingle(ctx))
+			if (!Settings.QUICK_DISCARD.val) { return out.sendFailureWithTip("recording.stop.quick_discard.disabled"); }
+
+			if (ctx.requiresSafeDiscard)
 			{
-				//TODO: proper message when blocked by death
-				return out.sendFailureWithTip("recording.stop.quick_discard.disabled");
+				ctx.requiresSafeDiscard = false;
+				return out.sendFailureWithTip("recording.stop.quick_discard.safe_discard_required");
 			}
+
 			return discardSingle(out, ctx);
 		}
 
 		ctx.stop(out);
 
-		switch (ctx.state)
+		return switch (ctx.state)
 		{
-			case WAITING_FOR_DECISION:
-				out.sendSuccess("recording.stop.stopped");
-				if (Settings.SHOW_TIPS.val)
-				{
-					out.sendSuccess(quickDiscard.canBeUsed(ctx, sourcePlayer)
-							? "recording.stop.stopped.stop_tip"
-							: "recording.stop.stopped.discard_tip");
-				}
-				return true;
+			case WAITING_FOR_DECISION -> sendStopMessage(out::sendSuccess, ctx, sourcePlayer);
+			case CANCELED -> out.sendSuccess("recording.stop.canceled");
+			case SAVED -> out.sendSuccess("recording.stop.instant_save", ctx.instantSave != null ? ctx.instantSave : "[error]");
+			default -> out.sendFailure("recording.undefined_state", ctx.state.name());
+		};
+	}
 
-			case CANCELED:
-				return out.sendSuccess("recording.stop.canceled");
-
-			case SAVED:
-				return out.sendSuccess("recording.stop.instant_save", ctx.instantSave != null ? ctx.instantSave : "[error]");
-
-			default:
-				return out.sendFailure("recording.undefined_state", ctx.state.name());
+	public static boolean sendStopMessage(Consumer<String> successSender, RecordingContext ctx, @Nullable ServerPlayer sourcePlayer)
+	{
+		successSender.accept("recording.stop.stopped");
+		if (Settings.SHOW_TIPS.val)
+		{
+			successSender.accept(shouldSuggestQuickDiscard(ctx, sourcePlayer)
+					? "recording.stop.stopped.stop_tip"
+					: "recording.stop.stopped.discard_tip");
 		}
+		return true;
+	}
+
+	public static boolean shouldSuggestQuickDiscard(RecordingContext ctx, @Nullable ServerPlayer source)
+	{
+		return Settings.QUICK_DISCARD.val && !ctx.requiresSafeDiscard && source != null && bySourcePlayer(source).size() == 1;
 	}
 
 	private static boolean stopMultiple(CommandOutput out, Collection<RecordingContext> contexts)
@@ -269,7 +254,7 @@ public class RecordingManager
 		if (resolvedContexts.isSingle)
 		{
 			RecordingContext ctx = resolvedContexts.list.iterator().next();
-			boolean showQuickDiscardTip = quickDiscard.canBeUsed(ctx, out.getSourcePlayer()) && Settings.SHOW_TIPS.val;
+			boolean showQuickDiscardTip = shouldSuggestQuickDiscard(ctx, out.getSourcePlayer()) && Settings.SHOW_TIPS.val;
 			boolean success = discardSingle(out, ctx);
 
 			if (success && ctx.state == RecordingContext.State.DISCARDED && showQuickDiscardTip)
@@ -584,12 +569,6 @@ public class RecordingManager
 		{
 			byKey.put(key, val);
 			byValue.put(val, key);
-		}
-
-		public void removeByKey(A key)
-		{
-			Collection<B> values = byKey.removeAll(key);
-			values.forEach((v) -> byValue.remove(v, key));
 		}
 
 		public void removeByValue(B val)

@@ -36,6 +36,7 @@ public class RecordingContext implements MocapActiveRecordingActions
 	private int tick = 0, diedOnTick = 0;
 	private boolean died = false;
 	private ResourceKey<Level> lastDimension;
+	public boolean requiresSafeDiscard = false;
 
 	public RecordingContext(RecordingId id, ServerPlayer recordedPlayer, RecordingSource source,
 							MocapRecordingConfig config, @Nullable String instantSave)
@@ -139,7 +140,7 @@ public class RecordingContext implements MocapActiveRecordingActions
 
 			if (tickDiff == 20)
 			{
-				if (config.getOnDeath() == MocapOnDeath.END_RECORDING) { stopRecording("recording.stop.stopped"); }
+				if (config.getOnDeath() == MocapOnDeath.END_RECORDING) { selfStop(true); }
 				else if (config.getOnDeath() != MocapOnDeath.SPLIT_RECORDING) { positionTracker.teleportFarAway(data.actions); }
 			}
 			return;
@@ -167,7 +168,7 @@ public class RecordingContext implements MocapActiveRecordingActions
 		}
 		else if (recordedPlayer.isRemoved())
 		{
-			stopRecording("recording.stop.stopped");
+			selfStop(false);
 		}
 
 		addTickAction();
@@ -181,7 +182,7 @@ public class RecordingContext implements MocapActiveRecordingActions
 				break;
 
 			case END_RECORDING:
-				stopRecording("recording.stop.stopped");
+				selfStop(true);
 				break;
 
 			case SPLIT_RECORDING:
@@ -207,15 +208,19 @@ public class RecordingContext implements MocapActiveRecordingActions
 		addAction(Respawn.INSTANCE);
 	}
 
-	public void stopRecording(String message)
+	private void selfStop(boolean requiresSafeDiscard)
 	{
-		state = State.WAITING_FOR_DECISION;
-		Utils.sendMessage(source.player, message);
+		this.requiresSafeDiscard = requiresSafeDiscard;
+		this.state = State.WAITING_FOR_DECISION;
+
+		RecordingManager.sendStopMessage((msg) -> Utils.sendMessage(source.player, msg), this, source.player);
 	}
 
 	public void splitRecording(ServerPlayer newPlayer)
 	{
-		stopRecording("recording.stop.split");
+		state = State.WAITING_FOR_DECISION;
+		Utils.sendMessage(source.player, "recording.stop.split");
+
 		boolean success = (RecordingManager.start(newPlayer, source, config, null, true, false) != null);
 		if (!success) { Utils.sendMessage(source.player, "recording.stop.split.error"); }
 	}

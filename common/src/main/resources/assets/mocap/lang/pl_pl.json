@@ -19,6 +19,8 @@
   "mocap.recording.stop.canceled": "Nagranie anulowane - koniec czekania na akcję",
   "mocap.recording.stop.quick_discard.disabled": "Nagrywanie już zatrzymane!",
   "mocap.recording.stop.quick_discard.disabled.tip": "Użyj \"/mocap recording discard\" aby je odrzucić\nlub zmień tryb szybkiego odrzucania w ustawieniach.",
+  "mocap.recording.stop.quick_discard.safe_discard_required": "Nagrywanie już zatrzymane - zapobieganie przypadkowemu odrzuceniu!",
+  "mocap.recording.stop.quick_discard.safe_discard_required.tip": "Użyj ponownie \"/mocap recording stop\" aby je odrzucić.",
   "mocap.recording.stop.split": "Nagranie podzielone - poprzednie nagranie czeka na decyzję",
   "mocap.recording.stop.split.error": "§lBłąd:§r coś poszło nie tak przy próbie podzielenia nagrania!",
   "mocap.recording.stop.instant_save": "Nagranie zatrzymane i zapisane jako %s",
@@ -250,6 +252,7 @@
   "mocap.settings.info.about.experimental_release_warning": "Ostrzega graczy, gdy serwer używa eksperymentalnego (alfa lub beta) wydania Motion Capture",
   "mocap.settings.info.about.pretty_scene_files": "Sprawia, że pliki JSON scen wyglądają ładnie, kosztem lekko większych plików (pliki scen są i tak bardzo małe, więc nie powinno to stanowić problemu, chyba że używasz kart perforowanych do ich przechowywania)",
   "mocap.settings.info.about.show_tips": "Daje wskazówki które mogą pomóc w korzystaniu z moda",
+  "mocap.settings.info.about.quick_discard": "Pozwala na szybkie odrzucenie pojedyńczego nagrania przez ponowne użycie polecenia \"stop\"",
 
   "mocap.settings.info.current_value": "§lObecna wartość:§r %s",
   "mocap.settings.info.default_value": "§lDomyślna wartość:§r %s",
