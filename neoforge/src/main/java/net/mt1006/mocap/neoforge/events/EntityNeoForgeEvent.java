@@ -13,7 +13,10 @@ public class EntityNeoForgeEvent
 	@SubscribeEvent
 	public static void onEntityHurt(LivingDamageEvent.Post damageEvent)
 	{
-		EntityEvent.onEntityHurt(damageEvent.getEntity());
+		if (damageEvent.getNewDamage() != 0.0f || damageEvent.getBlockedDamage() == 0.0f)
+		{
+			EntityEvent.onEntityHurt(damageEvent.getEntity());
+		}
 	}
 
 	@SubscribeEvent

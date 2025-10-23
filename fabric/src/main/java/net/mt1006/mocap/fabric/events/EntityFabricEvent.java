@@ -7,10 +7,9 @@ import net.mt1006.mocap.events.EntityEvent;
 
 public class EntityFabricEvent
 {
-	public static boolean onEntityHurt(LivingEntity entity, DamageSource source, float amount)
+	public static void onEntityHurt(LivingEntity entity, DamageSource source, float baseDamageTaken, float damageTaken, boolean blocked)
 	{
-		EntityEvent.onEntityHurt(entity);
-		return true;
+		if (!blocked) { EntityEvent.onEntityHurt(entity); }
 	}
 
 	public static void onPlayerRespawn(ServerPlayer oldPlayer, ServerPlayer newPlayer, boolean keepInventory)

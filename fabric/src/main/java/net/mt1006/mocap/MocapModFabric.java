@@ -36,7 +36,7 @@ public class MocapModFabric implements ModInitializer, MocapModLoaderInterface
 		PlayerBlockBreakEvents.BEFORE.register(BlockInteractionFabricEvent::onBlockBreak);
 		UseBlockCallback.EVENT.register(BlockInteractionFabricEvent::onRightClickBlock);
 
-		ServerLivingEntityEvents.ALLOW_DAMAGE.register(EntityFabricEvent::onEntityHurt);
+		ServerLivingEntityEvents.AFTER_DAMAGE.register(EntityFabricEvent::onEntityHurt);
 		ServerPlayerEvents.AFTER_RESPAWN.register(EntityFabricEvent::onPlayerRespawn);
 		ServerTickEvents.END_SERVER_TICK.register(ServerTickFabricEvent::onEndTick);
 		ServerLifecycleEvents.SERVER_STARTED.register(LifecycleFabricEvent::onServerStart);
