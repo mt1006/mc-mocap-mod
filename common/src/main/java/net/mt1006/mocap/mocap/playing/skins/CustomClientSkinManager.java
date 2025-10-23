@@ -25,7 +25,6 @@ public class CustomClientSkinManager
 	private static final int MAX_CLIENT_CACHE_SIZE = 4096;
 	private static final String SKIN_RES_PREFIX = "custom_skin/";
 	private static final String SLIM_SKIN_RES_PREFIX = SKIN_RES_PREFIX + Files.SLIM_SKIN_PREFIX;
-	private static final Random RANDOM = new Random();
 	private static final ConcurrentMap<String, Boolean> skinCache = new ConcurrentHashMap<>();
 	private static boolean clientWarned = false;
 
