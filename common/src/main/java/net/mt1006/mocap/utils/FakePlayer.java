@@ -15,6 +15,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.stats.Stat;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.level.portal.TeleportTransition;
 import net.mt1006.mocap.mocap.playing.playback.RecordingPlayback;
@@ -36,8 +37,7 @@ public class FakePlayer extends ServerPlayer
 		this.connection = new FakePlayerNetHandler(level.getServer(), this, profile);
 		this.isInvulnerable = isInvulnerable;
 
-		if (isInvulnerable) { setInvulnerable(true); }
-		else { this.invulnerableTime = 0; }
+		this.invulnerableTime = 0;
 	}
 
 	@Override public void tick()
@@ -54,6 +54,11 @@ public class FakePlayer extends ServerPlayer
 	@Override public ServerPlayer teleport(@NotNull TeleportTransition dimensionTransition) { return null; }
 	@Override public void displayClientMessage(@NotNull Component chatComponent, boolean actionBar) { }
 	@Override public void awardStat(@NotNull Stat stat, int amount) { }
+
+	@Override public boolean hurtServer(ServerLevel level, DamageSource damageSource, float amount)
+	{
+		return (damageSource.is(DamageTypeTags.BYPASSES_INVULNERABILITY) || !isInvulnerable) && super.hurtServer(level, damageSource, amount);
+	}
 
 	@Override public void die(@NotNull DamageSource source)
 	{
