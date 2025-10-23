@@ -15,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
 @Mod(MocapMod.MOD_ID)
 public class MocapModNeoForge implements MocapModLoaderInterface
 {
-	public static final boolean isDedicatedServer = FMLEnvironment.dist.isDedicatedServer();
+	public static final boolean isDedicatedServer = FMLEnvironment.getDist().isDedicatedServer();
 	private final @Nullable ModContainer modContainer;
 
 	public MocapModNeoForge(IEventBus eventBus)

@@ -34,7 +34,7 @@ public interface MocapPlayerSkin
 	@Nullable SceneFiles.Writer save();
 
 	@ApiStatus.Internal
-	void addSkinToPropertyMap(CommandInfo info, PropertyMap propertyMap);
+	PropertyMap addSkinToPropertyMap(CommandInfo info, PropertyMap propertyMap);
 
 	@ApiStatus.Internal
 	MocapPlayerSkin mergeWithParent(MocapPlayerSkin parent);

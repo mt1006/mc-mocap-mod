@@ -17,7 +17,7 @@ public class BlockItemMixin
 	@Inject(method = "placeBlock", at = @At(value = "HEAD"))
 	private void atPlaceBlock(BlockPlaceContext blockPlaceContext, BlockState blockState, CallbackInfoReturnable<Boolean> cir)
 	{
-		if (RecordingManager.isActive() && !blockPlaceContext.getLevel().isClientSide)
+		if (RecordingManager.isActive() && !blockPlaceContext.getLevel().isClientSide())
 		{
 			BlockPos pos = blockPlaceContext.getClickedPos();
 

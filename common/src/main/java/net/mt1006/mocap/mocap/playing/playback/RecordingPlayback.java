@@ -161,8 +161,8 @@ public class RecordingPlayback extends Playback
 		if (profileName == null)
 		{
 			if (startAsRecorded && recordedName != null) { profileName = recordedName; }
-			else if (entity instanceof ServerPlayer) { profileName = ((ServerPlayer)entity).getGameProfile().getName(); }
-			else if (!playerList.getPlayers().isEmpty()) { profileName = playerList.getPlayers().get(0).getGameProfile().getName(); }
+			else if (entity instanceof ServerPlayer) { profileName = ((ServerPlayer)entity).getGameProfile().name(); }
+			else if (!playerList.getPlayers().isEmpty()) { profileName = playerList.getPlayers().get(0).getGameProfile().name(); }
 			else { profileName = "Player"; }
 		}
 
@@ -172,14 +172,8 @@ public class RecordingPlayback extends Playback
 	private static GameProfile createNewProfile(CommandInfo info, GameProfile oldProfile, MocapPlayerSkin playerSkin)
 	{
 		// duplicates oldProfile but with random UUID and proper player skin
-		GameProfile newProfile = new GameProfile(UUID.randomUUID(), oldProfile.getName());
-		PropertyMap oldPropertyMap = oldProfile.getProperties();
-		PropertyMap newPropertyMap = newProfile.getProperties();
-
-		newPropertyMap.putAll(oldPropertyMap);
-		playerSkin.addSkinToPropertyMap(info, newPropertyMap);
-
-		return newProfile;
+		PropertyMap newPropertyMap = playerSkin.addSkinToPropertyMap(info, oldProfile.properties());
+		return new GameProfile(UUID.randomUUID(), oldProfile.name(), newPropertyMap);
 	}
 
 	@Override public void tick()

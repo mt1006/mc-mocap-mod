@@ -19,7 +19,7 @@ public class DoubleHighBlockItemMixin
 	@Inject(method = "placeBlock", at = @At(value = "HEAD"))
 	private void atPlaceBlock(BlockPlaceContext blockPlaceContext, BlockState blockState, CallbackInfoReturnable<Boolean> cir)
 	{
-		if (RecordingManager.isActive() && !blockPlaceContext.getLevel().isClientSide)
+		if (RecordingManager.isActive() && !blockPlaceContext.getLevel().isClientSide())
 		{
 			if (!blockState.hasProperty(BlockStateProperties.DOUBLE_BLOCK_HALF)
 					|| blockState.getValue(BlockStateProperties.DOUBLE_BLOCK_HALF) != DoubleBlockHalf.LOWER)

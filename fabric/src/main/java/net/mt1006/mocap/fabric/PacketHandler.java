@@ -25,7 +25,7 @@ public class PacketHandler
 
 	private static void serverReceiver(MocapPacketC2S packet, ServerPlayNetworking.Context ctx)
 	{
-		ctx.player().getServer().execute(() -> packet.handle(new Client(ctx)));
+		ctx.player().level().getServer().execute(() -> packet.handle(new Client(ctx)));
 	}
 
 	private static void clientReceiver(MocapPacketS2C packet, ClientPlayNetworking.Context ctx)

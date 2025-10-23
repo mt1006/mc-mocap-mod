@@ -9,14 +9,14 @@
 		"LivingEntityMethodMixin",
 		"ServerLevelMixin",
 		"fields.AbstractHorseFields",
+		"fields.AvatarMixin",
 		"fields.BoatFields",
 		"fields.EntityFields",
 		"fields.EntityIdFields",
 		"fields.HorseFields",
 		"fields.LevelFields",
 		"fields.LivingEntityFields",
-		"fields.LlamaFields",
-		"fields.PlayerFields"
+		"fields.LlamaFields"
 	],
 	"client":
 	[

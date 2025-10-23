@@ -10,7 +10,9 @@ import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.players.GameProfileCache;
+import net.minecraft.server.players.CachedUserNameToIdResolver;
+import net.minecraft.server.players.NameAndId;
+import net.minecraft.server.players.UserNameToIdResolver;
 import net.mt1006.mocap.MocapMod;
 
 import java.io.File;
@@ -22,7 +24,7 @@ public class ProfileUtils
 
 	public static final String USERID_CACHE_FILE = "usercache.json";
 	public static final Map<String, GameProfile> gameProfileCache = Collections.synchronizedMap(new HashMap<>());
-	public static GameProfileCache profileCache = null;
+	public static UserNameToIdResolver profileCache = null;
 	public static MinecraftSessionService sessionService = null;
 
 	public static GameProfile getGameProfile(MinecraftServer server, String playerName)
@@ -33,8 +35,8 @@ public class ProfileUtils
 		{
 			if (MocapMod.isDedicatedServer)
 			{
-				sessionService = server.getSessionService();
-				profileCache = server.getProfileCache();
+				sessionService = server.services().sessionService();
+				profileCache = server.services().nameToIdCache();
 			}
 			else
 			{
@@ -44,17 +46,18 @@ public class ProfileUtils
 
 		UUID offlineUUID = UUIDUtil.createOfflinePlayerUUID(playerName);
 
-		Optional<GameProfile> optional = profileCache != null ? profileCache.get(playerName) : Optional.empty();
-		GameProfile gameProfile = optional.orElse(new GameProfile(offlineUUID, playerName));
+		Optional<NameAndId> playerInfoOpt = profileCache != null ? profileCache.get(playerName) : Optional.empty();
+		NameAndId playerInfo = playerInfoOpt.orElse(new NameAndId(offlineUUID, playerName));
+		GameProfile gameProfile = new GameProfile(playerInfo.id(), playerInfo.name());
 
-		Property property = Iterables.getFirst(gameProfile.getProperties().get("textures"), null);
-		if (property == null && !gameProfile.getId().equals(offlineUUID))
+		Property property = Iterables.getFirst(gameProfile.properties().get("textures"), null);
+		if (property == null && !playerInfo.id().equals(offlineUUID))
 		{
-			ProfileResult profileResult = sessionService.fetchProfile(gameProfile.getId(), true);
+			ProfileResult profileResult = sessionService.fetchProfile(gameProfile.id(), true);
 			if (profileResult != null) { gameProfile = profileResult.profile(); }
 		}
 
-		gameProfileCache.put(gameProfile.getName(), gameProfile);
+		gameProfileCache.put(gameProfile.name(), gameProfile);
 		return gameProfile;
 	}
 
@@ -63,6 +66,6 @@ public class ProfileUtils
 		YggdrasilAuthenticationService yggdrasilauthenticationservice = new YggdrasilAuthenticationService(Minecraft.getInstance().getProxy());
 		sessionService = yggdrasilauthenticationservice.createMinecraftSessionService();
 		GameProfileRepository gameprofilerepository = yggdrasilauthenticationservice.createProfileRepository();
-		profileCache = new GameProfileCache(gameprofilerepository, new File(Minecraft.getInstance().gameDirectory, USERID_CACHE_FILE));
+		profileCache = new CachedUserNameToIdResolver(gameprofilerepository, new File(Minecraft.getInstance().gameDirectory, USERID_CACHE_FILE));
 	}
 }

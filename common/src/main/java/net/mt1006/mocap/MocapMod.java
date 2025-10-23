@@ -12,7 +12,7 @@ import java.util.List;
 public class MocapMod
 {
 	public static final String MOD_ID = "mocap";
-	public static final String FOR_VERSION = "1.21.7";
+	public static final String FOR_VERSION = "1.21.10";
 	public static final boolean EXPERIMENTAL = true; //TODO: change it to false
 
 	public static final byte RECORDING_FORMAT_VERSION = 5;

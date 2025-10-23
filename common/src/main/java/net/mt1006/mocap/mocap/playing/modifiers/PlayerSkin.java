@@ -1,5 +1,7 @@
 package net.mt1006.mocap.mocap.playing.modifiers;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
@@ -79,15 +81,16 @@ public class PlayerSkin implements MocapPlayerSkin
 		return writer;
 	}
 
-	@Override public void addSkinToPropertyMap(CommandInfo info, PropertyMap propertyMap)
+	@Override public PropertyMap addSkinToPropertyMap(CommandInfo info, PropertyMap propertyMap)
 	{
-		if (path == null) { return; }
+		if (path == null) { return propertyMap; }
+		Multimap<String, Property> mutableMap = HashMultimap.create(propertyMap);
 
 		switch (source)
 		{
 			case FROM_PLAYER:
 				GameProfile tempProfile = ProfileUtils.getGameProfile(info.getServer(), path);
-				PropertyMap tempPropertyMap = tempProfile.getProperties();
+				PropertyMap tempPropertyMap = tempProfile.properties();
 
 				if (!tempPropertyMap.containsKey("textures"))
 				{
@@ -95,16 +98,16 @@ public class PlayerSkin implements MocapPlayerSkin
 					break;
 				}
 
-				if (propertyMap.containsKey("textures")) { propertyMap.get("textures").clear(); }
-				propertyMap.putAll("textures", tempPropertyMap.get("textures"));
+				if (mutableMap.containsKey("textures")) { mutableMap.get("textures").clear(); }
+				mutableMap.putAll("textures", tempPropertyMap.get("textures"));
 				break;
 
 			case FROM_FILE:
-				propertyMap.put(CustomServerSkinManager.PROPERTY_ID, new Property(CustomServerSkinManager.PROPERTY_ID, path));
+				mutableMap.put(CustomServerSkinManager.PROPERTY_ID, new Property(CustomServerSkinManager.PROPERTY_ID, path));
 				break;
 
 			case FROM_MINESKIN:
-				if (!Settings.ALLOW_MINESKIN_REQUESTS.val) { return; }
+				if (!Settings.ALLOW_MINESKIN_REQUESTS.val) { break; }
 				Property skinProperty = propertyFromMineskinURL(path);
 
 				if (skinProperty == null)
@@ -113,10 +116,11 @@ public class PlayerSkin implements MocapPlayerSkin
 					break;
 				}
 
-				if (propertyMap.containsKey("textures")) { propertyMap.get("textures").clear(); }
-				propertyMap.put("textures", skinProperty);
+				if (mutableMap.containsKey("textures")) { mutableMap.get("textures").clear(); }
+				mutableMap.put("textures", skinProperty);
 				break;
 		}
+		return new PropertyMap(mutableMap);
 	}
 
 	@Override public MocapPlayerSkin mergeWithParent(MocapPlayerSkin parent)

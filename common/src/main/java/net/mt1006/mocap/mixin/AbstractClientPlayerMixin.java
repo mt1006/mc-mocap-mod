@@ -3,8 +3,9 @@ package net.mt1006.mocap.mixin;
 import com.mojang.authlib.properties.Property;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.resources.PlayerSkin;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.ClientAsset;
+import net.minecraft.world.entity.player.PlayerModelType;
+import net.minecraft.world.entity.player.PlayerSkin;
 import net.mt1006.mocap.mocap.playing.skins.CustomClientSkinManager;
 import net.mt1006.mocap.mocap.playing.skins.CustomServerSkinManager;
 import org.jetbrains.annotations.Nullable;
@@ -27,17 +28,16 @@ public abstract class AbstractClientPlayerMixin
 		PlayerInfo playerInfo = getPlayerInfo();
 		if (playerInfo == null) { return; }
 
-		Collection<Property> properties = playerInfo.getProfile().getProperties().get(CustomServerSkinManager.PROPERTY_ID);
+		Collection<Property> properties = playerInfo.getProfile().properties().get(CustomServerSkinManager.PROPERTY_ID);
 		if (properties.isEmpty()) { return; }
 
-		ResourceLocation res = CustomClientSkinManager.get(properties.iterator().next().value());
-		if (res == null) { return; }
+		ClientAsset.Texture skinTexture = CustomClientSkinManager.get(properties.iterator().next().value());
+		if (skinTexture == null) { return; }
 
 		PlayerSkin playerSkin = playerInfo.getSkin();
 
-		cir.setReturnValue(new PlayerSkin(res,
-				playerSkin.textureUrl(), playerSkin.capeTexture(), playerSkin.elytraTexture(),
-				CustomClientSkinManager.isSlimSkin(res) ? PlayerSkin.Model.SLIM : PlayerSkin.Model.WIDE,
+		cir.setReturnValue(new PlayerSkin(skinTexture, playerSkin.cape(), playerSkin.elytra(),
+				CustomClientSkinManager.isSlimSkin(skinTexture) ? PlayerModelType.SLIM : PlayerModelType.WIDE,
 				playerSkin.secure()));
 		cir.cancel();
 	}
