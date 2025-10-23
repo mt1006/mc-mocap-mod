@@ -2,7 +2,6 @@ package net.mt1006.mocap;
 
 import net.minecraft.server.MinecraftServer;
 import net.mt1006.mocap.mocap.actions.ActionType;
-import net.mt1006.mocap.utils.Fields;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
@@ -33,7 +32,6 @@ public class MocapMod
 		MocapMod.isDedicatedServer = isDedicatedServer;
 		MocapMod.loaderInterface = loaderInterface;
 
-		Fields.init();
 		ActionType.initTypes();
 	}
 

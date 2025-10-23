@@ -24,7 +24,10 @@ import net.mt1006.mocap.mocap.actions.Die;
 import net.mt1006.mocap.mocap.files.RecordingData;
 import net.mt1006.mocap.mocap.settings.Settings;
 import net.mt1006.mocap.network.MocapPacketS2C;
-import net.mt1006.mocap.utils.*;
+import net.mt1006.mocap.utils.EntityData;
+import net.mt1006.mocap.utils.FakePlayer;
+import net.mt1006.mocap.utils.ProfileUtils;
+import net.mt1006.mocap.utils.Utils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
@@ -170,15 +173,11 @@ public class RecordingPlayback extends Playback
 	{
 		// duplicates oldProfile but with random UUID and proper player skin
 		GameProfile newProfile = new GameProfile(UUID.randomUUID(), oldProfile.getName());
-		try
-		{
-			PropertyMap oldPropertyMap = (PropertyMap)Fields.gameProfileProperties.get(oldProfile);
-			PropertyMap newPropertyMap = (PropertyMap)Fields.gameProfileProperties.get(newProfile);
+		PropertyMap oldPropertyMap = oldProfile.getProperties();
+		PropertyMap newPropertyMap = newProfile.getProperties();
 
-			newPropertyMap.putAll(oldPropertyMap);
-			playerSkin.addSkinToPropertyMap(info, newPropertyMap);
-		}
-		catch (Exception ignore) {}
+		newPropertyMap.putAll(oldPropertyMap);
+		playerSkin.addSkinToPropertyMap(info, newPropertyMap);
 
 		return newProfile;
 	}

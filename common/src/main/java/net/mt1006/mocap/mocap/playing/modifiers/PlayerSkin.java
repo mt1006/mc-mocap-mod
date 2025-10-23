@@ -9,7 +9,6 @@ import net.mt1006.mocap.api.v1.modifiers.MocapPlayerSkin;
 import net.mt1006.mocap.mocap.files.SceneFiles;
 import net.mt1006.mocap.mocap.playing.skins.CustomServerSkinManager;
 import net.mt1006.mocap.mocap.settings.Settings;
-import net.mt1006.mocap.utils.Fields;
 import net.mt1006.mocap.utils.ProfileUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -81,7 +80,6 @@ public class PlayerSkin implements MocapPlayerSkin
 	}
 
 	@Override public void addSkinToPropertyMap(CommandInfo info, PropertyMap propertyMap)
-			throws IllegalArgumentException, IllegalAccessException
 	{
 		if (path == null) { return; }
 
@@ -89,7 +87,7 @@ public class PlayerSkin implements MocapPlayerSkin
 		{
 			case FROM_PLAYER:
 				GameProfile tempProfile = ProfileUtils.getGameProfile(info.getServer(), path);
-				PropertyMap tempPropertyMap = (PropertyMap)Fields.gameProfileProperties.get(tempProfile);
+				PropertyMap tempPropertyMap = tempProfile.getProperties();
 
 				if (!tempPropertyMap.containsKey("textures"))
 				{
