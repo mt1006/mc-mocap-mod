@@ -183,8 +183,14 @@ public class PlaybackModifiers implements MocapModifiers
 				return newTransformations != null ? withTransformations(newTransformations) : null;
 
 			case "player_name":
-				//TODO: add ability to remove player name (set null)
-				return withPlayerName(info.getString("player_name"));
+				String playerNameType = info.getNode(propertyNodePos + 1);
+				return switch (playerNameType)
+				{
+					case "inherited" -> withPlayerName(null);
+					case "blank" -> withPlayerName("");
+					case "set" -> withPlayerName(info.getString("player_name"));
+					case null, default -> null;
+				};
 
 			case "player_skin":
 				MocapPlayerSkin newPlayerSkin = info.getPlayerSkin();

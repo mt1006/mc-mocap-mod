@@ -98,7 +98,10 @@ public class CommandUtils
 					then(Commands.argument("offset_x", DoubleArgumentType.doubleArg()).
 					then(Commands.argument("offset_y", DoubleArgumentType.doubleArg()).
 					then(Commands.argument("offset_z", DoubleArgumentType.doubleArg()).executes(command)))))));
-		builder.then(Commands.literal("player_name").then(playerNameArgument(command)));
+		builder.then(Commands.literal("player_name").
+			then(Commands.literal("inherited").executes(command)).
+			then(Commands.literal("blank").executes(command)).
+			then(Commands.literal("set").then(playerNameArgument(command))));
 		builder.then(withModelArguments(buildContext, Commands.literal("player_skin"), command, false));
 		builder.then(Commands.literal("player_as_entity").
 			then(Commands.literal("disabled").executes(command)).

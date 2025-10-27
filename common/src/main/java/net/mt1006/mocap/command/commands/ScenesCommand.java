@@ -40,7 +40,7 @@ public class ScenesCommand
 		commandBuilder.then(Commands.literal("remove").then(CommandUtils.withInputArgument(ScenesCommand::remove, CommandSuggestions::scene, "name")));
 		commandBuilder.then(Commands.literal("add_to").
 			then(Commands.argument("scene_name", StringArgumentType.string()).suggests(CommandSuggestions::scene).
-			then(Commands.argument("to_add", StringArgumentType.string()).suggests(CommandSuggestions::playable).executes(CommandUtils.command(ScenesCommand::addToMinimal)).
+			then(Commands.argument("to_add", StringArgumentType.string()).suggests(CommandSuggestions::playable).executes(CommandUtils.command(ScenesCommand::addToWithDefaultModifiers)).
 			then(Commands.argument("wait_on_start", DoubleArgumentType.doubleArg(0.0)).executes(COMMAND_ADD_TO).
 			then(CommandUtils.playerArguments(buildContext, COMMAND_ADD_TO))))));
 		commandBuilder.then(Commands.literal("remove_from").
@@ -81,7 +81,7 @@ public class ScenesCommand
 		return file != null && file.remove(out);
 	}
 
-	private static boolean addToMinimal(FullCommandInfo info)
+	private static boolean addToWithDefaultModifiers(FullCommandInfo info)
 	{
 		// separated from addTo because it supports name pattern (adding multiple elements with single command)
 		try
