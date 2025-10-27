@@ -71,6 +71,11 @@ public final class MocapAPI
 			return MocapMod.RECORDING_FORMAT_VERSION;
 		}
 
+		public static int recordingFormatExpSubversion()
+		{
+			return MocapMod.RECORDING_FORMAT_EXP_SUBVERSION;
+		}
+
 		public static int sceneFormatVersion()
 		{
 			return MocapMod.SCENE_FORMAT_VERSION;
