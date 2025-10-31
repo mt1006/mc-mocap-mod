@@ -7,6 +7,7 @@
 	[
 		"EntityMixin",
 		"LivingEntityMethodMixin",
+		"LivingEntityRendererMixin",
 		"ServerLevelMixin",
 		"fields.AbstractHorseFields",
 		"fields.AvatarMixin",
