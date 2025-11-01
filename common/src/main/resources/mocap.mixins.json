@@ -7,7 +7,6 @@
 	[
 		"EntityMixin",
 		"LivingEntityMethodMixin",
-		"LivingEntityRendererMixin",
 		"ServerLevelMixin",
 		"fields.AbstractHorseFields",
 		"fields.AvatarMixin",
@@ -21,7 +20,8 @@
 	],
 	"client":
 	[
-		"AbstractClientPlayerMixin"
+		"AbstractClientPlayerMixin",
+		"LivingEntityRendererMixin"
 	],
 	"injectors": { "defaultRequire": 1 }
 }
