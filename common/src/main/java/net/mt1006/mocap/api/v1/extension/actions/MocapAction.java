@@ -5,6 +5,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
 
+import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -25,10 +26,12 @@ public interface MocapAction
 		void addByte(byte val);
 		void addShort(short val);
 		void addInt(int val);
+		void addLong(long val);
 		void addFloat(float val);
 		void addDouble(double val);
 		void addBoolean(boolean val);
 		void addString(String val);
+		void addUUID(UUID val);
 		void addVec3(Vec3 vec);
 		void addBlockPos(BlockPos blockPos);
 		void addPackedSize(int size);
@@ -39,14 +42,17 @@ public interface MocapAction
 		byte readByte();
 		short readShort();
 		int readInt();
+		long readLong();
 		float readFloat();
 		double readDouble();
 		boolean readBoolean();
 		String readString();
+		UUID readUUID();
 		Vec3 readVec3();
 		BlockPos readBlockPos();
 		int readPackedSize();
 		void shift(int val);
+		boolean isDummy();
 	}
 
 	enum Result

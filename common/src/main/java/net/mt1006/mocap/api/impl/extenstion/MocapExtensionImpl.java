@@ -11,19 +11,22 @@ import net.mt1006.mocap.mocap.recording.RecordingManager;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.UUID;
 import java.util.function.Supplier;
 
 public class MocapExtensionImpl implements MocapExtension
 {
 	private final String id;
 	private final short version;
+	private final boolean required;
 	private Supplier<MocapRecordingData.ExtensionHeader> headerSupplier = DefaultHeader.INSTANCE_SUPPLIER;
 	private final ActionType.Registry actionRegistry = new ActionType.Registry(this);
 
-	public MocapExtensionImpl(String id, short version)
+	public MocapExtensionImpl(String id, short version, boolean required)
 	{
 		this.id = id;
 		this.version = version;
+		this.required = required;
 	}
 
 	@Override public String getId()
@@ -34,6 +37,11 @@ public class MocapExtensionImpl implements MocapExtension
 	@Override public short getVersion()
 	{
 		return version;
+	}
+
+	@Override public boolean isRequired()
+	{
+		return required;
 	}
 
 	@Override public void registerAction(int id, MocapAction.FromReader fromReader)
@@ -51,9 +59,19 @@ public class MocapExtensionImpl implements MocapExtension
 		this.headerSupplier = headerSupplier != null ? headerSupplier : DefaultHeader.INSTANCE_SUPPLIER;
 	}
 
-	@Override public Collection<? extends MocapActiveRecordingActions> findRecordedByPlayer(Player player)
+	@Override public boolean isRecordingActive()
+	{
+		return RecordingManager.isActive();
+	}
+
+	@Override public Collection<? extends MocapActiveRecordingActions> findRecordingByRecordedPlayer(Player player)
 	{
 		return RecordingManager.byRecordedPlayer(player);
+	}
+
+	@Override public Collection<? extends MocapActiveRecordingActions> findRecordingByRecordedPlayerUUID(UUID uuid)
+	{
+		return RecordingManager.byRecordedPlayerUUID(uuid);
 	}
 
 	@Override public Collection<? extends MocapActiveRecordingActions.TrackedEntity> findTrackedEntities(Entity entity)

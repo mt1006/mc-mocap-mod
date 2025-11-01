@@ -22,10 +22,14 @@ public final class MocapAPI
 		return new MocapControllerImpl(server, name);
 	}
 
-	public static @Nullable MocapExtension registerExtension(MinecraftServer server, String id, short version)
+	public static @Nullable MocapExtension registerExtension(String id, short version)
 	{
-		if (!server.isSameThread()) { throw new RuntimeException("Trying to register mocap extension on non-server thread!"); }
-		return Extensions.registerExtension(id, version);
+		return Extensions.registerExtension(id, version, false);
+	}
+
+	public static @Nullable MocapExtension registerExtension(String id, short version, boolean required)
+	{
+		return Extensions.registerExtension(id, version, required);
 	}
 
 	public static void executeAfterInit(Runnable runnable)

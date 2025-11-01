@@ -84,7 +84,7 @@ public class RecordingData implements MocapRecordingData
 	public void save(BufferedOutputStream stream) throws IOException
 	{
 		if (version != RecordingFiles.VERSION) { throw new RuntimeException("Trying to save recording with read-only version."); }
-		actions.forEach((action) -> action.prepareWrite(this));
+		actions.forEach((a) -> ActionType.prepareToWriteAction(this, a));
 
 		RecordingFiles.Writer writer = new RecordingFiles.Writer();
 
@@ -178,11 +178,13 @@ public class RecordingData implements MocapRecordingData
 			if (entry.getKey() != expectedId) { throw new RuntimeException("Extensions in wrong order! Trying to save loaded recording?"); }
 			expectedId++;
 
-			writer.addString(entry.getValue().getId());
-			writer.addShort(entry.getValue().getVersion());
+			MocapExtension extension = entry.getValue();
+			writer.addString(extension.getId());
+			writer.addShort(extension.getVersion());
+			writer.addByte(extension.isRequired() ? Extensions.FLAGS_IS_REQUIRED : 0);
 
 			RecordingFiles.Writer headerWriter = new RecordingFiles.Writer();
-			extensionHeaders.get(entry.getValue()).save(headerWriter);
+			extensionHeaders.get(extension).save(headerWriter);
 			writer.addPackedSize(headerWriter.getSize());
 			headerWriter.copyToWriter(writer);
 		}
@@ -249,20 +251,31 @@ public class RecordingData implements MocapRecordingData
 		int extensionCount = Byte.toUnsignedInt(reader.readByte());
 		for (int i = 0; i < extensionCount; i++)
 		{
-			MocapExtension extension = Extensions.getExtension(reader.readString(), reader.readShort());
-
-			//TODO: REMOVE SIZE AND THIS CHECK! it just skips ID?
+			//TODO: add extension version to error str
+			String extensionId = reader.readString();
+			short minVersion = reader.readShort();
+			boolean isRequiredFlag = (reader.readByte() & Extensions.FLAGS_IS_REQUIRED) != 0;
 			int headerSize = reader.readPackedSize();
+
+			MocapExtension extension = Extensions.getExtension(extensionId, minVersion);
 			if (extension == null)
 			{
-				reader.shift(headerSize);
-				continue;
+				if (Extensions.isRequired(isRequiredFlag))
+				{
+					out.sendFailure("playback.start.error.extension.not_present", extensionId);
+					return false;
+				}
+				else
+				{
+					reader.shift(headerSize);
+					continue;
+				}
 			}
 
 			ExtensionHeader extensionHeader = extension.createHeader();
 			if (!extensionHeader.load(reader))
 			{
-				out.sendFailure("playback.start.error.extension.load_header", extension.getId());
+				out.sendFailure("playback.start.error.extension.load_header", extensionId);
 				return false;
 			}
 
@@ -276,6 +289,11 @@ public class RecordingData implements MocapRecordingData
 		extensionById.put(id, extension);
 		extensionToId.put(extension, (byte)id);
 		extensionHeaders.put(extension, extensionHeader);
+	}
+
+	public void initAndAddExtension(MocapExtension extension)
+	{
+		addExtension(extensionById.size(), extension, extension.createHeader());
 	}
 
 	public void setCurrentVersion()
@@ -365,16 +383,9 @@ public class RecordingData implements MocapRecordingData
 		return extensionById.get(Byte.toUnsignedInt(idFromRecording));
 	}
 
-	@Override public byte getIdForExtension(MocapExtension extension)
+	@Override public @Nullable Byte getExtensionId(MocapExtension extension)
 	{
-		Byte id = extensionToId.get(extension);
-		if (id == null)
-		{
-			int nextId = extensionById.size();
-			addExtension(nextId, extension, extension.createHeader());
-			return (byte)nextId;
-		}
-		return id;
+		return extensionToId.get(extension);
 	}
 
 	public static abstract class RefIdMap<T>

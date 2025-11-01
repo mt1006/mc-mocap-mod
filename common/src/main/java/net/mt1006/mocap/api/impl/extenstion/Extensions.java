@@ -2,6 +2,7 @@ package net.mt1006.mocap.api.impl.extenstion;
 
 import net.mt1006.mocap.MocapMod;
 import net.mt1006.mocap.api.v1.extension.MocapExtension;
+import net.mt1006.mocap.mocap.settings.Settings;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
@@ -12,8 +13,9 @@ public class Extensions
 {
 	private static final int MAX_EXTENSION_COUNT = 256;
 	private static final Map<String, MocapExtensionImpl> extensions = new HashMap<>();
+	public static final byte FLAGS_IS_REQUIRED = 0b00000001;
 
-	public static @Nullable MocapExtension registerExtension(String id, short version)
+	public static @Nullable MocapExtension registerExtension(String id, short version, boolean required)
 	{
 		if (extensions.containsKey(id))
 		{
@@ -27,7 +29,7 @@ public class Extensions
 			return null;
 		}
 
-		MocapExtensionImpl extension = new MocapExtensionImpl(id, version);
+		MocapExtensionImpl extension = new MocapExtensionImpl(id, version, required);
 		extensions.put(extension.getId(), extension);
 		return extension;
 	}
@@ -41,5 +43,15 @@ public class Extensions
 	public static Collection<MocapExtensionImpl> getExtensions()
 	{
 		return extensions.values();
+	}
+
+	public static boolean isRequired(boolean isRequiredFlag)
+	{
+		return switch (Settings.REQUIRED_EXTENSIONS.val)
+		{
+			case REQUIRE_ALL -> true;
+			case IGNORE_ALL -> false;
+			case LET_EXTENSION_DECIDE -> isRequiredFlag;
+		};
 	}
 }

@@ -188,6 +188,7 @@
   "mocap.playback.start.error.empty_scene.tip": "Use \"/mocap scenes add_to\" to add elements to the scene",
   "mocap.playback.start.error.load_header": "§lError:§r failed to load recording header!",
   "mocap.playback.start.error.profile": "§lError:§r failed to load player profile!",
+  "mocap.playback.start.error.extension.not_present": "§lError:§r required extension \"%s\" is not present!",
   "mocap.playback.start.error.extension.load_header": "§lError:§r extension \"%s\" failed to load its header!",
   "mocap.playback.start.warning.unknown_entity": "Trying to use unknown entity as player - %s",
   "mocap.playback.start.warning.skin.profile": "Failed to load skin from player profile",
@@ -260,6 +261,7 @@
   "mocap.settings.info.about.pretty_scene_files": "Makes scene JSON files look pretty, at cost of slightly bigger file size (scene files are very small anyway, so it shouldn't be a problem unless you're using punch cards for storing them)",
   "mocap.settings.info.about.show_tips": "Gives tips that may help with using the mod",
   "mocap.settings.info.about.quick_discard": "Allows to quickly discard single recording by reusing \"stop\" command",
+  "mocap.settings.info.about.required_extensions": "Specifies when and if error should be thrown when extension used in recording is missing",
 
   "mocap.settings.info.current_value": "§lCurrent value:§r %s",
   "mocap.settings.info.default_value": "§lDefault value:§r %s",

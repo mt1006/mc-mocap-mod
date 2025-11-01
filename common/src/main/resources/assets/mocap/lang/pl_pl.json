@@ -181,6 +181,7 @@
   "mocap.playback.start.error.empty_scene.tip": "Użyj \"/mocap scenes add_to\" aby dodać elementy do sceny",
   "mocap.playback.start.error.load_header": "§lBłąd:§r nie udało się załadować nagłówka nagrania!",
   "mocap.playback.start.error.profile": "§lBłąd:§r nie udało się załadować profilu gracza!",
+  "mocap.playback.start.error.extension.not_present": "§lBłąd:§r wymagane rozszerzenie \"%s\" nie jest obecne!",
   "mocap.playback.start.error.extension.load_header": "§lBłąd:§r rozszerzeniu \"%s\" nie udało się załadować swojego nagłówka!",
   "mocap.playback.start.warning.unknown_entity": "Próba użycia nieznanego bytu jako gracza - %s",
   "mocap.playback.start.warning.skin.profile": "Nie udało się załadować skórki z profilu gracza",
@@ -253,6 +254,7 @@
   "mocap.settings.info.about.pretty_scene_files": "Sprawia, że pliki JSON scen wyglądają ładnie, kosztem lekko większych plików (pliki scen są i tak bardzo małe, więc nie powinno to stanowić problemu, chyba że używasz kart perforowanych do ich przechowywania)",
   "mocap.settings.info.about.show_tips": "Daje wskazówki które mogą pomóc w korzystaniu z moda",
   "mocap.settings.info.about.quick_discard": "Pozwala na szybkie odrzucenie pojedyńczego nagrania przez ponowne użycie polecenia \"stop\"",
+  "mocap.settings.info.about.required_extensions": "Określa kiedy i czy powinien zostać wyrzucony błąd gdy brakuje rozszerzenia użytego w nagraniu",
 
   "mocap.settings.info.current_value": "§lObecna wartość:§r %s",
   "mocap.settings.info.default_value": "§lDomyślna wartość:§r %s",

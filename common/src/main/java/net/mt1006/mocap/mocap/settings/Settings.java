@@ -54,6 +54,7 @@ public class Settings
 	public static final SettingFields.BooleanField PRETTY_SCENE_FILES = ADVANCED.add(fields.add("pretty_scene_files", true));
 	public static final SettingFields.BooleanField SHOW_TIPS = ADVANCED.add(fields.add("show_tips", true));
 	public static final SettingFields.BooleanField QUICK_DISCARD = ADVANCED.add(fields.add("quick_discard", true));
+	public static final SettingFields.EnumField<RequiredExtensions> REQUIRED_EXTENSIONS = ADVANCED.add(fields.add("required_extensions", RequiredExtensions.LET_EXTENSION_DECIDE));
 
 	public static void save()
 	{

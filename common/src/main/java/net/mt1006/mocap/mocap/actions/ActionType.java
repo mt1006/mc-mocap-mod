@@ -83,6 +83,19 @@ public enum ActionType
 		}
 	}
 
+	public static void prepareToWriteAction(RecordingData data, MocapAction action)
+	{
+		if (Registry.mainIdMap.get(action.getClass()) == Registry.CUSTOM_ACTION_ID)
+		{
+			Pair<MocapExtension, Byte> extensionActionData = Registry.extensionActionMap.get(action.getClass());
+			MocapExtension extension = extensionActionData.getFirst();
+
+			if (data.getExtensionId(extension) == null) { data.initAndAddExtension(extension); }
+		}
+
+		action.prepareWrite(data);
+	}
+
 	public static void writeAction(MocapAction.Writer writer, MocapRecordingData data, MocapAction action)
 	{
 		byte id = Registry.mainIdMap.get(action.getClass());
@@ -91,7 +104,10 @@ public enum ActionType
 		if (id == Registry.CUSTOM_ACTION_ID)
 		{
 			Pair<MocapExtension, Byte> extensionActionData = Registry.extensionActionMap.get(action.getClass());
-			writer.addByte(data.getIdForExtension(extensionActionData.getFirst()));
+			Byte extensionId = data.getExtensionId(extensionActionData.getFirst());
+			if (extensionId == null) { throw new RuntimeException("Extension wasn't initialized!"); }
+
+			writer.addByte(extensionId);
 			writer.addByte(extensionActionData.getSecond());
 
 			RecordingFiles.Writer actionWriter = new RecordingFiles.Writer();

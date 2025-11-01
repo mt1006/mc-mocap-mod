@@ -20,7 +20,7 @@ public interface MocapRecordingData
 
 	@Nullable MocapExtension getExtension(byte idFromRecording);
 
-	byte getIdForExtension(MocapExtension extension);
+	@Nullable Byte getExtensionId(MocapExtension extension);
 
 	interface ExtensionHeader
 	{

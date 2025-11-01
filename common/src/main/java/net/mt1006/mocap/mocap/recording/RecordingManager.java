@@ -520,6 +520,16 @@ public class RecordingManager
 		return list;
 	}
 
+	public static List<RecordingContext> byRecordedPlayerUUID(UUID uuid)
+	{
+		List<RecordingContext> list = new ArrayList<>(1);
+		for (RecordingContext ctx : contexts)
+		{
+			if (ctx.recordedPlayer.getUUID().equals(uuid)) { list.add(ctx); }
+		}
+		return list;
+	}
+
 	public static @Nullable Collection<RecordingContext> resolveContexts(CommandInfo info, String id)
 	{
 		ResolvedContexts resolvedContexts = ResolvedContexts.resolve(info, id, false);

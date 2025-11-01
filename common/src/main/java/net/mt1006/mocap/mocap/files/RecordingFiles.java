@@ -173,6 +173,18 @@ public class RecordingFiles
 			recording.add((byte)val);
 		}
 
+		@Override public void addLong(long val)
+		{
+			recording.add((byte)(val >> 56));
+			recording.add((byte)(val >> 48));
+			recording.add((byte)(val >> 40));
+			recording.add((byte)(val >> 32));
+			recording.add((byte)(val >> 24));
+			recording.add((byte)(val >> 16));
+			recording.add((byte)(val >> 8));
+			recording.add((byte)val);
+		}
+
 		@Override public void addFloat(float val)
 		{
 			for (byte b : floatToByteArray(val))
@@ -202,6 +214,12 @@ public class RecordingFiles
 			{
 				recording.add(b);
 			}
+		}
+
+		@Override public void addUUID(UUID val)
+		{
+			addLong(val.getMostSignificantBits());
+			addLong(val.getLeastSignificantBits());
 		}
 
 		@Override public void addVec3(Vec3 vec)
@@ -295,6 +313,16 @@ public class RecordingFiles
 			return retVal;
 		}
 
+		@Override public long readLong()
+		{
+			long retVal = ((recording[offset] & 0xFFL) << 56) | ((recording[offset + 1] & 0xFFL) << 48) |
+					((recording[offset + 2] & 0xFFL) << 40) | ((recording[offset + 3] & 0xFFL) << 32) |
+					((recording[offset + 4] & 0xFFL) << 24) | ((recording[offset + 5] & 0xFFL) << 16) |
+					((recording[offset + 6] & 0xFFL) << 8) | (recording[offset + 7] & 0xFFL);
+			offset += 8;
+			return retVal;
+		}
+
 		@Override public float readFloat()
 		{
 			float retVal = byteArrayToFloat(Arrays.copyOfRange(recording, offset, offset + 4));
@@ -322,6 +350,11 @@ public class RecordingFiles
 			String str = new String(recording, offset, len, StandardCharsets.UTF_8);
 			offset += len;
 			return str;
+		}
+
+		@Override public UUID readUUID()
+		{
+			return new UUID(readLong(), readLong());
 		}
 
 		//TODO: [CONVERTER] remove
@@ -364,6 +397,11 @@ public class RecordingFiles
 			offset += val;
 		}
 
+		@Override public boolean isDummy()
+		{
+			return false;
+		}
+
 		public void setStringMode(boolean legacyString)
 		{
 			this.legacyString = legacyString;
@@ -395,16 +433,21 @@ public class RecordingFiles
 
 	private static class DummyReader implements MocapAction.Reader
 	{
+		private static final UUID UUID_ZERO = new UUID(0, 0);
+
 		@Override public byte readByte() { return 0; }
 		@Override public short readShort() { return 0; }
 		@Override public int readInt() { return 0; }
+		@Override public long readLong() { return 0; }
 		@Override public float readFloat() { return 0.0f; }
 		@Override public double readDouble() { return 0.0; }
 		@Override public boolean readBoolean() { return false; }
 		@Override public String readString() { return ""; }
+		@Override public UUID readUUID() { return UUID_ZERO; }
 		@Override public Vec3 readVec3() { return Vec3.ZERO; }
 		@Override public BlockPos readBlockPos() { return BlockPos.ZERO; }
 		@Override public int readPackedSize() { return 0; }
 		@Override public void shift(int val) {}
+		@Override public boolean isDummy() { return true; }
 	}
 }

@@ -8,6 +8,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.UUID;
 import java.util.function.Supplier;
 
 public interface MocapExtension
@@ -16,13 +17,19 @@ public interface MocapExtension
 
 	short getVersion();
 
+	boolean isRequired();
+
 	void registerAction(int id, MocapAction.FromReader fromReader);
 
 	void registerStateAction(int id, MocapAction.FromReader fromReader, MocapAction.FromEntity fromEntity);
 
 	void setHeaderSupplier(@Nullable Supplier<MocapRecordingData.ExtensionHeader> headerSupplier);
 
-	Collection<? extends MocapActiveRecordingActions> findRecordedByPlayer(Player player);
+	boolean isRecordingActive();
+
+	Collection<? extends MocapActiveRecordingActions> findRecordingByRecordedPlayer(Player player);
+
+	Collection<? extends MocapActiveRecordingActions> findRecordingByRecordedPlayerUUID(UUID uuid);
 
 	Collection<? extends MocapActiveRecordingActions.TrackedEntity> findTrackedEntities(Entity entity);
 
