@@ -5,24 +5,22 @@ import net.minecraft.world.entity.LivingEntity;
 import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
 import net.mt1006.mocap.api.v1.extension.actions.MocapActionContext;
 import net.mt1006.mocap.api.v1.extension.actions.MocapStateAction;
+import org.jetbrains.annotations.Nullable;
 
 public class SetArrowCount implements MocapStateAction
 {
 	private final int arrowCount;
 	private final int beeStingerCount;
 
-	public SetArrowCount(Entity entity)
+	public static @Nullable SetArrowCount fromEntity(Entity entity)
 	{
-		if (entity instanceof LivingEntity)
-		{
-			arrowCount = ((LivingEntity)entity).getArrowCount();
-			beeStingerCount = ((LivingEntity)entity).getStingerCount();
-		}
-		else
-		{
-			arrowCount = 0;
-			beeStingerCount = 0;
-		}
+		return (entity instanceof LivingEntity livingEntity) ? new SetArrowCount(livingEntity) : null;
+	}
+
+	private SetArrowCount(LivingEntity entity)
+	{
+		arrowCount = entity.getArrowCount();
+		beeStingerCount = entity.getStingerCount();
 	}
 
 	public SetArrowCount(Reader reader)
@@ -35,6 +33,11 @@ public class SetArrowCount implements MocapStateAction
 	{
 		return arrowCount != ((SetArrowCount)previousAction).arrowCount
 				|| beeStingerCount != ((SetArrowCount)previousAction).beeStingerCount;
+	}
+
+	@Override public boolean shouldBeInitialized()
+	{
+		return arrowCount != 0 || beeStingerCount != 0;
 	}
 
 	@Override public void write(Writer writer, MocapRecordingData data)

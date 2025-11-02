@@ -29,23 +29,22 @@ public class ChangeItem implements MocapStateAction
 	private final byte itemCount;
 	private final List<ItemData> items = new ArrayList<>();
 
-	public ChangeItem(Entity entity)
+	public static @Nullable ChangeItem fromEntity(Entity entity)
 	{
-		if (!(entity instanceof LivingEntity livingEntity))
-		{
-			itemCount = 0;
-			for (int i = 0; i < 7; i++) { items.add(ItemData.EMPTY); }
-			return;
-		}
+		return (entity instanceof LivingEntity livingEntity) ? new ChangeItem(livingEntity) : null;
+	}
+
+	private ChangeItem(LivingEntity entity)
+	{
 		DynamicOps<Tag> ops = entity.registryAccess().createSerializationContext(NbtOps.INSTANCE);
 
-		addItem(livingEntity.getMainHandItem(), ops);
-		addItem(livingEntity.getOffhandItem(), ops);
-		addItem(livingEntity.getItemBySlot(EquipmentSlot.FEET), ops);
-		addItem(livingEntity.getItemBySlot(EquipmentSlot.LEGS), ops);
-		addItem(livingEntity.getItemBySlot(EquipmentSlot.CHEST), ops);
-		addItem(livingEntity.getItemBySlot(EquipmentSlot.HEAD), ops);
-		addItem(livingEntity.getItemBySlot(EquipmentSlot.BODY), ops);
+		addItem(entity.getMainHandItem(), ops);
+		addItem(entity.getOffhandItem(), ops);
+		addItem(entity.getItemBySlot(EquipmentSlot.FEET), ops);
+		addItem(entity.getItemBySlot(EquipmentSlot.LEGS), ops);
+		addItem(entity.getItemBySlot(EquipmentSlot.CHEST), ops);
+		addItem(entity.getItemBySlot(EquipmentSlot.HEAD), ops);
+		addItem(entity.getItemBySlot(EquipmentSlot.BODY), ops);
 		//TODO: add SADDLE?
 
 		int itemCounter = 0;
@@ -125,6 +124,11 @@ public class ChangeItem implements MocapStateAction
 			if (item1.differs(item2)) { return true; }
 		}
 		return false;
+	}
+
+	@Override public boolean shouldBeInitialized()
+	{
+		return itemCount != 0;
 	}
 
 	@Override public void prepareWrite(MocapRecordingData data)

@@ -25,16 +25,16 @@ public enum ActionType
 	MOVEMENT_LEGACY(1, MovementLegacy::new), // deprecated
 	HEAD_ROTATION(2, HeadRotation::new), // deprecated
 	CHANGE_POSE(3, ChangePose::new, ChangePose::new),
-	CHANGE_ITEM(4, (MocapAction.FromReader)ChangeItem::new, ChangeItem::new),
+	CHANGE_ITEM(4, ChangeItem::new, ChangeItem::fromEntity),
 	SET_ENTITY_FLAGS(5, SetEntityFlags::new, SetEntityFlags::new),
-	SET_LIVING_ENTITY_FLAGS(6, SetLivingEntityFlags::new, SetLivingEntityFlags::new),
-	SET_MAIN_HAND(7, SetMainHand::new, SetMainHand::new),
-	SWING(8, Swing::new, Swing::new),
+	SET_LIVING_ENTITY_FLAGS(6, SetLivingEntityFlags::new, SetLivingEntityFlags::fromEntity),
+	SET_MAIN_HAND(7, SetMainHand::new, SetMainHand::fromEntity),
+	SWING(8, Swing::new, Swing::fromEntity),
 	BREAK_BLOCK(9, BreakBlock::new),
 	PLACE_BLOCK(10, PlaceBlock::new),
 	RIGHT_CLICK_BLOCK(11, (MocapAction.FromReaderOnly)RightClickBlock::new),
 	SET_EFFECT_COLOR(12, SetEffectColor::new), // deprecated
-	SET_ARROW_COUNT(13, SetArrowCount::new, SetArrowCount::new),
+	SET_ARROW_COUNT(13, SetArrowCount::new, SetArrowCount::fromEntity),
 	SLEEP(14, Sleep::new, Sleep::new),
 	PLACE_BLOCK_SILENTLY(15, PlaceBlockSilently::new),
 	ENTITY_UPDATE(16, EntityUpdate::new),
@@ -50,7 +50,8 @@ public enum ActionType
 	SET_SPECTATOR(26, SetSpectator::new, SetSpectator::new),
 	DUMMY(27, (reader) -> DummyAction.INSTANCE),
 	CLOSE_CONTAINER(28, (reader) -> CloseContainer.INSTANCE),
-	SET_EFFECT_PARTICLES(29, SetEffectParticles::new, SetEffectParticles::new);
+	SET_EFFECT_PARTICLES(29, SetEffectParticles::new, SetEffectParticles::fromEntity),
+	SET_IS_BABY(30, SetIsBaby::read, SetIsBaby::fromEntity);
 
 	public final byte id;
 

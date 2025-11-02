@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 import java.util.function.BiFunction;
@@ -19,7 +20,7 @@ public interface MocapAction
 
 	interface FromReader extends BiFunction<Reader, MocapRecordingData, MocapAction> {}
 	interface FromReaderOnly extends Function<Reader, MocapAction> {}
-	interface FromEntity extends Function<Entity, MocapStateAction> {}
+	interface FromEntity extends Function<Entity, @Nullable MocapStateAction> {}
 
 	interface Writer
 	{

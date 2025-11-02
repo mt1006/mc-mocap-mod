@@ -8,14 +8,20 @@ import net.minecraft.world.entity.player.Player;
 import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
 import net.mt1006.mocap.api.v1.extension.actions.MocapActionContext;
 import net.mt1006.mocap.api.v1.extension.actions.MocapStateAction;
+import org.jetbrains.annotations.Nullable;
 
 public class SetMainHand implements MocapStateAction
 {
 	private final HumanoidArm mainHand;
 
-	public SetMainHand(Entity entity)
+	public static @Nullable SetMainHand fromEntity(Entity entity)
 	{
-		mainHand = entity instanceof LivingEntity ? ((LivingEntity)entity).getMainArm() : HumanoidArm.RIGHT;
+		return (entity instanceof LivingEntity livingEntity) ? new SetMainHand(livingEntity) : null;
+	}
+
+	private SetMainHand(LivingEntity entity)
+	{
+		mainHand = entity.getMainArm();
 	}
 
 	public SetMainHand(Reader reader)

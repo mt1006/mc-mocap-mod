@@ -6,14 +6,20 @@ import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
 import net.mt1006.mocap.api.v1.extension.actions.MocapActionContext;
 import net.mt1006.mocap.api.v1.extension.actions.MocapStateAction;
 import net.mt1006.mocap.utils.EntityData;
+import org.jetbrains.annotations.Nullable;
 
 public class SetLivingEntityFlags implements MocapStateAction
 {
 	private final byte flags;
 
-	public SetLivingEntityFlags(Entity entity)
+	public static @Nullable SetLivingEntityFlags fromEntity(Entity entity)
 	{
-		flags = (entity instanceof LivingEntity) ? EntityData.LIVING_ENTITY_FLAGS.valOrDef(entity, (byte)0) : 0;
+		return (entity instanceof LivingEntity livingEntity) ? new SetLivingEntityFlags(livingEntity) : null;
+	}
+
+	private SetLivingEntityFlags(LivingEntity entity)
+	{
+		flags = EntityData.LIVING_ENTITY_FLAGS.valOrDef(entity, (byte)0);
 	}
 
 	public SetLivingEntityFlags(Reader reader)

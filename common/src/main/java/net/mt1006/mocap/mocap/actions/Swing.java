@@ -6,6 +6,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
 import net.mt1006.mocap.api.v1.extension.actions.MocapActionContext;
 import net.mt1006.mocap.api.v1.extension.actions.MocapStateAction;
+import org.jetbrains.annotations.Nullable;
 
 public class Swing implements MocapStateAction
 {
@@ -13,20 +14,16 @@ public class Swing implements MocapStateAction
 	private final int swingingTime;
 	private final InteractionHand hand;
 
-	public Swing(Entity entity)
+	public static @Nullable Swing fromEntity(Entity entity)
 	{
-		if (entity instanceof LivingEntity livingEntity)
-		{
-			swinging = livingEntity.swinging;
-			swingingTime = livingEntity.swingTime;
-			hand = livingEntity.swingingArm;
-		}
-		else
-		{
-			swinging = false;
-			swingingTime = 0;
-			hand = InteractionHand.MAIN_HAND;
-		}
+		return (entity instanceof LivingEntity livingEntity) ? new Swing(livingEntity) : null;
+	}
+
+	private Swing(LivingEntity entity)
+	{
+		swinging = entity.swinging;
+		swingingTime = entity.swingTime;
+		hand = entity.swingingArm;
 	}
 
 	public Swing(Reader reader)

@@ -27,6 +27,11 @@ public class SetSpectator implements MocapStateAction
 		return isSpectator != ((SetSpectator)previousAction).isSpectator;
 	}
 
+	@Override public boolean shouldBeInitialized()
+	{
+		return isSpectator;
+	}
+
 	@Override public void write(Writer writer, MocapRecordingData data)
 	{
 		writer.addBoolean(isSpectator);

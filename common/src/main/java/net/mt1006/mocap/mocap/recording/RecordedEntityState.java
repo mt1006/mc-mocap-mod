@@ -12,7 +12,7 @@ import java.util.List;
 
 public class RecordedEntityState
 {
-	public final List<MocapStateAction> actions;
+	public final List<@Nullable MocapStateAction> actions;
 
 	public RecordedEntityState(Entity entity)
 	{
@@ -25,7 +25,11 @@ public class RecordedEntityState
 		if (previousActions == null) { return false; }
 		for (int i = 0; i < actions.size(); i++)
 		{
-			if (actions.get(i).differs(previousActions.actions.get(i))) { return true; }
+			MocapStateAction action = actions.get(i);
+			MocapStateAction previousAction = previousActions.actions.get(i);
+
+			if (action != null && previousAction == null) { throw new RuntimeException("State action isn't null, but previous was!"); }
+			if (action != null && action.differs(previousAction)) { return true; }
 		}
 		return false;
 	}
@@ -36,7 +40,7 @@ public class RecordedEntityState
 		{
 			for (MocapStateAction action : actions)
 			{
-				if (action.shouldBeInitialized()) { actionList.add(action); }
+				if (action != null && action.shouldBeInitialized()) { actionList.add(action); }
 			}
 			return;
 		}
@@ -46,7 +50,8 @@ public class RecordedEntityState
 			MocapStateAction action = actions.get(i);
 			MocapStateAction previousAction = previousActions.actions.get(i);
 
-			if (action.differs(previousAction)) { actionList.add(action); }
+			if (action != null && previousAction == null) { throw new RuntimeException("State action isn't null, but previous was!"); }
+			if (action != null && action.differs(previousAction)) { actionList.add(action); }
 		}
 	}
 
@@ -56,7 +61,7 @@ public class RecordedEntityState
 		{
 			for (MocapStateAction action : actions)
 			{
-				if (action.shouldBeInitialized()) { actionList.add(new EntityAction(id, action)); }
+				if (action != null && action.shouldBeInitialized()) { actionList.add(new EntityAction(id, action)); }
 			}
 			return;
 		}
@@ -66,7 +71,8 @@ public class RecordedEntityState
 			MocapStateAction action = actions.get(i);
 			MocapStateAction previousAction = previousActions.actions.get(i);
 
-			if (action.differs(previousAction)) { actionList.add(new EntityAction(id, action)); }
+			if (action != null && previousAction == null) { throw new RuntimeException("State action isn't null, but previous was!"); }
+			if (action != null && action.differs(previousAction)) { actionList.add(new EntityAction(id, action)); }
 		}
 	}
 }

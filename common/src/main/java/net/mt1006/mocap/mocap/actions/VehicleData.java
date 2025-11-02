@@ -26,7 +26,7 @@ public class VehicleData implements MocapStateAction
 	private final boolean used;
 	private byte flags = 0;         // AbstractHorse
 	private boolean flag1 = false;  // Camel - is dashing; AbstractChestedHorse - has chest; Boat - is left paddle turning
-	private boolean flag2 = false;  // AgeableMob - is baby; Boat - is right paddle turning
+	private boolean flag2 = false;  // AgeableMob - is baby (deprecated); Boat - is right paddle turning
 	private int int1 = 0;           // Horse/Llama - variant; Boat - time since last hit; AbstractMinecart - shaking power
 	private int int2 = 0;           // Boat - hit direction; AbstractMinecart - shaking direction
 	private int int3 = 0;           // Boat - splash timer; AbstractMinecart - shaking multiplier
@@ -38,11 +38,6 @@ public class VehicleData implements MocapStateAction
 		{
 			used = false;
 			return;
-		}
-
-		if (entity instanceof AgeableMob)
-		{
-			flag2 = ((AgeableMob)entity).getAge() < 0;
 		}
 
 		if (entity instanceof AbstractHorse abstractHorse)
@@ -58,6 +53,7 @@ public class VehicleData implements MocapStateAction
 			else if (entity instanceof Camel) { flag1 = ((Camel)entity).isDashing(); }
 
 			if (entity instanceof Llama) { int1 = ((Llama)entity).getVariant().getId(); }
+			used = true;
 		}
 		else if (entity instanceof Boat boat)
 		{
@@ -67,15 +63,19 @@ public class VehicleData implements MocapStateAction
 			int2 = boat.getHurtDir();
 			int3 = ((BoatFields)entity).callGetBubbleTime();
 			float1 = boat.getDamage();
+			used = true;
 		}
 		else if (entity instanceof AbstractMinecart minecart)
 		{
 			int1 = minecart.getHurtTime();
 			int2 = minecart.getHurtDir();
 			float1 = minecart.getDamage();
+			used = true;
 		}
-
-		used = true;
+		else
+		{
+			used = false;
+		}
 	}
 
 	public VehicleData(Reader reader)
@@ -108,6 +108,11 @@ public class VehicleData implements MocapStateAction
 				|| float1 != vehicleData.float1;
 	}
 
+	@Override public boolean shouldBeInitialized()
+	{
+		return used;
+	}
+
 	@Override public void write(Writer writer, MocapRecordingData data)
 	{
 		writer.addBoolean(used);
@@ -125,12 +130,12 @@ public class VehicleData implements MocapStateAction
 
 	@Override public Result execute(MocapActionContext ctx)
 	{
-		if (!used) { return Result.OK; }
+		if (!used) { return Result.IGNORED; }
 		Entity entity = ctx.getEntity();
 
-		if (entity instanceof AgeableMob)
+		if (entity instanceof AgeableMob ageableMob)
 		{
-			((AgeableMob)entity).setAge(flag2 ? -1 : 0);
+			ageableMob.setAge(flag2 ? -1 : 0);
 		}
 
 		if (entity instanceof AbstractHorse)

@@ -11,6 +11,7 @@ import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
 import net.mt1006.mocap.api.v1.extension.actions.MocapActionContext;
 import net.mt1006.mocap.api.v1.extension.actions.MocapStateAction;
 import net.mt1006.mocap.utils.EntityData;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,14 +23,13 @@ public class SetEffectParticles implements MocapStateAction
 	private final Set<String> particleJsonSet = new TreeSet<>();
 	private final boolean ambience;
 
-	public SetEffectParticles(Entity entity)
+	public static @Nullable SetEffectParticles fromEntity(Entity entity)
 	{
-		if (!(entity instanceof LivingEntity))
-		{
-			this.ambience = false;
-			return;
-		}
+		return (entity instanceof LivingEntity livingEntity) ? new SetEffectParticles(livingEntity) : null;
+	}
 
+	private SetEffectParticles(LivingEntity entity)
+	{
 		for (ParticleOptions particle : EntityData.LIVING_ENTITY_EFFECT_PARTICLES.valOrDef(entity, List.of()))
 		{
 			JsonElement jsonElement = ParticleTypes.CODEC.encodeStart(JsonOps.INSTANCE, particle).result().orElse(null);
@@ -55,7 +55,13 @@ public class SetEffectParticles implements MocapStateAction
 
 	@Override public boolean differs(MocapStateAction previousAction)
 	{
-		return !particleJsonSet.equals(((SetEffectParticles)previousAction).particleJsonSet);
+		return !particleJsonSet.equals(((SetEffectParticles)previousAction).particleJsonSet)
+				|| ambience != ((SetEffectParticles)previousAction).ambience;
+	}
+
+	@Override public boolean shouldBeInitialized()
+	{
+		return !particleJsonSet.isEmpty() || ambience;
 	}
 
 	@Override public void write(Writer writer, MocapRecordingData data)

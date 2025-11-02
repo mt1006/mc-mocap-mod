@@ -29,6 +29,11 @@ public class Sleep implements MocapStateAction
 		return bedPostion != null && !bedPostion.equals(((Sleep)previousAction).bedPostion);
 	}
 
+	@Override public boolean shouldBeInitialized()
+	{
+		return bedPostion != null;
+	}
+
 	@Override public void write(Writer writer, MocapRecordingData data)
 	{
 		if (bedPostion != null)
