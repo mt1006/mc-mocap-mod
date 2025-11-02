@@ -40,7 +40,7 @@ public enum ActionType
 	ENTITY_UPDATE(16, EntityUpdate::new),
 	ENTITY_ACTION(17, EntityAction::new),
 	HURT(18, Hurt::skipByteAndGetInstance),
-	VEHICLE_DATA(19, VehicleData::new, VehicleData::new),
+	VEHICLE_DATA(19, VehicleData::new, VehicleData::fromEntity),
 	BREAK_BLOCK_PROGRESS(20, (MocapAction.FromReaderOnly)BreakBlockProgress::new),
 	MOVEMENT(21, Movement::new),
 	SKIP_TICKS(22, SkipTicks::new),

@@ -20,28 +20,29 @@ import net.mt1006.mocap.mixin.fields.BoatFields;
 import net.mt1006.mocap.mixin.fields.HorseFields;
 import net.mt1006.mocap.mixin.fields.LlamaFields;
 import net.mt1006.mocap.utils.EntityData;
+import org.jetbrains.annotations.Nullable;
 
 public class VehicleData implements MocapStateAction
 {
 	private final boolean used;
-	private byte flags = 0;         // AbstractHorse
-	private boolean flag1 = false;  // Camel - is dashing; AbstractChestedHorse - has chest; Boat - is left paddle turning
-	private boolean flag2 = false;  // AgeableMob - is baby (deprecated); Boat - is right paddle turning
-	private int int1 = 0;           // Horse/Llama - variant; Boat - time since last hit; AbstractMinecart - shaking power
-	private int int2 = 0;           // Boat - hit direction; AbstractMinecart - shaking direction
-	private int int3 = 0;           // Boat - splash timer; AbstractMinecart - shaking multiplier
-	private float float1 = 0.0f;    // Boat - damage taken
+	private final byte flags;      // AbstractHorse
+	private final boolean flag1;   // Camel - is dashing; AbstractChestedHorse - has chest; Boat - is left paddle turning
+	private final boolean flag2;   // AgeableMob - is baby (deprecated); Boat - is right paddle turning
+	private final int int1;        // Horse/Llama - variant; Boat - time since last hit; AbstractMinecart - shaking power
+	private final int int2;        // Boat - hit direction; AbstractMinecart - shaking direction
+	private final int int3;        // Boat - splash timer; AbstractMinecart - shaking multiplier
+	private final float float1;    // Boat - damage taken
 
-	public VehicleData(Entity entity)
+	public static @Nullable VehicleData fromEntity(Entity entity)
 	{
-		if (entity instanceof Player)
-		{
-			used = false;
-			return;
-		}
+		if (entity instanceof Player) { return null; }
 
 		if (entity instanceof AbstractHorse abstractHorse)
 		{
+			byte flags = 0;
+			boolean flag1 = false;
+			int int1 = 0;
+
 			if (abstractHorse.isTamed()) { flags |= 0x02; }
 			if (abstractHorse.isSaddled()) { flags |= 0x04; }
 			if (abstractHorse.isBred()) { flags |= 0x08; }
@@ -53,29 +54,45 @@ public class VehicleData implements MocapStateAction
 			else if (entity instanceof Camel) { flag1 = ((Camel)entity).isDashing(); }
 
 			if (entity instanceof Llama) { int1 = ((Llama)entity).getVariant().getId(); }
-			used = true;
+
+			return new VehicleData(flags, flag1, false, int1, 0, 0, 0.0f);
 		}
 		else if (entity instanceof Boat boat)
 		{
-			flag1 = boat.getPaddleState(0);
-			flag2 = boat.getPaddleState(1);
-			int1 = boat.getHurtTime();
-			int2 = boat.getHurtDir();
-			int3 = ((BoatFields)entity).callGetBubbleTime();
-			float1 = boat.getDamage();
-			used = true;
+			return new VehicleData(
+					(byte)0,
+					boat.getPaddleState(0),
+					boat.getPaddleState(1),
+					boat.getHurtTime(),
+					boat.getHurtDir(),
+					((BoatFields)entity).callGetBubbleTime(),
+					boat.getDamage());
 		}
 		else if (entity instanceof AbstractMinecart minecart)
 		{
-			int1 = minecart.getHurtTime();
-			int2 = minecart.getHurtDir();
-			float1 = minecart.getDamage();
-			used = true;
+			return new VehicleData(
+					(byte)0, false, false,
+					minecart.getHurtTime(),
+					minecart.getHurtDir(),
+					0,
+					minecart.getDamage());
 		}
 		else
 		{
-			used = false;
+			return null;
 		}
+	}
+
+	private VehicleData(byte flags, boolean flag1, boolean flag2, int int1, int int2, int int3, float float1)
+	{
+		this.used = true;
+		this.flags = flags;
+		this.flag1 = flag1;
+		this.flag2 = flag2;
+		this.int1 = int1;
+		this.int2 = int2;
+		this.int3 = int3;
+		this.float1 = float1;
 	}
 
 	public VehicleData(Reader reader)
@@ -90,6 +107,16 @@ public class VehicleData implements MocapStateAction
 			int2 = reader.readInt();
 			int3 = reader.readInt();
 			float1 = reader.readFloat();
+		}
+		else
+		{
+			flags = 0;
+			flag1 = false;
+			flag2 = false;
+			int1 = 0;
+			int2 = 0;
+			int3 = 0;
+			float1 = 0.0f;
 		}
 	}
 
