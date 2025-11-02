@@ -9,7 +9,8 @@
 		"fabric.BlockItemMixin",
 		"fabric.DoubleHighBlockItemMixin",
 		"fabric.FlintAndSteelItemMixin",
-		"fabric.LivingEntityFabricMixin"
+		"fabric.LivingEntityFabricMixin",
+		"fabric.ServerPlayerMixin"
 	],
 	"client":
 	[

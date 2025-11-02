@@ -3,12 +3,12 @@ package net.mt1006.mocap.events;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ChestMenu;
+import net.minecraft.world.inventory.ShulkerBoxMenu;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import net.mt1006.mocap.mocap.actions.BreakBlock;
-import net.mt1006.mocap.mocap.actions.PlaceBlock;
-import net.mt1006.mocap.mocap.actions.PlaceBlockSilently;
-import net.mt1006.mocap.mocap.actions.RightClickBlock;
+import net.mt1006.mocap.mocap.actions.*;
 import net.mt1006.mocap.mocap.recording.RecordingManager;
 
 public class BlockInteractionEvent
@@ -43,6 +43,14 @@ public class BlockInteractionEvent
 		{
 			boolean isOffHand = (hand == InteractionHand.OFF_HAND);
 			RecordingManager.byRecordedPlayer(player).forEach((ctx) -> ctx.addAction(new RightClickBlock(hitResult, isOffHand)));
+		}
+	}
+
+	public static void onContainerClose(Player player, AbstractContainerMenu container)
+	{
+		if (RecordingManager.isActive() && (container instanceof ChestMenu || container instanceof ShulkerBoxMenu))
+		{
+			RecordingManager.byRecordedPlayer(player).forEach((ctx) -> ctx.addAction(CloseContainer.INSTANCE));
 		}
 	}
 

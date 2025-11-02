@@ -508,6 +508,16 @@ public class RecordingManager
 		return list;
 	}
 
+	public static List<RecordingContext> byRecordedPlayer(UUID uuid)
+	{
+		List<RecordingContext> list = new ArrayList<>(1);
+		for (RecordingContext ctx : contexts)
+		{
+			if (ctx.recordedPlayer.getUUID().equals(uuid)) { list.add(ctx); }
+		}
+		return list;
+	}
+
 	public static List<RecordingContext> byRecordedPlayer(Entity entity)
 	{
 		if (!(entity instanceof Player)) { return List.of(); }
@@ -516,16 +526,6 @@ public class RecordingManager
 		for (RecordingContext ctx : contexts)
 		{
 			if (ctx.recordedPlayer == entity) { list.add(ctx); }
-		}
-		return list;
-	}
-
-	public static List<RecordingContext> byRecordedPlayerUUID(UUID uuid)
-	{
-		List<RecordingContext> list = new ArrayList<>(1);
-		for (RecordingContext ctx : contexts)
-		{
-			if (ctx.recordedPlayer.getUUID().equals(uuid)) { list.add(ctx); }
 		}
 		return list;
 	}

@@ -6,6 +6,7 @@ import net.mt1006.mocap.MocapMod;
 import net.mt1006.mocap.events.BlockInteractionEvent;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.player.PlayerContainerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 
@@ -47,5 +48,11 @@ public class BlockInteractionNeoForgeEvent
 
 		BlockInteractionEvent.onRightClickBlock(player, clickEvent.getHand(), clickEvent.getHitVec(),
 				player.getMainHandItem().doesSneakBypassUse(player.level(), clickEvent.getPos(), player));
+	}
+
+	@SubscribeEvent
+	public static void onContainerClose(PlayerContainerEvent.Close closeContainerEvent)
+	{
+		BlockInteractionEvent.onContainerClose(closeContainerEvent.getEntity(), closeContainerEvent.getContainer());
 	}
 }

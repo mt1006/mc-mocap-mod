@@ -98,6 +98,11 @@ public class ActionContext implements MocapActionContext
 		return transformer;
 	}
 
+	@Override public Entity getMainEntity()
+	{
+		return mainEntityData.entity;
+	}
+
 	@Override public @Nullable ServerPlayer getDummyPlayer()
 	{
 		return ghostPlayer;

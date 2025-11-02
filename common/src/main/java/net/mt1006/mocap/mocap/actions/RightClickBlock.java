@@ -91,7 +91,7 @@ public class RightClickBlock implements MocapBlockAction
 			if (blockState.getBlock() instanceof BedBlock) { continue; }
 
 			InteractionResult result = blockState.useItemOn(itemStack, ctx.getLevel(), player, interactionHand, blockHitResult);
-			if (result == InteractionResult.PASS)
+			if (result == InteractionResult.TRY_WITH_EMPTY_HAND)
 			{
 				blockState.useWithoutItem(ctx.getLevel(), player, blockHitResult);
 			}

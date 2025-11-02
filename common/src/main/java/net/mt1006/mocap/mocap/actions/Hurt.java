@@ -14,6 +14,12 @@ public class Hurt implements MocapAction
 
 	private Hurt() {}
 
+	public static Hurt skipByteAndGetInstance(Reader reader)
+	{
+		reader.readByte(); // ignored
+		return INSTANCE;
+	}
+
 	public static void hurtEntity(Entity entity, MocapPlaybackConfig config)
 	{
 		LivingEntity livingEntity = (entity instanceof LivingEntity) ? (LivingEntity)entity : null;

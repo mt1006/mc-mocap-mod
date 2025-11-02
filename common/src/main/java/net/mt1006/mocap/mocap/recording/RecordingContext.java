@@ -68,8 +68,7 @@ public class RecordingContext implements MocapActiveRecordingActions
 		state = switch (state)
 		{
 			case WAITING_FOR_ACTION -> State.CANCELED;
-			case RECORDING -> State.WAITING_FOR_DECISION;
-			//case WAITING_FOR_DECISION -> State.DISCARDED; //TODO: ?
+			case RECORDING, WAITING_FOR_DECISION -> State.WAITING_FOR_DECISION;
 			default -> State.UNDEFINED;
 		};
 

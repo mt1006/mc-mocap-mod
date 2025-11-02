@@ -38,7 +38,7 @@ public enum ActionType
 	PLACE_BLOCK_SILENTLY(15, PlaceBlockSilently::new),
 	ENTITY_UPDATE(16, EntityUpdate::new),
 	ENTITY_ACTION(17, EntityAction::new),
-	HURT(18, (reader) -> Hurt.INSTANCE),
+	HURT(18, Hurt::skipByteAndGetInstance),
 	VEHICLE_DATA(19, VehicleData::new, VehicleData::new),
 	BREAK_BLOCK_PROGRESS(20, (MocapAction.FromReaderOnly)BreakBlockProgress::new),
 	MOVEMENT(21, Movement::new),
@@ -47,7 +47,8 @@ public enum ActionType
 	RESPAWN(24, (reader) -> Respawn.INSTANCE),
 	CHAT_MESSAGE(25, ChatMessage::new),
 	SET_SPECTATOR(26, SetSpectator::new, SetSpectator::new),
-	DUMMY(27, (reader) -> DummyAction.INSTANCE);
+	DUMMY(27, (reader) -> DummyAction.INSTANCE),
+	CLOSE_CONTAINER(28, (reader) -> CloseContainer.INSTANCE);
 
 	public final byte id;
 

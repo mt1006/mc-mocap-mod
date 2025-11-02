@@ -71,7 +71,7 @@ public class MocapExtensionImpl implements MocapExtension
 
 	@Override public Collection<? extends MocapActiveRecordingActions> findRecordingByRecordedPlayerUUID(UUID uuid)
 	{
-		return RecordingManager.byRecordedPlayerUUID(uuid);
+		return RecordingManager.byRecordedPlayer(uuid);
 	}
 
 	@Override public Collection<? extends MocapActiveRecordingActions.TrackedEntity> findTrackedEntities(Entity entity)
