@@ -9,6 +9,7 @@ import net.mt1006.mocap.command.converter.AlphaConverter;
 import net.mt1006.mocap.command.converter.AlphaMovement;
 import net.mt1006.mocap.mocap.actions.deprecated.HeadRotation;
 import net.mt1006.mocap.mocap.actions.deprecated.MovementLegacy;
+import net.mt1006.mocap.mocap.actions.deprecated.SetEffectColor;
 import net.mt1006.mocap.mocap.files.RecordingData;
 import net.mt1006.mocap.mocap.files.RecordingFiles;
 import org.jetbrains.annotations.Nullable;
@@ -32,7 +33,7 @@ public enum ActionType
 	BREAK_BLOCK(9, BreakBlock::new),
 	PLACE_BLOCK(10, PlaceBlock::new),
 	RIGHT_CLICK_BLOCK(11, (MocapAction.FromReaderOnly)RightClickBlock::new),
-	SET_EFFECT_COLOR(12, SetEffectColor::new, SetEffectColor::new),
+	SET_EFFECT_COLOR(12, SetEffectColor::new), // deprecated
 	SET_ARROW_COUNT(13, SetArrowCount::new, SetArrowCount::new),
 	SLEEP(14, Sleep::new, Sleep::new),
 	PLACE_BLOCK_SILENTLY(15, PlaceBlockSilently::new),
@@ -48,7 +49,8 @@ public enum ActionType
 	CHAT_MESSAGE(25, ChatMessage::new),
 	SET_SPECTATOR(26, SetSpectator::new, SetSpectator::new),
 	DUMMY(27, (reader) -> DummyAction.INSTANCE),
-	CLOSE_CONTAINER(28, (reader) -> CloseContainer.INSTANCE);
+	CLOSE_CONTAINER(28, (reader) -> CloseContainer.INSTANCE),
+	SET_EFFECT_PARTICLES(29, SetEffectParticles::new, SetEffectParticles::new);
 
 	public final byte id;
 
