@@ -493,18 +493,15 @@ public class RecordingData implements MocapRecordingData
 
 		@Override protected void save(MocapAction.Writer writer)
 		{
-			List<Property<?>> properties = new ArrayList<>();
 			writer.addInt(size());
 
 			for (BlockState blockState : idToRef.subList(1, idToRef.size()))
 			{
-				properties.clear();
-				properties.addAll(blockState.getProperties());
-
+				Collection<Property<?>> properties = blockState.getProperties();
 				if (properties.size() > Short.MAX_VALUE)
 				{
 					MocapMod.LOGGER.warn("BlockState properties count limit reached ({})!", properties.size());
-					properties.clear();
+					properties = List.of();
 				}
 
 				writer.addString(resLocToStr(BuiltInRegistries.BLOCK.getKey(blockState.getBlock())));
