@@ -8,6 +8,8 @@ import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.entity.animal.horse.Horse;
 import net.minecraft.world.entity.animal.horse.Llama;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.vehicle.AbstractMinecart;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.ItemStack;
@@ -16,10 +18,7 @@ import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
 import net.mt1006.mocap.api.v1.extension.actions.MocapAction;
 import net.mt1006.mocap.api.v1.extension.actions.MocapActionContext;
 import net.mt1006.mocap.api.v1.extension.actions.MocapStateAction;
-import net.mt1006.mocap.mixin.fields.AbstractHorseFields;
-import net.mt1006.mocap.mixin.fields.BoatFields;
-import net.mt1006.mocap.mixin.fields.HorseFields;
-import net.mt1006.mocap.mixin.fields.LlamaFields;
+import net.mt1006.mocap.mixin.fields.*;
 import net.mt1006.mocap.utils.EntityData;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,7 +34,7 @@ public class SetNonPlayerEntityData implements MocapStateAction
 	private static final byte HAS_INT3 =   0b00100000;
 	private static final byte HAS_FLOAT1 = 0b01000000;
 
-	private final boolean flag1;             // Camel - is dashing; AbstractChestedHorse - has chest; Boat - is left paddle turning
+	private final boolean flag1;             // Camel - is dashing; AbstractChestedHorse - has chest; Boat - is left paddle turning; AbstractArrow - is in ground
 	private final boolean flag2;             // AgeableMob - is baby; Boat - is right paddle turning
 	private final @Nullable Byte byte1;      // AbstractHorse
 	private final @Nullable Integer int1;    // Horse/Llama - variant; Boat - time since last hit; AbstractMinecart - shaking power
@@ -80,6 +79,11 @@ public class SetNonPlayerEntityData implements MocapStateAction
 					minecart.getHurtDir(),
 					null,
 					minecart.getDamage());
+		}
+		else if (entity instanceof AbstractArrow) // includes trident
+		{
+			boolean flag1 = ((AbstractArrowFields)entity).callIsInGround();
+			return new SetNonPlayerEntityData(flag1, false, null, null, null, null, null);
 		}
 		else
 		{
@@ -185,6 +189,10 @@ public class SetNonPlayerEntityData implements MocapStateAction
 			minecart.setHurtTime(int1);
 			minecart.setHurtDir(int2);
 			minecart.setDamage(float1);
+		}
+		else if (entity instanceof AbstractArrow)
+		{
+			((AbstractArrowFields)entity).callSetInGround(flag1);
 		}
 
 		return MocapAction.Result.OK;

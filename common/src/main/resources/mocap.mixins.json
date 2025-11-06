@@ -8,6 +8,7 @@
 		"EntityMixin",
 		"LivingEntityMethodMixin",
 		"ServerLevelMixin",
+		"fields.AbstractArrowFields",
 		"fields.AbstractHorseFields",
 		"fields.AvatarMixin",
 		"fields.BoatFields",
