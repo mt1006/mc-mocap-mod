@@ -25,7 +25,7 @@ import java.util.List;
 public class ChangeItem implements MocapStateAction
 {
 	private static final int ITEM_COUNT_LEGACY = 6;
-	private static final int ITEM_COUNT = 7;
+	private static final int ITEM_COUNT = 8;
 	private final byte itemCount;
 	private final List<ItemData> items = new ArrayList<>();
 
@@ -45,7 +45,7 @@ public class ChangeItem implements MocapStateAction
 		addItem(entity.getItemBySlot(EquipmentSlot.CHEST), ops);
 		addItem(entity.getItemBySlot(EquipmentSlot.HEAD), ops);
 		addItem(entity.getItemBySlot(EquipmentSlot.BODY), ops);
-		//TODO: add SADDLE?
+		addItem(entity.getItemBySlot(EquipmentSlot.SADDLE), ops);
 
 		int itemCounter = 0;
 		for (int i = 0; i < ITEM_COUNT; i++)
@@ -70,18 +70,7 @@ public class ChangeItem implements MocapStateAction
 			itemCount = (byte)(firstByte != Byte.MIN_VALUE ? -firstByte : 0);
 		}
 
-		//TODO: fix, this most likely won't work when itemCount > ITEM_COUNT
-		if (itemCount > ITEM_COUNT)
-		{
-			// Shouldn't happen, unless loading recording from newer mc version
-			for (int i = 0; i < ITEM_COUNT; i++) { items.add(new ItemData(reader, data)); }
-			for (int i = ITEM_COUNT; i < itemCount; i++) { new ItemData(reader, data); }
-		}
-		else
-		{
-			for (int i = 0; i < itemCount; i++) { items.add(new ItemData(reader, data)); }
-			for (int i = itemCount; i < ITEM_COUNT; i++) { items.add(ItemData.EMPTY); }
-		}
+		for (int i = 0; i < itemCount; i++) { items.add(new ItemData(reader, data)); }
 	}
 
 	private void addItem(@Nullable ItemStack itemStack, DynamicOps<Tag> ops)
@@ -94,7 +83,7 @@ public class ChangeItem implements MocapStateAction
 		DynamicOps<Tag> ops = entity.registryAccess().createSerializationContext(NbtOps.INSTANCE);
 		for (int i = 0; i < ITEM_COUNT; i++)
 		{
-			ItemData item = items.get(i);
+			ItemData item = i < itemCount ? items.get(i) : ItemData.EMPTY;
 			ItemStack itemStack = item.getItemStack(ops);
 
 			switch (i)
@@ -106,6 +95,7 @@ public class ChangeItem implements MocapStateAction
 				case 4 -> entity.setItemSlot(EquipmentSlot.CHEST, itemStack);
 				case 5 -> entity.setItemSlot(EquipmentSlot.HEAD, itemStack);
 				case 6 -> entity.setItemSlot(EquipmentSlot.BODY, itemStack);
+				case 7 -> entity.setItemSlot(EquipmentSlot.SADDLE, itemStack);
 			}
 
 			// for non-player living entities it's detected in their "tick" method
@@ -115,9 +105,9 @@ public class ChangeItem implements MocapStateAction
 
 	@Override public boolean differs(MocapStateAction previousAction)
 	{
-		if (items.size() != ((ChangeItem)previousAction).items.size()) { return true; }
+		if (itemCount != ((ChangeItem)previousAction).itemCount) { return true; }
 
-		for (int i = 0; i < items.size(); i++)
+		for (int i = 0; i < itemCount; i++)
 		{
 			ItemData item1 = items.get(i);
 			ItemData item2 = ((ChangeItem)previousAction).items.get(i);
@@ -153,12 +143,6 @@ public class ChangeItem implements MocapStateAction
 
 	@Override public Result execute(MocapActionContext ctx)
 	{
-		if (items.size() != ITEM_COUNT)
-		{
-			MocapMod.LOGGER.error("Item list size doesn't match proper item count!");
-			return Result.ERROR;
-		}
-
 		LivingEntity livingEntity = ctx.getLivingEntityOrDummyPlayer();
 		if (livingEntity == null) { return Result.IGNORED; }
 
