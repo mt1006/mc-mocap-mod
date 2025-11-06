@@ -6,7 +6,6 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
-import net.mt1006.mocap.MocapMod;
 import net.mt1006.mocap.api.v1.io.CommandOutput;
 import net.mt1006.mocap.api.v1.modifiers.MocapEntityFilterBuilder;
 import net.mt1006.mocap.mocap.files.Files;

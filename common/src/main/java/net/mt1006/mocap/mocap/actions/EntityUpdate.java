@@ -149,6 +149,7 @@ public class EntityUpdate implements MocapAction
 				return Result.OK;
 
 			case KILL:
+				//TODO: fix slime splitting into dummy slimes
 				entity.invulnerableTime = 0; // for sound effect
 				entity.kill(ctx.getLevel());
 				return Result.OK;
