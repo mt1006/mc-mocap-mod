@@ -24,12 +24,10 @@ import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
 import net.mt1006.mocap.api.v1.extension.actions.MocapAction;
 import net.mt1006.mocap.api.v1.extension.actions.MocapBlockAction;
 import net.mt1006.mocap.api.v1.extension.actions.MocapStateAction;
+import net.mt1006.mocap.api.v1.extension.actions.MocapTickAction;
 import net.mt1006.mocap.api.v1.io.CommandOutput;
 import net.mt1006.mocap.command.converter.AlphaConverter;
-import net.mt1006.mocap.mocap.actions.ActionType;
-import net.mt1006.mocap.mocap.actions.BlockStateData;
-import net.mt1006.mocap.mocap.actions.NextTick;
-import net.mt1006.mocap.mocap.actions.SkipTicks;
+import net.mt1006.mocap.mocap.actions.*;
 import net.mt1006.mocap.mocap.playing.playable.RecordingFile;
 import net.mt1006.mocap.mocap.playing.playback.ActionContext;
 import net.mt1006.mocap.mocap.playing.playback.PreExecuteContext;
@@ -132,8 +130,7 @@ public class RecordingData implements MocapRecordingData
 
 			actions.add(action);
 			if (action instanceof MocapBlockAction) { blockActions.add((MocapBlockAction)action); }
-			else if (action instanceof NextTick) { tickCount++; }
-			else if (action instanceof SkipTicks) { tickCount += ((SkipTicks)action).number; }
+			else if (action instanceof MocapTickAction tickAction) { tickCount += tickAction.getTickCount(); }
 		}
 		return true;
 	}
@@ -330,9 +327,10 @@ public class RecordingData implements MocapRecordingData
 		{
 			MocapAction nextAction = actions.get(pos);
 			if (!config.getBlockActionsPlayback() && nextAction instanceof BlockStateData) { return MocapAction.Result.OK; }
-			if (initialAction && (!(nextAction instanceof MocapStateAction stateAction) || !stateAction.shouldBeInitialized()))
+			if (initialAction)
 			{
-				return MocapAction.Result.IGNORED;
+				if (nextAction instanceof MocapTickAction tickAction && tickAction.endsTick()) { return MocapAction.Result.NEXT_TICK; }
+				if ((!(nextAction instanceof MocapStateAction stateAction) || !stateAction.shouldBeInitialized())) { return MocapAction.Result.IGNORED; }
 			}
 
 			return nextAction.execute(ctx);

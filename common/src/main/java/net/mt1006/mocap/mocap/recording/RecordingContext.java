@@ -261,9 +261,9 @@ public class RecordingContext implements MocapActiveRecordingActions
 		{
 			data.actions.set(lastElementPos, new SkipTicks(2));
 		}
-		else if (lastElement instanceof SkipTicks && ((SkipTicks)lastElement).canBeModified())
+		else if (lastElement instanceof SkipTicks skipTicks && skipTicks.canBeModified())
 		{
-			data.actions.set(lastElementPos, new SkipTicks(((SkipTicks)lastElement).number + 1));
+			data.actions.set(lastElementPos, skipTicks.increment());
 		}
 		else
 		{

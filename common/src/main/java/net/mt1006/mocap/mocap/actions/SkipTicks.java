@@ -1,12 +1,12 @@
 package net.mt1006.mocap.mocap.actions;
 
 import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
-import net.mt1006.mocap.api.v1.extension.actions.MocapAction;
 import net.mt1006.mocap.api.v1.extension.actions.MocapActionContext;
+import net.mt1006.mocap.api.v1.extension.actions.MocapTickAction;
 
-public class SkipTicks implements MocapAction
+public class SkipTicks implements MocapTickAction
 {
-	public final int number;
+	private final int number;
 
 	public SkipTicks(int number)
 	{
@@ -22,6 +22,21 @@ public class SkipTicks implements MocapAction
 	public boolean canBeModified()
 	{
 		return number < 255;
+	}
+
+	public SkipTicks increment()
+	{
+		return new SkipTicks(number + 1);
+	}
+
+	@Override public int getTickCount()
+	{
+		return number;
+	}
+
+	@Override public boolean endsTick()
+	{
+		return number != 0;
 	}
 
 	@Override public void write(Writer writer, MocapRecordingData data)
