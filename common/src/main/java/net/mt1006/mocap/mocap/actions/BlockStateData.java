@@ -26,6 +26,11 @@ public class BlockStateData implements MocapBlockState
 		blockState = data.blockStateFromId(reader.readInt());
 	}
 
+	@Override public BlockState get()
+	{
+		return blockState;
+	}
+
 	@Override public void prepareWrite(MocapRecordingData data)
 	{
 		idToWrite = data.provideBlockStateId(blockState);

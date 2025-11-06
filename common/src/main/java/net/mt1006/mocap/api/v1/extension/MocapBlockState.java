@@ -13,6 +13,8 @@ public interface MocapBlockState
 		return new BlockStateData(blockState);
 	}
 
+	BlockState get();
+
 	void prepareWrite(MocapRecordingData data);
 
 	void write(MocapAction.Writer writer);
