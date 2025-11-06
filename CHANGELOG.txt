@@ -13,6 +13,11 @@
 -Added "transformations/scale" playback modifier (thanks to netcore10 for suggestion).
 -Added "transformations/mirror" playback modifier (thanks to Sky for suggestion).
 -Added "transformations/rotation" playback modifier.
+-Added "time" playback modifier group and moved "startDelay" into it as "wait_on_start" (thanks to damiendier for suggesion).
+-Added "time/start_delay" playback modifier (different from previous "startDelay" modifier).
+-Added "time/wait_on_end" playback modifier.
+-Added "time/waitForParentEnd" playback modifier (true by default).
+-Added "time/loop" playback modifier (thanks to vini14zin for suggestion).
 -Added "entity_filter" playback modifier.
 -Added pattern matching with "*" for "scenes add_to" playable argument.
 -Added ability to hurt player and other entities in the playback and setting which controls it - "invulnerable_playback" (true by default).
@@ -28,6 +33,8 @@
 -Added setting "on_change_dimension" which determines what will happen when recorded player changes dimension (end_recording by default).
 -Added setting "assign_dimension" to assign dimension to a recording (true by default).
 -Added setting "dimension_source" to specify dimension in which dimension playback will start (assigned_or_current by default).
+-Added setting "quick_discard" to enable or disable quick discard by executing "stop" two times (true by default).
+-Added setting "required_extensions" to change how lack of recording extensions is handled.
 -Merged "/mocap scenes list_elements" into "/mocap scenes list" and "/mocap scenes element_info" into "/mocap scenes info".
 -Split "player_info" modifier into "player_name" and "player_skin".
 -Removed position offset arguments from "/mocap scenes add_to".
@@ -61,6 +68,7 @@
 -Improvements to error messages.
 -General command output improvements.
 -Improved output of trying to change setting value with "/mocap settings" command, when value remained unchanged.
+-Improved saving of automatically stopped recordings - when quick discard is enabled, stop command now needs to be used two times in order to prevent accidental discards.
 -Renamed "settings.mcmocap_conf" to "settings.txt".
 -Removed argument value limits that existed for some settings in "/mocap settings" command.
 -Output of "/mocap recordings list" and "/mocap scenes list" is now alphabetically sorted.
@@ -79,6 +87,11 @@
 -Fixed "recordPlayerDeath" setting not working (by removing it) (thanks to damiendier for reporting).
 -Fixed recording not stopping after recorded player leaves the server (thanks to damiendier for reporting).
 -Fixed playback of a spectator being only invisible instead of actually being a spectator (thanks to damiendier for reporting).
+-Fixed closing chest not being recorded.
+-Fixed 1.21+ special effect particles not being visible.
+-Fixed saddles not working on newer Minecraft versions.
+-Fixed damage going through shields.
+-Fixed damage spam issue on Fabric.
 -Minor spelling improvements.
 -Minor improvements to error detection.
 -Added Chinese [traditional] translation (thanks to dirtTW).
