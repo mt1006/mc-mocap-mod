@@ -7,6 +7,7 @@ import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.mt1006.mocap.MocapMod;
 import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
 import net.mt1006.mocap.api.v1.extension.actions.MocapActionContext;
 import net.mt1006.mocap.api.v1.extension.actions.MocapStateAction;
@@ -43,7 +44,7 @@ public class SetEffectParticles implements MocapStateAction
 
 	public SetEffectParticles(Reader reader)
 	{
-		int count = reader.readPackedSize();
+		int count = reader.readPackedInt();
 		for (int i = 0; i < count; i++)
 		{
 			String particleJson = reader.readString();
@@ -66,7 +67,7 @@ public class SetEffectParticles implements MocapStateAction
 
 	@Override public void write(Writer writer, MocapRecordingData data)
 	{
-		writer.addPackedSize(particleJsonSet.size());
+		writer.addPackedInt(particleJsonSet.size());
 		particleJsonSet.forEach(writer::addString);
 
 		writer.addBoolean(ambience);

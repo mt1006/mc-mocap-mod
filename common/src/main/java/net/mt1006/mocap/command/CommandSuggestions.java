@@ -127,8 +127,6 @@ public class CommandSuggestions
 
 	public static CompletableFuture<Suggestions> entityFilter(CommandContext<?> ctx, SuggestionsBuilder builder)
 	{
-		long a = System.nanoTime();
-
 		String remaining = builder.getRemaining();
 		int entryStart = remaining.lastIndexOf(';') + 1;
 		String entry = remaining.substring(entryStart);
@@ -178,7 +176,6 @@ public class CommandSuggestions
 			builder.suggest("$");
 		}
 
-		MocapMod.LOGGER.warn("{}", System.nanoTime() - a);
 		return builder.buildFuture();
 	}
 

@@ -209,7 +209,7 @@ public class RecordingFiles
 		@Override public void addString(String val)
 		{
 			byte[] bytes = val.getBytes(StandardCharsets.UTF_8);
-			addPackedSize(bytes.length);
+			addPackedInt(bytes.length);
 			for (byte b : bytes)
 			{
 				recording.add(b);
@@ -236,9 +236,9 @@ public class RecordingFiles
 			addInt(blockPos.getZ());
 		}
 
-		@Override public void addPackedSize(int size)
+		@Override public void addPackedInt(int size)
 		{
-			if (size < 255)
+			if (size >= 0 && size < 255)
 			{
 				addByte((byte)size);
 			}
@@ -346,7 +346,7 @@ public class RecordingFiles
 		{
 			if (convertStrings && !legacyString) { return readAlphaString(); } //TODO: [CONVERTER] remove
 
-			int len = legacyString ? readInt() : readPackedSize();
+			int len = legacyString ? readInt() : readPackedInt();
 			String str = new String(recording, offset, len, StandardCharsets.UTF_8);
 			offset += len;
 			return str;
@@ -386,7 +386,7 @@ public class RecordingFiles
 			return new BlockPos(readInt(), readInt(), readInt());
 		}
 
-		@Override public int readPackedSize()
+		@Override public int readPackedInt()
 		{
 			int val = Byte.toUnsignedInt(readByte());
 			return (val == 255) ? readInt() : val;
@@ -446,7 +446,7 @@ public class RecordingFiles
 		@Override public UUID readUUID() { return UUID_ZERO; }
 		@Override public Vec3 readVec3() { return Vec3.ZERO; }
 		@Override public BlockPos readBlockPos() { return BlockPos.ZERO; }
-		@Override public int readPackedSize() { return 0; }
+		@Override public int readPackedInt() { return 0; }
 		@Override public void shift(int val) {}
 		@Override public boolean isDummy() { return true; }
 	}

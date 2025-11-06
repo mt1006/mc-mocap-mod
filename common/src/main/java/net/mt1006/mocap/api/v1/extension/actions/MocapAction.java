@@ -35,7 +35,7 @@ public interface MocapAction
 		void addUUID(UUID val);
 		void addVec3(Vec3 vec);
 		void addBlockPos(BlockPos blockPos);
-		void addPackedSize(int size);
+		void addPackedInt(int size);
 	}
 
 	interface Reader
@@ -51,7 +51,7 @@ public interface MocapAction
 		UUID readUUID();
 		Vec3 readVec3();
 		BlockPos readBlockPos();
-		int readPackedSize();
+		int readPackedInt();
 		void shift(int val);
 		boolean isDummy();
 	}

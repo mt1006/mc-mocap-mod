@@ -34,7 +34,6 @@ public class SkipTicks implements MocapAction
 	{
 		if (ctx.shouldStopRepeat(number)) { return Result.OK; }
 
-		//MocapMod.LOGGER.warn("SKIP TICK (ST/{})", number); //TODO: remove
 		ctx.incrementRepeatCounter();
 		return Result.REPEAT_TICK;
 	}
