@@ -1,41 +1,24 @@
-package net.mt1006.mocap.mocap.actions;
+package net.mt1006.mocap.mocap.actions.deprecated;
 
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.HumanoidArm;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
+import net.mt1006.mocap.api.v1.extension.actions.MocapAction;
 import net.mt1006.mocap.api.v1.extension.actions.MocapActionContext;
-import net.mt1006.mocap.api.v1.extension.actions.MocapStateAction;
-import org.jetbrains.annotations.Nullable;
 
-public class SetMainHand implements MocapStateAction
+public class SetMainHand implements MocapAction
 {
 	private final HumanoidArm mainHand;
-
-	public static @Nullable SetMainHand fromEntity(Entity entity)
-	{
-		return (entity instanceof LivingEntity livingEntity) ? new SetMainHand(livingEntity) : null;
-	}
-
-	private SetMainHand(LivingEntity entity)
-	{
-		mainHand = entity.getMainArm();
-	}
 
 	public SetMainHand(Reader reader)
 	{
 		mainHand = reader.readBoolean() ? HumanoidArm.RIGHT : HumanoidArm.LEFT;
 	}
 
-	@Override public boolean differs(MocapStateAction previousAction)
-	{
-		return mainHand != ((SetMainHand)previousAction).mainHand;
-	}
-
 	@Override public void write(Writer writer, MocapRecordingData data)
 	{
+		//TODO: [CONVERTER] remove
 		writer.addBoolean(mainHand == HumanoidArm.RIGHT);
 	}
 

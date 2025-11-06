@@ -23,6 +23,7 @@ public class SetEffectColor implements MocapAction
 
 	@Override public void write(Writer writer, MocapRecordingData data)
 	{
+		//TODO: [CONVERTER] remove
 		writer.addInt(color);
 		writer.addBoolean(ambience);
 	}

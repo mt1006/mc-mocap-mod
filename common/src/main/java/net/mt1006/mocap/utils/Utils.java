@@ -1,6 +1,10 @@
 package net.mt1006.mocap.utils;
 
+import com.google.gson.JsonParser;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.serialization.Decoder;
+import com.mojang.serialization.Encoder;
+import com.mojang.serialization.JsonOps;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.network.chat.ClickEvent;
@@ -64,6 +68,16 @@ public class Utils
 	public static CompoundTag nbtFromString(String nbtString) throws CommandSyntaxException
 	{
 		return TagParser.parseCompoundFully(nbtString);
+	}
+
+	public static <T> String encodeToJsonStr(Encoder<T> encoder, T component) throws IllegalStateException
+	{
+		return encoder.encodeStart(JsonOps.INSTANCE, component).getOrThrow().toString();
+	}
+
+	public static <T> T decodeFromJsonStr(Decoder<T> decoder, String jsonStr) throws IllegalStateException
+	{
+		return decoder.decode(JsonOps.INSTANCE, new JsonParser().parse(jsonStr)).getOrThrow().getFirst();
 	}
 
 	private static boolean supportsTranslatable(@Nullable Entity entity)

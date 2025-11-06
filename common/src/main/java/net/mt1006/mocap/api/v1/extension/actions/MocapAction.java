@@ -31,11 +31,12 @@ public interface MocapAction
 		void addFloat(float val);
 		void addDouble(double val);
 		void addBoolean(boolean val);
+		void addByteArray(byte[] arr);
 		void addString(String val);
 		void addUUID(UUID val);
 		void addVec3(Vec3 vec);
 		void addBlockPos(BlockPos blockPos);
-		void addPackedSize(int size);
+		void addPackedInt(int val);
 	}
 
 	interface Reader
@@ -48,10 +49,11 @@ public interface MocapAction
 		double readDouble();
 		boolean readBoolean();
 		String readString();
+		byte[] readByteArray(int size);
 		UUID readUUID();
 		Vec3 readVec3();
 		BlockPos readBlockPos();
-		int readPackedSize();
+		int readPackedInt();
 		void shift(int val);
 		boolean isDummy();
 	}

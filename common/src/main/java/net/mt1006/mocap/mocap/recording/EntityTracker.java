@@ -5,7 +5,9 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.mt1006.mocap.api.v1.extension.MocapActiveRecordingActions;
 import net.mt1006.mocap.mixin.fields.LevelFields;
+import net.mt1006.mocap.mocap.actions.EntityAction;
 import net.mt1006.mocap.mocap.actions.EntityUpdate;
+import net.mt1006.mocap.mocap.actions.SetEntityData;
 import net.mt1006.mocap.mocap.playing.PlaybackManager;
 import org.jetbrains.annotations.Nullable;
 
@@ -144,6 +146,7 @@ public class EntityTracker
 			state.saveTrackedEntityDifference(ctx.data.actions, id, previousState);
 			previousState = state;
 
+			SetEntityData.getDirtyActions(entity).forEach((a) -> ctx.data.actions.add(new EntityAction(id, a)));
 			positionTracker.onTick(ctx.data.actions, id);
 			lastTick = ctx.getTick();
 

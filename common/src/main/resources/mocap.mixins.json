@@ -8,15 +8,19 @@
 		"EntityMixin",
 		"LivingEntityMethodMixin",
 		"ServerLevelMixin",
+		"SynchedEntityDataItemMixin",
+		"SynchedEntityDataMixin",
 		"fields.AbstractHorseFields",
 		"fields.AvatarMixin",
 		"fields.BoatFields",
+		"fields.CopperGolemStateFields",
 		"fields.EntityFields",
 		"fields.EntityIdFields",
 		"fields.HorseFields",
 		"fields.LevelFields",
 		"fields.LivingEntityFields",
-		"fields.LlamaFields"
+		"fields.LlamaFields",
+		"fields.SynchedEntityDataFields"
 	],
 	"client":
 	[

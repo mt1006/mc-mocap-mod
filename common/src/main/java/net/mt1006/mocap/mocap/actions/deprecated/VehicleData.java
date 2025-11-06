@@ -1,4 +1,4 @@
-package net.mt1006.mocap.mocap.actions;
+package net.mt1006.mocap.mocap.actions.deprecated;
 
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.Entity;
@@ -7,22 +7,20 @@ import net.minecraft.world.entity.animal.horse.AbstractChestedHorse;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.entity.animal.horse.Horse;
 import net.minecraft.world.entity.animal.horse.Llama;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.AbstractMinecart;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
+import net.mt1006.mocap.api.v1.extension.actions.MocapAction;
 import net.mt1006.mocap.api.v1.extension.actions.MocapActionContext;
-import net.mt1006.mocap.api.v1.extension.actions.MocapStateAction;
 import net.mt1006.mocap.mixin.fields.AbstractHorseFields;
 import net.mt1006.mocap.mixin.fields.BoatFields;
 import net.mt1006.mocap.mixin.fields.HorseFields;
 import net.mt1006.mocap.mixin.fields.LlamaFields;
 import net.mt1006.mocap.utils.EntityData;
-import org.jetbrains.annotations.Nullable;
 
-public class VehicleData implements MocapStateAction
+public class VehicleData implements MocapAction
 {
 	private final boolean used;
 	private final byte flags;      // AbstractHorse
@@ -33,115 +31,21 @@ public class VehicleData implements MocapStateAction
 	private final int int3;        // Boat - splash timer; AbstractMinecart - shaking multiplier
 	private final float float1;    // Boat - damage taken
 
-	public static @Nullable VehicleData fromEntity(Entity entity)
-	{
-		if (entity instanceof Player) { return null; }
-
-		if (entity instanceof AbstractHorse abstractHorse)
-		{
-			byte flags = 0;
-			boolean flag1 = false;
-			int int1 = 0;
-
-			if (abstractHorse.isTamed()) { flags |= 0x02; }
-			if (abstractHorse.isSaddled()) { flags |= 0x04; }
-			if (abstractHorse.isBred()) { flags |= 0x08; }
-			if (abstractHorse.isStanding()) { flags |= 0x20; }
-			if ((EntityData.ABSTRACT_HORSE_FLAGS.valOrDef(entity, (byte)0) & 0x40) != 0) { flags |= 0x40; }
-
-			if (entity instanceof Horse) { int1 = ((HorseFields)entity).callGetTypeVariant(); }
-			else if (entity instanceof AbstractChestedHorse) { flag1 = ((AbstractChestedHorse)entity).hasChest(); }
-			else if (entity instanceof Camel) { flag1 = ((Camel)entity).isDashing(); }
-
-			if (entity instanceof Llama) { int1 = ((Llama)entity).getVariant().getId(); }
-
-			return new VehicleData(flags, flag1, false, int1, 0, 0, 0.0f);
-		}
-		else if (entity instanceof Boat boat)
-		{
-			return new VehicleData(
-					(byte)0,
-					boat.getPaddleState(0),
-					boat.getPaddleState(1),
-					boat.getHurtTime(),
-					boat.getHurtDir(),
-					((BoatFields)entity).callGetBubbleTime(),
-					boat.getDamage());
-		}
-		else if (entity instanceof AbstractMinecart minecart)
-		{
-			return new VehicleData(
-					(byte)0, false, false,
-					minecart.getHurtTime(),
-					minecart.getHurtDir(),
-					0,
-					minecart.getDamage());
-		}
-		else
-		{
-			return null;
-		}
-	}
-
-	private VehicleData(byte flags, boolean flag1, boolean flag2, int int1, int int2, int int3, float float1)
-	{
-		this.used = true;
-		this.flags = flags;
-		this.flag1 = flag1;
-		this.flag2 = flag2;
-		this.int1 = int1;
-		this.int2 = int2;
-		this.int3 = int3;
-		this.float1 = float1;
-	}
-
 	public VehicleData(Reader reader)
 	{
 		used = reader.readBoolean();
-		if (used)
-		{
-			flags = reader.readByte();
-			flag1 = reader.readBoolean();
-			flag2 = reader.readBoolean();
-			int1 = reader.readInt();
-			int2 = reader.readInt();
-			int3 = reader.readInt();
-			float1 = reader.readFloat();
-		}
-		else
-		{
-			flags = 0;
-			flag1 = false;
-			flag2 = false;
-			int1 = 0;
-			int2 = 0;
-			int3 = 0;
-			float1 = 0.0f;
-		}
-	}
-
-	@Override public boolean differs(MocapStateAction previousAction)
-	{
-		VehicleData vehicleData = (VehicleData)previousAction;
-
-		if (!used && !vehicleData.used) { return false; }
-		if (used != vehicleData.used) { return true; }
-		return flags != vehicleData.flags
-				|| flag1 != vehicleData.flag1
-				|| flag2 != vehicleData.flag2
-				|| int1 != vehicleData.int1
-				|| int2 != vehicleData.int2
-				|| int3 != vehicleData.int3
-				|| float1 != vehicleData.float1;
-	}
-
-	@Override public boolean shouldBeInitialized()
-	{
-		return used;
+		flags = used ? reader.readByte() : 0;
+		flag1 = used && reader.readBoolean();
+		flag2 = used && reader.readBoolean();
+		int1 = used ? reader.readInt() : 0;
+		int2 = used ? reader.readInt() : 0;
+		int3 = used ? reader.readInt() : 0;
+		float1 = used ? reader.readFloat() : 0;
 	}
 
 	@Override public void write(Writer writer, MocapRecordingData data)
 	{
+		//TODO: [CONVERTER] remove
 		writer.addBoolean(used);
 		if (used)
 		{

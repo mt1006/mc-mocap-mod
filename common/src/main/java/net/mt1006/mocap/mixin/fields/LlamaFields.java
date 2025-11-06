@@ -7,6 +7,5 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 @Mixin(Llama.class)
 public interface LlamaFields
 {
-	@Invoker
-	void callSetVariant(Llama.Variant variant);
+	@Invoker void callSetVariant(Llama.Variant variant);
 }

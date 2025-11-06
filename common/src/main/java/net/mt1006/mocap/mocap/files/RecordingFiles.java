@@ -206,10 +206,15 @@ public class RecordingFiles
 			recording.add(val ? (byte)1 : (byte)0);
 		}
 
+		@Override public void addByteArray(byte[] arr)
+		{
+			for (byte b : arr) { recording.add(b); }
+		}
+
 		@Override public void addString(String val)
 		{
 			byte[] bytes = val.getBytes(StandardCharsets.UTF_8);
-			addPackedSize(bytes.length);
+			addPackedInt(bytes.length);
 			for (byte b : bytes)
 			{
 				recording.add(b);
@@ -236,16 +241,17 @@ public class RecordingFiles
 			addInt(blockPos.getZ());
 		}
 
-		@Override public void addPackedSize(int size)
+		@Override public void addPackedInt(int val)
 		{
-			if (size < 255)
+			MocapMod.LOGGER.warn("WRITE: {} {}", recording.size(), val);
+			if (val >= 0 && val < 255)
 			{
-				addByte((byte)size);
+				addByte((byte)val);
 			}
 			else
 			{
 				addByte((byte)255);
-				addInt(size);
+				addInt(val);
 			}
 		}
 
@@ -325,16 +331,12 @@ public class RecordingFiles
 
 		@Override public float readFloat()
 		{
-			float retVal = byteArrayToFloat(Arrays.copyOfRange(recording, offset, offset + 4));
-			offset += 4;
-			return retVal;
+			return byteArrayToFloat(Arrays.copyOfRange(recording, offset, offset += 4));
 		}
 
 		@Override public double readDouble()
 		{
-			double retVal = byteArrayToDouble(Arrays.copyOfRange(recording, offset, offset + 8));
-			offset += 8;
-			return retVal;
+			return byteArrayToDouble(Arrays.copyOfRange(recording, offset, offset += 8));
 		}
 
 		@Override public boolean readBoolean()
@@ -346,10 +348,15 @@ public class RecordingFiles
 		{
 			if (convertStrings && !legacyString) { return readAlphaString(); } //TODO: [CONVERTER] remove
 
-			int len = legacyString ? readInt() : readPackedSize();
+			int len = legacyString ? readInt() : readPackedInt();
 			String str = new String(recording, offset, len, StandardCharsets.UTF_8);
 			offset += len;
 			return str;
+		}
+
+		@Override public byte[] readByteArray(int size)
+		{
+			return Arrays.copyOfRange(recording, offset, offset += size);
 		}
 
 		@Override public UUID readUUID()
@@ -386,9 +393,10 @@ public class RecordingFiles
 			return new BlockPos(readInt(), readInt(), readInt());
 		}
 
-		@Override public int readPackedSize()
+		@Override public int readPackedInt()
 		{
 			int val = Byte.toUnsignedInt(readByte());
+			MocapMod.LOGGER.warn("READ: {} {}", offset, val);
 			return (val == 255) ? readInt() : val;
 		}
 
@@ -443,10 +451,11 @@ public class RecordingFiles
 		@Override public double readDouble() { return 0.0; }
 		@Override public boolean readBoolean() { return false; }
 		@Override public String readString() { return ""; }
+		@Override public byte[] readByteArray(int size) { return new byte[size]; }
 		@Override public UUID readUUID() { return UUID_ZERO; }
 		@Override public Vec3 readVec3() { return Vec3.ZERO; }
 		@Override public BlockPos readBlockPos() { return BlockPos.ZERO; }
-		@Override public int readPackedSize() { return 0; }
+		@Override public int readPackedInt() { return 0; }
 		@Override public void shift(int val) {}
 		@Override public boolean isDummy() { return true; }
 	}

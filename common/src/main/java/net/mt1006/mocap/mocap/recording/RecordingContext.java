@@ -124,7 +124,6 @@ public class RecordingContext implements MocapActiveRecordingActions
 		else { entityState = newEntityState; }
 	}
 
-	//TODO: safe saving
 	private void onTickRecording()
 	{
 		tick++;
@@ -149,6 +148,7 @@ public class RecordingContext implements MocapActiveRecordingActions
 		newEntityState.saveDifference(data.actions, entityState);
 		entityState = newEntityState;
 
+		data.actions.addAll(SetEntityData.getDirtyActions(recordedPlayer));
 		positionTracker.onTick(data.actions, null);
 		entityTracker.onTick();
 

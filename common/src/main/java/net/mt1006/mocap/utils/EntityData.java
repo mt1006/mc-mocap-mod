@@ -8,7 +8,6 @@ import net.mt1006.mocap.mixin.fields.AbstractHorseFields;
 import net.mt1006.mocap.mixin.fields.AvatarMixin;
 import net.mt1006.mocap.mixin.fields.EntityFields;
 import net.mt1006.mocap.mixin.fields.LivingEntityFields;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -23,9 +22,9 @@ public class EntityData
 
 	public static class DataIndex<T>
 	{
-		private final @Nullable EntityDataAccessor<T> accessor;
+		private final EntityDataAccessor<T> accessor;
 
-		public DataIndex(@Nullable EntityDataAccessor<T> accessor)
+		public DataIndex(EntityDataAccessor<T> accessor)
 		{
 			this.accessor = accessor;
 			if (accessor == null) { MocapMod.LOGGER.error("Failed to initialize one of the data indexes!"); }

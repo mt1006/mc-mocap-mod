@@ -7,9 +7,7 @@ import net.mt1006.mocap.api.v1.extension.actions.MocapAction;
 import net.mt1006.mocap.api.v1.extension.actions.MocapStateAction;
 import net.mt1006.mocap.command.converter.AlphaConverter;
 import net.mt1006.mocap.command.converter.AlphaMovement;
-import net.mt1006.mocap.mocap.actions.deprecated.HeadRotation;
-import net.mt1006.mocap.mocap.actions.deprecated.MovementLegacy;
-import net.mt1006.mocap.mocap.actions.deprecated.SetEffectColor;
+import net.mt1006.mocap.mocap.actions.deprecated.*;
 import net.mt1006.mocap.mocap.files.RecordingData;
 import net.mt1006.mocap.mocap.files.RecordingFiles;
 import org.jetbrains.annotations.Nullable;
@@ -24,23 +22,23 @@ public enum ActionType
 	NEXT_TICK(0, (reader) -> NextTick.INSTANCE),
 	MOVEMENT_LEGACY(1, MovementLegacy::new), // deprecated
 	HEAD_ROTATION(2, HeadRotation::new), // deprecated
-	CHANGE_POSE(3, ChangePose::new, ChangePose::new),
+	CHANGE_POSE(3, ChangePose::new), // deprecated
 	CHANGE_ITEM(4, ChangeItem::new, ChangeItem::fromEntity),
-	SET_ENTITY_FLAGS(5, SetEntityFlags::new, SetEntityFlags::new),
-	SET_LIVING_ENTITY_FLAGS(6, SetLivingEntityFlags::new, SetLivingEntityFlags::fromEntity),
-	SET_MAIN_HAND(7, SetMainHand::new, SetMainHand::fromEntity),
+	SET_ENTITY_FLAGS(5, SetEntityFlags::new), // deprecated
+	SET_LIVING_ENTITY_FLAGS(6, SetLivingEntityFlags::new), // deprecated
+	SET_MAIN_HAND(7, SetMainHand::new), // deprecated
 	SWING(8, Swing::new, Swing::fromEntity),
 	BREAK_BLOCK(9, BreakBlock::new),
 	PLACE_BLOCK(10, PlaceBlock::new),
 	RIGHT_CLICK_BLOCK(11, (MocapAction.FromReaderOnly)RightClickBlock::new),
 	SET_EFFECT_COLOR(12, SetEffectColor::new), // deprecated
-	SET_ARROW_COUNT(13, SetArrowCount::new, SetArrowCount::fromEntity),
-	SLEEP(14, Sleep::new, Sleep::new),
+	SET_ARROW_COUNT(13, SetArrowCount::new), // deprecated
+	SLEEP(14, Sleep::new), // deprecated
 	PLACE_BLOCK_SILENTLY(15, PlaceBlockSilently::new),
 	ENTITY_UPDATE(16, EntityUpdate::new),
 	ENTITY_ACTION(17, EntityAction::new),
 	HURT(18, Hurt::skipByteAndGetInstance),
-	VEHICLE_DATA(19, VehicleData::new, VehicleData::fromEntity),
+	VEHICLE_DATA(19, VehicleData::new), // deprecated
 	BREAK_BLOCK_PROGRESS(20, (MocapAction.FromReaderOnly)BreakBlockProgress::new),
 	MOVEMENT(21, Movement::new),
 	SKIP_TICKS(22, SkipTicks::new),
@@ -50,8 +48,7 @@ public enum ActionType
 	SET_SPECTATOR(26, SetSpectator::new, SetSpectator::new),
 	DUMMY(27, (reader) -> DummyAction.INSTANCE),
 	CLOSE_CONTAINER(28, (reader) -> CloseContainer.INSTANCE),
-	SET_EFFECT_PARTICLES(29, SetEffectParticles::new, SetEffectParticles::fromEntity),
-	SET_IS_BABY(30, SetIsBaby::read, SetIsBaby::fromEntity);
+	SET_ENTITY_DATA(29, SetEntityData::fromReader);
 
 	public final byte id;
 
@@ -116,7 +113,7 @@ public enum ActionType
 
 			RecordingFiles.Writer actionWriter = new RecordingFiles.Writer();
 			action.write(actionWriter, data);
-			writer.addPackedSize(actionWriter.getSize());
+			writer.addPackedInt(actionWriter.getSize());
 			actionWriter.copyToWriter(writer);
 		}
 		else
@@ -163,7 +160,7 @@ public enum ActionType
 			MocapExtension extension = data.getExtension(reader.readByte());
 			id = reader.readByte();
 
-			int size = reader.readPackedSize();
+			int size = reader.readPackedInt();
 			if (extension == null)
 			{
 				reader.shift(size);

@@ -1,7 +1,5 @@
 package net.mt1006.mocap.mocap.actions;
 
-import com.google.gson.JsonParser;
-import com.mojang.serialization.JsonOps;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
@@ -11,6 +9,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
 import net.mt1006.mocap.api.v1.extension.actions.MocapAction;
 import net.mt1006.mocap.api.v1.extension.actions.MocapActionContext;
+import net.mt1006.mocap.utils.Utils;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.UUID;
@@ -19,15 +19,16 @@ public class ChatMessage implements MocapAction
 {
 	private final String messageJson;
 
-	public ChatMessage(Component component)
+	public static @Nullable ChatMessage get(Component component)
 	{
-		String message;
-		try { message = ComponentSerialization.CODEC.encodeStart(JsonOps.INSTANCE, component).getOrThrow().toString(); }
-		catch (IllegalStateException e) { message = "{}"; }
-		this.messageJson = message;
+		try
+		{
+			return new ChatMessage(Utils.encodeToJsonStr(ComponentSerialization.CODEC, component));
+		}
+		catch (IllegalStateException e) { return null; }
 	}
 
-	//TODO: [CONVERTER] remove
+	//TODO: [CONVERTER] make private
 	public ChatMessage(String messageJson)
 	{
 		this.messageJson = messageJson;
@@ -53,9 +54,11 @@ public class ChatMessage implements MocapAction
 
 		MinecraftServer server = ctx.getLevel().getServer();
 		Component message;
-		try { message = ComponentSerialization.CODEC.decode(JsonOps.INSTANCE, new JsonParser().parse(messageJson)).getOrThrow().getFirst(); }
-		catch (Exception e) { return Result.IGNORED; }
-		if (message == null) { return Result.IGNORED; }
+		try
+		{
+			message = Utils.decodeFromJsonStr(ComponentSerialization.CODEC, messageJson);
+		}
+		catch (IllegalStateException e) { return Result.IGNORED; }
 
 		UUID senderUUID;
 		if (player != ctx.getEntity())

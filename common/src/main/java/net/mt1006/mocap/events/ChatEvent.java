@@ -16,7 +16,8 @@ public class ChatEvent
 			{
 				if (ctx.config.getChatRecording())
 				{
-					ctx.addAction(new ChatMessage(message));
+					ChatMessage chatMessage = ChatMessage.get(message);
+					if (chatMessage != null) { ctx.addAction(chatMessage); }
 				}
 			}
 		}

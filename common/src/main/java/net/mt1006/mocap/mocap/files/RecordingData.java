@@ -185,7 +185,7 @@ public class RecordingData implements MocapRecordingData
 
 			RecordingFiles.Writer headerWriter = new RecordingFiles.Writer();
 			extensionHeaders.get(extension).save(headerWriter);
-			writer.addPackedSize(headerWriter.getSize());
+			writer.addPackedInt(headerWriter.getSize());
 			headerWriter.copyToWriter(writer);
 		}
 	}
@@ -255,7 +255,7 @@ public class RecordingData implements MocapRecordingData
 			String extensionId = reader.readString();
 			short minVersion = reader.readShort();
 			boolean isRequiredFlag = (reader.readByte() & Extensions.FLAGS_IS_REQUIRED) != 0;
-			int headerSize = reader.readPackedSize();
+			int headerSize = reader.readPackedInt();
 
 			MocapExtension extension = Extensions.getExtension(extensionId, minVersion);
 			if (extension == null)
