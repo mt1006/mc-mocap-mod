@@ -1,9 +1,6 @@
 package net.mt1006.mocap.mocap.settings;
 
-import net.mt1006.mocap.api.v1.controller.config.MocapDimensionSource;
-import net.mt1006.mocap.api.v1.controller.config.MocapEntitiesAfterPlayback;
-import net.mt1006.mocap.api.v1.controller.config.MocapOnChangeDimension;
-import net.mt1006.mocap.api.v1.controller.config.MocapOnDeath;
+import net.mt1006.mocap.api.v1.controller.config.*;
 import net.mt1006.mocap.command.io.FullCommandInfo;
 import net.mt1006.mocap.mocap.playing.modifiers.EntityFilter;
 import org.jetbrains.annotations.Nullable;
@@ -55,6 +52,7 @@ public class Settings
 	public static final SettingFields.BooleanField SHOW_TIPS = ADVANCED.add(fields.add("show_tips", true));
 	public static final SettingFields.BooleanField QUICK_DISCARD = ADVANCED.add(fields.add("quick_discard", true));
 	public static final SettingFields.EnumField<RequiredExtensions> REQUIRED_EXTENSIONS = ADVANCED.add(fields.add("required_extensions", RequiredExtensions.LET_EXTENSION_DECIDE));
+	static final SettingFields.EnumField<MocapNbtRecordingMode> NBT_RECORDING_MODE = ADVANCED.add(fields.add("nbt_recording_mode", MocapNbtRecordingMode.FILTERED));
 
 	public static void save()
 	{

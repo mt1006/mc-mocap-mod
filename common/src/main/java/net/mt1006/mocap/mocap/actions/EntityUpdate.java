@@ -1,15 +1,18 @@
 package net.mt1006.mocap.mocap.actions;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ProblemReporter;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntitySpawnReason;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.phys.Vec3;
+import net.mt1006.mocap.api.v1.controller.config.MocapNbtRecordingMode;
+import net.mt1006.mocap.api.v1.controller.config.MocapRecordingConfig;
 import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
 import net.mt1006.mocap.api.v1.extension.actions.MocapAction;
 import net.mt1006.mocap.api.v1.extension.actions.MocapActionContext;
@@ -27,9 +30,9 @@ public class EntityUpdate implements MocapAction
 	private final @Nullable String nbtString;
 	private final @Nullable Vec3 position;
 
-	public static EntityUpdate addEntity(int id, Entity entity)
+	public static EntityUpdate addEntity(int id, Entity entity, MocapRecordingConfig config)
 	{
-		String nbtString = serializeEntityNBT(entity).toString();
+		String nbtString = serializeEntityNBT(entity, config).toString();
 		return new EntityUpdate(UpdateType.ADD, id, nbtString, entity.position());
 	}
 
@@ -96,19 +99,69 @@ public class EntityUpdate implements MocapAction
 		}
 	}
 
-	public static CompoundTag serializeEntityNBT(Entity entity)
+	public static CompoundTag serializeEntityNBT(Entity entity, MocapRecordingConfig config)
 	{
-		TagValueOutput nbt = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, entity.registryAccess());
+		TagValueOutput tagOutput = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, entity.registryAccess());
 
 		String id = ((EntityIdFields)entity).callGetEncodeId();
-		nbt.putString("id", id != null ? id : "minecraft:cow");
-		entity.saveWithoutId(nbt);
+		tagOutput.putString("id", id != null ? id : "minecraft:cow");
+		if (config.getNbtRecordingMode() != MocapNbtRecordingMode.DISABLED) entity.saveWithoutId(tagOutput);
 
-		CompoundTag compoundTag = nbt.buildResult();
-		compoundTag.remove("UUID");
-		compoundTag.remove("Pos");
-		compoundTag.remove("Motion");
-		return compoundTag;
+		CompoundTag nbt = tagOutput.buildResult();
+		nbt.remove("UUID");
+		nbt.remove("Pos");
+		nbt.remove("Motion");
+
+		if (config.getNbtRecordingMode() == MocapNbtRecordingMode.FILTERED) { filterEntityNBT(nbt, entity); }
+		return nbt;
+	}
+
+	public static void filterEntityNBT(CompoundTag nbt, Entity entity)
+	{
+		nbt.remove("Brain");
+		nbt.remove("EggLayTime");
+		nbt.remove("CanPickUpLoot");
+		nbt.remove("NoAI");
+		nbt.remove("ForcedAge");
+		nbt.remove("EggLayTime");
+		nbt.remove("fall_distance");
+		if (nbt.getShortOr("HurtTime", (short)-1) == 0) { nbt.remove("HurtTime"); }
+		if (nbt.getShortOr("DeathTime", (short)-1) == 0) { nbt.remove("DeathTime"); }
+		if (nbt.getIntOr("HurtByTimestamp", -1) == 0) { nbt.remove("HurtByTimestamp"); }
+		if (nbt.getShortOr("Air", (short)-1) == entity.getMaxAirSupply()) { nbt.remove("Air"); }
+		if (nbt.getFloatOr("AbsorptionAmount", -1.0f) == 0.0f) { nbt.remove("AbsorptionAmount"); }
+		if (entity instanceof LivingEntity living && nbt.getFloatOr("Health", -1.0f) == living.getMaxHealth()) { nbt.remove("Health"); }
+
+		if (nbt.getIntOr("Age", -1) >= 0) { nbt.remove("Age"); }
+		else { nbt.putInt("Age", -9); } // -9 is short in string form and is enough time for playback to set IS_BABY flag
+
+		ListTag listTag = nbt.getList("attributes").orElse(null);
+		if (listTag != null)
+		{
+			ListTag newListTag = new ListTag();
+			for (Tag tag : listTag)
+			{
+				CompoundTag attribute = tag.asCompound().orElse(null);
+				String attributeIdStr = attribute != null ? attribute.getString("id").orElse(null) : null;
+				ResourceLocation attributeId = attributeIdStr != null ? ResourceLocation.tryParse(attributeIdStr) : null;
+
+				if (attributeId == null)
+				{
+					// this means attribute list is broken, but keep it anyway
+					newListTag.add(tag);
+					continue;
+				}
+
+				if (Attributes.FOLLOW_RANGE.is(attributeId)) { continue; }
+				if (Attributes.ATTACK_DAMAGE.is(attributeId)) { continue; }
+				if (Attributes.FALL_DAMAGE_MULTIPLIER.is(attributeId)) { continue; }
+				if (Attributes.SAFE_FALL_DISTANCE.is(attributeId)) { continue; }
+				newListTag.add(tag);
+			}
+
+			if (newListTag.isEmpty()) { nbt.remove("attributes"); }
+			else { nbt.put("attributes", newListTag); }
+		}
 	}
 
 	@Override public void write(Writer writer, MocapRecordingData data)

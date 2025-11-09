@@ -64,7 +64,7 @@ public class EntityTracker
 			{
 				trackedEntity = new TrackedEntity(ctx, counter++, entity);
 				map.put(entity, trackedEntity);
-				ctx.addAction(EntityUpdate.addEntity(trackedEntity.id, entity));
+				ctx.addAction(EntityUpdate.addEntity(trackedEntity.id, entity, ctx.config));
 			}
 			trackedEntity.onTick();
 		}

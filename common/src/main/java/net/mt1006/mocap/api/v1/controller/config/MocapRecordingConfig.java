@@ -44,4 +44,8 @@ public interface MocapRecordingConfig
 	boolean getChatRecording();
 
 	void setCharRecording(@Nullable Boolean val);
+
+	MocapNbtRecordingMode getNbtRecordingMode();
+
+	void setNbtRecordingMode(@Nullable MocapNbtRecordingMode val);
 }

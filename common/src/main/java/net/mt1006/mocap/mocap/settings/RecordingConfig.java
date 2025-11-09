@@ -1,5 +1,6 @@
 package net.mt1006.mocap.mocap.settings;
 
+import net.mt1006.mocap.api.v1.controller.config.MocapNbtRecordingMode;
 import net.mt1006.mocap.api.v1.controller.config.MocapOnChangeDimension;
 import net.mt1006.mocap.api.v1.controller.config.MocapOnDeath;
 import net.mt1006.mocap.api.v1.controller.config.MocapRecordingConfig;
@@ -14,6 +15,7 @@ public class RecordingConfig implements MocapRecordingConfig
 	private @Nullable Boolean assignDimension;
 	private @Nullable Boolean assignPlayerName;
 	private @Nullable Boolean chatRecording;
+	private @Nullable MocapNbtRecordingMode nbtRecordingMode;
 
 	public RecordingConfig(boolean setDefault)
 	{
@@ -24,6 +26,7 @@ public class RecordingConfig implements MocapRecordingConfig
 		assignDimension = setDefault ? Settings.ASSIGN_DIMENSION.defVal : null;
 		assignPlayerName = setDefault ? Settings.ASSIGN_PLAYER_NAME.defVal : null;
 		chatRecording = setDefault ? Settings.CHAT_RECORDING.defVal : null;
+		nbtRecordingMode = setDefault ? Settings.NBT_RECORDING_MODE.defVal : null;
 	}
 
 	private RecordingConfig(RecordingConfig toCopy)
@@ -35,6 +38,7 @@ public class RecordingConfig implements MocapRecordingConfig
 		assignDimension = toCopy.assignDimension;
 		assignPlayerName = toCopy.assignPlayerName;
 		chatRecording = toCopy.chatRecording;
+		nbtRecordingMode = toCopy.nbtRecordingMode;
 	}
 
 	@Override public MocapRecordingConfig copy()
@@ -110,5 +114,15 @@ public class RecordingConfig implements MocapRecordingConfig
 	@Override public void setCharRecording(@Nullable Boolean val)
 	{
 		chatRecording = val;
+	}
+
+	@Override public MocapNbtRecordingMode getNbtRecordingMode()
+	{
+		return nbtRecordingMode != null ? nbtRecordingMode : Settings.NBT_RECORDING_MODE.val;
+	}
+
+	@Override public void setNbtRecordingMode(@Nullable MocapNbtRecordingMode val)
+	{
+		nbtRecordingMode = val;
 	}
 }

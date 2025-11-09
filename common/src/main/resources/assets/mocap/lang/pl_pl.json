@@ -243,7 +243,7 @@
   "mocap.settings.info.about.dimension_source": "Określa w którym wymiarze rozpocznie się odtwarzanie (assigned_or_current - wymiar przypisany do nagrania lub, jeśli nie został przypisany, wymiar gracza/bloku poleceń rozpoczynającego odtwarzanie; assigned_or_overworld - wymiar przypisany do nagrania lub, jeśli nie został przypisany, nadziemie (overworld); current - ignoruje przypisany wymiar i zawsze używa wymiaru gracza/bloku poleceń rozpoczynającego odtwarzanie; overworld - ignoruje przypisany wymiar i zawsze używa nadziemia (overworld))",
 
   "mocap.settings.info.about.fluent_movements": "Określa dystans od odtwarzanego bytu do gracza, aby ten otrzymywał dodatkowe pakiety w celu uzyskania płynniejszych ruchów (>0 - dystans w blokach; 0 - wyłącz płynne ruchy; -1 - bez limitu)",
-  "mocap.settings.info.about.movement_precision": "Ustawia precyzję nagrywania ruchów gracza - wartość bezwzględna z różnicy między pożądanym przesunięciem pozycji, a obliczonym przesunięciem nie będzie wyższa niż 1/wartość",
+  "mocap.settings.info.about.max_float_pos_value": "Określa dystans od startu odtwarzania przy której nagrywanie powinno przełączyć precyzję pozycji z 32-bitowej liczby zmiennoprzecinkowej (float) do 64-bitowej liczby zmiennoprzecinkowej (double). Ustaw to na wartość ujemną, aby całkowicie przełączyć się na podwójną precyzję.",
   "mocap.settings.info.about.precise_rotation_recording": "Zwiększa precyzję nagrywanych ruchów głowy",
   "mocap.settings.info.about.precise_rotation_playback": "Zwiększa precyzję odtwarzanych ruchów głowy (nagrania muszą być także nagrane z większą precyzją, aby ustawienie odniosło skutek)",
   "mocap.settings.info.about.allow_mineskin_requests": "Zezwala na żądania HTTPS do mineskin.org w celu załadowania skórek",
@@ -255,6 +255,7 @@
   "mocap.settings.info.about.show_tips": "Daje wskazówki które mogą pomóc w korzystaniu z moda",
   "mocap.settings.info.about.quick_discard": "Pozwala na szybkie odrzucenie pojedyńczego nagrania przez ponowne użycie polecenia \"stop\"",
   "mocap.settings.info.about.required_extensions": "Określa kiedy i czy powinien zostać wyrzucony błąd gdy brakuje rozszerzenia użytego w nagraniu",
+  "mocap.settings.info.about.nbt_recording_mode": "Określa co powinno być włączone do nagrywanych tagów NBT bytów nie będących graczem (disabled - dane NBT nie będą nagrywane, niezalecane; filtered - dane NBT będą nagrywane, ale znane, niepotrzebne tagi będą wykluczone, miej na uwadze fakt, że może to zmienić zachowanie bytów w porównaniu z oryginałem (np. dystans śledzenia) w przypadku kiedy po odtworzeniu chcesz puścić byty wolno; full - nagra wszystkie tagi NBT oprócz kilku które mogą spowodować problemy)",
 
   "mocap.settings.info.current_value": "§lObecna wartość:§r %s",
   "mocap.settings.info.default_value": "§lDomyślna wartość:§r %s",
