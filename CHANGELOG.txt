@@ -36,7 +36,7 @@
 -Added setting "quick_discard" to enable or disable quick discard by executing "stop" two times (true by default).
 -Added setting "required_extensions" to change how lack of recording extensions is handled.
 -Added setting "nbt_recording_mode" to specify how NBT data of non-player entities should be recorded.
--Added setting "max_float_pos_value" to specify what
+-Added setting "max_float_pos_value" to specify distance from recording start at which recording should switch to double precision floating point numbers.
 -Merged "/mocap scenes list_elements" into "/mocap scenes list" and "/mocap scenes element_info" into "/mocap scenes info".
 -Split "player_info" modifier into "player_name" and "player_skin".
 -Removed position offset arguments from "/mocap scenes add_to".

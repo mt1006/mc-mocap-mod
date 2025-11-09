@@ -128,7 +128,7 @@ public class Movement implements MocapAction
 				y = newPos.y;
 				flags |= Y_SHORT;
 			}
-			else if (relNewY > Settings.MAX_FLOAT_POS_VALUE.val)
+			else if (Math.abs(relNewY) > Settings.MAX_FLOAT_POS_VALUE.val)
 			{
 				y = relNewY;
 				flags |= Y_DOUBLE;
@@ -145,7 +145,7 @@ public class Movement implements MocapAction
 			double relNewX = newPos.x - startPos.x;
 			double relNewZ = newPos.z - startPos.z;
 
-			if (relNewX > Settings.MAX_FLOAT_POS_VALUE.val || relNewZ > Settings.MAX_FLOAT_POS_VALUE.val)
+			if (Math.abs(relNewX) > Settings.MAX_FLOAT_POS_VALUE.val || Math.abs(relNewZ) > Settings.MAX_FLOAT_POS_VALUE.val)
 			{
 				x = relNewX;
 				z = relNewZ;

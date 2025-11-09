@@ -128,7 +128,7 @@ public class AlphaMovement
 				y = newPos.y;
 				newFlags |= 0b00000011;
 			}
-			else if (relNewY > Settings.MAX_FLOAT_POS_VALUE.val)
+			else if (Math.abs(relNewY) > Settings.MAX_FLOAT_POS_VALUE.val)
 			{
 				y = relNewY;
 				newFlags |= 0b00000010;
@@ -145,7 +145,7 @@ public class AlphaMovement
 			double relNewX = newPos.x - startPos.x;
 			double relNewZ = newPos.z - startPos.z;
 
-			if (relNewX > Settings.MAX_FLOAT_POS_VALUE.val || relNewZ > Settings.MAX_FLOAT_POS_VALUE.val)
+			if (Math.abs(relNewX) > Settings.MAX_FLOAT_POS_VALUE.val || Math.abs(relNewZ) > Settings.MAX_FLOAT_POS_VALUE.val)
 			{
 				x = relNewX;
 				z = relNewZ;
