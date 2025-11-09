@@ -16,7 +16,7 @@
 -Added "time" playback modifier group and moved "startDelay" into it as "wait_on_start" (thanks to damiendier for suggesion).
 -Added "time/start_delay" playback modifier (different from previous "startDelay" modifier).
 -Added "time/wait_on_end" playback modifier.
--Added "time/waitForParentEnd" playback modifier (true by default).
+-Added "time/wait_for_parent_end" playback modifier (true by default).
 -Added "time/loop" playback modifier (thanks to vini14zin for suggestion).
 -Added "entity_filter" playback modifier.
 -Added pattern matching with "*" for "scenes add_to" playable argument.
