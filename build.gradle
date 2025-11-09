@@ -66,9 +66,11 @@ subprojects
 
 		fileTree(srcDir).visit((FileTreeElement file) ->
 		{
+			String path = file.getPath()
 			if (!file.isDirectory()
-					|| !file.getPath().contains("net/mt1006/mocap")
-					|| file.getPath().contains("net/mt1006/mocap/api/v1"))
+					|| !path.contains("net/mt1006/mocap")
+					|| path.contains("net/mt1006/mocap/api/v1")
+					|| (project.name != "common" && (path == "net/mt1006/mocap" || path == "net/mt1006/mocap/mixin")))
 			{
 				return
 			}
@@ -91,5 +93,5 @@ subprojects
 		})
 	})
 
-	processResources { from project(":common").file("src/main/generated") }
+	project.sourceSets.main.java.srcDirs += ["src/main/generated"]
 }

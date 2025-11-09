@@ -25,8 +25,3 @@ loom
 {
 	mixin.useLegacyMixinAp = false
 }
-
-processResources
-{
-	from(project.file("src/main/generated")) { duplicatesStrategy DuplicatesStrategy.EXCLUDE }
-}
