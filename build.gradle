@@ -3,6 +3,11 @@ subprojects
 	apply plugin: "java"
 	java.toolchain.languageVersion = JavaLanguageVersion.of(java_version)
 
+	java
+	{
+		withSourcesJar()
+	}
+
 	base
 	{
 		archivesName = "${mod_jar_name}-${project.name.toUpperCase()}-${minecraft_version}"
@@ -50,6 +55,7 @@ subprojects
 
 		processResources { from project(":common").sourceSets.main.resources }
 		tasks.named("compileJava", JavaCompile) { source project(":common").sourceSets.main.allSource }
+		tasks.named("sourcesJar", Jar) { from project(":common").sourceSets.main.allSource }
 	}
 
 	project.sourceSets.main.java.srcDirs.each((File srcDir) ->
