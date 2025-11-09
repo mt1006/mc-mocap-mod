@@ -90,6 +90,7 @@
 -Fixed closing chest not being recorded.
 -Fixed 1.21+ special effect particles not being visible.
 -Fixed saddles not working on newer Minecraft versions.
+-Fixed baby entities being recorded as adults.
 -Fixed damage going through shields.
 -Fixed damage spam issue on Fabric.
 -Minor spelling improvements.

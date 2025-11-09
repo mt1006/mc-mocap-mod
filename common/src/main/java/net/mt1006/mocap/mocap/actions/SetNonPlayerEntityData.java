@@ -48,6 +48,7 @@ public class SetNonPlayerEntityData implements MocapStateAction
 		if (entity instanceof AbstractHorse)
 		{
 			boolean flag1 = false;
+			boolean flag2 = ((AgeableMob)entity).getAge() < 0;
 			Byte byte1 = EntityData.ABSTRACT_HORSE_FLAGS.valOrDef(entity, (byte)0);
 			Integer int1 = null;
 
@@ -57,7 +58,7 @@ public class SetNonPlayerEntityData implements MocapStateAction
 
 			if (entity instanceof Llama llama) { int1 = llama.getVariant().getId(); }
 
-			return new SetNonPlayerEntityData(flag1, false, byte1, int1, null, null, null);
+			return new SetNonPlayerEntityData(flag1, flag2, byte1, int1, null, null, null);
 		}
 		else if (entity instanceof Boat boat)
 		{
@@ -83,6 +84,11 @@ public class SetNonPlayerEntityData implements MocapStateAction
 		{
 			boolean flag1 = ((AbstractArrowFields)entity).callIsInGround();
 			return new SetNonPlayerEntityData(flag1, false, null, null, null, null, null);
+		}
+		else if (entity instanceof AgeableMob)
+		{
+			boolean flag2 = ((AgeableMob)entity).getAge() < 0;
+			return new SetNonPlayerEntityData(false, flag2, null, null, null, null, null);
 		}
 		else
 		{
@@ -152,7 +158,8 @@ public class SetNonPlayerEntityData implements MocapStateAction
 
 		if (entity instanceof AgeableMob ageableMob)
 		{
-			ageableMob.setAge(flag2 ? -1 : 0);
+			if (ageableMob.getAge() < 0) { ageableMob.setAge(0); } // prevent mob from growing up and resetting IS_BABY flag
+			EntityData.AGEABLE_MOB_IS_BABY.set(entity, flag2);
 		}
 
 		if (entity instanceof AbstractHorse)

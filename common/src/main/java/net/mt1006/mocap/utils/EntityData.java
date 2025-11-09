@@ -4,10 +4,7 @@ import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.world.entity.Entity;
 import net.mt1006.mocap.MocapMod;
-import net.mt1006.mocap.mixin.fields.AbstractHorseFields;
-import net.mt1006.mocap.mixin.fields.AvatarMixin;
-import net.mt1006.mocap.mixin.fields.EntityFields;
-import net.mt1006.mocap.mixin.fields.LivingEntityFields;
+import net.mt1006.mocap.mixin.fields.*;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -20,6 +17,7 @@ public class EntityData
 	public static final DataIndex<Boolean> LIVING_ENTITY_EFFECT_AMBIENCE =                new DataIndex<>(LivingEntityFields.getDATA_EFFECT_AMBIENCE_ID());
 	public static final DataIndex<Byte> PLAYER_SKIN_PARTS =                               new DataIndex<>(AvatarMixin.getDATA_PLAYER_MODE_CUSTOMISATION());
 	public static final DataIndex<Byte> ABSTRACT_HORSE_FLAGS =                            new DataIndex<>(AbstractHorseFields.getDATA_ID_FLAGS());
+	public static final DataIndex<Boolean> AGEABLE_MOB_IS_BABY =                          new DataIndex<>(AgeableModFields.getDATA_BABY_ID());
 
 	public static class DataIndex<T>
 	{
