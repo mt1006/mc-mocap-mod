@@ -153,6 +153,12 @@ public class RecordingPlayback extends Playback
 
 		if (profileName == null)
 		{
+			if (startAsRecorded && recordedProfile.name() != null && recordedProfile.skinValue() != null && recordedProfile.skinSignature() != null)
+			{
+				return ProfileUtils.Profile.withSkin(recordedProfile.name(),
+						new Property("textures", recordedProfile.skinValue(), recordedProfile.skinSignature()));
+			}
+
 			if (startAsRecorded && recordedProfile.name() != null) { profileName = recordedProfile.name(); }
 			else if (entity instanceof ServerPlayer) { profileName = ((ServerPlayer)entity).getGameProfile().name(); }
 			else if (!playerList.getPlayers().isEmpty()) { profileName = playerList.getPlayers().get(0).getGameProfile().name(); }
