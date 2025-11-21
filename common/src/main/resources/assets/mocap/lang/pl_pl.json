@@ -231,7 +231,7 @@
   "mocap.settings.info.about.on_change_dimension": "Określa co się stanie gdy nagrywany gracz zmieni wymiar (nothing - ignoruje zmianę wymiaru, niezalecane w większości przypadków, gdyż gracz i inne nagrywane byty pojawią się gdzieś w wymiarze w którym nie powinny być; end_recording - kończy nagrywanie; split_recording - dzieli nagranie)",
   "mocap.settings.info.about.start_instantly": "Sprawia, że nagrywanie rozpoczyna się od razu, a nie czeka na ruch gracza lub drugie wywołanie polecenia",
   "mocap.settings.info.about.assign_dimension": "Przypisuje wymiar do nagrania. Zobacz ustawienie \"dimension_source\" (w kategorii \"playback\") po więcej informacji.",
-  "mocap.settings.info.about.assign_profile": "Przypisuje profile nagranego gracza do nagrania. Musisz także włączyć \"start_as_recorded\", aby odtwarzanie nagrania domyślnie rozpoczęło się jako nagrany gracz (no - wyłączone; only_name - przypisuje tylko nazwę gracza i nic więcej; full - przypisuje nazwę gracza, UUID i skórkę)",
+  "mocap.settings.info.about.assign_profile": "Przypisuje profil nagranego gracza do nagrania. Musisz także włączyć \"start_as_recorded\", aby odtwarzanie nagrania domyślnie rozpoczęło się jako nagrany gracz (no - wyłączone; only_name - przypisuje tylko nazwę gracza i nic więcej; full - przypisuje nazwę gracza, UUID i skórkę)",
   "mocap.settings.info.about.chat_recording": "Włącza nagrywanie wiadomości graczy na czacie",
 
   "mocap.settings.info.about.playback_speed": "Pozwala na zmianę prędkości odtwarzania nagrania lub sceny",
