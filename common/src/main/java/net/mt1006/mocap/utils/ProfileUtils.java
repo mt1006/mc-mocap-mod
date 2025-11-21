@@ -116,54 +116,6 @@ public class ProfileUtils
 		return profile;
 	}
 
-	//TODO: remove after pushing to repo
-	/*private static @Nullable MinecraftClient getMinecraftApiClient(GameProfileRepository profileRepository)
-	{
-		if (apiClient != null) { return apiClient; }
-
-		if (!(profileRepository instanceof YggdrasilGameProfileRepository))
-		{
-			printApiClientFieldError("not supported implementation of profile repository");
-			return null;
-		}
-		Field[] fields = YggdrasilGameProfileRepository.class.getDeclaredFields();
-
-		for (Field field : fields)
-		{
-			if (MinecraftClient.class.isAssignableFrom(field.getType()))
-			{
-				field.setAccessible(true);
-				try
-				{
-					apiClient = (MinecraftClient)field.get(profileRepository);
-					return apiClient;
-				}
-				catch (IllegalAccessException e)
-				{
-					printApiClientFieldError("failed to get value");
-					return null;
-				}
-			}
-		}
-
-		printApiClientFieldError("field not found");
-		return null;
-	}
-
-	private static void printApiClientFieldError(String message)
-	{
-		if (!apiClientFieldFailed)
-		{
-			MocapMod.LOGGER.error("Failed to retrieve MinecraftClient instance - {}!", message);
-			apiClientFieldFailed = true;
-		}
-	}
-
-	private static GameProfile createOffline(String playerName)
-	{
-		return new GameProfile(UUIDUtil.createOfflinePlayerUUID(playerName), playerName);
-	}*/
-
 	public static class NameAndIdResult
 	{
 		public final @Nullable NameAndId val;
