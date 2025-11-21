@@ -9,10 +9,7 @@ import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.HoverEvent;
-import net.minecraft.network.chat.Style;
 import net.mt1006.mocap.api.v1.io.CommandInfo;
 import net.mt1006.mocap.command.CommandSuggestions;
 import net.mt1006.mocap.command.io.FullCommandInfo;
@@ -284,20 +281,11 @@ public class SettingFields
 
 			info.sendSuccess("settings.info.string_value",
 					info.getTranslatableComponent("settings.info.current_value", valStr),
-					createButton(info, valStr));
+					info.createCopyButton(valStr));
 
 			info.sendSuccess("settings.info.string_value",
 					info.getTranslatableComponent("settings.info.default_value", defValStr),
-					createButton(info, defValStr));
-		}
-
-		private static Component createButton(CommandInfo info, String textToCopy)
-		{
-			ClickEvent clickEvent = new ClickEvent.CopyToClipboard(textToCopy);
-			HoverEvent hoverEvent = new HoverEvent.ShowText(info.getTranslatableComponent("settings.info.copy_button_info"));
-
-			return info.getTranslatableComponent("settings.info.copy_button")
-					.setStyle(Style.EMPTY.withClickEvent(clickEvent).withHoverEvent(hoverEvent));
+					info.createCopyButton(defValStr));
 		}
 	}
 

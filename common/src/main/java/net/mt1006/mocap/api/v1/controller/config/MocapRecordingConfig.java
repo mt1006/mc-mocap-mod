@@ -37,9 +37,9 @@ public interface MocapRecordingConfig
 
 	void setAssignDimension(@Nullable Boolean val);
 
-	boolean getAssignPlayerName();
+	MocapAssignProfile getAssignProfile();
 
-	void setAssignPlayerName(@Nullable Boolean val);
+	void setAssignProfile(@Nullable MocapAssignProfile val);
 
 	boolean getChatRecording();
 

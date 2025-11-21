@@ -1,5 +1,6 @@
 package net.mt1006.mocap.mocap.files;
 
+import com.google.gson.JsonObject;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -75,8 +76,7 @@ public class RecordingFiles
 		if (info.assignedDimensionId() != null) { out.sendSuccess("recordings.info.dimension", info.assignedDimensionId().toString()); }
 		else { out.sendSuccess("recordings.info.dimension.not_assigned"); }
 
-		if (info.assignedPlayerName() != null) { out.sendSuccess("recordings.info.player_name_assigned.yes", info.assignedPlayerName()); }
-		else { out.sendSuccess("recordings.info.player_name_assigned.no"); }
+		printProfileInfo(out, info.assignedProfile());
 
 		out.sendSuccess(info.legacyEndsWithDeath() ? "recordings.info.dies.yes" : "recordings.info.dies.no");
 		return true;
@@ -106,6 +106,31 @@ public class RecordingFiles
 		MutableComponent tpSuggestionComponent = Utils.getSuggestCommandComponent(command,
 				Component.literal(text)).withStyle(Style.EMPTY.withUnderlined(true));
 		out.sendSuccess("recordings.info.start_pos", tpSuggestionComponent);
+	}
+
+	private static void printProfileInfo(CommandInfo out, MocapRecordingFile.AssignedProfile profile)
+	{
+		if (profile.name() != null) { out.sendSuccess("recordings.info.assigned_profile.name.yes", profile.name()); }
+		else { out.sendSuccess("recordings.info.assigned_profile.name.no"); }
+
+		if (profile.id() != null) { out.sendSuccess("recordings.info.assigned_profile.uuid.yes", out.createCopyButton(String.valueOf(profile.id()))); }
+		else { out.sendSuccess("recordings.info.assigned_profile.uuid.no"); }
+
+		if (profile.skinValue() == null && profile.skinSignature() == null)
+		{
+			out.sendSuccess("recordings.info.assigned_profile.skin.no");
+		}
+		else if (profile.skinValue() == null || profile.skinSignature() == null)
+		{
+			out.sendSuccess("recordings.info.assigned_profile.skin.partially");
+		}
+		else
+		{
+			JsonObject json = new JsonObject();
+			json.addProperty("value", profile.skinValue());
+			json.addProperty("signature", profile.skinSignature());
+			out.sendSuccess("recordings.info.assigned_profile.skin.yes", out.createCopyButton(json.toString()));
+		}
 	}
 
 	public static @Nullable List<String> list()

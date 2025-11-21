@@ -124,7 +124,7 @@ public class RecordingFile extends Playable implements MocapRecordingFile
 			long sizeInOps,
 			Vec3 startPos,
 			@Nullable ResourceLocation assignedDimensionId,
-			@Nullable String assignedPlayerName,
+			AssignedProfile assignedProfile,
 			boolean legacyEndsWithDeath) implements MocapRecordingFile.Info
 	{
 		public static @Nullable Info load(CommandOutput out, @Nullable RecordingFile file)
@@ -145,7 +145,7 @@ public class RecordingFile extends Playable implements MocapRecordingFile
 					recording.actions.size(),
 					recording.startPos,
 					recording.dimensionId,
-					recording.playerName,
+					recording.assignedProfile,
 					recording.endsWithDeath);
 		}
 	}

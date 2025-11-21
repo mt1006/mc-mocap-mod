@@ -48,7 +48,6 @@
   "mocap.playback.start.error.load": "无法加载所有资源！",
   "mocap.playback.start.error.load.path": "资源路径：%s",
   "mocap.playback.start.error.load_header": "§l错误：§r无法加载录像页头！",
-  "mocap.playback.start.error.profile": "§l错误：§r无法加载玩家资料！",
   "mocap.playback.start.success": "播放开始……",
   "mocap.playback.start.success.modifiers": "播放开始... (with modifiers)",
   "mocap.playback.start.success.sync": "播放开始... (with synchronization)",

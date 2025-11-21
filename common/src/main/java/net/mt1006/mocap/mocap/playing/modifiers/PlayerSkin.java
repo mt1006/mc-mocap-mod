@@ -1,10 +1,6 @@
 package net.mt1006.mocap.mocap.playing.modifiers;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
-import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
-import com.mojang.authlib.properties.PropertyMap;
 import net.mt1006.mocap.api.v1.io.CommandInfo;
 import net.mt1006.mocap.api.v1.io.CommandOutput;
 import net.mt1006.mocap.api.v1.modifiers.MocapPlayerSkin;
@@ -81,46 +77,44 @@ public class PlayerSkin implements MocapPlayerSkin
 		return writer;
 	}
 
-	@Override public PropertyMap addSkinToPropertyMap(CommandInfo info, PropertyMap propertyMap)
+	@Override public @Nullable Property getSkinProperty(CommandInfo info, @Nullable Property oldProperty)
 	{
-		if (path == null) { return propertyMap; }
-		Multimap<String, Property> mutableMap = HashMultimap.create(propertyMap);
+		if (path == null) { return oldProperty; }
 
 		switch (source)
 		{
 			case FROM_PLAYER:
-				GameProfile tempProfile = ProfileUtils.getGameProfile(info.getServer(), path);
-				PropertyMap tempPropertyMap = tempProfile.properties();
+				ProfileUtils.Profile profile = ProfileUtils.getProfile(info.getServer(), path, true);
 
-				if (!tempPropertyMap.containsKey("textures"))
+				if (profile.skin == null)
 				{
 					info.sendFailure("playback.start.warning.skin.profile");
-					break;
+					return oldProperty;
 				}
-
-				if (mutableMap.containsKey("textures")) { mutableMap.get("textures").clear(); }
-				mutableMap.putAll("textures", tempPropertyMap.get("textures"));
-				break;
+				return profile.skin;
 
 			case FROM_FILE:
-				mutableMap.put(CustomServerSkinManager.PROPERTY_ID, new Property(CustomServerSkinManager.PROPERTY_ID, path));
-				break;
+				return oldProperty; // handled by getCustomSkinProperty()
 
 			case FROM_MINESKIN:
-				if (!Settings.ALLOW_MINESKIN_REQUESTS.val) { break; }
+				if (!Settings.ALLOW_MINESKIN_REQUESTS.val) { return oldProperty; }
 				Property skinProperty = propertyFromMineskinURL(path);
 
 				if (skinProperty == null)
 				{
 					info.sendFailure("playback.start.warning.skin.mineskin");
-					break;
+					return oldProperty;
 				}
+				return skinProperty;
 
-				if (mutableMap.containsKey("textures")) { mutableMap.get("textures").clear(); }
-				mutableMap.put("textures", skinProperty);
-				break;
+			default:
+				return oldProperty;
 		}
-		return new PropertyMap(mutableMap);
+	}
+
+	@Override public @Nullable Property getCustomSkinProperty()
+	{
+		return source == Source.FROM_FILE ? new Property(CustomServerSkinManager.PROPERTY_ID, path) : null;
 	}
 
 	@Override public MocapPlayerSkin mergeWithParent(MocapPlayerSkin parent)

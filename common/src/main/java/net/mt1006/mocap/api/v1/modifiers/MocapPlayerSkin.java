@@ -1,6 +1,6 @@
 package net.mt1006.mocap.api.v1.modifiers;
 
-import com.mojang.authlib.properties.PropertyMap;
+import com.mojang.authlib.properties.Property;
 import net.mt1006.mocap.api.v1.io.CommandInfo;
 import net.mt1006.mocap.mocap.files.SceneFiles;
 import net.mt1006.mocap.mocap.playing.modifiers.PlayerSkin;
@@ -34,7 +34,10 @@ public interface MocapPlayerSkin
 	@Nullable SceneFiles.Writer save();
 
 	@ApiStatus.Internal
-	PropertyMap addSkinToPropertyMap(CommandInfo info, PropertyMap propertyMap);
+	@Nullable Property getSkinProperty(CommandInfo info, @Nullable Property oldProperty);
+
+	@ApiStatus.Internal
+	@Nullable Property getCustomSkinProperty();
 
 	@ApiStatus.Internal
 	MocapPlayerSkin mergeWithParent(MocapPlayerSkin parent);

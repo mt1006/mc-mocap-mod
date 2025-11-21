@@ -1,5 +1,6 @@
 package net.mt1006.mocap.mocap.files;
 
+import com.mojang.authlib.GameProfile;
 import it.unimi.dsi.fastutil.objects.Reference2IntMap;
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
 import net.minecraft.core.Holder;
@@ -17,7 +18,9 @@ import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.Vec3;
 import net.mt1006.mocap.MocapMod;
 import net.mt1006.mocap.api.impl.extenstion.Extensions;
+import net.mt1006.mocap.api.v1.controller.config.MocapAssignProfile;
 import net.mt1006.mocap.api.v1.controller.config.MocapPlaybackConfig;
+import net.mt1006.mocap.api.v1.controller.playable.MocapRecordingFile;
 import net.mt1006.mocap.api.v1.extension.MocapExtension;
 import net.mt1006.mocap.api.v1.extension.MocapPositionTransformer;
 import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
@@ -49,7 +52,7 @@ public class RecordingData implements MocapRecordingData
 	private static final byte FLAGS1_PACKED_SIZE_STRINGS =     0b00000010;
 	private static final byte FLAGS1_HAS_ID_MAPS =             0b00000100;
 	private static final byte FLAGS1_DIMENSION_SPECIFIED =     0b00001000;
-	private static final byte FLAGS1_PLAYER_NAME_SPECIFIED =   0b00010000;
+	private static final byte FLAGS1_PROFILE_ASSIGNED =        0b00010000;
 	private static final byte FLAGS1_HAS_EXTENSIONS =          0b00100000;
 	private static final byte FLAGS1_EXPERIMENTAL_SUBVERSION = 0b01000000;
 	private static final byte FLAGS1_HAS_FLAGS2 =        (byte)0b10000000;
@@ -64,7 +67,7 @@ public class RecordingData implements MocapRecordingData
 	private final ItemIdMap itemIdMap = new ItemIdMap(this);
 	private final BlockStateIdMap blockStateIdMap = new BlockStateIdMap(this);
 	public @Nullable ResourceLocation dimensionId = null; //TODO: use it
-	public @Nullable String playerName = null;
+	public AssignedProfile assignedProfile = AssignedProfile.EMPTY;
 	private final SortedMap<Integer, MocapExtension> extensionById = new TreeMap<>();
 	private final Map<MocapExtension, Byte> extensionToId = new HashMap<>();
 	private final Map<MocapExtension, ExtensionHeader> extensionHeaders = new HashMap<>();
@@ -149,7 +152,7 @@ public class RecordingData implements MocapRecordingData
 		flags1 |= FLAGS1_PACKED_SIZE_STRINGS;
 		flags1 |= hasIdMaps ? FLAGS1_HAS_ID_MAPS : 0;
 		flags1 |= dimensionId != null ? FLAGS1_DIMENSION_SPECIFIED : 0;
-		flags1 |= playerName != null ? FLAGS1_PLAYER_NAME_SPECIFIED : 0;
+		flags1 |= !assignedProfile.isEmpty() ? FLAGS1_PROFILE_ASSIGNED : 0;
 		flags1 |= !extensionById.isEmpty() ? FLAGS1_HAS_EXTENSIONS : 0;
 		flags1 |= experimentalSubversion != 0 ? FLAGS1_EXPERIMENTAL_SUBVERSION : 0;
 		writer.addByte(flags1);
@@ -161,7 +164,7 @@ public class RecordingData implements MocapRecordingData
 		}
 
 		if (dimensionId != null) { writer.addString(dimensionId.toString()); }
-		if (playerName != null) { writer.addString(playerName); }
+		if (!assignedProfile.isEmpty()) { assignedProfile.save(writer); }
 		if (!extensionById.isEmpty()) { saveExtensionHeaders(writer); }
 		if (experimentalSubversion != 0) { writer.addByte(experimentalSubversion); }
 	}
@@ -201,7 +204,7 @@ public class RecordingData implements MocapRecordingData
 		reader.setStringMode((flags1 & FLAGS1_PACKED_SIZE_STRINGS) == 0);
 		usesIdMaps = (flags1 & FLAGS1_HAS_ID_MAPS) != 0;
 		boolean startDimensionSpecified = (flags1 & FLAGS1_DIMENSION_SPECIFIED) != 0;
-		boolean playerNameSpecified = (flags1 & FLAGS1_PLAYER_NAME_SPECIFIED) != 0;
+		boolean profileAssigned = (flags1 & FLAGS1_PROFILE_ASSIGNED) != 0;
 		boolean hasExtensions = (flags1 & FLAGS1_HAS_EXTENSIONS) != 0;
 		boolean hasExperimentalSubversion = (flags1 & FLAGS1_EXPERIMENTAL_SUBVERSION) != 0;
 
@@ -238,7 +241,7 @@ public class RecordingData implements MocapRecordingData
 		}
 
 		if (startDimensionSpecified) { dimensionId = ResourceLocation.parse(reader.readString()); }
-		if (playerNameSpecified) { playerName = reader.readString(); }
+		if (profileAssigned) { assignedProfile = AssignedProfile.read(reader); }
 		if (hasExtensions && !loadExtensionHeaders(out, reader)) { return false; }
 		if (hasExperimentalSubversion) { experimentalSubversion = reader.readByte(); }
 		return true;
@@ -547,6 +550,75 @@ public class RecordingData implements MocapRecordingData
 			if (property == null) { return blockState; }
 			Optional<T> value = property.getValue(str);
 			return value.map((val) -> blockState.setValue(property, val)).orElse(blockState);
+		}
+	}
+
+	public record AssignedProfile(
+			@Nullable String name,
+			@Nullable UUID id,
+			@Nullable String skinValue,
+			@Nullable String skinSignature) implements MocapRecordingFile.AssignedProfile
+	{
+		private static final byte PROFILE_FLAGS_HAS_NAME =           0b00000001;
+		private static final byte PROFILE_FLAGS_HAS_ID =             0b00000010;
+		private static final byte PROFILE_FLAGS_HAS_SKIN_VALUE =     0b00000100;
+		private static final byte PROFILE_FLAGS_HAS_SKIN_SIGNATURE = 0b00001000;
+
+		public static AssignedProfile EMPTY = new AssignedProfile(null, null, null, null);
+
+		public static AssignedProfile create(GameProfile profile, MocapAssignProfile config)
+		{
+			if (config == MocapAssignProfile.NO) { return EMPTY; }
+			String name = null, skinValue = null, skinSignature = null;
+			UUID id = null;
+
+			switch (config)
+			{
+				case FULL:
+					id = profile.id();
+					Collection<com.mojang.authlib.properties.Property> textures = profile.properties().get("textures");
+					if (!textures.isEmpty())
+					{
+						com.mojang.authlib.properties.Property texture = textures.iterator().next();
+						skinValue = texture.value();
+						skinSignature = texture.signature();
+					}
+
+				case ONLY_NAME:
+					name = profile.name();
+			}
+			return new AssignedProfile(name, id, skinValue, skinSignature);
+		}
+
+		public static AssignedProfile read(MocapAction.Reader reader)
+		{
+			byte flags = reader.readByte();
+
+			return new AssignedProfile(
+					(flags & PROFILE_FLAGS_HAS_NAME) != 0 ? reader.readString() : null,
+					(flags & PROFILE_FLAGS_HAS_ID) != 0 ? reader.readUUID() : null,
+					(flags & PROFILE_FLAGS_HAS_SKIN_VALUE) != 0 ? reader.readString() : null,
+					(flags & PROFILE_FLAGS_HAS_SKIN_SIGNATURE) != 0 ? reader.readString() : null);
+		}
+
+		public void save(MocapAction.Writer writer)
+		{
+			byte flags = 0;
+			flags |= name != null ? PROFILE_FLAGS_HAS_NAME : 0;
+			flags |= id != null ? PROFILE_FLAGS_HAS_ID : 0;
+			flags |= skinValue != null ? PROFILE_FLAGS_HAS_SKIN_VALUE : 0;
+			flags |= skinSignature != null ? PROFILE_FLAGS_HAS_SKIN_SIGNATURE : 0;
+			writer.addByte(flags);
+
+			if (name != null) { writer.addString(name); }
+			if (id != null) { writer.addUUID(id); }
+			if (skinValue != null) { writer.addString(skinValue); }
+			if (skinSignature != null) { writer.addString(skinSignature); }
+		}
+
+		public boolean isEmpty()
+		{
+			return (this == EMPTY || (name == null && id == null && skinValue == null && skinSignature == null));
 		}
 	}
 }

@@ -93,8 +93,13 @@
   "mocap.recordings.info.start_pos": "§lStart position:§r %s",
   "mocap.recordings.info.dimension": "§lDimension:§r %s",
   "mocap.recordings.info.dimension.not_assigned": "§lDimension:§r §7§o[not assigned]§r",
-  "mocap.recordings.info.player_name_assigned.yes": "§lPlayer name assigned:§r Yes - %s",
-  "mocap.recordings.info.player_name_assigned.no": "§lPlayer name assigned:§r No",
+  "mocap.recordings.info.assigned_profile.name.yes": "§lAssigned profile > Name:§r %s",
+  "mocap.recordings.info.assigned_profile.name.no": "§lAssigned profile > Name:§r §7§o[not assigned]§r",
+  "mocap.recordings.info.assigned_profile.uuid.yes": "§lAssigned profile > UUID:§r Assigned %s",
+  "mocap.recordings.info.assigned_profile.uuid.no": "§lAssigned profile > UUID:§r Not assigned",
+  "mocap.recordings.info.assigned_profile.skin.yes": "§lAssigned profile > Skin:§r Assigned %s",
+  "mocap.recordings.info.assigned_profile.skin.partially": "§lAssigned profile > Skin:§r Partially assigned",
+  "mocap.recordings.info.assigned_profile.skin.no": "§lAssigned profile > Skin:§r Not assigned",
   "mocap.recordings.info.dies.yes": "§lEnds with death:§r Yes",
   "mocap.recordings.info.dies.no": "§lEnds with death:§r No",
 
@@ -187,7 +192,6 @@
   "mocap.playback.start.error.empty_scene": "Root scene is empty!",
   "mocap.playback.start.error.empty_scene.tip": "Use \"/mocap scenes add_to\" to add elements to the scene",
   "mocap.playback.start.error.load_header": "§lError:§r failed to load recording header!",
-  "mocap.playback.start.error.profile": "§lError:§r failed to load player profile!",
   "mocap.playback.start.error.extension.not_present": "§lError:§r required extension \"%s\" is not present!",
   "mocap.playback.start.error.extension.load_header": "§lError:§r extension \"%s\" failed to load its header!",
   "mocap.playback.start.warning.unknown_entity": "Trying to use unknown entity as player - %s",
@@ -234,7 +238,7 @@
   "mocap.settings.info.about.on_change_dimension": "Determines what will happen when recorded player changes dimension (nothing - ignores dimension change, not recommended in most cases as player and other recorded entities will appear somewhere in a dimension they are not supposed to be in; end_recording - ends recording; split_recording - splits recording)",
   "mocap.settings.info.about.start_instantly": "Makes recording start instantly instead of waiting for movement or second command",
   "mocap.settings.info.about.assign_dimension": "Assigns dimension to the recording. See \"dimension_source\" setting (in \"playback\" category) for more information.",
-  "mocap.settings.info.about.assign_player_name": "Assigns recorded player name to the recording. You also need to enable \"start_as_recorded\" for a recording playback to start as recorded player by default.",
+  "mocap.settings.info.about.assign_profile": "Assigns recorded player profile to the recording. You also need to enable \"start_as_recorded\" for a recording playback to start as recorded player by default (no - disabled; only_name - assigns only player name and nothing else; full - assigns player name, UUID and skin)",
   "mocap.settings.info.about.chat_recording": "Enables player chat messages recording",
 
   "mocap.settings.info.about.playback_speed": "Allows you to change speed of played recording or scene",
@@ -263,12 +267,11 @@
   "mocap.settings.info.about.quick_discard": "Allows to quickly discard single recording by reusing \"stop\" command",
   "mocap.settings.info.about.required_extensions": "Specifies when and if error should be thrown when extension used in recording is missing",
   "mocap.settings.info.about.nbt_recording_mode": "Specifies what should be included in recorded NBT of non-player entity (disabled - NBT data won't be recorded, not recommended; filtered - NBT data will be recorded, but known unnecessary tags will be excluded, note that it may change behavior of entity compared to original (like tracking distance) in case you want to let it be free after recording; full - will record all NBT tags except a few that may cause issues)",
+  "mocap.settings.info.about.use_authlib_services": "Enables use of authlib methods to request player profiles instead of custom implementation. Useful if you defined custom mojang services URLs or proxy, or in case custom implementation will stop working.",
 
   "mocap.settings.info.current_value": "§lCurrent value:§r %s",
   "mocap.settings.info.default_value": "§lDefault value:§r %s",
   "mocap.settings.info.string_value": "%s %s",
-  "mocap.settings.info.copy_button": "§7[copy]",
-  "mocap.settings.info.copy_button_info": "Copy value to the clipboard",
 
   "mocap.settings.set.success.changed": "Value changed from %s to %s",
   "mocap.settings.set.success.not_changed": "Value remained unchanged - %s",
@@ -341,5 +344,8 @@
   "mocap.error.failed_to_init_directories": "§lError:§r failed to initialize directories!",
   "mocap.error.unable_to_get_argument": "§lError:§r unable to get argument!",
   "mocap.error.failed_to_load_scene": "§lError:§r failed to load scene file!",
-  "mocap.error.failed_to_load_scene.not_supported": "Not supported scene file version"
+  "mocap.error.failed_to_load_scene.not_supported": "Not supported scene file version",
+
+  "mocap.common.copy_button": "§7[copy]",
+  "mocap.common.copy_button_info": "Copy value to the clipboard"
 }

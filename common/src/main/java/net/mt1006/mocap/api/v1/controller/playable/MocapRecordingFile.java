@@ -7,6 +7,8 @@ import net.mt1006.mocap.api.v1.io.CommandOutput;
 import net.mt1006.mocap.mocap.playing.playable.RecordingFile;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.UUID;
+
 public interface MocapRecordingFile extends MocapPlayable, MocapFile<MocapRecordingFile>
 {
 	static @Nullable MocapRecordingFile get(CommandOutput out, String name)
@@ -15,6 +17,17 @@ public interface MocapRecordingFile extends MocapPlayable, MocapFile<MocapRecord
 	}
 
 	@Nullable Info getInfo(CommandOutput out);
+
+	interface AssignedProfile
+	{
+		@Nullable String name();
+
+		@Nullable UUID id();
+
+		@Nullable String skinValue();
+
+		@Nullable String skinSignature();
+	}
 
 	interface Info
 	{
@@ -34,7 +47,7 @@ public interface MocapRecordingFile extends MocapPlayable, MocapFile<MocapRecord
 
 		@Nullable ResourceLocation assignedDimensionId();
 
-		@Nullable String assignedPlayerName();
+		@Nullable AssignedProfile assignedProfile();
 
 		boolean legacyEndsWithDeath();
 	}

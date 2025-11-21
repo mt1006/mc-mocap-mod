@@ -93,8 +93,6 @@
   "mocap.recordings.info.start_pos": "§lPremière position:§r %s",
   "mocap.recordings.info.dimension": "§lDimension:§r %s",
   "mocap.recordings.info.dimension.not_assigned": "§lDimension:§r §7§o[not assigné]§r",
-  "mocap.recordings.info.player_name_assigned.yes": "§lNom du joueur assigné:§r Yes - %s",
-  "mocap.recordings.info.player_name_assigned.no": "§lNom du joueur assigné:§r No",
   "mocap.recordings.info.dies.yes": "§lSe termine avec une mort:§r Yes",
   "mocap.recordings.info.dies.no": "§lSe termine avec une mort:§r No",
 
@@ -187,7 +185,6 @@
   "mocap.playback.start.error.empty_scene": "La scène racine est vide !",
   "mocap.playback.start.error.empty_scene.tip": "Exécutez \"/mocap scenes add_to\" pour ajouter des éléments à la scène",
   "mocap.playback.start.error.load_header": "&lErreur:§r Échec du chargement de l'en-tête d'enregistrement!",
-  "mocap.playback.start.error.profile": "&lErreur:§r impossible de charger le profil du joueur !",
   "mocap.playback.start.error.extension.not_present": "&lErreur:§r l'extension requise \"%s\" est manquante !",
   "mocap.playback.start.error.extension.load_header": "&lErreur:§r l'extension \"%s\" n'a pas réussi à charger son en-tête !",
   "mocap.playback.start.warning.unknown_entity": "Tentative d'utiliser une entité inconnue comme joueur – %s",
@@ -233,7 +230,6 @@
   "mocap.settings.info.about.on_change_dimension": "Définit ce qu'il se passe lorsque le joueur enregistré change de dimension (nothing : ignore le changement, généralement déconseillé car les entités enregistrées apparaîtront dans une dimension inappropriée ; end_recording : met fin à l'enregistrement ; split_recording : sépare l'enregistrement)",
   "mocap.settings.info.about.start_instantly": "Fait démarrer l'enregistrement immédiatement sans attendre un mouvement ou une seconde commande",
   "mocap.settings.info.about.assign_dimension": "Attribue une dimension à l'enregistrement. Voir le paramètre \"dimension_source\" (catégorie \"playback\") pour plus d'informations.",
-  "mocap.settings.info.about.assign_player_name": "Attribue le nom du joueur enregistré à l'enregistrement. Vous devez également activer \"start_as_recorded\" pour que le playback démarre automatiquement en tant que joueur enregistré.",
   "mocap.settings.info.about.chat_recording": "Active l'enregistrement des messages de chat du joueur",
 
   "mocap.settings.info.about.playback_speed": "Permet de modifier la vitesse du playback ou de la scène",
@@ -266,8 +262,6 @@
   "mocap.settings.info.current_value": "§lValeur actuelle:§r %s",
   "mocap.settings.info.default_value": "§lValeur par défaut:§r %s",
   "mocap.settings.info.string_value": "%s %s",
-  "mocap.settings.info.copy_button": "§7[copier]",
-  "mocap.settings.info.copy_button_info": "Copier la valeur dans le presse-papiers",
 
   "mocap.settings.set.success.changed": "Valeur modifiée de %s à %s",
   "mocap.settings.set.success.not_changed": "La valeur est restée inchangée - %s",
@@ -335,5 +329,8 @@
   "mocap.error.failed_to_remove_fake_player": "&lErreur:§r impossible de retirer le faux joueur !",
   "mocap.error.failed_to_init_directories": "&lErreur:§r impossible d'initialiser les répertoires !",
   "mocap.error.unable_to_get_argument": "&lErreur:§r impossible d'obtenir l'argument !",
-  "mocap.error.failed_to_load_scene": "&lErreur:§r impossible de charger le fichier de scène !"
+  "mocap.error.failed_to_load_scene": "&lErreur:§r impossible de charger le fichier de scène !",
+
+  "mocap.common.copy_button": "§7[copier]",
+  "mocap.common.copy_button_info": "Copier la valeur dans le presse-papiers"
 }

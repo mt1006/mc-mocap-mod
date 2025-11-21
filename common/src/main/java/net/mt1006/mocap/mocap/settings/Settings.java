@@ -23,7 +23,7 @@ public class Settings
 	static final SettingFields.EnumField<MocapOnChangeDimension> ON_CHANGE_DIMENSION = RECORDING.add(fields.add("on_change_dimension", MocapOnChangeDimension.END_RECORDING));
 	public static final SettingFields.BooleanField START_INSTANTLY = RECORDING.add(fields.add("start_instantly", false));
 	static final SettingFields.BooleanField ASSIGN_DIMENSION = RECORDING.add(fields.add("assign_dimension", true));
-	static final SettingFields.BooleanField ASSIGN_PLAYER_NAME = RECORDING.add(fields.add("assign_player_name", false));
+	static final SettingFields.EnumField<MocapAssignProfile> ASSIGN_PROFILE = RECORDING.add(fields.add("assign_profile", MocapAssignProfile.NO));
 	static final SettingFields.BooleanField CHAT_RECORDING = RECORDING.add(fields.add("chat_recording", false));
 
 	public static final SettingFields.DoubleField PLAYBACK_SPEED = PLAYBACK.add(fields.add("playback_speed", 1.0));
@@ -53,6 +53,7 @@ public class Settings
 	public static final SettingFields.BooleanField QUICK_DISCARD = ADVANCED.add(fields.add("quick_discard", true));
 	public static final SettingFields.EnumField<RequiredExtensions> REQUIRED_EXTENSIONS = ADVANCED.add(fields.add("required_extensions", RequiredExtensions.LET_EXTENSION_DECIDE));
 	static final SettingFields.EnumField<MocapNbtRecordingMode> NBT_RECORDING_MODE = ADVANCED.add(fields.add("nbt_recording_mode", MocapNbtRecordingMode.FILTERED));
+	public static final SettingFields.BooleanField USE_AUTHLIB_SERVICES = ADVANCED.add(fields.add("use_authlib_services", false));
 
 	public static void save()
 	{

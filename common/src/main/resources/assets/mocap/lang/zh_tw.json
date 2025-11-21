@@ -142,7 +142,6 @@
   "mocap.playback.start.error.empty_scene": "根場景為空！",
   "mocap.playback.start.error.empty_scene.tip": "使用「/mocap scenes add_to」將元素新增至場景",
   "mocap.playback.start.error.load_header": "§l錯誤：§r 無法載入錄製標頭！",
-  "mocap.playback.start.error.profile": "§l錯誤：§r 無法載入玩家設定檔！",
   "mocap.playback.start.warning.unknown_entity": "嘗試使用未知實體作為玩家 - %s",
   "mocap.playback.start.warning.skin.profile": "無法從玩家設定檔載入外觀",
   "mocap.playback.start.warning.skin.file": "無法從檔案載入外觀",
@@ -190,7 +189,6 @@
   "mocap.settings.info.about.block_initialization": "在播放開始時，將方塊狀態設定為錄製開始前的狀態",
 
   "mocap.settings.info.about.fluent_movements": "設定玩家與播放實體之間的距離，以便接收額外的封包以實現更流暢的動作 (>0 - 距離 (格)；0 - 停用流暢動作；-1 - 無限制)",
-  "mocap.settings.info.about.movement_precision": "設定錄製玩家移動的精確度 - 期望位置偏移與計算偏移之間的絕對值差異不會高於 1/val",
   "mocap.settings.info.about.precise_rotation_recording": "提高錄製頭部旋轉的精確度",
   "mocap.settings.info.about.precise_rotation_playback": "提高播放頭部旋轉的精確度 (錄製也需要以更高的精確度錄製才能生效)",
   "mocap.settings.info.about.allow_mineskin_requests": "允許對 mineskin.org 發出 HTTPS 請求以載入外觀",
@@ -203,8 +201,6 @@
   "mocap.settings.info.current_value": "§l目前值：§r %s",
   "mocap.settings.info.default_value": "§l預設值：§r %s",
   "mocap.settings.info.string_value": "%s %s",
-  "mocap.settings.info.copy_button": "§7[複製]",
-  "mocap.settings.info.copy_button_info": "將值複製到剪貼簿",
   
   "mocap.settings.set.success.changed": "值已從 %s 變更為 %s",
   "mocap.settings.set.success.not_changed": "值保持不變 - %s",
@@ -258,5 +254,8 @@
   "mocap.error.failed_to_init_directories": "§l錯誤：§r 無法初始化目錄！",
   "mocap.error.unable_to_get_argument": "§l錯誤：§r 無法取得參數！",
   "mocap.error.failed_to_load_scene": "§l錯誤：§r 無法載入場景檔案！",
-  "mocap.error.failed_to_load_scene.not_supported": "不支援的場景檔案版本"
+  "mocap.error.failed_to_load_scene.not_supported": "不支援的場景檔案版本",
+
+  "mocap.common.copy_button": "§7[複製]",
+  "mocap.common.copy_button_info": "將值複製到剪貼簿"
 }

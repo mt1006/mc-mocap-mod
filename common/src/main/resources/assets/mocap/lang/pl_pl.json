@@ -93,8 +93,13 @@
   "mocap.recordings.info.start_pos": "§lPozycja początkowa:§r %s",
   "mocap.recordings.info.dimension": "§lWymiar:§r %s",
   "mocap.recordings.info.dimension.not_assigned": "§lWymiar:§r §7§o[nie przypisano]§r",
-  "mocap.recordings.info.player_name_assigned.yes": "§lPrzypisano nazwę gracza:§r Tak - %s",
-  "mocap.recordings.info.player_name_assigned.no": "§lPrzypisano nazwę gracza:§r Nie",
+  "mocap.recordings.info.assigned_profile.name.yes": "§lPrzypisany profil > Nazwa:§r %s",
+  "mocap.recordings.info.assigned_profile.name.no": "§lPrzypisany profil > Nazwa:§r §7§o[nie przypisano]§r",
+  "mocap.recordings.info.assigned_profile.uuid.yes": "§lPrzypisany profil > UUID:§r Przypisany %s",
+  "mocap.recordings.info.assigned_profile.uuid.no": "§lPrzypisany profil > UUID:§r Nie przypisany",
+  "mocap.recordings.info.assigned_profile.skin.yes": "§lPrzypisany profil > Skórka:§r Przypisana %s",
+  "mocap.recordings.info.assigned_profile.skin.partially": "§lPrzypisany profil > Skórka:§r Częściowo przypisana",
+  "mocap.recordings.info.assigned_profile.skin.no": "§lPrzypisany profil > Skórka:§r Nie przypisana",
   "mocap.recordings.info.dies.yes": "§lKończy się śmiercią:§r Tak",
   "mocap.recordings.info.dies.no": "§lKończy się śmiercią:§r Nie",
 
@@ -180,7 +185,6 @@
   "mocap.playback.start.error.empty_scene": "Korzeń sceny jest pusty!",
   "mocap.playback.start.error.empty_scene.tip": "Użyj \"/mocap scenes add_to\" aby dodać elementy do sceny",
   "mocap.playback.start.error.load_header": "§lBłąd:§r nie udało się załadować nagłówka nagrania!",
-  "mocap.playback.start.error.profile": "§lBłąd:§r nie udało się załadować profilu gracza!",
   "mocap.playback.start.error.extension.not_present": "§lBłąd:§r wymagane rozszerzenie \"%s\" nie jest obecne!",
   "mocap.playback.start.error.extension.load_header": "§lBłąd:§r rozszerzeniu \"%s\" nie udało się załadować swojego nagłówka!",
   "mocap.playback.start.warning.unknown_entity": "Próba użycia nieznanego bytu jako gracza - %s",
@@ -227,7 +231,7 @@
   "mocap.settings.info.about.on_change_dimension": "Określa co się stanie gdy nagrywany gracz zmieni wymiar (nothing - ignoruje zmianę wymiaru, niezalecane w większości przypadków, gdyż gracz i inne nagrywane byty pojawią się gdzieś w wymiarze w którym nie powinny być; end_recording - kończy nagrywanie; split_recording - dzieli nagranie)",
   "mocap.settings.info.about.start_instantly": "Sprawia, że nagrywanie rozpoczyna się od razu, a nie czeka na ruch gracza lub drugie wywołanie polecenia",
   "mocap.settings.info.about.assign_dimension": "Przypisuje wymiar do nagrania. Zobacz ustawienie \"dimension_source\" (w kategorii \"playback\") po więcej informacji.",
-  "mocap.settings.info.about.assign_player_name": "Przypisuje nazwę nagranego gracza do nagrania. Musisz także włączyć \"start_as_recorded\", aby odtwarzanie nagrania domyślnie rozpoczęło się jako nagrany gracz.",
+  "mocap.settings.info.about.assign_profile": "Przypisuje profile nagranego gracza do nagrania. Musisz także włączyć \"start_as_recorded\", aby odtwarzanie nagrania domyślnie rozpoczęło się jako nagrany gracz (no - wyłączone; only_name - przypisuje tylko nazwę gracza i nic więcej; full - przypisuje nazwę gracza, UUID i skórkę)",
   "mocap.settings.info.about.chat_recording": "Włącza nagrywanie wiadomości graczy na czacie",
 
   "mocap.settings.info.about.playback_speed": "Pozwala na zmianę prędkości odtwarzania nagrania lub sceny",
@@ -256,12 +260,11 @@
   "mocap.settings.info.about.quick_discard": "Pozwala na szybkie odrzucenie pojedyńczego nagrania przez ponowne użycie polecenia \"stop\"",
   "mocap.settings.info.about.required_extensions": "Określa kiedy i czy powinien zostać wyrzucony błąd gdy brakuje rozszerzenia użytego w nagraniu",
   "mocap.settings.info.about.nbt_recording_mode": "Określa co powinno być włączone do nagrywanych tagów NBT bytów nie będących graczem (disabled - dane NBT nie będą nagrywane, niezalecane; filtered - dane NBT będą nagrywane, ale znane, niepotrzebne tagi będą wykluczone, miej na uwadze fakt, że może to zmienić zachowanie bytów w porównaniu z oryginałem (np. dystans śledzenia) w przypadku kiedy po odtworzeniu chcesz puścić byty wolno; full - nagra wszystkie tagi NBT oprócz kilku które mogą spowodować problemy)",
+  "mocap.settings.info.about.use_authlib_services": "Włącza użycie metod authlib do pobierania profilów graczy, zamiast własnej implementacji. Przydatne gdy zdefiniowałeś własne linki do usług mojang lub proxy, albo w przypadku gdy własna implementacja przestanie działać.",
 
   "mocap.settings.info.current_value": "§lObecna wartość:§r %s",
   "mocap.settings.info.default_value": "§lDomyślna wartość:§r %s",
   "mocap.settings.info.string_value": "%s %s",
-  "mocap.settings.info.copy_button": "§7[kopiuj]",
-  "mocap.settings.info.copy_button_info": "Kopiuj wartość do schowka",
 
   "mocap.settings.set.success.changed": "Wartość zmieniona z %s na %s",
   "mocap.settings.set.success.not_changed": "Wartość pozostała niezmieniona - %s",
@@ -325,6 +328,9 @@
   "mocap.error.unable_to_get_argument": "§lBłąd:§r nie udało się pobrać argumentów!",
   "mocap.error.failed_to_load_scene": "§lBłąd:§r nie udało się załadować pliku sceny!",
   "mocap.error.failed_to_load_scene.not_supported": "§lBłąd:§r nie udało się załadować pliku sceny!\nNiewspierana wersja pliku sceny",
+
+  "mocap.common.copy_button": "§7[kopiuj]",
+  "mocap.common.copy_button_info": "Kopiuj wartość do schowka",
 
   "modmenu.descriptionTranslation.mocap": "Pozwala na nagrywanie i odtwarzanie ruchów graczy."
 }

@@ -1,9 +1,6 @@
 package net.mt1006.mocap.mocap.settings;
 
-import net.mt1006.mocap.api.v1.controller.config.MocapNbtRecordingMode;
-import net.mt1006.mocap.api.v1.controller.config.MocapOnChangeDimension;
-import net.mt1006.mocap.api.v1.controller.config.MocapOnDeath;
-import net.mt1006.mocap.api.v1.controller.config.MocapRecordingConfig;
+import net.mt1006.mocap.api.v1.controller.config.*;
 import org.jetbrains.annotations.Nullable;
 
 public class RecordingConfig implements MocapRecordingConfig
@@ -13,7 +10,7 @@ public class RecordingConfig implements MocapRecordingConfig
 	private @Nullable MocapOnDeath onDeath;
 	private @Nullable MocapOnChangeDimension onChangeDimension;
 	private @Nullable Boolean assignDimension;
-	private @Nullable Boolean assignPlayerName;
+	private @Nullable MocapAssignProfile assignProfile;
 	private @Nullable Boolean chatRecording;
 	private @Nullable MocapNbtRecordingMode nbtRecordingMode;
 
@@ -24,7 +21,7 @@ public class RecordingConfig implements MocapRecordingConfig
 		onDeath = setDefault ? Settings.ON_DEATH.defVal : null;
 		onChangeDimension = setDefault ? Settings.ON_CHANGE_DIMENSION.defVal : null;
 		assignDimension = setDefault ? Settings.ASSIGN_DIMENSION.defVal : null;
-		assignPlayerName = setDefault ? Settings.ASSIGN_PLAYER_NAME.defVal : null;
+		assignProfile = setDefault ? Settings.ASSIGN_PROFILE.defVal : null;
 		chatRecording = setDefault ? Settings.CHAT_RECORDING.defVal : null;
 		nbtRecordingMode = setDefault ? Settings.NBT_RECORDING_MODE.defVal : null;
 	}
@@ -36,7 +33,7 @@ public class RecordingConfig implements MocapRecordingConfig
 		onDeath = toCopy.onDeath;
 		onChangeDimension = toCopy.onChangeDimension;
 		assignDimension = toCopy.assignDimension;
-		assignPlayerName = toCopy.assignPlayerName;
+		assignProfile = toCopy.assignProfile;
 		chatRecording = toCopy.chatRecording;
 		nbtRecordingMode = toCopy.nbtRecordingMode;
 	}
@@ -96,14 +93,14 @@ public class RecordingConfig implements MocapRecordingConfig
 		assignDimension = val;
 	}
 
-	@Override public boolean getAssignPlayerName()
+	@Override public MocapAssignProfile getAssignProfile()
 	{
-		return assignPlayerName != null ? assignPlayerName : Settings.ASSIGN_PLAYER_NAME.val;
+		return assignProfile != null ? assignProfile : Settings.ASSIGN_PROFILE.val;
 	}
 
-	@Override public void setAssignPlayerName(@Nullable Boolean val)
+	@Override public void setAssignProfile(@Nullable MocapAssignProfile val)
 	{
-		assignPlayerName = val;
+		assignProfile = val;
 	}
 
 	@Override public boolean getChatRecording()

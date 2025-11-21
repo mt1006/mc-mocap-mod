@@ -1,7 +1,7 @@
 package net.mt1006.mocap.mocap.playing.playback;
 
 import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.properties.PropertyMap;
+import com.mojang.authlib.properties.Property;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
 import net.minecraft.resources.ResourceKey;
@@ -15,6 +15,7 @@ import net.minecraft.world.phys.Vec3;
 import net.mt1006.mocap.MocapMod;
 import net.mt1006.mocap.api.v1.controller.config.MocapDimensionSource;
 import net.mt1006.mocap.api.v1.controller.config.MocapPlaybackConfig;
+import net.mt1006.mocap.api.v1.controller.playable.MocapRecordingFile;
 import net.mt1006.mocap.api.v1.extension.actions.MocapAction;
 import net.mt1006.mocap.api.v1.io.CommandInfo;
 import net.mt1006.mocap.api.v1.modifiers.MocapModifiers;
@@ -29,8 +30,6 @@ import net.mt1006.mocap.utils.FakePlayer;
 import net.mt1006.mocap.utils.ProfileUtils;
 import net.mt1006.mocap.utils.Utils;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.UUID;
 
 public class RecordingPlayback extends Playback
 {
@@ -51,14 +50,8 @@ public class RecordingPlayback extends Playback
 	{
 		if (recording == null) { throw new RuntimeException("Provided recording data is null!"); }
 
-		GameProfile oldProfile = getGameProfile(info, modifiers.getPlayerName(), recording.playerName, config.getStartAsRecorded());
-		if (oldProfile == null)
-		{
-			info.sendFailure("playback.start.error");
-			info.sendFailure("playback.start.error.profile");
-			return null;
-		}
-		GameProfile newProfile = createNewProfile(info, oldProfile, modifiers.getPlayerSkin());
+		ProfileUtils.Profile oldProfile = getGameProfile(info, modifiers.getPlayerName(), recording.assignedProfile, config.getStartAsRecorded());
+		GameProfile newProfile = createNewProfile(info, oldProfile.name, oldProfile.skin, modifiers.getPlayerSkin());
 
 		ServerLevel level = getLevel(info, recording, config.getDimensionSource());
 		PlayerList packetTargets = info.getServer().getPlayerList();
@@ -152,28 +145,28 @@ public class RecordingPlayback extends Playback
 		}
 	}
 
-	private static @Nullable GameProfile getGameProfile(CommandInfo info, @Nullable String profileName,
-														@Nullable String recordedName, boolean startAsRecorded)
+	private static ProfileUtils.Profile getGameProfile(CommandInfo info, @Nullable String profileName,
+														MocapRecordingFile.AssignedProfile recordedProfile, boolean startAsRecorded)
 	{
 		Entity entity = info.getSourceEntity();
 		PlayerList playerList = info.getServer().getPlayerList();
 
 		if (profileName == null)
 		{
-			if (startAsRecorded && recordedName != null) { profileName = recordedName; }
+			if (startAsRecorded && recordedProfile.name() != null) { profileName = recordedProfile.name(); }
 			else if (entity instanceof ServerPlayer) { profileName = ((ServerPlayer)entity).getGameProfile().name(); }
 			else if (!playerList.getPlayers().isEmpty()) { profileName = playerList.getPlayers().get(0).getGameProfile().name(); }
 			else { profileName = "Player"; }
 		}
 
-		return ProfileUtils.getGameProfile(info.getServer(), profileName);
+		return ProfileUtils.getProfile(info.getServer(), profileName, true);
 	}
 
-	private static GameProfile createNewProfile(CommandInfo info, GameProfile oldProfile, MocapPlayerSkin playerSkin)
+	private static GameProfile createNewProfile(CommandInfo info, String name, @Nullable Property oldSkinProperty, MocapPlayerSkin playerSkin)
 	{
-		// duplicates oldProfile but with random UUID and proper player skin
-		PropertyMap newPropertyMap = playerSkin.addSkinToPropertyMap(info, oldProfile.properties());
-		return new GameProfile(UUID.randomUUID(), oldProfile.name(), newPropertyMap);
+		Property skinProperty = playerSkin.getSkinProperty(info, oldSkinProperty);
+		Property customSkinProperty = playerSkin.getCustomSkinProperty();
+		return ProfileUtils.createGameProfile(name, skinProperty, customSkinProperty);
 	}
 
 	@Override public void tick()
