@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class MocapMod
 {
@@ -44,12 +45,12 @@ public class MocapMod
 
 	public static String getName()
 	{
-		return String.format("Mocap v%s", loaderInterface.getModVersion());
+		return String.format(Locale.ROOT, "Mocap v%s", loaderInterface.getModVersion());
 	}
 
 	public static String getFullName()
 	{
-		return String.format("Mocap v%s for Minecraft %s [%s]",
+		return String.format(Locale.ROOT, "Mocap v%s for Minecraft %s [%s]",
 				loaderInterface.getModVersion(), FOR_VERSION, loaderInterface.getLoaderName());
 	}
 }

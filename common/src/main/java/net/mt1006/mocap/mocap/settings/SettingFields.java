@@ -21,6 +21,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.CompletableFuture;
@@ -327,13 +328,13 @@ public class SettingFields
 
 		@Override public T parseFromString(String str)
 		{
-			return Enum.valueOf(enumClass, str.toUpperCase());
+			return Enum.valueOf(enumClass, str.toUpperCase(Locale.ROOT));
 		}
 
 		@Override public @Nullable T parseFromCommand(FullCommandInfo info)
 		{
 			String newValue = info.getString("new_value");
-			try { return Enum.valueOf(enumClass, newValue.toUpperCase()); }
+			try { return Enum.valueOf(enumClass, newValue.toUpperCase(Locale.ROOT)); }
 			catch (Exception e) { return null; }
 		}
 
@@ -344,7 +345,7 @@ public class SettingFields
 
 		@Override protected String valToString(T val)
 		{
-			return val.toString().toLowerCase();
+			return val.toString().toLowerCase(Locale.ROOT);
 		}
 
 		@Override public SuggestionProvider<CommandSourceStack> getSuggestionProvider()
@@ -357,7 +358,7 @@ public class SettingFields
 			String remaining = builder.getRemaining();
 			for (Enum<T> e : constants)
 			{
-				String str = e.name().toLowerCase();
+				String str = e.name().toLowerCase(Locale.ROOT);
 				if (str.startsWith(remaining)) { builder.suggest(str); }
 			}
 			return builder.buildFuture();

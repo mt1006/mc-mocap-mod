@@ -251,7 +251,7 @@ public class EntityFilterInstance
 
 		Group(List<Class<?>> parent)
 		{
-			this.name = name().toLowerCase();
+			this.name = name().toLowerCase(Locale.ROOT);
 			this.include = new GroupElement(false, name, parent);
 			this.exclude = new GroupElement(true, name, parent);
 		}
@@ -260,7 +260,7 @@ public class EntityFilterInstance
 		{
 			try
 			{
-				Group group = valueOf(str.toUpperCase());
+				Group group = valueOf(str.toUpperCase(Locale.ROOT));
 				return exclude ? group.exclude : group.include;
 			}
 			catch (IllegalArgumentException e) { return null; }

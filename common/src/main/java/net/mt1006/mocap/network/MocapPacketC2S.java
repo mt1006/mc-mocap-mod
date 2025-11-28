@@ -11,9 +11,11 @@ import net.mt1006.mocap.mocap.playing.skins.CustomServerSkinManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Locale;
+
 public class MocapPacketC2S implements CustomPacketPayload
 {
-	private static final String TYPE_ID = MocapMod.loaderInterface.getLoaderName().toLowerCase() + "_c2s";
+	private static final String TYPE_ID = MocapMod.loaderInterface.getLoaderName().toLowerCase(Locale.ROOT) + "_c2s";
 	public static final Type<MocapPacketC2S> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(MocapMod.MOD_ID, TYPE_ID));
 	public static final StreamCodec<FriendlyByteBuf, MocapPacketC2S> CODEC = StreamCodec.of((b, p) -> p.encode(b), MocapPacketC2S::new);
 

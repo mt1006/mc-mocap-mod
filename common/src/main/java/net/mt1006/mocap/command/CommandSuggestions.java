@@ -143,7 +143,7 @@ public class CommandSuggestions
 
 		for (MocapEntityFilterBuilder.Group group : MocapEntityFilterBuilder.Group.values())
 		{
-			list.add("@" + group.name().toLowerCase());
+			list.add("@" + group.name().toLowerCase(Locale.ROOT));
 		}
 
 		Set<String> namespaces = new HashSet<>();

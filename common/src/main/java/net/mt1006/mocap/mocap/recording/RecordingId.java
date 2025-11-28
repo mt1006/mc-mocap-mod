@@ -5,6 +5,7 @@ import net.mt1006.mocap.MocapMod;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.Locale;
 
 public class RecordingId
 {
@@ -53,7 +54,7 @@ public class RecordingId
 				throw new RuntimeException();
 		}
 
-		this.str = String.format("-%s.%s.%s", getNotNullPart(source), getNotNullPart(recorded), getNotNullPart(name));
+		this.str = String.format(Locale.ROOT, "-%s.%s.%s", getNotNullPart(source), getNotNullPart(recorded), getNotNullPart(name));
 	}
 
 	public RecordingId(Collection<RecordingContext> contexts, ServerPlayer recordedPlayer, @Nullable String source)
@@ -83,7 +84,7 @@ public class RecordingId
 		}
 
 		String name = Long.toString(maxId + 1);
-		String finalId = String.format("-%s.%s.%s", source, recorded, name);
+		String finalId = String.format(Locale.ROOT, "-%s.%s.%s", source, recorded, name);
 
 		for (RecordingContext ctx : contexts)
 		{

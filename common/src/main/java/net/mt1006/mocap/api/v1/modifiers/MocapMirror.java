@@ -4,6 +4,8 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Locale;
+
 public enum MocapMirror
 {
 	NONE(false, false),
@@ -25,7 +27,7 @@ public enum MocapMirror
 	{
 		try
 		{
-			return str != null ? MocapMirror.valueOf(str.toUpperCase()) : NONE;
+			return str != null ? MocapMirror.valueOf(str.toUpperCase(Locale.ROOT)) : NONE;
 		}
 		catch (IllegalArgumentException e) { return NONE; }
 	}
@@ -35,7 +37,7 @@ public enum MocapMirror
 	{
 		try
 		{
-			return str != null ? MocapMirror.valueOf(str.toUpperCase()) : null;
+			return str != null ? MocapMirror.valueOf(str.toUpperCase(Locale.ROOT)) : null;
 		}
 		catch (IllegalArgumentException e) { return null; }
 	}
@@ -43,7 +45,7 @@ public enum MocapMirror
 	@ApiStatus.Internal
 	public @Nullable String save()
 	{
-		return this == NONE ? null : name().toLowerCase();
+		return this == NONE ? null : name().toLowerCase(Locale.ROOT);
 	}
 
 	@ApiStatus.Internal

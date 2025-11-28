@@ -68,8 +68,8 @@ public class RecordingFiles
 		out.sendSuccess("file.info.name", file.getName());
 		if (!Files.printVersionInfo(out, VERSION, info.version(), info.experimental(), info.experimentalSubversion())) { return true; }
 
-		out.sendSuccess("recordings.info.length", String.format("%.2f", info.lengthInTicks() / 20.0), info.lengthInTicks());
-		out.sendSuccess("recordings.info.size", String.format("%.2f", info.sizeInBytes() / 1024.0), info.sizeInOps());
+		out.sendSuccess("recordings.info.length", String.format(Locale.ROOT, "%.2f", info.lengthInTicks() / 20.0), info.lengthInTicks());
+		out.sendSuccess("recordings.info.size", String.format(Locale.ROOT, "%.2f", info.sizeInBytes() / 1024.0), info.sizeInOps());
 
 		printPosInfo(out, info);
 
@@ -89,18 +89,18 @@ public class RecordingFiles
 				&& (Settings.DIMENSION_SOURCE.val == MocapDimensionSource.ASSIGNED_OR_CURRENT
 				|| Settings.DIMENSION_SOURCE.val == MocapDimensionSource.ASSIGNED_OR_OVERWORLD));
 
-		String xStr = String.format(Locale.US, "%.2f", info.startPos().x);
-		String yStr = String.format(Locale.US, "%.2f", info.startPos().y);
-		String zStr = String.format(Locale.US, "%.2f", info.startPos().z);
+		String xStr = String.format(Locale.ROOT, "%.2f", info.startPos().x);
+		String yStr = String.format(Locale.ROOT, "%.2f", info.startPos().y);
+		String zStr = String.format(Locale.ROOT, "%.2f", info.startPos().z);
 		String command = anotherDimension
-				? String.format("/execute in %s run tp @p %s %s %s", dimensionId, xStr, yStr, zStr)
-				: String.format("/tp @p %s %s %s", xStr, yStr, zStr);
+				? String.format(Locale.ROOT, "/execute in %s run tp @p %s %s %s", dimensionId, xStr, yStr, zStr)
+				: String.format(Locale.ROOT, "/tp @p %s %s %s", xStr, yStr, zStr);
 
-		String text = String.format("%s %s %s", xStr, yStr, zStr);
+		String text = String.format(Locale.ROOT, "%s %s %s", xStr, yStr, zStr);
 		if (anotherDimension)
 		{
 			String dimensionIdStr = dimensionId.getNamespace().equals("minecraft") ? dimensionId.getPath() : dimensionId.toString();
-			text += String.format(" (%s)", dimensionIdStr);
+			text += String.format(Locale.ROOT, " (%s)", dimensionIdStr);
 		}
 
 		MutableComponent tpSuggestionComponent = Utils.getSuggestCommandComponent(command,
@@ -169,7 +169,7 @@ public class RecordingFiles
 
 		for (int i = suffix + 1; i <= suffix + ALT_NAME_MAX_I ; i++)
 		{
-			String possibleName = String.format("%s%d", prefix, i);
+			String possibleName = String.format(Locale.ROOT, "%s%d", prefix, i);
 			if (!CommandSuggestions.inputSet.contains(possibleName)) { return possibleName; }
 		}
 		return null;

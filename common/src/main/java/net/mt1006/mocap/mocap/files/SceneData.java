@@ -19,6 +19,7 @@ import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class SceneData
 {
@@ -120,7 +121,7 @@ public class SceneData
 		int id = 1;
 		for (MocapSceneElement element : this.elements)
 		{
-			elements.add(String.format("%03d-%s", id, element.getName()));
+			elements.add(String.format(Locale.ROOT, "%03d-%s", id, element.getName()));
 			id++;
 		}
 

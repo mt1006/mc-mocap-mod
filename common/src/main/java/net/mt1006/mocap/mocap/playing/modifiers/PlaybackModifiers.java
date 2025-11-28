@@ -13,6 +13,8 @@ import net.mt1006.mocap.mocap.files.SceneFiles;
 import net.mt1006.mocap.utils.Utils;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Locale;
+
 public class PlaybackModifiers implements MocapModifiers
 {
 	public static final PlaybackModifiers DEFAULT = new PlaybackModifiers(null, PlayerSkin.DEFAULT,
@@ -155,7 +157,7 @@ public class PlaybackModifiers implements MocapModifiers
 			case FROM_MINESKIN:
 				out.sendSuccess("scenes.element_info.skin.mineskin");
 				Component urlComponent = Utils.getOpenUrlComponent(playerSkin.getPath(),
-						Component.literal(String.format("  (§n%s§r)", playerSkin.getPath())));
+						Component.literal(String.format(Locale.ROOT, "  (§n%s§r)", playerSkin.getPath())));
 				out.sendSuccessComponent(urlComponent);
 				break;
 		}

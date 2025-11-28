@@ -19,6 +19,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 public class SceneFiles
 {
@@ -163,7 +164,7 @@ public class SceneFiles
 		out.sendSuccess("file.info.name", name);
 		if (!Files.printVersionInfo(out, VERSION, sceneData.version, sceneData.experimentalVersion, 0)) { return true; }
 
-		return out.sendSuccess("scenes.info.size", String.format("%.2f", sceneData.fileSize / 1024.0), sceneData.elements.size());
+		return out.sendSuccess("scenes.info.size", String.format(Locale.ROOT, "%.2f", sceneData.fileSize / 1024.0), sceneData.elements.size());
 	}
 
 	public static @Nullable List<String> list()
@@ -239,7 +240,7 @@ public class SceneFiles
 
 		public <T extends Enum<T>> void addEnum(String name, T val, T def)
 		{
-			if (val != def) { json.add(name, new JsonPrimitive(val.name().toLowerCase())); }
+			if (val != def) { json.add(name, new JsonPrimitive(val.name().toLowerCase(Locale.ROOT))); }
 		}
 	}
 
@@ -281,7 +282,7 @@ public class SceneFiles
 		public <T extends Enum<T>> T readEnum(String name, T def)
 		{
 			JsonElement element = json.get(name);
-			return element != null ? Enum.valueOf(def.getDeclaringClass(), element.getAsString().toUpperCase()) : def;
+			return element != null ? Enum.valueOf(def.getDeclaringClass(), element.getAsString().toUpperCase(Locale.ROOT)) : def;
 		}
 	}
 }

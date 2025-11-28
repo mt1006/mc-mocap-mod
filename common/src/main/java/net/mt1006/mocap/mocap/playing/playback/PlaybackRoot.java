@@ -5,6 +5,8 @@ import net.mt1006.mocap.api.v1.controller.MocapPlaybackRoot;
 import net.mt1006.mocap.api.v1.controller.config.MocapPlaybackConfig;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Locale;
+
 public class PlaybackRoot implements MocapPlaybackRoot
 {
 	private final Playback instance;
@@ -19,7 +21,7 @@ public class PlaybackRoot implements MocapPlaybackRoot
 		this.instance = instance;
 		this.id = String.valueOf(id);
 		this.name = name;
-		this.suggestedId = String.format("%03d-%s", id, name);
+		this.suggestedId = String.format(Locale.ROOT, "%03d-%s", id, name);
 		this.config = config;
 		this.isHidden = isHidden;
 	}

@@ -17,6 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 public class Transformations implements MocapTransformations
 {
@@ -342,7 +343,7 @@ public class Transformations implements MocapTransformations
 	@Override public void list(CommandOutput out)
 	{
 		out.sendSuccess("scenes.element_info.transformations.rotation", rotation.deg);
-		out.sendSuccess("scenes.element_info.transformations.mirror." + mirror.name().toLowerCase());
+		out.sendSuccess("scenes.element_info.transformations.mirror." + mirror.name().toLowerCase(Locale.ROOT));
 
 		if (scale.playerScale == 1.0) {out.sendSuccess("scenes.element_info.transformations.player_scale.normal");}
 		else {out.sendSuccess("scenes.element_info.transformations.player_scale.custom", scale.playerScale);}

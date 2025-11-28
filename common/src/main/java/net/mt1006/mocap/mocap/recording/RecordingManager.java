@@ -391,7 +391,7 @@ public class RecordingManager
 		List<File> files = new ArrayList<>();
 		for (int i = 1; i <= stopped.size(); i++)
 		{
-			String filename = String.format("%s%d", namePrefix, i);
+			String filename = String.format(Locale.ROOT, "%s%d", namePrefix, i);
 			RecordingFile recordingFile = RecordingFile.get(out, filename);
 			if (recordingFile == null) { return false; }
 

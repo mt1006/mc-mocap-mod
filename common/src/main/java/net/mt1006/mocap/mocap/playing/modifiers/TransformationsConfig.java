@@ -8,6 +8,8 @@ import net.mt1006.mocap.command.io.FullCommandInfo;
 import net.mt1006.mocap.mocap.files.SceneFiles;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Locale;
+
 public class TransformationsConfig implements MocapTransformationsConfig
 {
 	public static final TransformationsConfig DEFAULT = new TransformationsConfig(false, RecordingCenter.AUTO, SceneCenter.DEFAULT, MocapOffset.ZERO);
@@ -132,13 +134,13 @@ public class TransformationsConfig implements MocapTransformationsConfig
 
 			case "recording_center":
 				String centerPointStr = info.getNode(propertyNodePos + 1);
-				return centerPointStr != null ? withRecordingCenter(RecordingCenter.valueOf(centerPointStr.toUpperCase())) : null;
+				return centerPointStr != null ? withRecordingCenter(RecordingCenter.valueOf(centerPointStr.toUpperCase(Locale.ROOT))) : null;
 
 			case "scene_center":
 				String sceneCenterStr = info.getNode(propertyNodePos + 1);
 				if (sceneCenterStr == null) { return null; }
 
-				SceneCenterType centerType = SceneCenterType.valueOf(sceneCenterStr.toUpperCase());
+				SceneCenterType centerType = SceneCenterType.valueOf(sceneCenterStr.toUpperCase(Locale.ROOT));
 				String specificStr = centerType == SceneCenterType.COMMON_SPECIFIC ? info.getString("specific_scene_element") : null;
 
 				return withSceneCenter(centerType, specificStr);
@@ -188,7 +190,7 @@ public class TransformationsConfig implements MocapTransformationsConfig
 		@Override public String toString()
 		{
 			return (type == SceneCenterType.COMMON_SPECIFIC)
-					? String.format("%s [%s]", type.name(), specificStr)
+					? String.format(Locale.ROOT, "%s [%s]", type.name(), specificStr)
 					: type.name();
 		}
 	}

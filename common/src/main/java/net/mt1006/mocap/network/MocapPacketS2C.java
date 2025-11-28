@@ -11,11 +11,12 @@ import net.mt1006.mocap.events.PlayerConnectionEvent;
 import net.mt1006.mocap.mocap.playing.skins.CustomClientSkinManager;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Locale;
 import java.util.UUID;
 
 public class MocapPacketS2C implements CustomPacketPayload
 {
-	private static final String TYPE_ID = MocapMod.loaderInterface.getLoaderName().toLowerCase() + "_s2c";
+	private static final String TYPE_ID = MocapMod.loaderInterface.getLoaderName().toLowerCase(Locale.ROOT) + "_s2c";
 	public static final Type<MocapPacketS2C> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(MocapMod.MOD_ID, TYPE_ID));
 	public static final StreamCodec<FriendlyByteBuf, MocapPacketS2C> CODEC = StreamCodec.of((b, p) -> p.encode(b), MocapPacketS2C::new);
 

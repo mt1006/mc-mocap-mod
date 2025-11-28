@@ -28,6 +28,8 @@ import net.mt1006.mocap.mocap.settings.Settings;
 import net.mt1006.mocap.utils.Utils;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Locale;
+
 public class FullCommandInfo implements CommandInfo
 {
 	public final CommandContext<CommandSourceStack> ctx;
@@ -55,7 +57,7 @@ public class FullCommandInfo implements CommandInfo
 
 	@Override public boolean sendSuccessLiteral(String format, Object... args)
 	{
-		source.sendSuccess(() -> Component.literal(String.format(format, args)), false);
+		source.sendSuccess(() -> Component.literal(String.format(Locale.ROOT, format, args)), false);
 		return true;
 	}
 
