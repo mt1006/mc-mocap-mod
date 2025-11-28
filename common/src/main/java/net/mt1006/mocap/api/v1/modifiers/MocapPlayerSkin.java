@@ -3,6 +3,7 @@ package net.mt1006.mocap.api.v1.modifiers;
 import com.mojang.authlib.properties.Property;
 import net.mt1006.mocap.api.v1.io.CommandInfo;
 import net.mt1006.mocap.mocap.files.SceneFiles;
+import net.mt1006.mocap.mocap.playing.PlaybackDataManager;
 import net.mt1006.mocap.mocap.playing.modifiers.PlayerSkin;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
@@ -41,6 +42,9 @@ public interface MocapPlayerSkin
 
 	@ApiStatus.Internal
 	MocapPlayerSkin mergeWithParent(MocapPlayerSkin parent);
+
+	@ApiStatus.Internal
+	MocapPlayerSkin resolveList(PlaybackDataManager dataManager);
 
 	enum Source
 	{

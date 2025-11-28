@@ -20,7 +20,9 @@ public class Files
 	public static final String RECORDING_EXTENSION = ".mcmocap_rec";
 	public static final String SCENE_EXTENSION = ".mcmocap_scene";
 	private static final String SKIN_EXTENSION = ".png";
+	public static final String SKIN_LIST_EXTENSION = ".txt";
 	public static final String SLIM_SKIN_PREFIX = "slim/";
+	public static final String SKIN_LIST_PREFIX = "list/";
 
 	public static boolean initialized = false;
 	public static File mocapDirectory = null;
@@ -28,6 +30,7 @@ public class Files
 	public static File sceneDirectory = null;
 	public static File skinDirectory = null;
 	public static File slimSkinDirectory = null;
+	public static File skinListDirectory = null;
 
 	public static void init()
 	{
@@ -42,6 +45,7 @@ public class Files
 		sceneDirectory = createDirectory(mocapDirectory, SCENE_DIR_NAME);
 		skinDirectory = createDirectory(mocapDirectory, SKIN_DIR_NAME);
 		slimSkinDirectory = createDirectory(skinDirectory, SLIM_SKIN_DIR_NAME);
+		skinListDirectory = createDirectory(skinDirectory, SKIN_LIST_PREFIX);
 
 		if (!mocapDirectory.isDirectory() || !recordingsDirectory.isDirectory() || !sceneDirectory.isDirectory()
 				|| !skinDirectory.isDirectory() || !slimSkinDirectory.isDirectory())
@@ -133,20 +137,28 @@ public class Files
 
 	public static boolean isRecordingFile(File directory, String name)
 	{
-		File file = new File(directory, name);
-		return !file.isDirectory() && name.endsWith(RECORDING_EXTENSION) && checkIfProperName(CommandOutput.DUMMY, name);
+		return isProperFile(directory, name, RECORDING_EXTENSION);
 	}
 
 	public static boolean isSceneFile(File directory, String name)
 	{
-		File file = new File(directory, name);
-		return !file.isDirectory() && name.endsWith(SCENE_EXTENSION) && checkIfProperName(CommandOutput.DUMMY, name);
+		return isProperFile(directory, name, SCENE_EXTENSION);
 	}
 
 	public static boolean isSkinFile(File directory, String name)
 	{
+		return isProperFile(directory, name, SKIN_EXTENSION);
+	}
+
+	public static boolean isSkinListFile(File directory, String name)
+	{
+		return isProperFile(directory, name, SKIN_LIST_EXTENSION);
+	}
+
+	private static boolean isProperFile(File directory, String name, String extension)
+	{
 		File file = new File(directory, name);
-		return !file.isDirectory() && name.endsWith(SKIN_EXTENSION) && checkIfProperName(CommandOutput.DUMMY, name);
+		return !file.isDirectory() && name.endsWith(extension) && checkIfProperName(CommandOutput.DUMMY, name);
 	}
 
 	public static boolean isAllowedInInputName(int c)

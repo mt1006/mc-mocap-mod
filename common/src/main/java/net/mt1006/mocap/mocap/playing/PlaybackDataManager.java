@@ -4,21 +4,28 @@ import net.mt1006.mocap.api.v1.controller.playable.MocapRecordingFile;
 import net.mt1006.mocap.api.v1.controller.playable.MocapSceneElement;
 import net.mt1006.mocap.api.v1.controller.playable.MocapSceneFile;
 import net.mt1006.mocap.api.v1.io.CommandOutput;
+import net.mt1006.mocap.mocap.files.Files;
 import net.mt1006.mocap.mocap.files.RecordingData;
 import net.mt1006.mocap.mocap.files.SceneData;
+import net.mt1006.mocap.mocap.files.SkinList;
 import net.mt1006.mocap.mocap.playing.playable.Playable;
 import net.mt1006.mocap.mocap.playing.playable.RecordingFile;
 import net.mt1006.mocap.mocap.playing.playable.SceneFile;
+import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.Stack;
 
 public class PlaybackDataManager
 {
+	public final Random random = new Random();
 	private final Map<MocapRecordingFile, RecordingData> recordingMap = new HashMap<>();
 	private final Map<MocapSceneFile, SceneData> sceneMap = new HashMap<>();
 	private final Stack<Playable> resourceStack = new Stack<>();
+	private final Map<String, @Nullable SkinList> skinListMap = new HashMap<>();
 
 	public boolean loadRecording(CommandOutput out, RecordingFile file)
 	{
@@ -89,7 +96,28 @@ public class PlaybackDataManager
 		return false;
 	}
 
-	// this and other queries to map are not marked as nullable, as they should've been preloaded by "load" methods
+	public @Nullable SkinList loadOrGetSkinList(String name)
+	{
+		SkinList skinList = skinListMap.get(name);
+		if (skinList == null)
+		{
+			skinList = loadSkinList(name);
+			skinListMap.put(name, skinList);
+		}
+		return skinList;
+	}
+
+	private @Nullable SkinList loadSkinList(String name)
+	{
+		if (!name.startsWith(Files.SKIN_LIST_PREFIX)) { return null; }
+		name = name.substring(Files.SKIN_LIST_PREFIX.length());
+
+		return Files.check(CommandOutput.DUMMY, name)
+				? SkinList.load(new File(Files.skinListDirectory, name + Files.SKIN_LIST_EXTENSION))
+				: null;
+	}
+
+	// getRecording and getScene are not marked as nullable, as they should've been preloaded by "load" methods
 	public RecordingData getRecording(MocapRecordingFile file)
 	{
 		return recordingMap.get(file);

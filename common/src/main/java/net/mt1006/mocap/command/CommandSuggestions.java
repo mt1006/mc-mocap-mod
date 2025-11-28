@@ -19,6 +19,7 @@ import net.mt1006.mocap.mocap.recording.RecordingManager;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 
 public class CommandSuggestions
 {
@@ -207,22 +208,12 @@ public class CommandSuggestions
 		skinFileSet.clear();
 		if (!Files.initialized) { return; }
 
-		String[] skinList = Files.skinDirectory.list(Files::isSkinFile);
-		String[] slimSkinList = Files.slimSkinDirectory.list(Files::isSkinFile);
+		String[] skins = Files.skinDirectory.list(Files::isSkinFile);
+		String[] slimSkins = Files.slimSkinDirectory.list(Files::isSkinFile);
+		String[] skinLists = Files.skinListDirectory.list(Files::isSkinListFile);
 
-		if (skinList != null)
-		{
-			for (String filename : skinList)
-			{
-				skinFileSet.add(filename.substring(0, filename.lastIndexOf('.')));
-			}
-		}
-		if (slimSkinList != null)
-		{
-			for (String filename : slimSkinList)
-			{
-				skinFileSet.add("slim/" + filename.substring(0, filename.lastIndexOf('.')));
-			}
-		}
+		if (skins != null) { Stream.of(skins).forEach((f) -> skinFileSet.add(f.substring(0, f.lastIndexOf('.')))); }
+		if (slimSkins != null) { Stream.of(slimSkins).forEach((f) -> skinFileSet.add("slim/" + f.substring(0, f.lastIndexOf('.')))); }
+		if (skinLists != null) { Stream.of(skinLists).forEach((f) -> skinFileSet.add("list/" + f.substring(0, f.lastIndexOf('.')))); }
 	}
 }

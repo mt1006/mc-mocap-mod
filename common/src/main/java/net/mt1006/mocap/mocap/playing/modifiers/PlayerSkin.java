@@ -4,7 +4,10 @@ import com.mojang.authlib.properties.Property;
 import net.mt1006.mocap.api.v1.io.CommandInfo;
 import net.mt1006.mocap.api.v1.io.CommandOutput;
 import net.mt1006.mocap.api.v1.modifiers.MocapPlayerSkin;
+import net.mt1006.mocap.mocap.files.Files;
 import net.mt1006.mocap.mocap.files.SceneFiles;
+import net.mt1006.mocap.mocap.files.SkinList;
+import net.mt1006.mocap.mocap.playing.PlaybackDataManager;
 import net.mt1006.mocap.mocap.playing.skins.CustomServerSkinManager;
 import net.mt1006.mocap.mocap.settings.Settings;
 import net.mt1006.mocap.utils.ProfileUtils;
@@ -15,6 +18,7 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Scanner;
+import java.util.Stack;
 
 public class PlayerSkin implements MocapPlayerSkin
 {
@@ -122,6 +126,30 @@ public class PlayerSkin implements MocapPlayerSkin
 		return (source != Source.DEFAULT)
 				? new PlayerSkin(source, path)
 				: new PlayerSkin(parent.getSource(), parent.getPath());
+	}
+
+	@Override public MocapPlayerSkin resolveList(PlaybackDataManager dataManager)
+	{
+		if (!isSkinList()) { return this; }
+
+		PlayerSkin skin = this;
+		Stack<String> listStack = new Stack<>();
+
+		while (skin.isSkinList())
+		{
+			if (listStack.contains(skin.path)) { return this; } // error - loop of lists
+			SkinList skinList = dataManager.loadOrGetSkinList(skin.path);
+			listStack.add(skin.path);
+
+			if (skinList == null) { return this; } // error - failed to load skin list
+			skin = skinList.getRandomSkin(dataManager.random);
+		}
+		return skin;
+	}
+
+	private boolean isSkinList()
+	{
+		return source == Source.FROM_FILE && path != null && path.startsWith(Files.SKIN_LIST_PREFIX);
 	}
 
 	private @Nullable Property propertyFromMineskinURL(String mineskinURL)

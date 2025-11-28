@@ -100,14 +100,14 @@ public class RecordingFile extends Playable implements MocapRecordingFile
 		PlaybackDataManager dataManager = new PlaybackDataManager();
 		if (!dataManager.loadRecording(info, this)) { return null; }
 
-		RecordingPlayback playback = RecordingPlayback.start(info, true, dataManager.getRecording(this), config, modifiers, null);
+		RecordingPlayback playback = RecordingPlayback.start(info, true, dataManager, dataManager.getRecording(this), config, modifiers, null);
 		return playback != null ? PlaybackManager.addPlayback(this, playback, isHidden) : null;
 	}
 
 	@Override public @Nullable Playback startAsSubscene(CommandInfo info, MocapModifiers modifiers, MocapPlaybackConfig config,
 														PlaybackDataManager dataManager, PositionTransformer parentTransformer)
 	{
-		return RecordingPlayback.start(info, false, dataManager.getRecording(this), config, modifiers, parentTransformer);
+		return RecordingPlayback.start(info, false, dataManager, dataManager.getRecording(this), config, modifiers, parentTransformer);
 	}
 
 	@Override public @Nullable Info getInfo(CommandOutput out)

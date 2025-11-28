@@ -23,6 +23,7 @@ import net.mt1006.mocap.api.v1.modifiers.MocapPlayerSkin;
 import net.mt1006.mocap.events.PlayerConnectionEvent;
 import net.mt1006.mocap.mocap.actions.Die;
 import net.mt1006.mocap.mocap.files.RecordingData;
+import net.mt1006.mocap.mocap.playing.PlaybackDataManager;
 import net.mt1006.mocap.mocap.settings.Settings;
 import net.mt1006.mocap.network.MocapPacketS2C;
 import net.mt1006.mocap.utils.EntityData;
@@ -45,13 +46,14 @@ public class RecordingPlayback extends Playback
 		this.ctx = ctx;
 	}
 
-	public static @Nullable RecordingPlayback start(CommandInfo info, boolean isRoot, RecordingData recording, MocapPlaybackConfig config,
+	public static @Nullable RecordingPlayback start(CommandInfo info, boolean isRoot, PlaybackDataManager dataManager,
+													RecordingData recording, MocapPlaybackConfig config,
 													MocapModifiers modifiers, @Nullable PositionTransformer parentTransformer)
 	{
 		if (recording == null) { throw new RuntimeException("Provided recording data is null!"); }
 
 		ProfileUtils.Profile oldProfile = getGameProfile(info, modifiers.getPlayerName(), recording.assignedProfile, config.getStartAsRecorded());
-		GameProfile newProfile = createNewProfile(info, oldProfile.name, oldProfile.skin, modifiers.getPlayerSkin());
+		GameProfile newProfile = createNewProfile(info, dataManager, oldProfile.name, oldProfile.skin, modifiers.getPlayerSkin());
 
 		ServerLevel level = getLevel(info, recording, config.getDimensionSource());
 		PlayerList packetTargets = info.getServer().getPlayerList();
@@ -165,11 +167,14 @@ public class RecordingPlayback extends Playback
 			else { profileName = "Player"; }
 		}
 
-		return ProfileUtils.getProfile(info.getServer(), profileName, true);
+		return ProfileUtils.getProfile(info.getServer(), profileName, true); //TODO: fix null?
 	}
 
-	private static GameProfile createNewProfile(CommandInfo info, String name, @Nullable Property oldSkinProperty, MocapPlayerSkin playerSkin)
+	private static GameProfile createNewProfile(CommandInfo info, PlaybackDataManager dataManager, String name,
+												@Nullable Property oldSkinProperty, MocapPlayerSkin playerSkin)
 	{
+		playerSkin = playerSkin.resolveList(dataManager);
+
 		Property skinProperty = playerSkin.getSkinProperty(info, oldSkinProperty);
 		Property customSkinProperty = playerSkin.getCustomSkinProperty();
 		return ProfileUtils.createGameProfile(name, skinProperty, customSkinProperty);
