@@ -15,6 +15,7 @@ import net.minecraft.world.phys.Vec3;
 import net.mt1006.mocap.MocapMod;
 import net.mt1006.mocap.api.v1.controller.config.MocapDimensionSource;
 import net.mt1006.mocap.api.v1.controller.config.MocapPlaybackConfig;
+import net.mt1006.mocap.api.v1.controller.config.MocapPlayerNameHandling;
 import net.mt1006.mocap.api.v1.controller.playable.MocapRecordingFile;
 import net.mt1006.mocap.api.v1.extension.actions.MocapAction;
 import net.mt1006.mocap.api.v1.io.CommandInfo;
@@ -52,7 +53,8 @@ public class RecordingPlayback extends Playback
 	{
 		if (recording == null) { throw new RuntimeException("Provided recording data is null!"); }
 
-		ProfileUtils.Profile oldProfile = getGameProfile(info, modifiers.getPlayerName(), recording.assignedProfile, config.getStartAsRecorded());
+		ProfileUtils.Profile oldProfile = getGameProfile(info, config, modifiers.getPlayerName(),
+				recording.assignedProfile, modifiers.getPlayerSkin().getSource() == MocapPlayerSkin.Source.DEFAULT);
 		GameProfile newProfile = createNewProfile(info, dataManager, oldProfile.name, oldProfile.skin, modifiers.getPlayerSkin());
 
 		ServerLevel level = getLevel(info, recording, config.getDimensionSource());
@@ -147,14 +149,15 @@ public class RecordingPlayback extends Playback
 		}
 	}
 
-	private static ProfileUtils.Profile getGameProfile(CommandInfo info, @Nullable String profileName,
-														MocapRecordingFile.AssignedProfile recordedProfile, boolean startAsRecorded)
+	private static ProfileUtils.Profile getGameProfile(CommandInfo info, MocapPlaybackConfig config, @Nullable String profileName,
+													   MocapRecordingFile.AssignedProfile recordedProfile, boolean fetchSkin)
 	{
 		Entity entity = info.getSourceEntity();
 		PlayerList playerList = info.getServer().getPlayerList();
 
 		if (profileName == null)
 		{
+			boolean startAsRecorded = config.getStartAsRecorded();
 			if (startAsRecorded && recordedProfile.name() != null && recordedProfile.skinValue() != null && recordedProfile.skinSignature() != null)
 			{
 				return ProfileUtils.Profile.withSkin(recordedProfile.name(),
@@ -167,7 +170,9 @@ public class RecordingPlayback extends Playback
 			else { profileName = "Player"; }
 		}
 
-		return ProfileUtils.getProfile(info.getServer(), profileName, true); //TODO: fix null?
+		return (fetchSkin || config.getPlayerNameHandling() == MocapPlayerNameHandling.IGNORE_AND_REPLACE_CASING)
+				? ProfileUtils.getProfile(info.getServer(), config.getPlayerNameHandling(), profileName, fetchSkin)
+				: ProfileUtils.Profile.withoutSkin(profileName);
 	}
 
 	private static GameProfile createNewProfile(CommandInfo info, PlaybackDataManager dataManager, String name,

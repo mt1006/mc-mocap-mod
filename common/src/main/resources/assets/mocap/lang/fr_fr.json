@@ -135,7 +135,6 @@
   "mocap.scenes.element_info.skin.profile": "§lSkin:§r du joueur - %s",
   "mocap.scenes.element_info.skin.file": "§lSkin:§r du fichier - %s",
   "mocap.scenes.element_info.skin.mineskin": "§lSkin:§r de mineskin.org:",
-  "mocap.scenes.element_info.start_delay": "§lDélai avant début:§r %s s (%d ticks)",
   "mocap.scenes.element_info.transformations.rotation": "§lTransformations > Rotation:§r %f deg",
   "mocap.scenes.element_info.transformations.mirror.none": "§lTransformations > Mirroir:§r None",
   "mocap.scenes.element_info.transformations.mirror.x": "§lTransformations > Mirroir:§r X-axis",

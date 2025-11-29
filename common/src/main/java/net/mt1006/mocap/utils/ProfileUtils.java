@@ -17,6 +17,7 @@ import com.mojang.util.UndashedUuid;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.Services;
 import net.minecraft.util.StringUtil;
+import net.mt1006.mocap.api.v1.controller.config.MocapPlayerNameHandling;
 import net.mt1006.mocap.mocap.settings.Settings;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,15 +28,17 @@ public class ProfileUtils
 {
 	private static final MinecraftClient client = new MinecraftClient(null, Proxy.NO_PROXY);
 	private static final Map<String, Profile> cache = Collections.synchronizedMap(new HashMap<>());
+	private static final Map<String, Profile> cacheInsensitive = Collections.synchronizedMap(new HashMap<>());
 
-	public static Profile getProfile(MinecraftServer server, String name, boolean fetchSkin)
+	public static Profile getProfile(MinecraftServer server, MocapPlayerNameHandling mode, String name, boolean withSkin)
 	{
-		//TODO: properly use fetchSkin
-		if (cache.containsKey(name.toLowerCase(Locale.ROOT))) { return cache.get(name.toLowerCase(Locale.ROOT)); }
+		if (mode == MocapPlayerNameHandling.DISABLE_LOADING_PROFILES) { return Profile.withoutSkin(name); }
+
+		Profile cachedProfile = getFromCache(mode, name, withSkin);
+		if (cachedProfile != null) { return cachedProfile; }
 		if (!StringUtil.isValidPlayerName(name)) { return cacheAndReturn(Profile.withoutSkin(name)); }
 
 		Services services = server.services();
-
 		NameAndIdResult nameAndId = fetchNameAndId(services, name);
 		if (nameAndId.val == null)
 		{
@@ -43,7 +46,19 @@ public class ProfileUtils
 			return cacheAndReturn(profile);
 		}
 
-		return cacheAndReturn(fetchFullProfile(services, nameAndId.val));
+		if (mode == MocapPlayerNameHandling.MATCH_EXACT_NAME && !name.equals(nameAndId.val.name()))
+		{
+			cacheAndReturn(Profile.fromPartialFetch(nameAndId.val));
+
+			Profile exactNameProfile = Profile.withoutSkin(name);
+			cache.put(name, exactNameProfile); // we don't want to put it into cacheInsensitive (what cacheAndReturn does)
+			return exactNameProfile;
+		}
+
+		Profile newProfile = cacheAndReturn(withSkin
+				? fetchFullProfile(services, nameAndId.val)
+				: Profile.fromPartialFetch(nameAndId.val));
+		return mode == MocapPlayerNameHandling.IGNORE_CASING ? newProfile.withName(name) : newProfile;
 	}
 
 	public static GameProfile createGameProfile(String name, @Nullable Property skin, @Nullable Property customSkin)
@@ -58,6 +73,7 @@ public class ProfileUtils
 	public static void clearCache()
 	{
 		cache.clear();
+		cacheInsensitive.clear();
 	}
 
 	private static NameAndIdResult fetchNameAndId(Services services, String playerName)
@@ -110,26 +126,40 @@ public class ProfileUtils
 		}
 	}
 
+	public static @Nullable Profile getFromCache(MocapPlayerNameHandling mode, String name, boolean withSkin)
+	{
+		Profile profile = switch (mode)
+		{
+			case IGNORE_CASING, IGNORE_AND_REPLACE_CASING -> cacheInsensitive.get(name.toLowerCase(Locale.ROOT));
+			case MATCH_EXACT_NAME -> cache.get(name);
+			case DISABLE_LOADING_PROFILES -> throw new IllegalStateException("Unexpected value: " + mode);
+		};
+
+		if (profile == null || (profile.partialFetch && withSkin)) { return null; }
+		if (profile.skin != null && !withSkin) { profile = profile.withoutSkin(); }
+
+		return mode == MocapPlayerNameHandling.IGNORE_CASING ? profile.withName(name) : profile;
+	}
+
 	public static Profile cacheAndReturn(Profile profile)
 	{
-		if (!profile.rateLimited) { cache.put(profile.name.toLowerCase(Locale.ROOT), profile); }
+		if (!profile.rateLimited)
+		{
+			Profile prevVal = cache.get(profile.name);
+			if (prevVal == null || prevVal.partialFetch) { cache.put(profile.name, profile); }
+
+			String lowercaseName = profile.name.toLowerCase(Locale.ROOT);
+			Profile prevInsensitiveVal = cacheInsensitive.get(lowercaseName);
+			if (prevInsensitiveVal == null || prevInsensitiveVal.partialFetch) { cacheInsensitive.put(lowercaseName, profile); }
+		}
 		return profile;
 	}
 
-	public static class NameAndIdResult
+	private record NameAndIdResult(@Nullable NameAndId val, boolean rateLimited)
 	{
-		public final @Nullable NameAndId val;
-		public final boolean rateLimited;
-
 		public NameAndIdResult(@Nullable NameAndId val)
 		{
 			this(val, false);
-		}
-
-		public NameAndIdResult(@Nullable NameAndId val, boolean rateLimited)
-		{
-			this.val = val;
-			this.rateLimited = rateLimited;
 		}
 	}
 
@@ -138,27 +168,44 @@ public class ProfileUtils
 		public final String name;
 		public final @Nullable Property skin;
 		public final boolean rateLimited;
+		public final boolean partialFetch;
 
 		public static Profile withoutSkin(String name)
 		{
-			return new Profile(name, null, false);
+			return new Profile(name, null, false, false);
 		}
 
 		public static Profile withSkin(String name, @Nullable Property skin)
 		{
-			return new Profile(name, skin, false);
+			return new Profile(name, skin, false, false);
 		}
 
-		public static Profile rateLimited(String name)
+		private static Profile rateLimited(String name)
 		{
-			return new Profile(name, null, true);
+			return new Profile(name, null, true, false);
 		}
 
-		private Profile(String name, @Nullable Property skin, boolean rateLimited)
+		private static Profile fromPartialFetch(NameAndId nameAndId)
+		{
+			return new Profile(nameAndId.name(), null, false, true);
+		}
+
+		private Profile(String name, @Nullable Property skin, boolean rateLimited, boolean partialFetch)
 		{
 			this.name = name;
 			this.skin = skin;
 			this.rateLimited = rateLimited;
+			this.partialFetch = partialFetch;
+		}
+
+		public Profile withName(String newName)
+		{
+			return new Profile(newName, skin, rateLimited, partialFetch);
+		}
+
+		public Profile withoutSkin()
+		{
+			return new Profile(name, null, rateLimited, partialFetch);
 		}
 	}
 }

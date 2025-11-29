@@ -1,6 +1,7 @@
 package net.mt1006.mocap.mocap.playing.modifiers;
 
 import com.mojang.authlib.properties.Property;
+import net.mt1006.mocap.api.v1.controller.config.MocapPlayerNameHandling;
 import net.mt1006.mocap.api.v1.io.CommandInfo;
 import net.mt1006.mocap.api.v1.io.CommandOutput;
 import net.mt1006.mocap.api.v1.modifiers.MocapPlayerSkin;
@@ -88,7 +89,8 @@ public class PlayerSkin implements MocapPlayerSkin
 		switch (source)
 		{
 			case FROM_PLAYER:
-				ProfileUtils.Profile profile = ProfileUtils.getProfile(info.getServer(), path, true);
+				ProfileUtils.Profile profile = ProfileUtils.getProfile(info.getServer(),
+						MocapPlayerNameHandling.IGNORE_AND_REPLACE_CASING, path, true);
 
 				if (profile.skin == null)
 				{

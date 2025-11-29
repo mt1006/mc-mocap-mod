@@ -117,7 +117,6 @@
   "mocap.scenes.element_info.skin.profile": "§l外觀：§r 來自玩家 - %s",
   "mocap.scenes.element_info.skin.file": "§l外觀：§r 來自檔案 - %s",
   "mocap.scenes.element_info.skin.mineskin": "§l外觀：§r 來自 mineskin.org：",
-  "mocap.scenes.element_info.start_delay": "§l開始延遲：§r %s 秒 (%d 個 tick)",
   "mocap.scenes.element_info.player_as_entity.disabled": "§l玩家作為實體：§r §7§o[已停用]§r",
   "mocap.scenes.element_info.player_as_entity.enabled": "§l玩家作為實體：§r %s",
 

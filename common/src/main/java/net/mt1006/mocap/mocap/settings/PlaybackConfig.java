@@ -3,6 +3,7 @@ package net.mt1006.mocap.mocap.settings;
 import net.mt1006.mocap.api.v1.controller.config.MocapDimensionSource;
 import net.mt1006.mocap.api.v1.controller.config.MocapEntitiesAfterPlayback;
 import net.mt1006.mocap.api.v1.controller.config.MocapPlaybackConfig;
+import net.mt1006.mocap.api.v1.controller.config.MocapPlayerNameHandling;
 import org.jetbrains.annotations.Nullable;
 
 public class PlaybackConfig implements MocapPlaybackConfig
@@ -17,6 +18,7 @@ public class PlaybackConfig implements MocapPlaybackConfig
 	private @Nullable Boolean chatPlayback;
 	private @Nullable Boolean invulnerablePlayback;
 	private @Nullable MocapDimensionSource dimensionSource;
+	private @Nullable MocapPlayerNameHandling playerNameHandling;
 
 	public PlaybackConfig(boolean setDefault)
 	{
@@ -30,6 +32,7 @@ public class PlaybackConfig implements MocapPlaybackConfig
 		chatPlayback = setDefault ? Settings.CHAT_PLAYBACK.defVal : null;
 		invulnerablePlayback = setDefault ? Settings.INVULNERABLE_PLAYBACK.defVal : null;
 		dimensionSource = setDefault ? Settings.DIMENSION_SOURCE.defVal : null;
+		playerNameHandling = setDefault ? Settings.PLAYER_NAME_HANDLING.defVal : null;
 	}
 
 	private PlaybackConfig(PlaybackConfig toCopy)
@@ -44,6 +47,7 @@ public class PlaybackConfig implements MocapPlaybackConfig
 		chatPlayback = toCopy.chatPlayback;
 		invulnerablePlayback = toCopy.invulnerablePlayback;
 		dimensionSource = toCopy.dimensionSource;
+		playerNameHandling = toCopy.playerNameHandling;
 	}
 
 	@Override public MocapPlaybackConfig copy()
@@ -149,5 +153,15 @@ public class PlaybackConfig implements MocapPlaybackConfig
 	@Override public void setDimensionSource(@Nullable MocapDimensionSource val)
 	{
 		dimensionSource = val;
+	}
+
+	@Override public MocapPlayerNameHandling getPlayerNameHandling()
+	{
+		return playerNameHandling != null ? playerNameHandling : Settings.PLAYER_NAME_HANDLING.val;
+	}
+
+	@Override public void setPlayerNameHandling(@Nullable MocapPlayerNameHandling val)
+	{
+		playerNameHandling = val;
 	}
 }

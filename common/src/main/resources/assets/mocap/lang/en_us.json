@@ -142,7 +142,6 @@
   "mocap.scenes.element_info.skin.profile": "§lSkin:§r from player - %s",
   "mocap.scenes.element_info.skin.file": "§lSkin:§r from file - %s",
   "mocap.scenes.element_info.skin.mineskin": "§lSkin:§r from mineskin.org:",
-  "mocap.scenes.element_info.start_delay": "§lStart delay:§r %s s (%d ticks)",
   "mocap.scenes.element_info.transformations.rotation": "§lTransformations > Rotation:§r %f deg",
   "mocap.scenes.element_info.transformations.mirror.none": "§lTransformations > Mirror:§r None",
   "mocap.scenes.element_info.transformations.mirror.x": "§lTransformations > Mirror:§r X-axis",
@@ -252,6 +251,7 @@
   "mocap.settings.info.about.chat_playback": "Enables player chat messages playback. Note that recording needs to be recorded with \"chat_recording\" enabled.",
   "mocap.settings.info.about.invulnerable_playback": "Makes player and other entities in the playback invulnerable to damage",
   "mocap.settings.info.about.dimension_source": "Specifies in which dimension playback will start (assigned_or_current - dimension assigned to the recording or, if it wasn't assigned, dimension of player/command block starting playback; assigned_or_overworld - dimension assigned to the recording or, if it wasn't assigned, overworld; current - ignores assigned dimension and always uses dimension of player/command block starting playback; overworld - ignores assigned dimension and always uses overworld)",
+  "mocap.settings.info.about.player_name_handling": "Specifies how player name should be handled - should profiles be loaded and what should be done about name letter casing. Note that it doesn't affect from_player skin modifiers. (disable_loading_profiles - profiles won't be loaded - default skin will be used unless skin modifier is specifies; match_exact_name - load profile from specified name, but don't apply it if its name casing isn't exactly the same as in specified player name; ignore_casing - load profile from specified name (ignoring letter casing) and use same casing as in specified player name; ignore_and_replace_casing - load profile from specified name (ignoring letter casing) and use same casing as in loaded profile)",
 
   "mocap.settings.info.about.fluent_movements": "Sets distance to played entity for player to receive additional packets for more fluent movements (>0 - distance in blocks; 0 - disable fluent movements; -1 - no limit)",
   "mocap.settings.info.about.max_float_pos_value": "Sets distance from recording start at which recording should switch position precision from 32-bit floating point numbers (float) to 64-bit floating point numbers (double). Set this to negative value to fully switch to double precision.",

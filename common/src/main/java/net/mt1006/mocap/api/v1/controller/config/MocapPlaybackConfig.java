@@ -56,4 +56,8 @@ public interface MocapPlaybackConfig
 	MocapDimensionSource getDimensionSource();
 
 	void setDimensionSource(@Nullable MocapDimensionSource val);
+
+	MocapPlayerNameHandling getPlayerNameHandling();
+
+	void setPlayerNameHandling(@Nullable MocapPlayerNameHandling val);
 }
