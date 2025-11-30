@@ -49,6 +49,9 @@ public class FakePlayer extends ServerPlayer
 			dyingTicks--;
 			if (dyingTicks == 0) { playback.stop(); }
 		}
+
+		// for attacking other entities when swinging
+		attackStrengthTicker++;
 	}
 
 	@Override public ServerPlayer teleport(@NotNull TeleportTransition dimensionTransition) { return null; }

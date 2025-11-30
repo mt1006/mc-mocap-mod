@@ -60,4 +60,8 @@ public interface MocapPlaybackConfig
 	MocapPlayerNameHandling getPlayerNameHandling();
 
 	void setPlayerNameHandling(@Nullable MocapPlayerNameHandling val);
+
+	double getHitRange();
+
+	void setHitRange(@Nullable Double val);
 }

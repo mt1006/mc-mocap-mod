@@ -19,6 +19,7 @@ public class PlaybackConfig implements MocapPlaybackConfig
 	private @Nullable Boolean invulnerablePlayback;
 	private @Nullable MocapDimensionSource dimensionSource;
 	private @Nullable MocapPlayerNameHandling playerNameHandling;
+	private @Nullable Double hitRange;
 
 	public PlaybackConfig(boolean setDefault)
 	{
@@ -33,6 +34,7 @@ public class PlaybackConfig implements MocapPlaybackConfig
 		invulnerablePlayback = setDefault ? Settings.INVULNERABLE_PLAYBACK.defVal : null;
 		dimensionSource = setDefault ? Settings.DIMENSION_SOURCE.defVal : null;
 		playerNameHandling = setDefault ? Settings.PLAYER_NAME_HANDLING.defVal : null;
+		hitRange = setDefault ? Settings.HIT_RANGE.defVal : null;
 	}
 
 	private PlaybackConfig(PlaybackConfig toCopy)
@@ -48,6 +50,7 @@ public class PlaybackConfig implements MocapPlaybackConfig
 		invulnerablePlayback = toCopy.invulnerablePlayback;
 		dimensionSource = toCopy.dimensionSource;
 		playerNameHandling = toCopy.playerNameHandling;
+		hitRange = toCopy.hitRange;
 	}
 
 	@Override public MocapPlaybackConfig copy()
@@ -163,5 +166,15 @@ public class PlaybackConfig implements MocapPlaybackConfig
 	@Override public void setPlayerNameHandling(@Nullable MocapPlayerNameHandling val)
 	{
 		playerNameHandling = val;
+	}
+
+	@Override public double getHitRange()
+	{
+		return hitRange != null ? hitRange : Settings.HIT_RANGE.val;
+	}
+
+	@Override public void setHitRange(@Nullable Double val)
+	{
+		hitRange = val;
 	}
 }

@@ -39,6 +39,7 @@ public class Settings
 	static final SettingFields.BooleanField INVULNERABLE_PLAYBACK = PLAYBACK.add(fields.add("invulnerable_playback", true));
 	public static final SettingFields.EnumField<MocapDimensionSource> DIMENSION_SOURCE = PLAYBACK.add(fields.add("dimension_source", MocapDimensionSource.ASSIGNED_OR_CURRENT));
 	static final SettingFields.EnumField<MocapPlayerNameHandling> PLAYER_NAME_HANDLING = PLAYBACK.add(fields.add("player_name_handling", MocapPlayerNameHandling.IGNORE_CASING));
+	static final SettingFields.DoubleField HIT_RANGE = PLAYBACK.add(fields.add("hit_range", 0.0));
 
 	public static final SettingFields.DoubleField FLUENT_MOVEMENTS = ADVANCED.add(fields.add("fluent_movements", 32.0));
 	public static final SettingFields.DoubleField MAX_FLOAT_POS_VALUE = ADVANCED.add(fields.add("max_float_pos_value", 1024.0));
