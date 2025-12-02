@@ -29,8 +29,8 @@ public class PlayerAsEntity implements MocapPlayerAsEntity
 	{
 		this.entityId = entityId;
 		this.entityNbt = entityNbt;
-		this.entityType = prepareEntityType(entityId, entityNbt);
-		this.compoundTag = prepareCompoundTag(entityId, entityNbt);
+		this.entityType = prepareEntityType(entityId);
+		this.compoundTag = prepareCompoundTag(entityNbt);
 	}
 
 	public static PlayerAsEntity fromObject(@Nullable SceneFiles.Reader reader)
@@ -79,32 +79,31 @@ public class PlayerAsEntity implements MocapPlayerAsEntity
 
 	@Override public @Nullable Entity createEntity(Level level)
 	{
-		if (entityType == null && compoundTag == null) { return null; }
+		if (entityType == null) { return null; }
 
-		ValueInput nbt = TagValueInput.create(ProblemReporter.DISCARDING, level.registryAccess(), compoundTag);
-		return (compoundTag != null)
-				? EntityType.create(nbt, level, EntitySpawnReason.COMMAND).orElse(null)
-				: entityType.create(level, EntitySpawnReason.COMMAND);
+		ValueInput nbt = compoundTag != null
+				? TagValueInput.create(ProblemReporter.DISCARDING, level.registryAccess(), compoundTag)
+				: null;
+
+		Entity entity = entityType.create(level, EntitySpawnReason.COMMAND);
+		if (entity != null && nbt != null) { entity.load(nbt); }
+		return entity;
 	}
 
-	private static @Nullable EntityType<?> prepareEntityType(@Nullable String entityId, @Nullable String entityNbt)
+	private static @Nullable EntityType<?> prepareEntityType(@Nullable String entityId)
 	{
-		if (entityId == null || entityNbt != null) { return null; } // if entityNbt is present, it should be null
+		if (entityId == null) { return null; }
 
 		ResourceLocation entityRes = ResourceLocation.parse(entityId);
 		Holder.Reference<EntityType<?>> entityTypeRef = BuiltInRegistries.ENTITY_TYPE.get(entityRes).orElse(null);
 		return entityTypeRef != null ? entityTypeRef.value() : null;
 	}
 
-	private static @Nullable CompoundTag prepareCompoundTag(@Nullable String entityId, @Nullable String entityNbt)
+	private static @Nullable CompoundTag prepareCompoundTag(@Nullable String entityNbt)
 	{
-		if (entityId == null || entityNbt == null) { return null; }
-
 		try
 		{
-			CompoundTag nbt = Utils.nbtFromString(entityNbt);
-			nbt.putString("id", entityId);
-			return nbt;
+			return entityNbt != null ? Utils.nbtFromString(entityNbt) : null;
 		}
 		catch (CommandSyntaxException e) { return null; }
 	}
