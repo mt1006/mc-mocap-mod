@@ -26,7 +26,7 @@
 -Added setting "start_as_recorded" which makes playback of currently recorded player start as this player (false by default) (thanks to damiendier for suggestions).
 -Added setting "block_allow_scaled" which allows playback of scaled block actions (false by default).
 -Added setting "start_instantly" to start recording instantly instead of waiting for movement or second command (false by default) (thanks to Antimality for suggestion).
--Added setting "assign_player_name" to assign recorded player names to a recording (false by default).
+-Added setting "assign_profile" to assign recorded player names, UUIDs and skins to a recording (no by default).
 -Added setting "show_tips" to enable/disable command tips (true by default).
 -Settings are now divided into 3 categories - recording, playback and advanced.
 -Improved tracking of dimension changes (thanks to damiendier for reporting).
@@ -34,9 +34,12 @@
 -Added setting "assign_dimension" to assign dimension to a recording (true by default).
 -Added setting "dimension_source" to specify dimension in which dimension playback will start (assigned_or_current by default).
 -Added setting "quick_discard" to enable or disable quick discard by executing "stop" two times (true by default).
--Added setting "required_extensions" to change how lack of recording extensions is handled.
--Added setting "nbt_recording_mode" to specify how NBT data of non-player entities should be recorded.
--Added setting "max_float_pos_value" to specify distance from recording start at which recording should switch to double precision floating point numbers.
+-Added setting "required_extensions" to change how lack of recording extensions is handled (let_extension_decide by default).
+-Added setting "nbt_recording_mode" to specify how NBT data of non-player entities should be recorded (filtered by default).
+-Added setting "max_float_pos_value" to specify distance from recording start at which recording should switch to double precision floating point numbers (1024 by default).
+-Added setting "use_authlib_services" to replace new, custom implementation of mojang API requests with authlib implementation (false by default).
+-Added setting "player_name_handling" to change how casing of player names and their profiles are handled (ignore_casing by default).
+-Added setting "hit_range" to allow player in playback hit other entities and specify how far they can hit.
 -Merged "/mocap scenes list_elements" into "/mocap scenes list" and "/mocap scenes element_info" into "/mocap scenes info".
 -Split "player_info" modifier into "player_name" and "player_skin".
 -Removed position offset arguments from "/mocap scenes add_to".
@@ -54,6 +57,7 @@
 -Added "instant_save" optional argument to "/mocap recording start" to instantly save recording after stopping it (thanks to Antimality for suggesiton).
 -Renamed "from_..." to "skin_from_..." simple modifiers in "playback start" and "scene add_to" commands.
 -Added API.
+-Added ability to create skin lists (thanks to Laynce for suggestion).
 -It's now possible to add player_as_entity modifier using simple modifiers (thanks to Narfu for suggestion).
 -Item types and block states are now stored using string IDs (instead of numeric IDs), providing better compatibility between different Minecraft versions and modpacks.
 -Scene format is now JSON-based.
@@ -68,6 +72,7 @@
 -Improvements to recording format.
 -Improvements to recording information command output.
 -Improvements to error messages.
+-Improvements to loading profiles.
 -General command output improvements.
 -Improved output of trying to change setting value with "/mocap settings" command, when value remained unchanged.
 -Improved saving of automatically stopped recordings - when quick discard is enabled, stop command now needs to be used two times in order to prevent accidental discards.
@@ -95,9 +100,11 @@
 -Fixed baby entities being recorded as adults.
 -Fixed damage going through shields.
 -Fixed damage spam issue on Fabric.
+-Fixed various issues caused by Java localization.
 -Minor spelling improvements.
 -Minor improvements to error detection.
 -Added Chinese [traditional] translation (thanks to dirtTW).
+-Added French translation (thanks to LOUDO56).
 
 ===Version 1.3.9===
 -Fixed playback stopping after a non-player entity places a block on version 1.19.2 and older (thanks to awesome_nobel46 for reporting).
