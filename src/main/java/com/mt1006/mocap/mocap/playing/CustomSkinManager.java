@@ -3,8 +3,8 @@ package com.mt1006.mocap.mocap.playing;
 import com.mt1006.mocap.command.CommandOutput;
 import com.mt1006.mocap.mocap.files.Files;
 import com.mt1006.mocap.network.MocapPacketS2C;
-import net.minecraft.Util;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Util;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;

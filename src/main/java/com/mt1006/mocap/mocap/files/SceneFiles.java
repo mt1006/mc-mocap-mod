@@ -283,7 +283,7 @@ public class SceneFiles
 
 					if (playerAsEntityStr.equals("enabled"))
 					{
-						subscene.playerAsEntityID = ResourceArgument.getEntityType(commandInfo.ctx, "entity").key().location().toString();
+						subscene.playerAsEntityID = ResourceArgument.getEntityType(commandInfo.ctx, "entity").key().identifier().toString();
 						return subscene;
 					}
 					else if (playerAsEntityStr.equals("disabled"))

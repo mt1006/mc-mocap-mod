@@ -2,7 +2,7 @@ package com.mt1006.mocap.network;
 
 import com.mt1006.mocap.MocapMod;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
@@ -12,7 +12,7 @@ import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 public class MocapPackets
 {
 	public static final CustomPacketPayload.Type<CustomPacketPayload> INSTANCE =
-			new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(MocapMod.MOD_ID, "neoforge"));
+			new CustomPacketPayload.Type<>(Identifier.fromNamespaceAndPath(MocapMod.MOD_ID, "neoforge"));
 	public static final int CURRENT_VERSION = 3;
 
 	@SubscribeEvent

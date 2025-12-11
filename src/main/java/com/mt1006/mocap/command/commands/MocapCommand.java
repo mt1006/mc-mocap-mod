@@ -14,7 +14,8 @@ public class MocapCommand
 	public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext buildContext)
 	{
 		//TODO: add permission level to config
-		LiteralArgumentBuilder<CommandSourceStack> commandBuilder = Commands.literal("mocap").requires(source -> source.hasPermission(2));
+		LiteralArgumentBuilder<CommandSourceStack> commandBuilder = Commands.literal("mocap")
+				.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS));
 
 		commandBuilder.then(RecordingsCommand.getArgumentBuilder());
 		commandBuilder.then(ScenesCommand.getArgumentBuilder(buildContext));

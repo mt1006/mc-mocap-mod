@@ -9,7 +9,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
@@ -34,7 +34,7 @@ public class MocapPacketS2C implements CustomPacketPayload
 
 
 	public static final CustomPacketPayload.Type<MocapPacketS2C> TYPE =
-			new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(MocapMod.MOD_ID, "neoforge_s2c"));
+			new CustomPacketPayload.Type<>(Identifier.fromNamespaceAndPath(MocapMod.MOD_ID, "neoforge_s2c"));
 
 	public static final StreamCodec<ByteBuf, MocapPacketS2C> STREAM_CODEC = StreamCodec.of(
 			(buf, packet) -> packet.encode(new FriendlyByteBuf(buf)), (buf) -> new MocapPacketS2C(new FriendlyByteBuf(buf)));
