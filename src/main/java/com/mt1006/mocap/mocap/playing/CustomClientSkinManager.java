@@ -10,7 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.core.ClientAsset;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.system.MemoryUtil;
@@ -40,7 +40,7 @@ public class CustomClientSkinManager
 		}
 		if (!accessible) { return null; }
 
-		ResourceLocation id = resFromName(name);
+		Identifier id = idFromName(name);
 		return new ClientAsset.ResourceTexture(id, id);
 	}
 
@@ -99,8 +99,8 @@ public class CustomClientSkinManager
 				return;
 			}
 
-			ResourceLocation id = resFromName(name);
-			Minecraft.getInstance().getTextureManager().register(resFromName(name), new DynamicTexture(id::toString, nativeImage));
+			Identifier id = idFromName(name);
+			Minecraft.getInstance().getTextureManager().register(idFromName(name), new DynamicTexture(id::toString, nativeImage));
 			clientMap.put(name, true);
 		}
 		catch (Exception exception)
@@ -116,7 +116,7 @@ public class CustomClientSkinManager
 		for (Map.Entry<String, Boolean> entry : clientMap.entrySet())
 		{
 			Boolean val = entry.getValue();
-			if (val != null && val) { textureManager.release(resFromName(entry.getKey())); }
+			if (val != null && val) { textureManager.release(idFromName(entry.getKey())); }
 		}
 		clientMap.clear();
 		clientWarned = false;
@@ -127,8 +127,8 @@ public class CustomClientSkinManager
 		return texture.texturePath().getPath().startsWith(SLIM_SKIN_RES_PREFIX);
 	}
 
-	private static ResourceLocation resFromName(String name)
+	private static Identifier idFromName(String name)
 	{
-		return ResourceLocation.fromNamespaceAndPath(MocapMod.MOD_ID, SKIN_RES_PREFIX + name);
+		return Identifier.fromNamespaceAndPath(MocapMod.MOD_ID, SKIN_RES_PREFIX + name);
 	}
 }

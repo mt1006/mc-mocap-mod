@@ -1,3 +1,7 @@
+===Version 1.3.10===
+-Fixed damaging players not working on version 1.21.4 and later.
+-Fixed issues with loading mocap_files directory when using Flashback (thanks to hablethedev for reporting).
+
 ===Version 1.3.9===
 -Fixed playback stopping after a non-player entity places a block on version 1.19.2 and older (thanks to awesome_nobel46 for reporting).
 

@@ -46,6 +46,11 @@ public class FakePlayer extends ServerPlayer
 			super(server, DUMMY_CONNECTION, player, new CommonListenerCookie(profile, 0, DEFAULT_CLIENT_INFO, false));
 		}
 
+		@Override public boolean hasClientLoaded()
+		{
+			return true;
+		}
+
 		@Override public void tick() { }
 		@Override public void resetPosition() { }
 		@Override public void disconnect(Component message) { }

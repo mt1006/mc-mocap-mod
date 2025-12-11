@@ -9,7 +9,7 @@ import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
@@ -17,7 +17,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class MocapPacketC2S implements CustomPacketPayload
 {
-	public static final Type<MocapPacketC2S> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(MocapMod.MOD_ID, "fabric_c2s"));
+	public static final Type<MocapPacketC2S> TYPE = new Type<>(Identifier.fromNamespaceAndPath(MocapMod.MOD_ID, "fabric_c2s"));
 	public static final StreamCodec<FriendlyByteBuf, MocapPacketC2S> CODEC = StreamCodec.of((b, p) -> p.encode(b), MocapPacketC2S::new);
 
 	public static final int ACCEPT_SERVER = 0;

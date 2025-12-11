@@ -16,7 +16,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
@@ -166,8 +166,8 @@ public class PlayedScene
 		}
 		else
 		{
-			ResourceLocation entityRes = ResourceLocation.parse(playerAsEntityID);
-			Holder.Reference<EntityType<?>> entityType = BuiltInRegistries.ENTITY_TYPE.get(entityRes).orElse(null);
+			Identifier entityId = Identifier.parse(playerAsEntityID);
+			Holder.Reference<EntityType<?>> entityType = BuiltInRegistries.ENTITY_TYPE.get(entityId).orElse(null);
 			entity = entityType != null ? entityType.value().create(level, EntitySpawnReason.COMMAND) : null;
 
 			if (entity == null)

@@ -11,12 +11,12 @@ import net.minecraft.server.level.ServerLevel;
 
 public class WorldLoadEvent
 {
-	public static void onServerWorldLoad(MinecraftServer server, ServerLevel world)
+	public static void onServerWorldLoad(MinecraftServer server)
 	{
-		InputArgument.initServerInputSet(world.getServer());
+		InputArgument.initServerInputSet(server);
 	}
 
-	public static void onServerWorldUnload(MinecraftServer server, ServerLevel world)
+	public static void onServerWorldUnload(MinecraftServer server)
 	{
 		Playing.stopAll(CommandOutput.DUMMY);
 		Settings.unload();
