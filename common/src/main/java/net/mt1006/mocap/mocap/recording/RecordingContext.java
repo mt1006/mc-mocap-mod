@@ -53,7 +53,7 @@ public class RecordingContext implements MocapActiveRecordingActions
 		this.positionTracker.writeStartPos(data);
 
 		data.assignedProfile = RecordingData.AssignedProfile.create(recordedPlayer.getGameProfile(), config.getAssignProfile());
-		if (config.getAssignDimension()) { data.dimensionId = recordedPlayer.level().dimension().location(); }
+		if (config.getAssignDimension()) { data.dimensionId = recordedPlayer.level().dimension().identifier(); }
 	}
 
 	public void start(boolean sendMessage)

@@ -3,7 +3,7 @@ package net.mt1006.mocap.mocap.actions;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -143,7 +143,7 @@ public class EntityUpdate implements MocapAction
 			{
 				CompoundTag attribute = tag.asCompound().orElse(null);
 				String attributeIdStr = attribute != null ? attribute.getString("id").orElse(null) : null;
-				ResourceLocation attributeId = attributeIdStr != null ? ResourceLocation.tryParse(attributeIdStr) : null;
+				Identifier attributeId = attributeIdStr != null ? Identifier.tryParse(attributeIdStr) : null;
 
 				if (attributeId == null)
 				{

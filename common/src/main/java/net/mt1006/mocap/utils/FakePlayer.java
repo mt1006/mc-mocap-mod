@@ -67,13 +67,6 @@ public class FakePlayer extends ServerPlayer
 	{
 		if (!killedByPlayback) { dyingTicks = 20; }
 	}
-
-	@Override public boolean hasClientLoaded()
-	{
-		// it's necessary for damage playback to work with invulnerability enabled
-		// also when killed by playback it's required for animation to be shown
-		return true;
-	}
 	
 	public void fakeKill()
 	{
@@ -95,6 +88,13 @@ public class FakePlayer extends ServerPlayer
 		{
 			//super(server, DUMMY_CONNECTION, player, new CommonListenerCookie(profile, 0, DEFAULT_CLIENT_INFO));
 			super(server, DUMMY_CONNECTION, player, new CommonListenerCookie(profile, 0, DEFAULT_CLIENT_INFO, false));
+		}
+
+		@Override public boolean hasClientLoaded()
+		{
+			// it's necessary for damage playback to work with invulnerability enabled
+			// also when killed by playback it's required for animation to be shown
+			return true;
 		}
 
 		@Override public void tick() { }

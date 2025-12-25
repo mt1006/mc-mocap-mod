@@ -3,7 +3,7 @@ package net.mt1006.mocap.network;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.mt1006.mocap.MocapMod;
 import net.mt1006.mocap.events.PlayerConnectionEvent;
@@ -16,7 +16,7 @@ import java.util.Locale;
 public class MocapPacketC2S implements CustomPacketPayload
 {
 	private static final String TYPE_ID = MocapMod.loaderInterface.getLoaderName().toLowerCase(Locale.ROOT) + "_c2s";
-	public static final Type<MocapPacketC2S> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(MocapMod.MOD_ID, TYPE_ID));
+	public static final Type<MocapPacketC2S> TYPE = new Type<>(Identifier.fromNamespaceAndPath(MocapMod.MOD_ID, TYPE_ID));
 	public static final StreamCodec<FriendlyByteBuf, MocapPacketC2S> CODEC = StreamCodec.of((b, p) -> p.encode(b), MocapPacketC2S::new);
 
 	public static final int ACCEPT_SERVER = 0;

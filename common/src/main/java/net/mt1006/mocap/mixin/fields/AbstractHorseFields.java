@@ -2,7 +2,7 @@ package net.mt1006.mocap.mixin.fields;
 
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.entity.animal.horse.AbstractHorse;
+import net.minecraft.world.entity.animal.equine.AbstractHorse;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;

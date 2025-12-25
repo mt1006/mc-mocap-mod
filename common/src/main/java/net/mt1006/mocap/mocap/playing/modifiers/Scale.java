@@ -1,7 +1,7 @@
 package net.mt1006.mocap.mocap.playing.modifiers;
 
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 public class Scale
 {
 	public static final Scale NORMAL = new Scale(1.0, 1.0);
-	private static final @Nullable ResourceLocation SCALE_ID = BuiltInRegistries.ATTRIBUTE.getKey(Attributes.SCALE.value());
+	private static final @Nullable Identifier SCALE_ID = BuiltInRegistries.ATTRIBUTE.getKey(Attributes.SCALE.value());
 	public final double playerScale, sceneScale, totalSceneScale;
 
 	private Scale(double playerScale, double sceneScale, double totalSceneScale)

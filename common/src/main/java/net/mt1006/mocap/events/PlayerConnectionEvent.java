@@ -1,5 +1,6 @@
 package net.mt1006.mocap.events;
 
+import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -53,7 +54,12 @@ public class PlayerConnectionEvent
 
 	public static void experimentalReleaseWarning(ServerPlayer player)
 	{
-		if (!MocapMod.EXPERIMENTAL || !player.hasPermissions(2) || !Settings.EXPERIMENTAL_RELEASE_WARNING.val) { return; }
+		if (!MocapMod.EXPERIMENTAL
+				|| !Commands.LEVEL_GAMEMASTERS.check(player.permissions())
+				|| !Settings.EXPERIMENTAL_RELEASE_WARNING.val)
+		{
+			return;
+		}
 
 		Utils.sendComponent(player, Utils.getTranslatableComponent(player, "warning.experimental")
 				.append(Utils.getOpenUrlComponent("https://modrinth.com/mod/motion-capture/versions?c=release",

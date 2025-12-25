@@ -1,16 +1,16 @@
 package net.mt1006.mocap.mocap.playing.modifiers;
 
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.PlayerRideable;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.entity.vehicle.AbstractMinecart;
-import net.minecraft.world.entity.vehicle.Boat;
-import net.minecraft.world.entity.vehicle.Minecart;
+import net.minecraft.world.entity.vehicle.boat.Boat;
+import net.minecraft.world.entity.vehicle.minecart.AbstractMinecart;
+import net.minecraft.world.entity.vehicle.minecart.Minecart;
 import net.mt1006.mocap.api.v1.io.CommandOutput;
 import net.mt1006.mocap.mocap.files.Files;
 import org.jetbrains.annotations.Nullable;
@@ -73,18 +73,18 @@ public class EntityFilterInstance
 				{
 					if (name.length() == 2) { throw new FilterParserException(); }
 					String namespace = name.substring(0, name.length() - 2);
-					if (!ResourceLocation.isValidNamespace(namespace)) { throw new FilterParserException(); }
+					if (!Identifier.isValidNamespace(namespace)) { throw new FilterParserException(); }
 
 					elements.add(new AllEntitiesElement(exclude, namespace));
 					continue;
 				}
 
-				ResourceLocation resLoc = parseToResLoc(name);
+				Identifier id = parseToResLoc(name);
 				Element lastElement = elements.isEmpty() ? null : elements.get(elements.size() - 1);
 
 				boolean reuseEntitySet = (lastElement instanceof EntitySetElement && lastElement.exclude == exclude);
 				EntitySetElement entitySetElement = reuseEntitySet ? (EntitySetElement)lastElement : new EntitySetElement(exclude);
-				entitySetElement.add(resLoc);
+				entitySetElement.add(id);
 				if (!reuseEntitySet) { elements.add(entitySetElement); }
 			}
 		}
@@ -127,11 +127,11 @@ public class EntityFilterInstance
 		return elements.isEmpty();
 	}
 
-	private static ResourceLocation parseToResLoc(String str) throws FilterParserException
+	private static Identifier parseToResLoc(String str) throws FilterParserException
 	{
-		ResourceLocation resLoc = ResourceLocation.tryParse(str);
-		if (resLoc == null) { throw new FilterParserException(); }
-		return resLoc;
+		Identifier id = Identifier.tryParse(str);
+		if (id == null) { throw new FilterParserException(); }
+		return id;
 	}
 
 	private static abstract class Element
@@ -200,9 +200,9 @@ public class EntityFilterInstance
 			super(exclude);
 		}
 
-		public void add(ResourceLocation resLoc)
+		public void add(Identifier id)
 		{
-			Optional<EntityType<?>> entityType = BuiltInRegistries.ENTITY_TYPE.getOptional(resLoc);
+			Optional<EntityType<?>> entityType = BuiltInRegistries.ENTITY_TYPE.getOptional(id);
 			entityType.ifPresent(set::add);
 		}
 

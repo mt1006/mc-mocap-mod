@@ -1,6 +1,6 @@
 package net.mt1006.mocap.mocap.playing.playable;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.Vec3;
 import net.mt1006.mocap.api.v1.controller.MocapPlaybackRoot;
 import net.mt1006.mocap.api.v1.controller.config.MocapPlaybackConfig;
@@ -123,7 +123,7 @@ public class RecordingFile extends Playable implements MocapRecordingFile
 			long sizeInBytes,
 			long sizeInOps,
 			Vec3 startPos,
-			@Nullable ResourceLocation assignedDimensionId,
+			@Nullable Identifier assignedDimensionId,
 			AssignedProfile assignedProfile,
 			boolean legacyEndsWithDeath) implements MocapRecordingFile.Info
 	{

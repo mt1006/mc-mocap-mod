@@ -4,7 +4,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
@@ -43,14 +43,14 @@ public class PlayerAsEntity implements MocapPlayerAsEntity
 		return entityId != null;
 	}
 
-	@Override public @Nullable ResourceLocation getEntityId()
+	@Override public @Nullable Identifier getEntityId()
 	{
-		return entityId != null ? ResourceLocation.tryParse(entityId) : null;
+		return entityId != null ? Identifier.tryParse(entityId) : null;
 	}
 
 	@Override public @Nullable EntityType<?> getEntityType()
 	{
-		ResourceLocation id = getEntityId();
+		Identifier id = getEntityId();
 		if (id == null || !BuiltInRegistries.ENTITY_TYPE.containsKey(id)) { return null; }
 		Holder.Reference<EntityType<?>> entityTypeRef = BuiltInRegistries.ENTITY_TYPE.get(id).orElse(null);
 		return entityTypeRef != null ? entityTypeRef.value() : null;
@@ -90,12 +90,12 @@ public class PlayerAsEntity implements MocapPlayerAsEntity
 		return entity;
 	}
 
-	private static @Nullable EntityType<?> prepareEntityType(@Nullable String entityId)
+	private static @Nullable EntityType<?> prepareEntityType(@Nullable String idStr)
 	{
-		if (entityId == null) { return null; }
+		if (idStr == null) { return null; }
 
-		ResourceLocation entityRes = ResourceLocation.parse(entityId);
-		Holder.Reference<EntityType<?>> entityTypeRef = BuiltInRegistries.ENTITY_TYPE.get(entityRes).orElse(null);
+		Identifier id = Identifier.parse(idStr);
+		Holder.Reference<EntityType<?>> entityTypeRef = BuiltInRegistries.ENTITY_TYPE.get(id).orElse(null);
 		return entityTypeRef != null ? entityTypeRef.value() : null;
 	}
 

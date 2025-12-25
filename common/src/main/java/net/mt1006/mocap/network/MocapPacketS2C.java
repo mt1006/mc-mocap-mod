@@ -4,7 +4,7 @@ import com.mojang.datafixers.util.Pair;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.mt1006.mocap.MocapMod;
 import net.mt1006.mocap.events.PlayerConnectionEvent;
@@ -17,7 +17,7 @@ import java.util.UUID;
 public class MocapPacketS2C implements CustomPacketPayload
 {
 	private static final String TYPE_ID = MocapMod.loaderInterface.getLoaderName().toLowerCase(Locale.ROOT) + "_s2c";
-	public static final Type<MocapPacketS2C> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(MocapMod.MOD_ID, TYPE_ID));
+	public static final Type<MocapPacketS2C> TYPE = new Type<>(Identifier.fromNamespaceAndPath(MocapMod.MOD_ID, TYPE_ID));
 	public static final StreamCodec<FriendlyByteBuf, MocapPacketS2C> CODEC = StreamCodec.of((b, p) -> p.encode(b), MocapPacketS2C::new);
 
 	public static final int ON_LOGIN = 0;
