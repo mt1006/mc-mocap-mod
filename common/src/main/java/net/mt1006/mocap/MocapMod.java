@@ -1,6 +1,7 @@
 package net.mt1006.mocap;
 
 import net.minecraft.server.MinecraftServer;
+import net.mt1006.mocap.api.v1.MocapAPI;
 import net.mt1006.mocap.mocap.actions.ActionType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,7 +14,6 @@ import java.util.Locale;
 public class MocapMod
 {
 	public static final String MOD_ID = "mocap";
-	public static final String FOR_VERSION = "1.21.11";
 	public static final boolean EXPERIMENTAL = true; //TODO: change it to false
 
 	public static final byte RECORDING_FORMAT_VERSION = 5;
@@ -45,12 +45,12 @@ public class MocapMod
 
 	public static String getName()
 	{
-		return String.format(Locale.ROOT, "Mocap v%s", loaderInterface.getModVersion());
+		return String.format(Locale.ROOT, "Mocap v%s", MocapAPI.Info.version());
 	}
 
 	public static String getFullName()
 	{
 		return String.format(Locale.ROOT, "Mocap v%s for Minecraft %s [%s]",
-				loaderInterface.getModVersion(), FOR_VERSION, loaderInterface.getLoaderName());
+				MocapAPI.Info.version(), MocapAPI.Info.forVersion(), MocapAPI.Info.forLoader());
 	}
 }

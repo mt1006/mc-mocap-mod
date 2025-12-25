@@ -52,12 +52,21 @@ public final class MocapAPI
 
 		public static String version()
 		{
-			return MocapMod.loaderInterface.getModVersion();
+			String fullVersion = MocapMod.loaderInterface.getModVersion();
+			int plusPos = fullVersion.indexOf("+mc");
+			return plusPos != -1 ? fullVersion.substring(0, plusPos) : "0.0";
 		}
 
 		public static String forVersion()
 		{
-			return MocapMod.FOR_VERSION;
+			String fullVersion = MocapMod.loaderInterface.getModVersion();
+			int plusPos = fullVersion.indexOf("+mc");
+			return (plusPos != -1 && fullVersion.length() > plusPos + 2) ? fullVersion.substring(plusPos + 3) : "0.0";
+		}
+
+		public static String fullVersion()
+		{
+			return MocapMod.loaderInterface.getModVersion();
 		}
 
 		public static String forLoader()
