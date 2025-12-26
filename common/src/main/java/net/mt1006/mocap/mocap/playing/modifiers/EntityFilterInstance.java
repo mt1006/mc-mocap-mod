@@ -79,7 +79,7 @@ public class EntityFilterInstance
 					continue;
 				}
 
-				Identifier id = parseToResLoc(name);
+				Identifier id = parseToId(name);
 				Element lastElement = elements.isEmpty() ? null : elements.get(elements.size() - 1);
 
 				boolean reuseEntitySet = (lastElement instanceof EntitySetElement && lastElement.exclude == exclude);
@@ -127,7 +127,7 @@ public class EntityFilterInstance
 		return elements.isEmpty();
 	}
 
-	private static Identifier parseToResLoc(String str) throws FilterParserException
+	private static Identifier parseToId(String str) throws FilterParserException
 	{
 		Identifier id = Identifier.tryParse(str);
 		if (id == null) { throw new FilterParserException(); }
