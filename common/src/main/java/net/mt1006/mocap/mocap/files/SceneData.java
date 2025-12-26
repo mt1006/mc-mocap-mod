@@ -39,7 +39,7 @@ public class SceneData
 	public boolean save(CommandOutput out, SceneFile file, String sceneName, String onSuccess, String onError)
 	{
 		JsonObject json = new JsonObject();
-		json.add("version", new JsonPrimitive(experimentalVersion ? (-version) : version)); //TODO: fix?
+		json.add("version", new JsonPrimitive(MocapMod.EXPERIMENTAL ? -SceneFiles.VERSION : SceneFiles.VERSION));
 
 		JsonArray subscenesArray = new JsonArray();
 		elements.forEach((s) -> subscenesArray.add(s.toJson()));
