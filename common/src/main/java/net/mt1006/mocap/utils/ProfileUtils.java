@@ -1,21 +1,18 @@
 package net.mt1006.mocap.utils;
 
-import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Multimap;
 import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.HttpAuthenticationService;
 import com.mojang.authlib.exceptions.MinecraftClientException;
 import com.mojang.authlib.exceptions.MinecraftClientHttpException;
+import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.minecraft.client.MinecraftClient;
 import com.mojang.authlib.properties.Property;
-import com.mojang.authlib.properties.PropertyMap;
 import com.mojang.authlib.yggdrasil.ProfileResult;
 import com.mojang.authlib.yggdrasil.response.MinecraftProfilePropertiesResponse;
-import com.mojang.authlib.yggdrasil.response.NameAndId;
 import com.mojang.util.UndashedUuid;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.Services;
 import net.minecraft.util.StringUtil;
 import net.mt1006.mocap.api.v1.controller.config.MocapPlayerNameHandling;
 import net.mt1006.mocap.mocap.settings.Settings;
@@ -38,15 +35,14 @@ public class ProfileUtils
 		if (cachedProfile != null) { return cachedProfile; }
 		if (!StringUtil.isValidPlayerName(name)) { return cacheAndReturn(Profile.withoutSkin(name)); }
 
-		Services services = server.services();
-		NameAndIdResult nameAndId = fetchNameAndId(services, name);
+		NameAndIdResult nameAndId = fetchNameAndId(server.getProfileRepository(), name);
 		if (nameAndId.val == null)
 		{
 			Profile	profile	= nameAndId.rateLimited ? Profile.rateLimited(name) : Profile.withoutSkin(name);
 			return cacheAndReturn(profile);
 		}
 
-		if (mode == MocapPlayerNameHandling.MATCH_EXACT_NAME && !name.equals(nameAndId.val.name()))
+		if (mode == MocapPlayerNameHandling.MATCH_EXACT_NAME && !name.equals(nameAndId.val.getName()))
 		{
 			cacheAndReturn(Profile.fromPartialFetch(nameAndId.val));
 
@@ -56,18 +52,17 @@ public class ProfileUtils
 		}
 
 		Profile newProfile = cacheAndReturn(withSkin
-				? fetchFullProfile(services, nameAndId.val)
+				? fetchFullProfile(server.getSessionService(), nameAndId.val)
 				: Profile.fromPartialFetch(nameAndId.val));
 		return mode == MocapPlayerNameHandling.IGNORE_CASING ? newProfile.withName(name) : newProfile;
 	}
 
 	public static GameProfile createGameProfile(String name, @Nullable Property skin, @Nullable Property customSkin)
 	{
-		Multimap<String, Property> multimap = HashMultimap.create();
-		if (skin != null) { multimap.put(skin.name(), skin); }
-		if (customSkin != null) { multimap.put(customSkin.name(), customSkin); }
-
-		return new GameProfile(UUID.randomUUID(), name, new PropertyMap(multimap));
+		GameProfile profile = new GameProfile(UUID.randomUUID(), name);
+		if (skin != null) { profile.getProperties().put(skin.name(), skin); }
+		if (customSkin != null) { profile.getProperties().put(customSkin.name(), customSkin); }
+		return profile;
 	}
 
 	public static void clearCache()
@@ -76,18 +71,18 @@ public class ProfileUtils
 		cacheInsensitive.clear();
 	}
 
-	private static NameAndIdResult fetchNameAndId(Services services, String playerName)
+	private static NameAndIdResult fetchNameAndId(GameProfileRepository profileRepository, String playerName)
 	{
 		if (Settings.USE_AUTHLIB_SERVICES.val)
 		{
-			return new NameAndIdResult(services.profileRepository().findProfileByName(playerName).orElse(null));
+			return new NameAndIdResult(profileRepository.findProfileByName(playerName).orElse(null));
 		}
 
 		try
 		{
 			return new NameAndIdResult(client.get(
 					HttpAuthenticationService.constantURL("https://api.mojang.com/users/profiles/minecraft/" + playerName.toLowerCase(Locale.ROOT)),
-					NameAndId.class));
+					GameProfile.class));
 		}
 		catch (MinecraftClientException e)
 		{
@@ -96,33 +91,33 @@ public class ProfileUtils
 		}
 	}
 
-	private static Profile fetchFullProfile(Services services, NameAndId nameAndId)
+	private static Profile fetchFullProfile(MinecraftSessionService sessionService, GameProfile nameAndId)
 	{
 		if (Settings.USE_AUTHLIB_SERVICES.val)
 		{
-			ProfileResult result = services.sessionService().fetchProfile(nameAndId.id(), true);
+			ProfileResult result = sessionService.fetchProfile(nameAndId.getId(), true);
 
 			return result != null
-					? Profile.withSkin(nameAndId.name(), services.sessionService().getPackedTextures(result.profile()))
-					: Profile.withoutSkin(nameAndId.name());
+					? Profile.withSkin(nameAndId.getName(), sessionService.getPackedTextures(result.profile()))
+					: Profile.withoutSkin(nameAndId.getName());
 		}
 
 		try
 		{
 			MinecraftProfilePropertiesResponse response = client.get(
 					HttpAuthenticationService.constantURL("https://sessionserver.mojang.com/session/minecraft/profile/"
-							+ UndashedUuid.toString(nameAndId.id()) + "?unsigned=false"),
+							+ UndashedUuid.toString(nameAndId.getId()) + "?unsigned=false"),
 					MinecraftProfilePropertiesResponse.class);
 
 			return response != null
-					? Profile.withSkin(nameAndId.name(), Iterables.getFirst(response.properties().get("textures"), null))
-					: Profile.withoutSkin(nameAndId.name());
+					? Profile.withSkin(nameAndId.getName(), Iterables.getFirst(response.properties().get("textures"), null))
+					: Profile.withoutSkin(nameAndId.getName());
 
 		}
 		catch (MinecraftClientException e)
 		{
 			boolean rateLimited = (e instanceof MinecraftClientHttpException httpException && httpException.getStatus() == 429);
-			return rateLimited ? Profile.rateLimited(nameAndId.name()) : Profile.withoutSkin(nameAndId.name());
+			return rateLimited ? Profile.rateLimited(nameAndId.getName()) : Profile.withoutSkin(nameAndId.getName());
 		}
 	}
 
@@ -155,9 +150,9 @@ public class ProfileUtils
 		return profile;
 	}
 
-	private record NameAndIdResult(@Nullable NameAndId val, boolean rateLimited)
+	private record NameAndIdResult(@Nullable GameProfile val, boolean rateLimited)
 	{
-		public NameAndIdResult(@Nullable NameAndId val)
+		public NameAndIdResult(@Nullable GameProfile val)
 		{
 			this(val, false);
 		}
@@ -185,9 +180,9 @@ public class ProfileUtils
 			return new Profile(name, null, true, false);
 		}
 
-		private static Profile fromPartialFetch(NameAndId nameAndId)
+		private static Profile fromPartialFetch(GameProfile nameAndId)
 		{
-			return new Profile(nameAndId.name(), null, false, true);
+			return new Profile(nameAndId.getName(), null, false, true);
 		}
 
 		private Profile(String name, @Nullable Property skin, boolean rateLimited, boolean partialFetch)

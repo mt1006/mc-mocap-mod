@@ -165,8 +165,8 @@ public class RecordingPlayback extends Playback
 			}
 
 			if (startAsRecorded && recordedProfile.name() != null) { profileName = recordedProfile.name(); }
-			else if (entity instanceof ServerPlayer) { profileName = ((ServerPlayer)entity).getGameProfile().name(); }
-			else if (!playerList.getPlayers().isEmpty()) { profileName = playerList.getPlayers().get(0).getGameProfile().name(); }
+			else if (entity instanceof ServerPlayer) { profileName = ((ServerPlayer)entity).getGameProfile().getName(); }
+			else if (!playerList.getPlayers().isEmpty()) { profileName = playerList.getPlayers().get(0).getGameProfile().getName(); }
 			else { profileName = "Player"; }
 		}
 

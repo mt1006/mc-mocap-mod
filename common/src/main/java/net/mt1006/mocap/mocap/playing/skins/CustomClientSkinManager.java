@@ -5,7 +5,6 @@ import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.core.ClientAsset;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.mt1006.mocap.MocapMod;
@@ -28,7 +27,7 @@ public class CustomClientSkinManager
 	private static final ConcurrentMap<String, Boolean> skinCache = new ConcurrentHashMap<>();
 	private static boolean clientWarned = false;
 
-	public static @Nullable ClientAsset.Texture get(@Nullable String name)
+	public static @Nullable ResourceLocation get(@Nullable String name)
 	{
 		if (name == null) { return null; }
 		Boolean accessible = skinCache.get(name);
@@ -40,8 +39,7 @@ public class CustomClientSkinManager
 		}
 		if (!accessible) { return null; }
 
-		ResourceLocation id = idFromName(name);
-		return new ClientAsset.ResourceTexture(id, id);
+		return idFromName(name);
 	}
 
 	public static void loadClientSkin(String name)
@@ -112,9 +110,9 @@ public class CustomClientSkinManager
 		clientWarned = false;
 	}
 
-	public static boolean isSlimSkin(ClientAsset.Texture texture)
+	public static boolean isSlimSkin(ResourceLocation res)
 	{
-		return texture.texturePath().getPath().startsWith(SLIM_SKIN_RES_PREFIX);
+		return res.getPath().startsWith(SLIM_SKIN_RES_PREFIX);
 	}
 
 	private static ResourceLocation idFromName(String name)

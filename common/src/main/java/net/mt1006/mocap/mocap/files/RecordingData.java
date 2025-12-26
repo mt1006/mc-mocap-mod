@@ -575,8 +575,8 @@ public class RecordingData implements MocapRecordingData
 			switch (config)
 			{
 				case FULL:
-					id = profile.id();
-					Collection<com.mojang.authlib.properties.Property> textures = profile.properties().get("textures");
+					id = profile.getId();
+					Collection<com.mojang.authlib.properties.Property> textures = profile.getProperties().get("textures");
 					if (!textures.isEmpty())
 					{
 						com.mojang.authlib.properties.Property texture = textures.iterator().next();
@@ -585,7 +585,7 @@ public class RecordingData implements MocapRecordingData
 					}
 
 				case ONLY_NAME:
-					name = profile.name();
+					name = profile.getName();
 			}
 			return new AssignedProfile(name, id, skinValue, skinSignature);
 		}

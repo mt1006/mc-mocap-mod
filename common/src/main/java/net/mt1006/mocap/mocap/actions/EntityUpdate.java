@@ -212,7 +212,7 @@ public class EntityUpdate implements MocapAction
 				return Result.OK;
 
 			case PLAYER_MOUNT:
-				ctx.getEntity().startRiding(entity, true, true);
+				ctx.getEntity().startRiding(entity, true);
 				return Result.OK;
 		}
 		return Result.IGNORED;

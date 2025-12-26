@@ -14,7 +14,7 @@ public class LivingEntityRendererMixin
 	@Inject(method = "shouldShowName(Lnet/minecraft/world/entity/LivingEntity;D)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;getTeam()Lnet/minecraft/world/scores/PlayerTeam;"), cancellable = true)
 	private void atShouldShowName(LivingEntity entity, double distanceSq, CallbackInfoReturnable<Boolean> cir)
 	{
-		if (entity instanceof AbstractClientPlayer && ((AbstractClientPlayer)entity).getGameProfile().name().isEmpty())
+		if (entity instanceof AbstractClientPlayer && ((AbstractClientPlayer)entity).getGameProfile().getName().isEmpty())
 		{
 			cir.setReturnValue(false);
 			cir.cancel();
