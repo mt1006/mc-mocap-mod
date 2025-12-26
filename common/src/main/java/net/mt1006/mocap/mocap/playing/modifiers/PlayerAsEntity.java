@@ -1,12 +1,10 @@
 package net.mt1006.mocap.mocap.playing.modifiers;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.mt1006.mocap.api.v1.modifiers.MocapPlayerAsEntity;
@@ -49,8 +47,8 @@ public class PlayerAsEntity implements MocapPlayerAsEntity
 	{
 		ResourceLocation id = getEntityId();
 		if (id == null || !BuiltInRegistries.ENTITY_TYPE.containsKey(id)) { return null; }
-		Holder.Reference<EntityType<?>> entityTypeRef = BuiltInRegistries.ENTITY_TYPE.get(id).orElse(null);
-		return entityTypeRef != null ? entityTypeRef.value() : null;
+		EntityType<?> entityTypeRef = BuiltInRegistries.ENTITY_TYPE.get(id);
+		return BuiltInRegistries.ENTITY_TYPE.containsKey(id) ? entityTypeRef : null;
 	}
 
 	@Override public @Nullable String getRawEntityId()
@@ -78,8 +76,8 @@ public class PlayerAsEntity implements MocapPlayerAsEntity
 	{
 		if (entityType == null && compoundTag == null) { return null; }
 		return (compoundTag != null)
-				? EntityType.create(compoundTag, level, EntitySpawnReason.COMMAND).orElse(null)
-				: entityType.create(level, EntitySpawnReason.COMMAND);
+				? EntityType.create(compoundTag, level).orElse(null)
+				: entityType.create(level);
 	}
 
 	private static @Nullable EntityType<?> prepareEntityType(@Nullable String entityId)
@@ -87,8 +85,8 @@ public class PlayerAsEntity implements MocapPlayerAsEntity
 		if (entityId == null) { return null; }
 
 		ResourceLocation entityRes = ResourceLocation.parse(entityId);
-		Holder.Reference<EntityType<?>> entityTypeRef = BuiltInRegistries.ENTITY_TYPE.get(entityRes).orElse(null);
-		return entityTypeRef != null ? entityTypeRef.value() : null;
+		EntityType<?> entityType = BuiltInRegistries.ENTITY_TYPE.get(entityRes);
+		return BuiltInRegistries.ENTITY_TYPE.containsKey(entityRes) ? entityType : null;
 	}
 
 	private static @Nullable CompoundTag prepareCompoundTag(@Nullable String entityNbt)

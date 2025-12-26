@@ -18,7 +18,8 @@
 		"fields.HorseFields",
 		"fields.LevelFields",
 		"fields.LivingEntityFields",
-		"fields.LlamaFields"
+		"fields.LlamaFields",
+		"fields.ServerPlayerFields"
 	],
 	"client":
 	[

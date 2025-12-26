@@ -267,7 +267,7 @@ public class ActionContext implements MocapActionContext
 			case KILL:
 				entity.invulnerableTime = 0; // for sound effect
 				if (entity instanceof FakePlayer) { ((FakePlayer)entity).fakeKill(); }
-				else { entity.kill(level); }
+				else { entity.kill(); }
 				break;
 
 			case LEFT_UNTOUCHED:

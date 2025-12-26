@@ -3,7 +3,6 @@ package net.mt1006.mocap.mocap.files;
 import com.mojang.authlib.GameProfile;
 import it.unimi.dsi.fastutil.objects.Reference2IntMap;
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
-import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
@@ -469,8 +468,7 @@ public class RecordingData implements MocapRecordingData
 
 			for (int i = 1; i <= size; i++)
 			{
-				Optional<Holder.Reference<Item>> itemHolder = BuiltInRegistries.ITEM.get(ResourceLocation.parse(reader.readString()));
-				Item item = itemHolder.get().value();
+				Item item = BuiltInRegistries.ITEM.get(ResourceLocation.parse(reader.readString()));
 				refToId.put(item, i);
 				idToRef.add(item);
 			}
@@ -523,8 +521,7 @@ public class RecordingData implements MocapRecordingData
 
 			for (int i = 1; i <= size; i++)
 			{
-				Optional<Holder.Reference<Block>> blockHolder = BuiltInRegistries.BLOCK.get(ResourceLocation.parse(reader.readString()));
-				Block block = blockHolder.get().value();
+				Block block = BuiltInRegistries.BLOCK.get(ResourceLocation.parse(reader.readString()));
 				StateDefinition<Block, BlockState> stateDefinition = block.getStateDefinition();
 				BlockState blockState = block.defaultBlockState();
 

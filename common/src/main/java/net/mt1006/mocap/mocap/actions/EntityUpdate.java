@@ -4,7 +4,10 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.phys.Vec3;
 import net.mt1006.mocap.api.v1.controller.config.MocapNbtRecordingMode;
@@ -201,7 +204,7 @@ public class EntityUpdate implements MocapAction
 			case KILL:
 				//TODO: fix slime splitting into dummy slimes
 				entity.invulnerableTime = 0; // for sound effect
-				entity.kill(ctx.getLevel());
+				entity.kill();
 				return Result.OK;
 
 			case HURT:
@@ -232,7 +235,7 @@ public class EntityUpdate implements MocapAction
 		}
 
 		EntityType<?> entityType = EntityType.by(nbt).orElse(null);
-		Entity entity = entityType.create(ctx.getLevel(), EntitySpawnReason.MOB_SUMMONED);
+		Entity entity = entityType.create(ctx.getLevel());
 		if (entity == null || !filter.isAllowed(entity)) { return Result.IGNORED; }
 
 		entity.setPos(ctx.getTransformer().transformPos(position));

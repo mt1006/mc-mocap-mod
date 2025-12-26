@@ -11,8 +11,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(LivingEntityRenderer.class)
 public class LivingEntityRendererMixin
 {
-	@Inject(method = "shouldShowName(Lnet/minecraft/world/entity/LivingEntity;D)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;getTeam()Lnet/minecraft/world/scores/PlayerTeam;"), cancellable = true)
-	private void atShouldShowName(LivingEntity entity, double distanceSq, CallbackInfoReturnable<Boolean> cir)
+	@Inject(method = "shouldShowName(Lnet/minecraft/world/entity/LivingEntity;)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;getTeam()Lnet/minecraft/world/scores/PlayerTeam;"), cancellable = true)
+	private void atShouldShowName(LivingEntity entity, CallbackInfoReturnable<Boolean> cir)
 	{
 		if (entity instanceof AbstractClientPlayer && ((AbstractClientPlayer)entity).getGameProfile().getName().isEmpty())
 		{

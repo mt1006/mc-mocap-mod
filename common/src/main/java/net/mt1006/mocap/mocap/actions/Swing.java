@@ -75,12 +75,12 @@ public class Swing implements MocapStateAction
 				}
 				else if (entity instanceof Mob mob)
 				{
-					mob.doHurtTarget(ctx.getLevel(), entityToHit);
+					mob.doHurtTarget(entityToHit);
 				}
 				else
 				{
 					float damage = (float)getAttribValueOrDef(entity, Attributes.ATTACK_DAMAGE, 1.0f);
-					entityToHit.hurtServer(ctx.getLevel(), ctx.getLevel().damageSources().mobAttack(entity), damage);
+					entityToHit.hurt(ctx.getLevel().damageSources().mobAttack(entity), damage);
 				}
 			}
 		}

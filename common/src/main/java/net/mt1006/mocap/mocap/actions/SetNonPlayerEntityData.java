@@ -82,7 +82,7 @@ public class SetNonPlayerEntityData implements MocapStateAction
 		}
 		else if (entity instanceof AbstractArrow) // includes trident
 		{
-			boolean flag1 = ((AbstractArrowFields)entity).callIsInGround();
+			boolean flag1 = ((AbstractArrowFields)entity).getInGround();
 			return new SetNonPlayerEntityData(flag1, false, null, null, null, null, null);
 		}
 		else if (entity instanceof AgeableMob)
@@ -198,7 +198,7 @@ public class SetNonPlayerEntityData implements MocapStateAction
 		}
 		else if (entity instanceof AbstractArrow)
 		{
-			((AbstractArrowFields)entity).callSetInGround(flag1);
+			((AbstractArrowFields)entity).setInGround(flag1);
 		}
 
 		return MocapAction.Result.OK;

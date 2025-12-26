@@ -16,7 +16,7 @@ public class Die implements MocapAction
 	@Override public Result execute(MocapActionContext ctx)
 	{
 		if (ctx.getEntity() instanceof FakePlayer) { ((FakePlayer)ctx.getEntity()).fakeKill(); }
-		else { ctx.getEntity().kill(ctx.getLevel()); }
+		else { ctx.getEntity().kill(); }
 		return Result.OK;
 	}
 }
