@@ -4,6 +4,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
+import net.mt1006.mocap.api.v1.controller.config.MocapOnChangeDimension;
 import net.mt1006.mocap.api.v1.controller.config.MocapOnDeath;
 import net.mt1006.mocap.api.v1.controller.config.MocapRecordingConfig;
 import net.mt1006.mocap.api.v1.extension.MocapActiveRecordingActions;
@@ -124,7 +125,6 @@ public class RecordingContext implements MocapActiveRecordingActions
 		else { entityState = newEntityState; }
 	}
 
-	//TODO: safe saving
 	private void onTickRecording()
 	{
 		tick++;
@@ -149,8 +149,11 @@ public class RecordingContext implements MocapActiveRecordingActions
 		newEntityState.saveDifference(data.actions, entityState);
 		entityState = newEntityState;
 
-		positionTracker.onTick(data.actions, null);
-		entityTracker.onTick();
+		if (recordedPlayer.level().dimension() == lastDimension || config.getOnChangeDimension() == MocapOnChangeDimension.NOTHING)
+		{
+			positionTracker.onTick(data.actions, null);
+			entityTracker.onTick();
+		}
 
 		if (recordedPlayer.isDeadOrDying())
 		{
@@ -175,21 +178,17 @@ public class RecordingContext implements MocapActiveRecordingActions
 
 	private void onDimensionChange()
 	{
+		if (config.getOnChangeDimension() != MocapOnChangeDimension.NOTHING)
+		{
+			positionTracker.teleportFarAway(data.actions);
+		}
+
 		switch (config.getOnChangeDimension())
 		{
-			case NOTHING:
-				break;
-
-			case END_RECORDING:
-				selfStop(true);
-				break;
-
-			case SPLIT_RECORDING:
-				splitRecording(recordedPlayer);
-				break;
-
-			default:
-				throw new RuntimeException("Unknown state: " + config.getOnChangeDimension());
+			case NOTHING -> {}
+			case END_RECORDING -> selfStop(true);
+			case SPLIT_RECORDING -> splitRecording(recordedPlayer);
+			default -> throw new RuntimeException("Unknown state: " + config.getOnChangeDimension());
 		}
 	}
 
