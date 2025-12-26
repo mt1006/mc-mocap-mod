@@ -5,7 +5,7 @@ import it.unimi.dsi.fastutil.objects.Reference2IntMap;
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -66,7 +66,7 @@ public class RecordingData implements MocapRecordingData
 	private boolean usesIdMaps = true;
 	private final ItemIdMap itemIdMap = new ItemIdMap(this);
 	private final BlockStateIdMap blockStateIdMap = new BlockStateIdMap(this);
-	public @Nullable Identifier dimensionId = null;
+	public @Nullable ResourceLocation dimensionId = null;
 	public AssignedProfile assignedProfile = AssignedProfile.EMPTY;
 	private final SortedMap<Integer, MocapExtension> extensionById = new TreeMap<>();
 	private final Map<MocapExtension, Byte> extensionToId = new HashMap<>();
@@ -240,7 +240,7 @@ public class RecordingData implements MocapRecordingData
 			blockStateIdMap.load(reader);
 		}
 
-		if (startDimensionSpecified) { dimensionId = Identifier.parse(reader.readString()); }
+		if (startDimensionSpecified) { dimensionId = ResourceLocation.parse(reader.readString()); }
 		if (profileAssigned) { assignedProfile = AssignedProfile.read(reader); }
 		if (hasExtensions && !loadExtensionHeaders(out, reader)) { return false; }
 		if (hasExperimentalSubversion) { experimentalSubversion = reader.readByte(); }
@@ -426,10 +426,10 @@ public class RecordingData implements MocapRecordingData
 			return pos;
 		}
 
-		protected String idToStr(Identifier id)
+		protected String idToStr(ResourceLocation id)
 		{
 			//TODO: test with mods
-			return id.getNamespace().equals(Identifier.DEFAULT_NAMESPACE)
+			return id.getNamespace().equals(ResourceLocation.DEFAULT_NAMESPACE)
 					? id.getPath()
 					: id.toString();
 		}
@@ -469,7 +469,7 @@ public class RecordingData implements MocapRecordingData
 
 			for (int i = 1; i <= size; i++)
 			{
-				Optional<Holder.Reference<Item>> itemHolder = BuiltInRegistries.ITEM.get(Identifier.parse(reader.readString()));
+				Optional<Holder.Reference<Item>> itemHolder = BuiltInRegistries.ITEM.get(ResourceLocation.parse(reader.readString()));
 				Item item = itemHolder.get().value();
 				refToId.put(item, i);
 				idToRef.add(item);
@@ -523,7 +523,7 @@ public class RecordingData implements MocapRecordingData
 
 			for (int i = 1; i <= size; i++)
 			{
-				Optional<Holder.Reference<Block>> blockHolder = BuiltInRegistries.BLOCK.get(Identifier.parse(reader.readString()));
+				Optional<Holder.Reference<Block>> blockHolder = BuiltInRegistries.BLOCK.get(ResourceLocation.parse(reader.readString()));
 				Block block = blockHolder.get().value();
 				StateDefinition<Block, BlockState> stateDefinition = block.getStateDefinition();
 				BlockState blockState = block.defaultBlockState();

@@ -1,8 +1,8 @@
 package net.mt1006.mocap.api.v1.modifiers;
 
-import net.minecraft.IdentifierException;
+import net.minecraft.ResourceLocationException;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.mt1006.mocap.mocap.playing.modifiers.EntityFilter;
 
@@ -10,13 +10,13 @@ public class MocapEntityFilterBuilder
 {
 	private final StringBuilder builder = new StringBuilder();
 
-	public MocapEntityFilterBuilder includeEntity(Identifier id)
+	public MocapEntityFilterBuilder includeEntity(ResourceLocation id)
 	{
 		builder.append(id.toString());
 		return this;
 	}
 
-	public MocapEntityFilterBuilder excludeEntity(Identifier id)
+	public MocapEntityFilterBuilder excludeEntity(ResourceLocation id)
 	{
 		builder.append("-");
 		return includeEntity(id);
@@ -46,7 +46,7 @@ public class MocapEntityFilterBuilder
 
 	public MocapEntityFilterBuilder includeNamespace(String namespace)
 	{
-		if (!Identifier.isValidNamespace(namespace)) { throw new IdentifierException("Invalid namespace!"); }
+		if (!ResourceLocation.isValidNamespace(namespace)) { throw new ResourceLocationException("Invalid namespace!"); }
 		builder.append(namespace);
 		builder.append(":*");
 		return this;

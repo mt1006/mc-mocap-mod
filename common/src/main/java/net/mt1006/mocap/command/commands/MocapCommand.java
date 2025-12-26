@@ -13,8 +13,7 @@ public class MocapCommand
 {
 	public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext buildContext)
 	{
-		LiteralArgumentBuilder<CommandSourceStack> commandBuilder = Commands.literal("mocap")
-				.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS));
+		LiteralArgumentBuilder<CommandSourceStack> commandBuilder = Commands.literal("mocap").requires(source -> source.hasPermission(2));
 
 		commandBuilder.then(RecordingCommand.getArgumentBuilder());
 		commandBuilder.then(PlaybackCommand.getArgumentBuilder(buildContext));

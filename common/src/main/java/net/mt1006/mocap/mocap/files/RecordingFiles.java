@@ -6,8 +6,8 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 import net.mt1006.mocap.MocapMod;
 import net.mt1006.mocap.api.v1.controller.config.MocapDimensionSource;
@@ -84,7 +84,7 @@ public class RecordingFiles
 
 	private static void printPosInfo(CommandInfo out, MocapRecordingFile.Info info) //TODO: rename out
 	{
-		Identifier dimensionId = info.assignedDimensionId();
+		ResourceLocation dimensionId = info.assignedDimensionId();
 		boolean anotherDimension = (dimensionId != null && out.getLevel().dimension() != ResourceKey.create(Registries.DIMENSION, dimensionId)
 				&& (Settings.DIMENSION_SOURCE.val == MocapDimensionSource.ASSIGNED_OR_CURRENT
 				|| Settings.DIMENSION_SOURCE.val == MocapDimensionSource.ASSIGNED_OR_OVERWORLD));

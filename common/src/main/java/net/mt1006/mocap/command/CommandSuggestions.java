@@ -5,7 +5,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.mt1006.mocap.api.v1.io.CommandOutput;
 import net.mt1006.mocap.api.v1.modifiers.MocapEntityFilterBuilder;
 import net.mt1006.mocap.mocap.files.Files;
@@ -147,7 +147,7 @@ public class CommandSuggestions
 		}
 
 		Set<String> namespaces = new HashSet<>();
-		for (Identifier id : BuiltInRegistries.ENTITY_TYPE.keySet())
+		for (ResourceLocation id : BuiltInRegistries.ENTITY_TYPE.keySet())
 		{
 			list.add(id.toString());
 			namespaces.add(id.getNamespace());

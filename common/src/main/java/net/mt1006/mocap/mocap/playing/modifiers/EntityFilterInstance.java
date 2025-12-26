@@ -1,16 +1,16 @@
 package net.mt1006.mocap.mocap.playing.modifiers;
 
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.PlayerRideable;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.entity.vehicle.boat.Boat;
-import net.minecraft.world.entity.vehicle.minecart.AbstractMinecart;
-import net.minecraft.world.entity.vehicle.minecart.Minecart;
+import net.minecraft.world.entity.vehicle.AbstractMinecart;
+import net.minecraft.world.entity.vehicle.Boat;
+import net.minecraft.world.entity.vehicle.Minecart;
 import net.mt1006.mocap.api.v1.io.CommandOutput;
 import net.mt1006.mocap.mocap.files.Files;
 import org.jetbrains.annotations.Nullable;
@@ -73,13 +73,13 @@ public class EntityFilterInstance
 				{
 					if (name.length() == 2) { throw new FilterParserException(); }
 					String namespace = name.substring(0, name.length() - 2);
-					if (!Identifier.isValidNamespace(namespace)) { throw new FilterParserException(); }
+					if (!ResourceLocation.isValidNamespace(namespace)) { throw new FilterParserException(); }
 
 					elements.add(new AllEntitiesElement(exclude, namespace));
 					continue;
 				}
 
-				Identifier id = parseToId(name);
+				ResourceLocation id = parseToId(name);
 				Element lastElement = elements.isEmpty() ? null : elements.get(elements.size() - 1);
 
 				boolean reuseEntitySet = (lastElement instanceof EntitySetElement && lastElement.exclude == exclude);
@@ -127,9 +127,9 @@ public class EntityFilterInstance
 		return elements.isEmpty();
 	}
 
-	private static Identifier parseToId(String str) throws FilterParserException
+	private static ResourceLocation parseToId(String str) throws FilterParserException
 	{
-		Identifier id = Identifier.tryParse(str);
+		ResourceLocation id = ResourceLocation.tryParse(str);
 		if (id == null) { throw new FilterParserException(); }
 		return id;
 	}
@@ -200,7 +200,7 @@ public class EntityFilterInstance
 			super(exclude);
 		}
 
-		public void add(Identifier id)
+		public void add(ResourceLocation id)
 		{
 			Optional<EntityType<?>> entityType = BuiltInRegistries.ENTITY_TYPE.getOptional(id);
 			entityType.ifPresent(set::add);

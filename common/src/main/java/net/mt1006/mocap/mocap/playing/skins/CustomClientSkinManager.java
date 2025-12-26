@@ -6,7 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.core.ClientAsset;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.mt1006.mocap.MocapMod;
 import net.mt1006.mocap.mocap.files.Files;
@@ -40,7 +40,7 @@ public class CustomClientSkinManager
 		}
 		if (!accessible) { return null; }
 
-		Identifier id = idFromName(name);
+		ResourceLocation id = idFromName(name);
 		return new ClientAsset.ResourceTexture(id, id);
 	}
 
@@ -93,7 +93,7 @@ public class CustomClientSkinManager
 				return;
 			}
 
-			Identifier id = idFromName(name);
+			ResourceLocation id = idFromName(name);
 			Minecraft.getInstance().getTextureManager().register(id, new DynamicTexture(id::toString, nativeImage));
 			skinCache.put(name, true);
 		}
@@ -117,8 +117,8 @@ public class CustomClientSkinManager
 		return texture.texturePath().getPath().startsWith(SLIM_SKIN_RES_PREFIX);
 	}
 
-	private static Identifier idFromName(String name)
+	private static ResourceLocation idFromName(String name)
 	{
-		return Identifier.fromNamespaceAndPath(MocapMod.MOD_ID, SKIN_RES_PREFIX + name);
+		return ResourceLocation.fromNamespaceAndPath(MocapMod.MOD_ID, SKIN_RES_PREFIX + name);
 	}
 }

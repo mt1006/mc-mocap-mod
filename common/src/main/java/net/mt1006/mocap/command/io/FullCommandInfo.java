@@ -182,7 +182,7 @@ public class FullCommandInfo implements CommandInfo
 
 		try
 		{
-			String playerAsEntityId = ResourceArgument.getEntityType(ctx, "entity").key().identifier().toString();
+			String playerAsEntityId = ResourceArgument.getEntityType(ctx, "entity").key().location().toString();
 
 			Tag tag;
 			try { tag = NbtTagArgument.getNbtTag(ctx, "nbt"); }

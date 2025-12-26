@@ -1,7 +1,7 @@
 package net.mt1006.mocap.mocap.playing.skins;
 
+import net.minecraft.Util;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.Util;
 import net.mt1006.mocap.api.v1.io.CommandOutput;
 import net.mt1006.mocap.mocap.files.Files;
 import net.mt1006.mocap.network.MocapPacketS2C;

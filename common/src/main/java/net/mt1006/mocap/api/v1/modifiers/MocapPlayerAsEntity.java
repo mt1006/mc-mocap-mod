@@ -1,7 +1,7 @@
 package net.mt1006.mocap.api.v1.modifiers;
 
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
@@ -19,14 +19,14 @@ public interface MocapPlayerAsEntity
 		return create(BuiltInRegistries.ENTITY_TYPE.getKey(entityType), nbt);
 	}
 
-	static MocapPlayerAsEntity create(Identifier id, @Nullable String nbt)
+	static MocapPlayerAsEntity create(ResourceLocation id, @Nullable String nbt)
 	{
 		return new PlayerAsEntity(id.toString(), nbt);
 	}
 
 	boolean isEnabled();
 
-	@Nullable Identifier getEntityId();
+	@Nullable ResourceLocation getEntityId();
 
 	@Nullable EntityType<?> getEntityType();
 

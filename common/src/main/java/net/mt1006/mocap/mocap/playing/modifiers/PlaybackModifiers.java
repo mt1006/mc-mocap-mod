@@ -208,7 +208,7 @@ public class PlaybackModifiers implements MocapModifiers
 				}
 				else if (playerAsEntityMode.equals("enabled"))
 				{
-					String playerAsEntityId = ResourceArgument.getEntityType(info.ctx, "entity").key().identifier().toString();
+					String playerAsEntityId = ResourceArgument.getEntityType(info.ctx, "entity").key().location().toString();
 
 					Tag tag;
 					try { tag = NbtTagArgument.getNbtTag(info.ctx, "nbt"); }
