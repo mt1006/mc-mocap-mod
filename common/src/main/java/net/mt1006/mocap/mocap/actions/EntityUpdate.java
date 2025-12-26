@@ -4,12 +4,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.level.storage.TagValueInput;
-import net.minecraft.world.level.storage.TagValueOutput;
-import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.phys.Vec3;
 import net.mt1006.mocap.api.v1.controller.config.MocapNbtRecordingMode;
 import net.mt1006.mocap.api.v1.controller.config.MocapRecordingConfig;
@@ -101,13 +97,12 @@ public class EntityUpdate implements MocapAction
 
 	public static CompoundTag serializeEntityNBT(Entity entity, MocapRecordingConfig config)
 	{
-		TagValueOutput tagOutput = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, entity.registryAccess());
+		CompoundTag nbt = new CompoundTag();
 
 		String id = ((EntityIdFields)entity).callGetEncodeId();
-		tagOutput.putString("id", id != null ? id : "minecraft:cow");
-		if (config.getNbtRecordingMode() != MocapNbtRecordingMode.DISABLED) entity.saveWithoutId(tagOutput);
+		nbt.putString("id", id != null ? id : "minecraft:cow");
 
-		CompoundTag nbt = tagOutput.buildResult();
+		entity.saveWithoutId(nbt);
 		nbt.remove("UUID");
 		nbt.remove("Pos");
 		nbt.remove("Motion");
@@ -223,19 +218,19 @@ public class EntityUpdate implements MocapAction
 		MocapEntityFilter filter = ctx.getModifiers().getEntityFilter();
 		if (nbtString == null || position == null || ctx.hasEntity(id) || filter.isEmpty()) { return Result.IGNORED; }
 
-		CompoundTag compoundTag;
+		CompoundTag nbt;
 		try
 		{
-			compoundTag = Utils.nbtFromString(nbtString);
+			nbt = Utils.nbtFromString(nbtString);
 		}
 		catch (Exception e)
 		{
 			Utils.exception(e, "Exception occurred when parsing entity NBT data!");
 			return Result.ERROR;
 		}
-		ValueInput nbt = TagValueInput.create(ProblemReporter.DISCARDING, ctx.getEntity().registryAccess(), compoundTag);
 
-		Entity entity = EntityType.create(nbt, ctx.getLevel(), EntitySpawnReason.MOB_SUMMONED).orElse(null);
+		EntityType<?> entityType = EntityType.by(nbt).orElse(null);
+		Entity entity = entityType.create(ctx.getLevel(), EntitySpawnReason.MOB_SUMMONED);
 		if (entity == null || !filter.isAllowed(entity)) { return Result.IGNORED; }
 
 		entity.setPos(ctx.getTransformer().transformPos(position));

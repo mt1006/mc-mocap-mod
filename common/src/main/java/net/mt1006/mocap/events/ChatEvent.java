@@ -16,7 +16,7 @@ public class ChatEvent
 			{
 				if (ctx.config.getChatRecording())
 				{
-					ctx.addAction(new ChatMessage(message));
+					ctx.addAction(new ChatMessage(Component.Serializer.toJson(message, sender.server.registryAccess())));
 				}
 			}
 		}

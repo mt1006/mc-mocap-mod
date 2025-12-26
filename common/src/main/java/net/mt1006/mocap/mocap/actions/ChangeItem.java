@@ -1,9 +1,12 @@
 package net.mt1006.mocap.mocap.actions;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.serialization.DynamicOps;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.*;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.IntTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -35,16 +38,14 @@ public class ChangeItem implements MocapStateAction
 
 	private ChangeItem(LivingEntity entity)
 	{
-		DynamicOps<Tag> ops = entity.registryAccess().createSerializationContext(NbtOps.INSTANCE);
-
-		addItem(entity.getMainHandItem(), ops);
-		addItem(entity.getOffhandItem(), ops);
-		addItem(entity.getItemBySlot(EquipmentSlot.FEET), ops);
-		addItem(entity.getItemBySlot(EquipmentSlot.LEGS), ops);
-		addItem(entity.getItemBySlot(EquipmentSlot.CHEST), ops);
-		addItem(entity.getItemBySlot(EquipmentSlot.HEAD), ops);
-		addItem(entity.getItemBySlot(EquipmentSlot.BODY), ops);
-		addItem(entity.getItemBySlot(EquipmentSlot.SADDLE), ops);
+		addItem(entity.getMainHandItem(), entity);
+		addItem(entity.getOffhandItem(), entity);
+		addItem(entity.getItemBySlot(EquipmentSlot.FEET), entity);
+		addItem(entity.getItemBySlot(EquipmentSlot.LEGS), entity);
+		addItem(entity.getItemBySlot(EquipmentSlot.CHEST), entity);
+		addItem(entity.getItemBySlot(EquipmentSlot.HEAD), entity);
+		addItem(entity.getItemBySlot(EquipmentSlot.BODY), entity);
+		addItem(entity.getItemBySlot(EquipmentSlot.SADDLE), entity);
 
 		int itemCounter = 0;
 		for (int i = 0; i < ITEM_COUNT; i++)
@@ -72,18 +73,17 @@ public class ChangeItem implements MocapStateAction
 		for (int i = 0; i < itemCount; i++) { items.add(new ItemData(reader, data)); }
 	}
 
-	private void addItem(@Nullable ItemStack itemStack, DynamicOps<Tag> ops)
+	private void addItem(@Nullable ItemStack itemStack, Entity entity)
 	{
-		items.add(ItemData.get(itemStack, ops));
+		items.add(ItemData.get(itemStack, entity.registryAccess()));
 	}
 
 	private void setEntityItems(LivingEntity entity)
 	{
-		DynamicOps<Tag> ops = entity.registryAccess().createSerializationContext(NbtOps.INSTANCE);
 		for (int i = 0; i < ITEM_COUNT; i++)
 		{
 			ItemData item = i < itemCount ? items.get(i) : ItemData.EMPTY;
-			ItemStack itemStack = item.getItemStack(ops);
+			ItemStack itemStack = item.getItemStack(entity.registryAccess());
 
 			switch (i)
 			{
@@ -193,12 +193,10 @@ public class ChangeItem implements MocapStateAction
 			data = "";
 		}
 
-		private ItemData(ItemStack itemStack, DynamicOps<Tag> ops)
+		private ItemData(ItemStack itemStack, RegistryAccess registryAccess)
 		{
 			item = itemStack.getItem();
-			Tag tag;
-			try { tag = ItemStack.CODEC.encodeStart(ops, itemStack).getOrThrow(); }
-			catch (Exception exception) { tag = null; }
+			Tag tag = itemStack.save(registryAccess);
 
 			if (!(tag instanceof CompoundTag) || !((CompoundTag)tag).contains("components"))
 			{
@@ -234,9 +232,9 @@ public class ChangeItem implements MocapStateAction
 			item = recordingData.itemFromId(itemId);
 		}
 
-		public static ItemData get(@Nullable ItemStack itemStack, DynamicOps<Tag> ops)
+		public static ItemData get(@Nullable ItemStack itemStack, RegistryAccess registryAccess)
 		{
-			return (itemStack == null || itemStack.isEmpty()) ? EMPTY : new ItemData(itemStack, ops);
+			return (itemStack == null || itemStack.isEmpty()) ? EMPTY : new ItemData(itemStack, registryAccess);
 		}
 
 		public boolean differs(ItemData itemData)
@@ -258,7 +256,7 @@ public class ChangeItem implements MocapStateAction
 			if (type.hasData) { writer.addString(data); }
 		}
 
-		public ItemStack getItemStack(DynamicOps<Tag> ops)
+		public ItemStack getItemStack(RegistryAccess registryAccess)
 		{
 			switch (type)
 			{
@@ -272,8 +270,7 @@ public class ChangeItem implements MocapStateAction
 				case ID_AND_COMPONENTS:
 					CompoundTag tag = tagFromIdAndComponents();
 					if (tag == null) { return ItemStack.EMPTY; }
-					try { return ItemStack.CODEC.parse(ops, tag).getOrThrow(); }
-					catch (Exception e) { return ItemStack.EMPTY; }
+					return ItemStack.parse(registryAccess, tag).orElse(ItemStack.EMPTY);
 			}
 			return null;
 		}
