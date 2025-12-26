@@ -66,7 +66,7 @@ public class RecordingData implements MocapRecordingData
 	private boolean usesIdMaps = true;
 	private final ItemIdMap itemIdMap = new ItemIdMap(this);
 	private final BlockStateIdMap blockStateIdMap = new BlockStateIdMap(this);
-	public @Nullable Identifier dimensionId = null; //TODO: use it
+	public @Nullable Identifier dimensionId = null;
 	public AssignedProfile assignedProfile = AssignedProfile.EMPTY;
 	private final SortedMap<Integer, MocapExtension> extensionById = new TreeMap<>();
 	private final Map<MocapExtension, Byte> extensionToId = new HashMap<>();

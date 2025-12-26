@@ -73,7 +73,6 @@ public class SettingFields
 
 	public void load()
 	{
-		//TODO: improve loading settings?
 		try
 		{
 			File settingsFile = Files.getSettingsFile();
