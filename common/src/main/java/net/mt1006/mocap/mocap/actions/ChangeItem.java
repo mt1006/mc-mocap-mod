@@ -27,7 +27,7 @@ import java.util.List;
 public class ChangeItem implements MocapStateAction
 {
 	private static final int ITEM_COUNT_LEGACY = 6;
-	private static final int ITEM_COUNT = 8;
+	private static final int ITEM_COUNT = 7;
 	private final byte itemCount;
 	private final List<ItemData> items = new ArrayList<>();
 
@@ -45,7 +45,6 @@ public class ChangeItem implements MocapStateAction
 		addItem(entity.getItemBySlot(EquipmentSlot.CHEST), entity);
 		addItem(entity.getItemBySlot(EquipmentSlot.HEAD), entity);
 		addItem(entity.getItemBySlot(EquipmentSlot.BODY), entity);
-		addItem(entity.getItemBySlot(EquipmentSlot.SADDLE), entity);
 
 		int itemCounter = 0;
 		for (int i = 0; i < ITEM_COUNT; i++)
@@ -94,7 +93,6 @@ public class ChangeItem implements MocapStateAction
 				case 4 -> entity.setItemSlot(EquipmentSlot.CHEST, itemStack);
 				case 5 -> entity.setItemSlot(EquipmentSlot.HEAD, itemStack);
 				case 6 -> entity.setItemSlot(EquipmentSlot.BODY, itemStack);
-				case 7 -> entity.setItemSlot(EquipmentSlot.SADDLE, itemStack);
 			}
 
 			// for non-player living entities it's detected in their "tick" method
@@ -198,7 +196,7 @@ public class ChangeItem implements MocapStateAction
 			item = itemStack.getItem();
 			Tag tag = itemStack.save(registryAccess);
 
-			if (!(tag instanceof CompoundTag) || !((CompoundTag)tag).contains("components"))
+			if (!(tag instanceof CompoundTag) || !((CompoundTag)tag).contains("components", Tag.TAG_COMPOUND))
 			{
 				type = ItemDataType.ID_ONLY;
 				data = "";

@@ -308,7 +308,7 @@ public class RecordingData implements MocapRecordingData
 	{
 		Vec3 pos = teleportFarAway ? PositionTracker.FAR_AWAY : transformer.transformPos(startPos);
 		float rotY = transformer.transformRotation(startRot[0]);
-		entity.snapTo(pos, rotY, startRot[1]);
+		entity.moveTo(pos, rotY, startRot[1]);
 		entity.setYHeadRot(rotY);
 	}
 

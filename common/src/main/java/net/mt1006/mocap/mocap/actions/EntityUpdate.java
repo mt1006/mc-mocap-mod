@@ -120,24 +120,26 @@ public class EntityUpdate implements MocapAction
 		nbt.remove("ForcedAge");
 		nbt.remove("EggLayTime");
 		nbt.remove("fall_distance");
-		if (nbt.getShortOr("HurtTime", (short)-1) == 0) { nbt.remove("HurtTime"); }
-		if (nbt.getShortOr("DeathTime", (short)-1) == 0) { nbt.remove("DeathTime"); }
-		if (nbt.getIntOr("HurtByTimestamp", -1) == 0) { nbt.remove("HurtByTimestamp"); }
-		if (nbt.getShortOr("Air", (short)-1) == entity.getMaxAirSupply()) { nbt.remove("Air"); }
-		if (nbt.getFloatOr("AbsorptionAmount", -1.0f) == 0.0f) { nbt.remove("AbsorptionAmount"); }
-		if (entity instanceof LivingEntity living && nbt.getFloatOr("Health", -1.0f) == living.getMaxHealth()) { nbt.remove("Health"); }
+		if (nbt.getShort("HurtTime") == 0) { nbt.remove("HurtTime"); }
+		if (nbt.getShort("DeathTime") == 0) { nbt.remove("DeathTime"); }
+		if (nbt.getInt("HurtByTimestamp") == 0) { nbt.remove("HurtByTimestamp"); }
+		if (nbt.getShort("Air") == entity.getMaxAirSupply()) { nbt.remove("Air"); }
+		if (nbt.getFloat("AbsorptionAmount") == 0.0f) { nbt.remove("AbsorptionAmount"); }
+		if (entity instanceof LivingEntity living && nbt.getFloat("Health") == living.getMaxHealth()) { nbt.remove("Health"); }
 
-		if (nbt.getIntOr("Age", -1) >= 0) { nbt.remove("Age"); }
+		if (nbt.getInt("Age") >= 0) { nbt.remove("Age"); }
 		else { nbt.putInt("Age", -9); } // -9 is short in string form and is enough time for playback to set IS_BABY flag
 
-		ListTag listTag = nbt.getList("attributes").orElse(null);
-		if (listTag != null)
+		ListTag listTag;
+		try { listTag = nbt.getList("attributes", Tag.TAG_COMPOUND); }
+		catch (Exception e) { listTag = null; }
+		if (listTag != null && !listTag.isEmpty())
 		{
 			ListTag newListTag = new ListTag();
 			for (Tag tag : listTag)
 			{
-				CompoundTag attribute = tag.asCompound().orElse(null);
-				String attributeIdStr = attribute != null ? attribute.getString("id").orElse(null) : null;
+				CompoundTag attribute = (CompoundTag)tag;
+				String attributeIdStr = attribute != null ? attribute.getString("id") : null;
 				ResourceLocation attributeId = attributeIdStr != null ? ResourceLocation.tryParse(attributeIdStr) : null;
 
 				if (attributeId == null)

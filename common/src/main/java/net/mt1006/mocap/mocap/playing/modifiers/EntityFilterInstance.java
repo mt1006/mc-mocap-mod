@@ -5,7 +5,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.PlayerRideable;
+import net.minecraft.world.entity.Saddleable;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.vehicle.AbstractMinecart;
@@ -240,7 +240,7 @@ public class EntityFilterInstance
 
 	private enum Group
 	{
-		VEHICLES(List.of(PlayerRideable.class, Minecart.class, Boat.class)),
+		VEHICLES(List.of(Saddleable.class, Minecart.class, Boat.class)),
 		PROJECTILES(List.of(Projectile.class)),
 		ITEMS(List.of(ItemEntity.class)),
 		MOBS(List.of(Mob.class)),

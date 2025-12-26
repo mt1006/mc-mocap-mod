@@ -25,8 +25,8 @@ public interface CommandInfo extends CommandOutput
 	@ApiStatus.Internal
 	default Component createCopyButton(String textToCopy)
 	{
-		ClickEvent clickEvent = new ClickEvent.CopyToClipboard(textToCopy);
-		HoverEvent hoverEvent = new HoverEvent.ShowText(getTranslatableComponent("common.copy_button_info"));
+		ClickEvent clickEvent = new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, textToCopy);
+		HoverEvent hoverEvent = new HoverEvent(HoverEvent.Action.SHOW_TEXT, getTranslatableComponent("common.copy_button_info"));
 
 		return getTranslatableComponent("common.copy_button")
 				.setStyle(Style.EMPTY.withClickEvent(clickEvent).withHoverEvent(hoverEvent));

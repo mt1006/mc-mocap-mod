@@ -4,6 +4,7 @@ import com.google.common.collect.Iterables;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.HttpAuthenticationService;
+import com.mojang.authlib.ProfileLookupCallback;
 import com.mojang.authlib.exceptions.MinecraftClientException;
 import com.mojang.authlib.exceptions.MinecraftClientHttpException;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
@@ -75,7 +76,9 @@ public class ProfileUtils
 	{
 		if (Settings.USE_AUTHLIB_SERVICES.val)
 		{
-			return new NameAndIdResult(profileRepository.findProfileByName(playerName).orElse(null));
+			ProfileLookup profileLookup = new ProfileLookup();
+			profileRepository.findProfilesByNames(new String[]{playerName}, profileLookup);
+			return new NameAndIdResult(profileLookup.profile);
 		}
 
 		try
@@ -202,5 +205,17 @@ public class ProfileUtils
 		{
 			return new Profile(name, null, rateLimited, partialFetch);
 		}
+	}
+
+	private static class ProfileLookup implements ProfileLookupCallback
+	{
+		public @Nullable GameProfile profile = null;
+
+		@Override public void onProfileLookupSucceeded(GameProfile profile)
+		{
+			this.profile = profile;
+		}
+
+		@Override public void onProfileLookupFailed(String profileName, Exception exception) {}
 	}
 }

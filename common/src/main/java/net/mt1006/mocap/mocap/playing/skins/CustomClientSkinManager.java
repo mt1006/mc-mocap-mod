@@ -92,7 +92,7 @@ public class CustomClientSkinManager
 			}
 
 			ResourceLocation id = idFromName(name);
-			Minecraft.getInstance().getTextureManager().register(id, new DynamicTexture(id::toString, nativeImage));
+			Minecraft.getInstance().getTextureManager().register(id, new DynamicTexture(nativeImage));
 			skinCache.put(name, true);
 		}
 		catch (Exception e) { Utils.exception(e, "Failed to read skin texture!"); }

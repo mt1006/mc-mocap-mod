@@ -223,8 +223,8 @@ public class ActionContext implements MocapActionContext
 		Vec3 finPos = transformer.transformPos(position);
 		float finRotY = transformRot ? transformer.transformRotation(rotY) : rotY;
 
-		entity.snapTo(finPos, finRotY, rotX);
-		if (ghostPlayer != null && entity == mainEntityData.entity) { ghostPlayer.snapTo(finPos, finRotY, rotX); }
+		entity.moveTo(finPos, finRotY, rotX);
+		if (ghostPlayer != null && entity == mainEntityData.entity) { ghostPlayer.moveTo(finPos, finRotY, rotX); }
 	}
 
 	@Override public void addEntity(int id, Entity entity, Vec3 position)
