@@ -152,7 +152,7 @@ public class RecordingManager
 			case WAITING_FOR_DECISION -> sendStopMessage(out::sendSuccess, ctx, sourcePlayer);
 			case CANCELED -> out.sendSuccess("recording.stop.canceled");
 			case SAVED -> out.sendSuccess("recording.stop.instant_save", ctx.instantSave != null ? ctx.instantSave : "[error]");
-			default -> out.sendFailure("recording.undefined_state", ctx.state.name());
+			default -> out.sendFailure("recording.error.undefined_state", ctx.state.name());
 		};
 	}
 
@@ -283,7 +283,7 @@ public class RecordingManager
 		{
 			case DISCARDED -> out.sendSuccess("recording.discard.discarded");
 			case CANCELED -> out.sendSuccess("recording.stop.canceled");
-			default -> out.sendFailure("recording.undefined_state", ctx.state.name());
+			default -> out.sendFailure("recording.error.undefined_state", ctx.state.name());
 		};
 	}
 
@@ -347,12 +347,12 @@ public class RecordingManager
 
 		if (recordingFile.exists())
 		{
-			out.sendFailure("recording.save.already_exists");
+			out.sendFailure("recordings.failure.already_exists");
 
 			String alternativeName = RecordingFiles.findAlternativeName(name);
 			if (alternativeName != null)
 			{
-				out.sendFailure("recording.save.already_exists.alternative", alternativeName);
+				out.sendFailure("recordings.failure.already_exists.alternative", alternativeName);
 			}
 			return false;
 		}
@@ -369,7 +369,7 @@ public class RecordingManager
 				return out.sendFailure("recording.save.error");
 
 			default:
-				return out.sendFailure("recording.undefined_state", ctx.state.name());
+				return out.sendFailure("recording.error.undefined_state", ctx.state.name());
 		}
 	}
 

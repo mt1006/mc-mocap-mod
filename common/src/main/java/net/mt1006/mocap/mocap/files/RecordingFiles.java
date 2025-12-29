@@ -41,7 +41,7 @@ public class RecordingFiles
 			// double-check to make sure it won't override existing file
 			if (recordingFile.exists())
 			{
-				out.sendFailure("recording.save.already_exists");
+				out.sendFailure("recordings.failure.already_exists");
 				return false;
 			}
 
