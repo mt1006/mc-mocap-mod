@@ -164,8 +164,8 @@ public class FullCommandInfo implements CommandInfo
 		String fromFile = getNullableString("skin_filename");
 		if (fromFile != null) { return PlayerSkin.createVerified(this, MocapPlayerSkin.Source.FROM_FILE, fromFile); }
 
-		String fromMineskin = getNullableString("mineskin_url");
-		if (fromMineskin != null) { return PlayerSkin.createVerified(this, MocapPlayerSkin.Source.FROM_MINESKIN, fromMineskin); }
+		String fromMineSkin = getNullableString("mineskin_url");
+		if (fromMineSkin != null) { return PlayerSkin.createVerified(this, MocapPlayerSkin.Source.FROM_MINESKIN, fromMineSkin); }
 
 		return PlayerSkin.DEFAULT;
 	}
