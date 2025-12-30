@@ -3,6 +3,7 @@ package net.mt1006.mocap.mocap.playing.skins;
 import com.google.gson.JsonObject;
 import com.mojang.authlib.properties.Property;
 import net.minecraft.util.GsonHelper;
+import net.mt1006.mocap.utils.Cache;
 import org.jetbrains.annotations.Nullable;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -10,8 +11,6 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 public class MineSkinSkins
@@ -20,7 +19,7 @@ public class MineSkinSkins
 	private static final String MINESKIN_URL_PREFIX2 = "mineskin.org/skins/";
 	private static final String MINESKIN_API_URL = "https://api.mineskin.org/get/uuid/";
 	private static final Pattern MINESKIN_UUID_PATTERN = Pattern.compile("[0-9a-f]*");
-	private static final Map<String, Property> cache = new ConcurrentHashMap<>();
+	private static final Cache<String, Property> cache = new Cache<>("MineSkin skins", 5);
 
 	public static boolean verifyUrl(String url)
 	{
