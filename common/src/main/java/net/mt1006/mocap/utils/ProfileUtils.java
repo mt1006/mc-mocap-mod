@@ -20,13 +20,14 @@ import net.mt1006.mocap.mocap.settings.Settings;
 import org.jetbrains.annotations.Nullable;
 
 import java.net.Proxy;
-import java.util.*;
+import java.util.Locale;
+import java.util.UUID;
 
 public class ProfileUtils
 {
 	private static final MinecraftClient client = new MinecraftClient(null, Proxy.NO_PROXY);
-	private static final Map<String, Profile> cache = Collections.synchronizedMap(new HashMap<>());
-	private static final Map<String, Profile> cacheInsensitive = Collections.synchronizedMap(new HashMap<>());
+	private static final Cache<String, Profile> cache = new Cache<>("profiles - case sensitive", 4096);
+	private static final Cache<String, Profile> cacheInsensitive = new Cache<>("profiles - case insensitive", 4096);
 
 	public static Profile getProfile(MinecraftServer server, MocapPlayerNameHandling mode, String name, boolean withSkin)
 	{

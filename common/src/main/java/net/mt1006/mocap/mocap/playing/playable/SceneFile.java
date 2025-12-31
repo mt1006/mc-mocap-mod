@@ -15,26 +15,15 @@ import net.mt1006.mocap.mocap.playing.PlaybackManager;
 import net.mt1006.mocap.mocap.playing.playback.Playback;
 import net.mt1006.mocap.mocap.playing.playback.PositionTransformer;
 import net.mt1006.mocap.mocap.playing.playback.ScenePlayback;
-import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class SceneFile extends Playable implements MocapSceneFile
+public class SceneFile extends PlayableFile<MocapSceneFile> implements MocapSceneFile
 {
-	private final String name;
-	private final File file;
-
-	private SceneFile(String nameWithoutDot, File file)
-	{
-		this.name = "." + nameWithoutDot;
-		this.file = file;
-	}
-
 	public static @Nullable SceneFile get(CommandOutput out, String name)
 	{
 		if (name.startsWith(".")) { name = name.substring(1); }
@@ -43,72 +32,47 @@ public class SceneFile extends Playable implements MocapSceneFile
 				: null;
 	}
 
+	private SceneFile(String nameWithoutDot, File file)
+	{
+		super("." + nameWithoutDot, file);
+	}
+
 	@Override public @Nullable MocapSceneFile copy(CommandOutput out, MocapSceneFile destFile)
 	{
-		try
-		{
-			FileUtils.copyFile(file, destFile.getFile());
-		}
-		catch (IOException e)
-		{
-			out.sendException(e, "scenes.copy.failed");
-			return null;
-		}
+		if (super.copy(out, destFile) == null) { return null; }
 
-		CommandSuggestions.inputSet.add(destFile.getName());
-		List<String> elementCache = CommandSuggestions.sceneElementCache.get(destFile.getName());
+		List<String> elementCache = CommandSuggestions.sceneElementCache.get(name);
 		if (elementCache != null)
 		{
 			CommandSuggestions.sceneElementCache.put(destFile.getName(), new ArrayList<>(elementCache));
 		}
-
-		out.sendSuccess("scenes.copy.success");
 		return destFile;
 	}
 
 	@Override public @Nullable MocapSceneFile rename(CommandOutput out, MocapSceneFile destFile)
 	{
-		if (!file.renameTo(destFile.getFile()))
-		{
-			out.sendFailure("scenes.rename.failed");
-			return null;
-		}
+		if (super.rename(out, destFile) == null) { return null; }
 
-		CommandSuggestions.inputSet.remove(name);
-		CommandSuggestions.inputSet.add(destFile.getName());
 		List<String> elementCache = CommandSuggestions.sceneElementCache.get(name);
 		if (elementCache != null)
 		{
 			CommandSuggestions.sceneElementCache.remove(name);
 			CommandSuggestions.sceneElementCache.put(destFile.getName(), elementCache);
 		}
-
-		out.sendSuccess("scenes.rename.success");
 		return destFile;
 	}
 
 	@Override public boolean remove(CommandOutput out)
 	{
-		if (!file.delete()) { return out.sendFailure("scenes.remove.failed"); }
+		if (!super.remove(out)) { return false; }
 
-		CommandSuggestions.inputSet.remove(name);
 		CommandSuggestions.sceneElementCache.remove(name);
-		return out.sendSuccess("scenes.remove.success");
+		return true;
 	}
 
-	@Override public File getFile()
+	@Override protected String getTextComponentKey(String key)
 	{
-		return file;
-	}
-
-	@Override public String getName()
-	{
-		return name;
-	}
-
-	@Override public boolean exists()
-	{
-		return file.exists();
+		return "scenes." + key;
 	}
 
 	@Override public boolean add(CommandOutput out, MocapSceneElement element)

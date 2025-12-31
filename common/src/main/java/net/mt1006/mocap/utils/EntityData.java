@@ -15,7 +15,7 @@ public class EntityData
 	public static final DataIndex<Byte> LIVING_ENTITY_FLAGS =                             new DataIndex<>(LivingEntityFields.getDATA_LIVING_ENTITY_FLAGS());
 	public static final DataIndex<List<ParticleOptions>> LIVING_ENTITY_EFFECT_PARTICLES = new DataIndex<>(LivingEntityFields.getDATA_EFFECT_PARTICLES());
 	public static final DataIndex<Boolean> LIVING_ENTITY_EFFECT_AMBIENCE =                new DataIndex<>(LivingEntityFields.getDATA_EFFECT_AMBIENCE_ID());
-	public static final DataIndex<Byte> PLAYER_SKIN_PARTS =                               new DataIndex<>(AvatarMixin.getDATA_PLAYER_MODE_CUSTOMISATION());
+	public static final DataIndex<Byte> PLAYER_SKIN_PARTS =                               new DataIndex<>(AvatarFields.getDATA_PLAYER_MODE_CUSTOMISATION());
 	public static final DataIndex<Byte> ABSTRACT_HORSE_FLAGS =                            new DataIndex<>(AbstractHorseFields.getDATA_ID_FLAGS());
 	public static final DataIndex<Boolean> AGEABLE_MOB_IS_BABY =                          new DataIndex<>(AgeableModFields.getDATA_BABY_ID());
 

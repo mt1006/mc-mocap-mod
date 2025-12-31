@@ -4,6 +4,7 @@ import net.mt1006.mocap.api.v1.io.CommandOutput;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.nio.file.Path;
 
 public interface MocapFile<T extends MocapFile<T>>
 {
@@ -16,4 +17,6 @@ public interface MocapFile<T extends MocapFile<T>>
 	boolean remove(CommandOutput out);
 
 	File getFile();
+
+	Path getPath();
 }

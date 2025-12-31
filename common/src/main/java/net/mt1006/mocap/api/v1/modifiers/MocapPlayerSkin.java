@@ -22,7 +22,7 @@ public interface MocapPlayerSkin
 		return new PlayerSkin(Source.FROM_FILE, path);
 	}
 
-	static MocapPlayerSkin fromMineskin(String path)
+	static MocapPlayerSkin fromMineSkin(String path)
 	{
 		return new PlayerSkin(Source.FROM_MINESKIN, path);
 	}

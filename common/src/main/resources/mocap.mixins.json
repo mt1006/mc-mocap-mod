@@ -11,7 +11,7 @@
 		"fields.AbstractArrowFields",
 		"fields.AbstractHorseFields",
 		"fields.AgeableModFields",
-		"fields.AvatarMixin",
+		"fields.AvatarFields",
 		"fields.BoatFields",
 		"fields.EntityFields",
 		"fields.EntityIdFields",
