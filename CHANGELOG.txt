@@ -39,7 +39,7 @@
 -Added setting "max_float_pos_value" to specify distance from recording start at which recording should switch to double precision floating point numbers (1024 by default).
 -Added setting "use_authlib_services" to replace new, custom implementation of mojang API requests with authlib implementation (false by default).
 -Added setting "player_name_handling" to change how casing of player names and their profiles are handled (ignore_casing by default).
--Added setting "hit_range" to allow player in playback hit other entities and specify how far they can hit.
+-Added setting "hit_range" to allow player in playback hit other entities and specify how far they can hit (0 by default).
 -Merged "/mocap scenes list_elements" into "/mocap scenes list" and "/mocap scenes element_info" into "/mocap scenes info".
 -Split "player_info" modifier into "player_name" and "player_skin".
 -Removed position offset arguments from "/mocap scenes add_to".
@@ -58,6 +58,7 @@
 -Renamed "from_..." to "skin_from_..." simple modifiers in "playback start" and "scene add_to" commands.
 -Added API.
 -Added ability to create skin lists (thanks to Laynce for suggestion).
+-It's now possible to remove assigned skin from playback (including scene element) modifiers.
 -It's now possible to add player_as_entity modifier using simple modifiers (thanks to Narfu for suggestion).
 -Item types and block states are now stored using string IDs (instead of numeric IDs), providing better compatibility between different Minecraft versions and modpacks.
 -Scene format is now JSON-based.
@@ -69,10 +70,12 @@
 -For scene name suggestions where dot can be omitted, user input without a dot is now properly parsed by suggestion provider.
 -Playback IDs are now unique throughout server run.
 -Number of operations in recording information now counts tick operations.
+-Added limit to custom skin file size and to cumulative custom skin file and texture sizes.
 -Improvements to recording format.
 -Improvements to recording information command output.
 -Improvements to error messages.
 -Improvements to loading profiles.
+-Improvements to loading skins from mineskin.org
 -General command output improvements.
 -Improved output of trying to change setting value with "/mocap settings" command, when value remained unchanged.
 -Improved saving of automatically stopped recordings - when quick discard is enabled, stop command now needs to be used two times in order to prevent accidental discards.
@@ -80,6 +83,7 @@
 -Removed argument value limits that existed for some settings in "/mocap settings" command.
 -Output of "/mocap recordings list" and "/mocap scenes list" is now alphabetically sorted.
 -Changed some "errors" to "failures" and some "failures" to "errors" - it should be now easier to distinguish user errors (failures) from mod errors.
+-Mod version number now includes target Minecraft version.
 -Fixed recording being in a glitched state after restarting the integrated server (leaving and rejoining world in a singleplayer mode).
 -Fixed issues with loading mocap_files directory when using Flashback (thanks to hablethedev for reporting).
 -Fixed some interactions with blocks (e.g. placing candles) not working on version 1.20.5 and later.
