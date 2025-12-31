@@ -31,8 +31,6 @@
 
   "mocap.recording.save.saved": "Nagranie pomyślnie zapisane",
   "mocap.recording.save.not_stopped": "Nagranie nie zostało zatrzymane, ale próbujesz je zapisać!",
-  "mocap.recording.save.already_exists": "Nagranie o tej nazwie już istnieje!",
-  "mocap.recording.save.already_exists.alternative": "Zamiast tego spróbuj \"%s\"",
   "mocap.recording.save.multiple.saved": "Zapisano %s jako %s",
   "mocap.recording.save.multiple.failed": "Nie udało się zapisać %s jako %s!",
   "mocap.recording.save.multiple.unknown_state": "Próbowano zapisać %s jako %s, ale zakończono z nieznanym stanem (%s)!",
@@ -74,7 +72,7 @@
   "mocap.recording.multiple.results.error": " -błąd/nieznany stan: %d",
   "mocap.recording.multiple.undefined_state": "§lBłąd:§r co najmniej jedno z nagrań zakończyło się błędem lub nieznanym stanem!",
 
-  "mocap.recording.undefined_state": "§lBłąd:§r nieznany stan: %s",
+  "mocap.recording.error.undefined_state": "§lBłąd:§r nieznany stan: %s",
 
 
   "mocap.recordings.copy.failed": "Nie udało się skopiować nagrania!",
@@ -105,8 +103,10 @@
 
   "mocap.recordings.list": "§lNagrania:§r%s",
 
+  "mocap.recordings.failure.already_exists": "Nagranie o tej nazwie już istnieje!",
+  "mocap.recordings.failure.already_exists.alternative": "Zamiast tego spróbuj \"%s\"",
 
-  "mocap.scenes.add.already_exists": "Scena o tej nazwie już istnieje!",
+
   "mocap.scenes.add.error": "§lBłąd:§r nie udało się dodać sceny!",
   "mocap.scenes.add.success": "Scena dodana pomyślnie",
 
@@ -178,6 +178,7 @@
 
   "mocap.scenes.list": "§lSceny:§r%s",
 
+  "mocap.scenes.failure.already_exists": "Scena o tej nazwie już istnieje!",
   "mocap.scenes.failure.file_not_exists": "Scena o tej nazwie nie istnieje",
   "mocap.scenes.failure.wrong_element_pos": "Element o podanym numerze nie istnieje",
   "mocap.scenes.failure.wrong_element_pos.tip": "Użyj \"/mocap scenes list <scena>\" aby uzyskać numery poszczególnych elementów",

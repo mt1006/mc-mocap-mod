@@ -17,6 +17,8 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.server.level.ServerPlayer;
 import net.mt1006.mocap.command.commands.MocapCommand;
+import net.mt1006.mocap.events.LifecycleEvent;
+import net.mt1006.mocap.events.ServerTickEvent;
 import net.mt1006.mocap.fabric.PacketHandler;
 import net.mt1006.mocap.fabric.events.*;
 import net.mt1006.mocap.network.MocapPacketC2S;
@@ -38,9 +40,9 @@ public class MocapModFabric implements ModInitializer, MocapModLoaderInterface
 
 		ServerLivingEntityEvents.AFTER_DAMAGE.register(EntityFabricEvent::onEntityHurt);
 		ServerPlayerEvents.AFTER_RESPAWN.register(EntityFabricEvent::onPlayerRespawn);
-		ServerTickEvents.END_SERVER_TICK.register(ServerTickFabricEvent::onEndTick);
-		ServerLifecycleEvents.SERVER_STARTED.register(LifecycleFabricEvent::onServerStart);
-		ServerLifecycleEvents.SERVER_STOPPING.register(LifecycleFabricEvent::onServerStop);
+		ServerTickEvents.END_SERVER_TICK.register((server) -> ServerTickEvent.onEndTick());
+		ServerLifecycleEvents.SERVER_STARTED.register(LifecycleEvent::onServerStart);
+		ServerLifecycleEvents.SERVER_STOPPING.register((server) -> LifecycleEvent.onServerStop());
 		ServerPlayConnectionEvents.JOIN.register(PlayerConnectionFabricEvent::onPlayerJoin);
 		ServerPlayConnectionEvents.DISCONNECT.register(PlayerConnectionFabricEvent::onPlayerLeave);
 		ServerMessageEvents.CHAT_MESSAGE.register(ChatFabricEvent::onChatMessage);

@@ -24,7 +24,7 @@ public class MocapPacketS2C implements CustomPacketPayload
 	public static final int NOCOL_PLAYER_ADD = 1;
 	public static final int NOCOL_PLAYER_REMOVE = 2;
 	public static final int CUSTOM_SKIN_DATA = 5;
-	public static final int CLEAR_CACHE = 6;
+	private static final int UNUSED = 6; // CLEAR_CACHE in some 1.4 alpha versions
 
 	private final int version;
 	private final int op;
@@ -96,7 +96,6 @@ public class MocapPacketS2C implements CustomPacketPayload
 			case NOCOL_PLAYER_ADD: PlayerConnectionEvent.addNocolPlayer((UUID)object); break;
 			case NOCOL_PLAYER_REMOVE: PlayerConnectionEvent.removeNocolPlayer((UUID)object); break;
 			case CUSTOM_SKIN_DATA: CustomClientSkinManager.register((Pair<String, byte[]>)object); break;
-			case CLEAR_CACHE: CustomClientSkinManager.clearCache();
 		}
 	}
 
@@ -118,11 +117,6 @@ public class MocapPacketS2C implements CustomPacketPayload
 	public static void sendCustomSkinData(ServerPlayer player, String name, byte[] byteArray)
 	{
 		send(player, CUSTOM_SKIN_DATA, Pair.of(name, byteArray));
-	}
-
-	public static void sendClearCache(ServerPlayer player)
-	{
-		send(player, CLEAR_CACHE, null);
 	}
 
 	private static void send(ServerPlayer player, int op, Object object)

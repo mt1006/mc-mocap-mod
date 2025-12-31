@@ -11,9 +11,8 @@ import net.mt1006.mocap.command.CommandSuggestions;
 import net.mt1006.mocap.command.CommandUtils;
 import net.mt1006.mocap.command.CommandsContext;
 import net.mt1006.mocap.command.converter.AlphaConverter;
-import net.mt1006.mocap.events.PlayerConnectionEvent;
 import net.mt1006.mocap.mocap.playing.skins.CustomServerSkinManager;
-import net.mt1006.mocap.network.MocapPacketS2C;
+import net.mt1006.mocap.mocap.playing.skins.MineSkinSkins;
 import net.mt1006.mocap.utils.ProfileUtils;
 
 import java.util.Collection;
@@ -57,8 +56,8 @@ public class MiscCommand
 	{
 		CommandSuggestions.clearCache();
 		CustomServerSkinManager.clearCache();
-		PlayerConnectionEvent.players.forEach(MocapPacketS2C::sendClearCache);
 		ProfileUtils.clearCache();
+		MineSkinSkins.clearCache();
 
 		return out.sendSuccess("misc.clear_cache.success");
 	}
