@@ -31,8 +31,6 @@
 
   "mocap.recording.save.saved": "Enregistrement sauvegardé avec succès",
   "mocap.recording.save.not_stopped": "L'enregistrement n'a pas été arrêté, mais vous tentez de le sauvegarder !",
-  "mocap.recording.save.already_exists": "Un enregistrement avec ce nom existe déjà !",
-  "mocap.recording.save.already_exists.alternative": "Essayez \"%s\" à la place",
   "mocap.recording.save.multiple.saved": "Sauvegardé %s sous %s",
   "mocap.recording.save.multiple.failed": "Erreur en sauvegardant %s sous %s !",
   "mocap.recording.save.multiple.unknown_state": "Tentative d'enregistrement %s sous %s, mais s'est retrouvé dans un état inconnu (%s) !",
@@ -74,7 +72,7 @@
   "mocap.recording.multiple.results.error": " -erreur/état inconnu: %d",
   "mocap.recording.multiple.undefined_state": "§lErreur:§r au moins un des enregistrements s'est terminé avec une erreur ou un état inconnu !",
 
-  "mocap.recording.undefined_state": "§lErreur:§r état non défini: %s",
+  "mocap.recording.error.undefined_state": "§lErreur:§r état non défini: %s",
 
 
   "mocap.recordings.copy.failed": "Échec de la copie de l'enregistrement !",
@@ -98,8 +96,10 @@
 
   "mocap.recordings.list": "§lEnregistrements:§r%s",
 
+  "mocap.recordings.failure.already_exists": "Un enregistrement avec ce nom existe déjà !",
+  "mocap.recordings.failure.already_exists.alternative": "Essayez \"%s\" à la place",
 
-  "mocap.scenes.add.already_exists": "Une scene avec ce nom existe déjà !",
+
   "mocap.scenes.add.error": "§lErreur:§r impossible d'ajouter la scene !",
   "mocap.scenes.add.success": "Scene ajoutée avec succès",
 
@@ -171,6 +171,7 @@
 
   "mocap.scenes.list": "§lScènes:§r%s",
 
+  "mocap.scenes.failure.already_exists": "Une scene avec ce nom existe déjà !",
   "mocap.scenes.failure.file_not_exists": "Une scène avec ce nom n'existe pas !",
   "mocap.scenes.failure.wrong_element_pos": "L'élément avec ce numéro donné n'existe pas !",
   "mocap.scenes.failure.wrong_element_pos.tip": "Exécutez \"/mocap scenes list <scene>\" pour obtenir les numéros des éléments",

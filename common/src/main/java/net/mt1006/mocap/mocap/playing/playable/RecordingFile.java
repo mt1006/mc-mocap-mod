@@ -8,7 +8,6 @@ import net.mt1006.mocap.api.v1.controller.playable.MocapRecordingFile;
 import net.mt1006.mocap.api.v1.io.CommandInfo;
 import net.mt1006.mocap.api.v1.io.CommandOutput;
 import net.mt1006.mocap.api.v1.modifiers.MocapModifiers;
-import net.mt1006.mocap.command.CommandSuggestions;
 import net.mt1006.mocap.mocap.files.Files;
 import net.mt1006.mocap.mocap.files.RecordingData;
 import net.mt1006.mocap.mocap.files.RecordingFiles;
@@ -17,23 +16,12 @@ import net.mt1006.mocap.mocap.playing.PlaybackManager;
 import net.mt1006.mocap.mocap.playing.playback.Playback;
 import net.mt1006.mocap.mocap.playing.playback.PositionTransformer;
 import net.mt1006.mocap.mocap.playing.playback.RecordingPlayback;
-import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.io.IOException;
 
-public class RecordingFile extends Playable implements MocapRecordingFile
+public class RecordingFile extends PlayableFile<MocapRecordingFile> implements MocapRecordingFile
 {
-	private final String name;
-	private final File file;
-
-	private RecordingFile(String name, File file)
-	{
-		this.name = name;
-		this.file = file;
-	}
-
 	public static @Nullable RecordingFile get(CommandOutput out, String name)
 	{
 		return Files.check(out, name)
@@ -41,58 +29,14 @@ public class RecordingFile extends Playable implements MocapRecordingFile
 				: null;
 	}
 
-	@Override public @Nullable MocapRecordingFile copy(CommandOutput out, MocapRecordingFile destFile)
+	private RecordingFile(String name, File file)
 	{
-		try
-		{
-			FileUtils.copyFile(file, destFile.getFile());
-		}
-		catch (IOException e)
-		{
-			out.sendException(e, "recordings.copy.failed");
-			return null;
-		}
-
-		CommandSuggestions.inputSet.add(destFile.getName());
-		out.sendSuccess("recordings.copy.success");
-		return destFile;
+		super(name, file);
 	}
 
-	@Override public @Nullable MocapRecordingFile rename(CommandOutput out, MocapRecordingFile destFile)
+	@Override protected String getTextComponentKey(String key)
 	{
-		if (!file.renameTo(destFile.getFile()))
-		{
-			out.sendFailure("recordings.rename.failed");
-			return null;
-		}
-
-		CommandSuggestions.inputSet.remove(name);
-		CommandSuggestions.inputSet.add(destFile.getName());
-		out.sendSuccess("recordings.rename.success");
-		return destFile;
-	}
-
-	@Override public boolean remove(CommandOutput out)
-	{
-		if (!file.delete()) { return out.sendFailure("recordings.remove.failed"); }
-
-		CommandSuggestions.inputSet.remove(name);
-		return out.sendSuccess("recordings.remove.success");
-	}
-
-	@Override public File getFile()
-	{
-		return file;
-	}
-
-	@Override public String getName()
-	{
-		return name;
-	}
-
-	@Override public boolean exists()
-	{
-		return file.exists();
+		return "recordings." + key;
 	}
 
 	@Override public @Nullable MocapPlaybackRoot startPlayback(CommandInfo info, MocapModifiers modifiers, MocapPlaybackConfig config, boolean isHidden)

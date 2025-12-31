@@ -31,7 +31,7 @@ public class SceneFiles
 		if (file == null) { return false; }
 		if (file.exists())
 		{
-			out.sendFailure("scenes.add.already_exists");
+			out.sendFailure("scenes.failure.already_exists");
 			return false;
 		}
 
