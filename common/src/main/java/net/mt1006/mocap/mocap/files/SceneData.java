@@ -16,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +57,7 @@ public class SceneData
 			out.sendSuccess(onSuccess);
 			return true;
 		}
-		catch (Exception e)
+		catch (IOException e)
 		{
 			out.sendException(e, onError);
 			return false;

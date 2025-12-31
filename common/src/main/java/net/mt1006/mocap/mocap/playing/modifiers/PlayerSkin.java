@@ -10,23 +10,16 @@ import net.mt1006.mocap.mocap.files.SceneFiles;
 import net.mt1006.mocap.mocap.files.SkinList;
 import net.mt1006.mocap.mocap.playing.PlaybackDataManager;
 import net.mt1006.mocap.mocap.playing.skins.CustomServerSkinManager;
+import net.mt1006.mocap.mocap.playing.skins.MineSkinSkins;
 import net.mt1006.mocap.mocap.settings.Settings;
 import net.mt1006.mocap.utils.ProfileUtils;
 import org.jetbrains.annotations.Nullable;
 
-import javax.net.ssl.HttpsURLConnection;
-import java.net.URI;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.Scanner;
 import java.util.Stack;
 
 public class PlayerSkin implements MocapPlayerSkin
 {
 	public static final PlayerSkin DEFAULT = new PlayerSkin(Source.DEFAULT, null);
-	private static final String MINESKIN_URL_PREFIX1 = "minesk.in/";
-	private static final String MINESKIN_URL_PREFIX2 = "mineskin.org/skins/";
-	private static final String MINESKIN_API_URL = "https://api.mineskin.org/get/uuid/";
 	private final Source source;
 	private final @Nullable String path;
 
@@ -45,20 +38,12 @@ public class PlayerSkin implements MocapPlayerSkin
 
 	public static @Nullable PlayerSkin createVerified(CommandOutput out, Source source, @Nullable String skinPath)
 	{
-		if (source == Source.FROM_MINESKIN && skinPath != null && !verifyMineskinUrl(skinPath))
+		if (source == Source.FROM_MINESKIN && skinPath != null && !MineSkinSkins.verifyUrl(skinPath))
 		{
 			out.sendFailure("failure.improper_mineskin_link");
 			return null;
 		}
 		return new PlayerSkin(source, skinPath);
-	}
-
-	private static boolean verifyMineskinUrl(String url)
-	{
-		if (url.startsWith("https://")) { url = url.substring(8); }
-		else if (url.startsWith("http://")) { url = url.substring(7); }
-
-		return url.startsWith(MINESKIN_URL_PREFIX1) || url.startsWith(MINESKIN_URL_PREFIX2);
 	}
 
 	@Override public Source getSource()
@@ -104,7 +89,7 @@ public class PlayerSkin implements MocapPlayerSkin
 
 			case FROM_MINESKIN:
 				if (!Settings.ALLOW_MINESKIN_REQUESTS.val) { return oldProperty; }
-				Property skinProperty = propertyFromMineskinURL(path);
+				Property skinProperty = MineSkinSkins.getProperty(path);
 
 				if (skinProperty == null)
 				{
@@ -152,34 +137,5 @@ public class PlayerSkin implements MocapPlayerSkin
 	private boolean isSkinList()
 	{
 		return source == Source.FROM_FILE && path != null && path.startsWith(Files.SKIN_LIST_PREFIX);
-	}
-
-	private @Nullable Property propertyFromMineskinURL(String mineskinURL)
-	{
-		String mineskinID = mineskinURL.contains("/") ? mineskinURL.substring(mineskinURL.lastIndexOf('/') + 1) : mineskinURL;
-		String mineskinApiURL = MINESKIN_API_URL + mineskinID;
-
-		try
-		{
-			URL url = new URI(mineskinApiURL).toURL();
-
-			URLConnection connection = url.openConnection();
-			if (!(connection instanceof HttpsURLConnection httpsConnection)) { return null; }
-
-			httpsConnection.setUseCaches(false);
-			httpsConnection.setRequestMethod("GET");
-
-			Scanner scanner = new Scanner(httpsConnection.getInputStream());
-			String text = scanner.useDelimiter("\\A").next();
-
-			scanner.close();
-			httpsConnection.disconnect();
-
-			String value = text.split("\"value\":\"")[1].split("\"")[0];
-			String signature = text.split("\"signature\":\"")[1].split("\"")[0];
-
-			return new Property("textures", value, signature);
-		}
-		catch (Exception e) { return null; }
 	}
 }

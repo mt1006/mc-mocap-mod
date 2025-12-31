@@ -4,79 +4,62 @@ import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.DynamicTexture;
-import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.core.ClientAsset;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
 import net.mt1006.mocap.MocapMod;
 import net.mt1006.mocap.mocap.files.Files;
-import net.mt1006.mocap.mocap.settings.Settings;
 import net.mt1006.mocap.network.MocapPacketC2S;
 import net.mt1006.mocap.utils.Utils;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 public class CustomClientSkinManager
 {
-	private static final int MAX_CLIENT_CACHE_SIZE = 4096;
+	public static final int MAX_ACCEPTED_FILE_SIZE = 20 * (1 << 20);
 	private static final String SKIN_RES_PREFIX = "custom_skin/";
 	private static final String SLIM_SKIN_RES_PREFIX = SKIN_RES_PREFIX + Files.SLIM_SKIN_PREFIX;
-	private static final ConcurrentMap<String, Boolean> skinCache = new ConcurrentHashMap<>();
-	private static boolean clientWarned = false;
+	private static final ClientSkinCache cache = new ClientSkinCache();
 
 	public static @Nullable ClientAsset.Texture get(@Nullable String name)
 	{
 		if (name == null) { return null; }
-		Boolean accessible = skinCache.get(name);
 
-		if (accessible == null)
+		ClientAsset.ResourceTexture skin = cache.get(name);
+		if (skin == null)
 		{
-			loadClientSkin(name);
+			cache.setWaitingForSkin(name);
+			MocapPacketC2S.sendRequestCustomSkin(name);
 			return null;
 		}
-		if (!accessible) { return null; }
-
-		ResourceLocation id = idFromName(name);
-		return new ClientAsset.ResourceTexture(id, id);
-	}
-
-	public static void loadClientSkin(String name)
-	{
-		if (skinCache.size() > MAX_CLIENT_CACHE_SIZE)
+		else if (skin == ClientSkinCache.WAITING_FOR_SKIN)
 		{
-			if (clientWarned) { return; }
-
-			Player player = Minecraft.getInstance().player;
-			if (player == null) { return; }
-
-			Utils.sendMessage(player, "warning.custom_skin_cache_limit");
-			if (Settings.SHOW_TIPS.val) { Utils.sendMessage(player, "warning.custom_skin_cache_limit.tip"); }
-			clientWarned = true;
-			return;
+			return null;
 		}
-
-		skinCache.put(name, false);
-		MocapPacketC2S.sendRequestCustomSkin(name);
+		else
+		{
+			return skin;
+		}
 	}
 
 	public static void register(Pair<String, byte[]> customSkinData)
 	{
-		//TODO: test!!!
-		//TODO: fix memory leak?
 		String name = customSkinData.getFirst();
 		byte[] array = customSkinData.getSecond();
 
-		Boolean accessible = skinCache.get(name);
-		if (accessible == null || accessible) { return; }
+		ClientAsset.ResourceTexture skin = cache.get(name);
+		if (skin != ClientSkinCache.WAITING_FOR_SKIN) { return; }
+
+		if (array.length > MAX_ACCEPTED_FILE_SIZE)
+		{
+			MocapMod.LOGGER.warn("Rejecting to accept custom skin file - bigger than {} MiB!",
+					MAX_ACCEPTED_FILE_SIZE / (1 << 20));
+			return;
+		}
 
 		try
 		{
 			NativeImage nativeImage;
-
 			try
 			{
 				nativeImage = NativeImage.read(array);
@@ -89,27 +72,20 @@ public class CustomClientSkinManager
 
 			if (nativeImage.getWidth() > 4096 || nativeImage.getHeight() > 4096)
 			{
-				MocapMod.LOGGER.warn("Skin texture too big!");
+				MocapMod.LOGGER.warn("Custom skin texture too big!");
 				return;
 			}
 
 			ResourceLocation id = idFromName(name);
 			Minecraft.getInstance().getTextureManager().register(id, new DynamicTexture(id::toString, nativeImage));
-			skinCache.put(name, true);
+			cache.setLoaded(name, nativeImage.getWidth(), nativeImage.getHeight());
 		}
 		catch (Exception e) { Utils.exception(e, "Failed to read skin texture!"); }
 	}
 
 	public static void clearCache()
 	{
-		TextureManager textureManager = Minecraft.getInstance().getTextureManager();
-		for (Map.Entry<String, Boolean> entry : skinCache.entrySet())
-		{
-			Boolean val = entry.getValue();
-			if (val != null && val) { textureManager.release(idFromName(entry.getKey())); }
-		}
-		skinCache.clear();
-		clientWarned = false;
+		cache.clear();
 	}
 
 	public static boolean isSlimSkin(ClientAsset.Texture texture)
@@ -117,7 +93,7 @@ public class CustomClientSkinManager
 		return texture.texturePath().getPath().startsWith(SLIM_SKIN_RES_PREFIX);
 	}
 
-	private static ResourceLocation idFromName(String name)
+	public static ResourceLocation idFromName(String name)
 	{
 		return ResourceLocation.fromNamespaceAndPath(MocapMod.MOD_ID, SKIN_RES_PREFIX + name);
 	}
