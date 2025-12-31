@@ -23,8 +23,6 @@
 
   "mocap.recording.save.saved": "錄製已成功儲存",
   "mocap.recording.save.not_stopped": "錄製尚未停止，但你正試圖儲存它！",
-  "mocap.recording.save.already_exists": "已有同名錄製存在！",
-  "mocap.recording.save.already_exists.alternative": "試試「%s」",
   "mocap.recording.save.multiple.saved": "已將 %s 儲存為 %s",
   "mocap.recording.save.multiple.failed": "無法將 %s 儲存為 %s！",
   "mocap.recording.save.multiple.unknown_state": "嘗試將 %s 儲存為 %s，但最終處於未知狀態 (%s)！",
@@ -63,7 +61,7 @@
   "mocap.recording.multiple.results.error": " -錯誤/未知狀態：%d",
   "mocap.recording.multiple.undefined_state": "§l錯誤：§r 至少有一個錄製以錯誤或未知狀態結束！",
 
-  "mocap.recording.undefined_state": "§l錯誤：§r 未定義狀態：%s",
+  "mocap.recording.error.undefined_state": "§l錯誤：§r 未定義狀態：%s",
 
 
   "mocap.recordings.copy.failed": "無法複製錄製！",
@@ -85,8 +83,10 @@
   
   "mocap.recordings.list": "§l錄製：§r%s",
 
+  "mocap.recordings.failure.already_exists": "已有同名錄製存在！",
+  "mocap.recordings.failure.already_exists.alternative": "試試「%s」",
 
-  "mocap.scenes.add.already_exists": "已有同名場景存在！",
+
   "mocap.scenes.add.error": "§l錯誤：§r 無法新增場景！",
   "mocap.scenes.add.success": "場景已成功新增",
 
@@ -128,6 +128,7 @@
 
   "mocap.scenes.list": "§l場景：§r%s",
 
+  "mocap.scenes.failure.already_exists": "已有同名場景存在！",
   "mocap.scenes.failure.file_not_exists": "沒有這個名稱的場景",
   "mocap.scenes.failure.wrong_element_pos": "沒有給定編號的元素",
   "mocap.scenes.failure.wrong_element_pos.tip": "使用「/mocap scenes list <場景>」取得元素編號",
