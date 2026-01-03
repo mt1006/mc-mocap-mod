@@ -21,7 +21,6 @@ public class EntityAction implements MocapAction
 
 		MocapAction action = ActionType.readAction(reader, data);
 		this.action = action != null ? action : DummyAction.INSTANCE;
-
 	}
 
 	@Override public void prepareWrite(MocapRecordingData data)
