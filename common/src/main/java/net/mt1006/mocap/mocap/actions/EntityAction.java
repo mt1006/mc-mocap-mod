@@ -3,8 +3,6 @@ package net.mt1006.mocap.mocap.actions;
 import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
 import net.mt1006.mocap.api.v1.extension.actions.MocapAction;
 import net.mt1006.mocap.api.v1.extension.actions.MocapActionContext;
-import net.mt1006.mocap.command.converter.AlphaConverter;
-import org.jetbrains.annotations.Nullable;
 
 public class EntityAction implements MocapAction
 {
@@ -17,18 +15,11 @@ public class EntityAction implements MocapAction
 		this.action = action;
 	}
 
-	//TODO: [CONVERTER] remove
 	public EntityAction(Reader reader, MocapRecordingData data)
-	{
-		this(reader, data, null);
-	}
-
-	//TODO: [CONVERTER] remove last arg
-	public EntityAction(Reader reader, MocapRecordingData data, @Nullable AlphaConverter converter)
 	{
 		this.id = reader.readInt();
 
-		MocapAction action = ActionType.readAction(reader, data, converter, id);
+		MocapAction action = ActionType.readAction(reader, data);
 		this.action = action != null ? action : DummyAction.INSTANCE;
 
 	}

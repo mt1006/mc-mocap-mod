@@ -33,7 +33,7 @@ public class PlaybackDataManager
 		resourceStack.push(file);
 
 		RecordingData recording = new RecordingData();
-		if (!recording.load(out, file, false)) { return sendFailureWithPath(out); }
+		if (!recording.load(out, file)) { return sendFailureWithPath(out); }
 		recordingMap.put(file, recording);
 
 		resourceStack.pop();

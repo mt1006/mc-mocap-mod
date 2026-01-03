@@ -58,8 +58,7 @@ public class Movement implements MocapAction
 	private final float[] rotation; // [0]=xRot, [1]=yRot
 	private final float headRot;
 
-	//TODO: [CONVERTER] make it private
-	public Movement(byte flags, Vec3 position, float[] rotation, float headRot)
+	private Movement(byte flags, Vec3 position, float[] rotation, float headRot)
 	{
 		this.flags = flags;
 		this.position = position;

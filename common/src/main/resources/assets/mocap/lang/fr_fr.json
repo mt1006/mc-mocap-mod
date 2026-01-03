@@ -282,13 +282,6 @@
   "mocap.misc.extensions.info": "%s (version %d)",
   "mocap.misc.extensions.info.experimental": "%s (version %d-exp)",
 
-  "mocap.misc.converter.failure": "Échec de la conversion de l'enregistrement vers un nouveau format !",
-  "mocap.misc.converter.renamed": "Renommé %s en %s",
-  "mocap.misc.converter.failed_to_rename": "Impossible de renommer %s en %s ! Conversion interrompue !",
-  "mocap.misc.converter.failed_to_save": "Échec de la sauvegarde du nouvel enregistrement ! Vous pouvez restaurer l'enregistrement original depuis %s !",
-  "mocap.misc.converter.not_convertible": "L'enregistrement indiqué utilise un format déjà supporté ou n'est pas convertible !",
-  "mocap.misc.converter.success": "Enregistrement converti avec succès vers un nouveau format !",
-
   "mocap.help": "%s - §lAide§r\n  /mocap recording [...] - Enregistre les mouvements du joueur\n  /mocap recordings [...] - Gère les fichiers d'enregistrement\n  /mocap scenes [...] - Crée et modifie des scènes\n  /mocap playback [...] - Playback de scènes et d'enregistrements\n  /mocap settings [...] - Affiche et modifie les paramètres\n  /mocap info - Affiche des informations sur le mod\n  /mocap help - Affiche ce message\n§lUtilisation:§r\n- Commencez par lancer un enregistrement avec \"/mocap recording start\". Il enregistrera tous vos mouvements ou ceux d'un joueur passé en argument.\n- Ensuite, arrêtez l'enregistrement avec \"/mocap recording stop\" et sauvegardez-le via \"/mocap recording save <nom>\".\n- Exécutez \"/mocap playback start <nom>\" pour lancer un playback.\n- Vous pouvez aussi créer des scènes auxquelles vous pouvez ajouter plusieurs enregistrements ou d'autres scènes, avec des paramètres comme le nom du joueur, un décalage de position ou un délai de démarrage.\n- Pour créer une scène, exécutez \"/mocap scenes add <nom_scene>\". Puis ajoutez votre enregistrement avec \"/mocap scenes add_to <nom_scene> <nom_recording> [nom_joueur] [type_skin] [source_skin]\" (vous pouvez ignorer les arguments entre crochets si vous le souhaitez).\n- Pour lancer une scène, exécutez \"/mocap playback start .<nom_scene>\" — il faut mettre un point avant le nom.\n- En mettant un point avant le nom lors de \"/mocap scenes add_to ...\", vous pouvez aussi ajouter des scènes dans d'autres scènes.",
 
   "mocap.list.empty": "§7§o[vide]§r",
@@ -315,8 +308,6 @@
   "mocap.failure.entity_filter.failed_to_parse": "Impossible d'interpréter le filtre d'entités – vérifiez sa syntaxe !",
   "mocap.failure.improper_mineskin_link": "Lien mineskin.org invalide !",
   "mocap.failure.not_supported_experimental_format": "L'enregistrement utilise un format expérimental non pris en charge par cette version.",
-  "mocap.failure.not_supported_experimental_format.suggest_converter.1": "Exécutez \"/mocap misc convert\" pour le convertir vers la dernière version !",
-  "mocap.failure.not_supported_experimental_format.suggest_converter.2": "Notez que la fonction de conversion sera retirée avant la sortie de la version stable 1.4.",
 
   "mocap.warning.custom_skin_cache_limit": "§lAttention:§r la limite du cache des skins personnalisées est atteinte !",
   "mocap.warning.custom_skin_cache_limit.tip": "Reconnectez-vous pour le vider",

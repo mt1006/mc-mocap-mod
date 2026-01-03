@@ -5,8 +5,6 @@ import net.mt1006.mocap.api.v1.extension.MocapExtension;
 import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
 import net.mt1006.mocap.api.v1.extension.actions.MocapAction;
 import net.mt1006.mocap.api.v1.extension.actions.MocapStateAction;
-import net.mt1006.mocap.command.converter.AlphaConverter;
-import net.mt1006.mocap.command.converter.AlphaMovement;
 import net.mt1006.mocap.mocap.actions.deprecated.HeadRotation;
 import net.mt1006.mocap.mocap.actions.deprecated.MovementLegacy;
 import net.mt1006.mocap.mocap.actions.deprecated.SetEffectColor;
@@ -126,38 +124,11 @@ public enum ActionType
 		}
 	}
 
-	//TODO: [CONVERTER] remove two last args
-	public static @Nullable MocapAction readAction(MocapAction.Reader reader, MocapRecordingData data,
-												   @Nullable AlphaConverter converter, @Nullable Integer converterEntityId)
+	public static @Nullable MocapAction readAction(MocapAction.Reader reader, MocapRecordingData data)
 	{
 		Registry registry = Registry.MAIN;
 
 		byte id = reader.readByte();
-
-		//TODO: [CONVERTER] remove
-		// =========
-		if (converter != null)
-		{
-			if (id == MOVEMENT.id)
-			{
-				AlphaMovement alphaMovement = new AlphaMovement(reader);
-				double[] posArray = converter.getPosArray(converterEntityId);
-				return posArray != null ? alphaMovement.convert(data.getStartPos(), posArray) : null;
-			}
-			else if (id == CHAT_MESSAGE.id)
-			{
-				return new ChatMessage(reader.readString());
-			}
-			else if (id == ENTITY_ACTION.id)
-			{
-				return new EntityAction(reader, data, converter);
-			}
-			else if (id == ENTITY_UPDATE.id)
-			{
-				return new EntityUpdate(reader, converter, 0);
-			}
-		}
-		// =========
 
 		if (id == Registry.CUSTOM_ACTION_ID)
 		{

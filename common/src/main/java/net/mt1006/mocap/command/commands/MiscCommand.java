@@ -10,7 +10,6 @@ import net.mt1006.mocap.api.v1.io.CommandOutput;
 import net.mt1006.mocap.command.CommandSuggestions;
 import net.mt1006.mocap.command.CommandUtils;
 import net.mt1006.mocap.command.CommandsContext;
-import net.mt1006.mocap.command.converter.AlphaConverter;
 import net.mt1006.mocap.mocap.playing.skins.CustomServerSkinManager;
 import net.mt1006.mocap.mocap.playing.skins.MineSkinSkins;
 import net.mt1006.mocap.utils.ProfileUtils;
@@ -29,9 +28,6 @@ public class MiscCommand
 		commandBuilder.then(Commands.literal("clear_cache").executes(CommandUtils.command(MiscCommand::clearCache)));
 		commandBuilder.then(Commands.literal("refresh_suggestions").executes(CommandUtils.command(MiscCommand::refreshSuggestions)));
 		commandBuilder.then(Commands.literal("extensions").executes(CommandUtils.command(MiscCommand::extensions)));
-
-		//TODO: [CONVERTER] remove
-		commandBuilder.then(Commands.literal("convert").then(CommandUtils.withInputArgument(AlphaConverter::command, CommandSuggestions::recording, "name")));
 
 		return commandBuilder;
 	}

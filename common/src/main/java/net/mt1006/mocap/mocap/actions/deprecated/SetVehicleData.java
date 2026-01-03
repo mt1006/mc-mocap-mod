@@ -45,18 +45,7 @@ public class SetVehicleData implements MocapAction
 
 	@Override public void write(Writer writer, MocapRecordingData data)
 	{
-		//TODO: [CONVERTER] replace with exception
-		writer.addBoolean(used);
-		if (used)
-		{
-			writer.addByte(flags);
-			writer.addBoolean(flag1);
-			writer.addBoolean(flag2);
-			writer.addInt(int1);
-			writer.addInt(int2);
-			writer.addInt(int3);
-			writer.addFloat(float1);
-		}
+		throw new RuntimeException("Trying to save deprecated action!");
 	}
 
 	@Override public Result execute(MocapActionContext ctx)

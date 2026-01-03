@@ -310,7 +310,6 @@ public class RecordingFiles
 		private final byte[] recording;
 		private boolean legacyString;
 		public int offset = 0;
-		public boolean convertStrings = false; //TODO: [CONVERTER] remove
 
 		public FileReader(byte[] recording, boolean legacyString)
 		{
@@ -369,8 +368,6 @@ public class RecordingFiles
 
 		@Override public String readString()
 		{
-			if (convertStrings && !legacyString) { return readAlphaString(); } //TODO: [CONVERTER] remove
-
 			int len = legacyString ? readInt() : readPackedInt();
 			String str = new String(recording, offset, len, StandardCharsets.UTF_8);
 			offset += len;
@@ -380,25 +377,6 @@ public class RecordingFiles
 		@Override public UUID readUUID()
 		{
 			return new UUID(readLong(), readLong());
-		}
-
-		//TODO: [CONVERTER] remove
-		private String readAlphaString()
-		{
-			int termPos = -1;
-			for (int i = offset; i < recording.length; i++)
-			{
-				if (recording[i] == 0)
-				{
-					termPos = i;
-					break;
-				}
-			}
-
-			int len = termPos - offset;
-			String str = new String(recording, offset, len, StandardCharsets.UTF_8);
-			offset += len + 1;
-			return str;
 		}
 
 		@Override public Vec3 readVec3()

@@ -27,12 +27,6 @@ public class ChatMessage implements MocapAction
 		this.messageJson = message;
 	}
 
-	//TODO: [CONVERTER] remove
-	public ChatMessage(String messageJson)
-	{
-		this.messageJson = messageJson;
-	}
-
 	public ChatMessage(Reader reader)
 	{
 		reader.readByte(); // ignored

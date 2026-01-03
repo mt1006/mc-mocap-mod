@@ -323,6 +323,7 @@
   "mocap.failure.resolve_player": "Nie udało się określić gracza - te polecenie musi zostać wywołane przez gracza!",
   "mocap.failure.entity_filter.failed_to_parse": "Nie udało się wczytać filtra bytów - upewnij się, że ma poprawną składnię!",
   "mocap.failure.improper_mineskin_link": "Niepoprawny adres skórki z mineskin.org!",
+  "mocap.failure.not_supported_experimental_format": "Nagranie korzysta z eksperymentalnego formaty, który nie jest wspierany przez obecną wersję.",
 
   "mocap.warning.custom_skin_cache_limit": "§lUwaga:§r osiągnięto limit rozmiaru pamięci podręcznej własnych skórek!",
   "mocap.warning.custom_skin_cache_limit.tip": "Dołącz ponownie do świata, aby ją wyczyścić",
