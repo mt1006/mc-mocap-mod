@@ -12,8 +12,6 @@ import net.mt1006.mocap.api.v1.io.CommandInfo;
 import net.mt1006.mocap.command.io.APICommandInfo;
 import net.mt1006.mocap.mocap.playing.PlaybackManager;
 import net.mt1006.mocap.mocap.playing.playable.ActiveRecording;
-import net.mt1006.mocap.mocap.playing.playable.RecordingFile;
-import net.mt1006.mocap.mocap.playing.playable.SceneFile;
 import net.mt1006.mocap.mocap.recording.RecordingManager;
 import net.mt1006.mocap.mocap.recording.RecordingSource;
 import net.mt1006.mocap.mocap.settings.SettingFields;
@@ -46,12 +44,7 @@ public class MocapControllerImpl implements MocapController
 
 	@Override public MocapPlayable getPlayable(String name)
 	{
-		return switch (name.charAt(0))
-		{
-			case '.' -> SceneFile.get(commandInfo, name);
-			case '-' -> ActiveRecording.get(commandInfo, name);
-			default -> RecordingFile.get(commandInfo, name);
-		};
+		return MocapPlayable.get(commandInfo, name);
 	}
 
 	@Override public @Nullable MocapPlaybackRoot findPlayback(String id)
