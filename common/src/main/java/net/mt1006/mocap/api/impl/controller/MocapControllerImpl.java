@@ -7,10 +7,13 @@ import net.mt1006.mocap.api.v1.controller.MocapController;
 import net.mt1006.mocap.api.v1.controller.MocapPlaybackRoot;
 import net.mt1006.mocap.api.v1.controller.config.MocapRecordingConfig;
 import net.mt1006.mocap.api.v1.controller.playable.MocapActiveRecording;
+import net.mt1006.mocap.api.v1.controller.playable.MocapPlayable;
 import net.mt1006.mocap.api.v1.io.CommandInfo;
 import net.mt1006.mocap.command.io.APICommandInfo;
 import net.mt1006.mocap.mocap.playing.PlaybackManager;
 import net.mt1006.mocap.mocap.playing.playable.ActiveRecording;
+import net.mt1006.mocap.mocap.playing.playable.RecordingFile;
+import net.mt1006.mocap.mocap.playing.playable.SceneFile;
 import net.mt1006.mocap.mocap.recording.RecordingManager;
 import net.mt1006.mocap.mocap.recording.RecordingSource;
 import net.mt1006.mocap.mocap.settings.SettingFields;
@@ -39,6 +42,16 @@ public class MocapControllerImpl implements MocapController
 	{
 		if (level == commandInfo.getLevel()) { return commandInfo; }
 		return new APICommandInfo(level.getServer(), level, commandInfo.getSourceName());
+	}
+
+	@Override public MocapPlayable getPlayable(String name)
+	{
+		return switch (name.charAt(0))
+		{
+			case '.' -> SceneFile.get(commandInfo, name);
+			case '-' -> ActiveRecording.get(commandInfo, name);
+			default -> RecordingFile.get(commandInfo, name);
+		};
 	}
 
 	@Override public @Nullable MocapPlaybackRoot findPlayback(String id)
