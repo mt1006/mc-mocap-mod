@@ -115,7 +115,7 @@ public class SceneFile extends PlayableFile<MocapSceneFile> implements MocapScen
 		dataManager.loadScene(info, this);
 
 		ScenePlayback playback = ScenePlayback.start(info, true, dataManager, dataManager.getScene(this), config, modifiers, null);
-		return playback != null ? PlaybackManager.addPlayback(this, playback, isHidden) : null;
+		return playback != null ? PlaybackManager.onStart(this, playback, isHidden) : null;
 	}
 
 	@Override public @Nullable Playback startAsSubscene(CommandInfo info, MocapModifiers modifiers, MocapPlaybackConfig config,

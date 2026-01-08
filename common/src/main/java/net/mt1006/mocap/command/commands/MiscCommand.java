@@ -5,6 +5,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.mt1006.mocap.api.impl.extenstion.Extensions;
 import net.mt1006.mocap.api.impl.extenstion.MocapExtensionImpl;
+import net.mt1006.mocap.api.v1.events.MocapEvents;
 import net.mt1006.mocap.api.v1.io.CommandInfo;
 import net.mt1006.mocap.api.v1.io.CommandOutput;
 import net.mt1006.mocap.command.CommandSuggestions;
@@ -54,6 +55,7 @@ public class MiscCommand
 		CustomServerSkinManager.clearCache();
 		ProfileUtils.clearCache();
 		MineSkinSkins.clearCache();
+		MocapEvents.CLEAR_CACHE.invoker.onClearCache();
 
 		return out.sendSuccess("misc.clear_cache.success");
 	}
@@ -61,6 +63,7 @@ public class MiscCommand
 	private static boolean refreshSuggestions(CommandOutput out)
 	{
 		CommandSuggestions.refresh();
+		MocapEvents.REFRESH_SUGGESTIONS.invoker.onRefreshSuggestions();
 		return out.sendSuccess("misc.refresh_suggestions.success");
 	}
 

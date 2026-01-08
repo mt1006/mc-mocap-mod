@@ -7,12 +7,14 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.mt1006.mocap.MocapMod;
 import net.mt1006.mocap.api.v1.controller.config.MocapRecordingConfig;
+import net.mt1006.mocap.api.v1.events.MocapEvents;
 import net.mt1006.mocap.api.v1.io.CommandInfo;
 import net.mt1006.mocap.api.v1.io.CommandOutput;
 import net.mt1006.mocap.command.CommandSuggestions;
 import net.mt1006.mocap.command.CommandsContext;
 import net.mt1006.mocap.mocap.files.RecordingFiles;
 import net.mt1006.mocap.mocap.playing.PlaybackManager;
+import net.mt1006.mocap.mocap.playing.playable.ActiveRecording;
 import net.mt1006.mocap.mocap.playing.playable.RecordingFile;
 import net.mt1006.mocap.mocap.settings.Settings;
 import org.apache.commons.lang3.StringUtils;
@@ -59,6 +61,7 @@ public class RecordingManager
 		contextsBySource.put(source.name, ctx);
 		CommandSuggestions.inputSet.add(id.str);
 
+		MocapEvents.RECORDING_START.invoker.onRecordingStart(ActiveRecording.get(ctx), startNow);
 		if (startNow) { ctx.start(sendMessage); }
 		return ctx;
 	}
@@ -89,7 +92,7 @@ public class RecordingManager
 	{
 		boolean addToDoubleStart = false;
 
-		switch (ctx.state)
+		switch (ctx.getState())
 		{
 			case WAITING_FOR_ACTION:
 				ctx.start(true);
@@ -132,7 +135,7 @@ public class RecordingManager
 
 	public static boolean stopSingle(CommandOutput out, RecordingContext ctx, @Nullable ServerPlayer sourcePlayer)
 	{
-		if (ctx.state == RecordingContext.State.WAITING_FOR_DECISION)
+		if (ctx.getState() == RecordingContext.State.WAITING_FOR_DECISION)
 		{
 			if (!Settings.QUICK_DISCARD.val) { return out.sendFailureWithTip("recording.stop.quick_discard.disabled"); }
 
@@ -147,12 +150,12 @@ public class RecordingManager
 
 		ctx.stop(out);
 
-		return switch (ctx.state)
+		return switch (ctx.getState())
 		{
 			case WAITING_FOR_DECISION -> sendStopMessage(out::sendSuccess, ctx, sourcePlayer);
 			case CANCELED -> out.sendSuccess("recording.stop.canceled");
 			case SAVED -> out.sendSuccess("recording.stop.instant_save", ctx.instantSave != null ? ctx.instantSave : "[error]");
-			default -> out.sendFailure("recording.error.undefined_state", ctx.state.name());
+			default -> out.sendFailure("recording.error.undefined_state", ctx.getState().name());
 		};
 	}
 
@@ -179,7 +182,7 @@ public class RecordingManager
 
 		for (RecordingContext ctx : contexts)
 		{
-			if (ctx.state == RecordingContext.State.WAITING_FOR_DECISION)
+			if (ctx.getState() == RecordingContext.State.WAITING_FOR_DECISION)
 			{
 				stillWaiting++;
 				continue;
@@ -187,7 +190,7 @@ public class RecordingManager
 
 			ctx.stop(out);
 
-			switch (ctx.state)
+			switch (ctx.getState())
 			{
 				case WAITING_FOR_DECISION: stopped++; break;
 				case CANCELED: cancelled++; break;
@@ -235,7 +238,7 @@ public class RecordingManager
 			boolean stillRecording = false;
 			for (RecordingContext ctx : bySourcePlayer(player))
 			{
-				if (ctx.state == RecordingContext.State.RECORDING)
+				if (ctx.getState() == RecordingContext.State.RECORDING)
 				{
 					stillRecording = true;
 					break;
@@ -257,7 +260,7 @@ public class RecordingManager
 			boolean showQuickDiscardTip = shouldSuggestQuickDiscard(ctx, out.getSourcePlayer()) && Settings.SHOW_TIPS.val;
 			boolean success = discardSingle(out, ctx);
 
-			if (success && ctx.state == RecordingContext.State.DISCARDED && showQuickDiscardTip)
+			if (success && ctx.getState() == RecordingContext.State.DISCARDED && showQuickDiscardTip)
 			{
 				out.sendSuccess("recording.discard.quick_discard_tip");
 			}
@@ -271,7 +274,7 @@ public class RecordingManager
 
 	public static boolean discardSingle(CommandOutput out, RecordingContext ctx)
 	{
-		if (ctx.state == RecordingContext.State.RECORDING)
+		if (ctx.getState() == RecordingContext.State.RECORDING)
 		{
 			out.sendFailure("recording.discard.not_stopped");
 			return false;
@@ -279,11 +282,11 @@ public class RecordingManager
 
 		ctx.discard();
 
-		return switch (ctx.state)
+		return switch (ctx.getState())
 		{
 			case DISCARDED -> out.sendSuccess("recording.discard.discarded");
 			case CANCELED -> out.sendSuccess("recording.stop.canceled");
-			default -> out.sendFailure("recording.error.undefined_state", ctx.state.name());
+			default -> out.sendFailure("recording.error.undefined_state", ctx.getState().name());
 		};
 	}
 
@@ -293,7 +296,7 @@ public class RecordingManager
 
 		for (RecordingContext ctx : contexts)
 		{
-			if (ctx.state == RecordingContext.State.RECORDING)
+			if (ctx.getState() == RecordingContext.State.RECORDING)
 			{
 				stillRecording++;
 				continue;
@@ -301,7 +304,7 @@ public class RecordingManager
 
 			ctx.discard();
 
-			switch (ctx.state)
+			switch (ctx.getState())
 			{
 				case DISCARDED: discarded++; break;
 				case CANCELED: cancelled++; break;
@@ -340,7 +343,7 @@ public class RecordingManager
 
 	public static boolean saveSingle(CommandOutput out, RecordingContext ctx, String name, boolean sendSavedMessage)
 	{
-		if (ctx.state == RecordingContext.State.RECORDING) { return out.sendFailure("recording.save.not_stopped"); }
+		if (ctx.getState() == RecordingContext.State.RECORDING) { return out.sendFailure("recording.save.not_stopped"); }
 
 		RecordingFile recordingFile = RecordingFile.get(out, name);
 		if (recordingFile == null) { return false; }
@@ -359,7 +362,7 @@ public class RecordingManager
 
 		ctx.save(recordingFile.getFile(), name);
 
-		switch (ctx.state)
+		switch (ctx.getState())
 		{
 			case SAVED:
 				if (sendSavedMessage) { out.sendSuccess("recording.save.saved"); }
@@ -369,7 +372,7 @@ public class RecordingManager
 				return out.sendFailure("recording.save.error");
 
 			default:
-				return out.sendFailure("recording.error.undefined_state", ctx.state.name());
+				return out.sendFailure("recording.error.undefined_state", ctx.getState().name());
 		}
 	}
 
@@ -378,7 +381,7 @@ public class RecordingManager
 		List<RecordingContext> stopped = new ArrayList<>();
 		for (RecordingContext ctx : contexts)
 		{
-			if (ctx.state == RecordingContext.State.WAITING_FOR_DECISION) { stopped.add(ctx); }
+			if (ctx.getState() == RecordingContext.State.WAITING_FOR_DECISION) { stopped.add(ctx); }
 		}
 
 		if (stopped.isEmpty())
@@ -411,13 +414,13 @@ public class RecordingManager
 			RecordingContext ctx = stopped.get(i);
 			ctx.save(files.get(i), filenames.get(i));
 
-			switch (ctx.state)
+			switch (ctx.getState())
 			{
 				case SAVED -> out.sendSuccess("recording.save.multiple.saved", ctx.id.str, filenames.get(i));
 				case WAITING_FOR_DECISION -> out.sendFailure("recording.save.multiple.failed", ctx.id.str, filenames.get(i));
-				default -> out.sendFailure("recording.save.multiple.unknown_state", ctx.id.str, filenames.get(i), ctx.state.name());
+				default -> out.sendFailure("recording.save.multiple.unknown_state", ctx.id.str, filenames.get(i), ctx.getState().name());
 			}
-			if (ctx.state != RecordingContext.State.SAVED) { somethingFailed = true; }
+			if (ctx.getState() != RecordingContext.State.SAVED) { somethingFailed = true; }
 		}
 
 		if (somethingFailed) { out.sendFailure("recording.save.multiple.error"); }
@@ -432,7 +435,7 @@ public class RecordingManager
 		if (resolvedContexts.isSingle)
 		{
 			RecordingContext ctx = resolvedContexts.list.iterator().next();
-			return info.sendSuccess("recording.list.state", resolvedContexts.fullId.str, ctx.state.name());
+			return info.sendSuccess("recording.list.state", resolvedContexts.fullId.str, ctx.getState().name());
 		}
 
 		ArrayList<String> waitingForAction = new ArrayList<>(), recording = new ArrayList<>(),
@@ -440,7 +443,7 @@ public class RecordingManager
 
 		for (RecordingContext ctx : resolvedContexts.list)
 		{
-			ArrayList<String> list = switch (ctx.state)
+			ArrayList<String> list = switch (ctx.getState())
 			{
 				case WAITING_FOR_ACTION -> waitingForAction;
 				case RECORDING -> recording;

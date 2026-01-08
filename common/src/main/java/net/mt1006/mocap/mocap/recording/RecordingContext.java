@@ -7,6 +7,7 @@ import net.minecraft.world.level.Level;
 import net.mt1006.mocap.api.v1.controller.config.MocapOnChangeDimension;
 import net.mt1006.mocap.api.v1.controller.config.MocapOnDeath;
 import net.mt1006.mocap.api.v1.controller.config.MocapRecordingConfig;
+import net.mt1006.mocap.api.v1.events.MocapEvents;
 import net.mt1006.mocap.api.v1.extension.MocapActiveRecordingActions;
 import net.mt1006.mocap.api.v1.extension.actions.MocapAction;
 import net.mt1006.mocap.api.v1.extension.actions.MocapBlockAction;
@@ -15,6 +16,7 @@ import net.mt1006.mocap.mocap.actions.*;
 import net.mt1006.mocap.mocap.files.RecordingData;
 import net.mt1006.mocap.mocap.files.RecordingFiles;
 import net.mt1006.mocap.mocap.playing.modifiers.EntityFilter;
+import net.mt1006.mocap.mocap.playing.playable.ActiveRecording;
 import net.mt1006.mocap.utils.Utils;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,7 +30,7 @@ public class RecordingContext implements MocapActiveRecordingActions
 	public final RecordingSource source;
 	public final MocapRecordingConfig config;
 	public final RecordingData data = RecordingData.forWriting();
-	public State state = State.WAITING_FOR_ACTION;
+	private State state = State.WAITING_FOR_ACTION;
 	private @Nullable RecordedEntityState entityState = null;
 	private final PositionTracker positionTracker;
 	private final EntityTracker entityTracker = new EntityTracker(this);
@@ -60,18 +62,20 @@ public class RecordingContext implements MocapActiveRecordingActions
 	public void start(boolean sendMessage)
 	{
 		entityState = null;
-		state = State.RECORDING;
+		setState(State.RECORDING);
+		MocapEvents.RECORDING_START_NOW.invoker.onRecordingStartNow(ActiveRecording.get(this));
 		if (sendMessage) { Utils.sendMessage(source.player, "recording.start.recording_started"); }
 	}
 
 	public void stop(CommandOutput out)
 	{
-		state = switch (state)
+		State newState = switch (state)
 		{
 			case WAITING_FOR_ACTION -> State.CANCELED;
 			case RECORDING, WAITING_FOR_DECISION -> State.WAITING_FOR_DECISION;
 			default -> State.UNDEFINED;
 		};
+		setState(newState);
 
 		if (state == State.WAITING_FOR_DECISION && instantSave != null)
 		{
@@ -83,12 +87,13 @@ public class RecordingContext implements MocapActiveRecordingActions
 
 	public void discard()
 	{
-		state = switch (state)
+		State newState = switch (state)
 		{
 			case WAITING_FOR_ACTION -> State.CANCELED;
 			case WAITING_FOR_DECISION -> State.DISCARDED;
 			default -> State.UNDEFINED;
 		};
+		setState(newState);
 
 		if (state.removed) { RecordingManager.removeContext(this); }
 	}
@@ -98,11 +103,11 @@ public class RecordingContext implements MocapActiveRecordingActions
 		if (state == State.WAITING_FOR_DECISION)
 		{
 			if (!RecordingFiles.save(CommandOutput.LOGS, recordingFile, name, data)) { return; }
-			state = State.SAVED;
+			setState(State.SAVED);
 		}
 		else
 		{
-			state = State.UNDEFINED;
+			setState(State.UNDEFINED);
 		}
 
 		if (state.removed) { RecordingManager.removeContext(this); }
@@ -209,14 +214,14 @@ public class RecordingContext implements MocapActiveRecordingActions
 	private void selfStop(boolean requiresSafeDiscard)
 	{
 		this.requiresSafeDiscard = requiresSafeDiscard;
-		this.state = State.WAITING_FOR_DECISION;
+		setState(State.WAITING_FOR_DECISION);
 
 		RecordingManager.sendStopMessage((msg) -> Utils.sendMessage(source.player, msg), this, source.player);
 	}
 
 	public void splitRecording(ServerPlayer newPlayer)
 	{
-		state = State.WAITING_FOR_DECISION;
+		setState(State.WAITING_FOR_DECISION);
 		Utils.sendMessage(source.player, "recording.stop.split");
 
 		boolean success = (RecordingManager.start(newPlayer, source, config, null, true, false) != null);
@@ -280,6 +285,18 @@ public class RecordingContext implements MocapActiveRecordingActions
 		return tick;
 	}
 
+	public State getState()
+	{
+		return state;
+	}
+
+	private void setState(State state)
+	{
+		State prevState = this.state;
+		this.state = state;
+		MocapEvents.RECORDING_CHANGE_STATE.invoker.onRecordingChangeState(ActiveRecording.get(this), prevState);
+	}
+
 	public boolean isRemoved()
 	{
 		return state.removed;
@@ -293,7 +310,7 @@ public class RecordingContext implements MocapActiveRecordingActions
 		CANCELED(true),
 		DISCARDED(true),
 		SAVED(true),
-		UNDEFINED(true);
+		UNDEFINED(true); //TODO: remove/change name?
 
 		public final boolean removed;
 

@@ -3,6 +3,7 @@ package net.mt1006.mocap.mocap.playing;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import net.minecraft.server.level.ServerPlayer;
+import net.mt1006.mocap.api.v1.events.MocapEvents;
 import net.mt1006.mocap.api.v1.io.CommandInfo;
 import net.mt1006.mocap.api.v1.io.CommandOutput;
 import net.mt1006.mocap.api.v1.modifiers.MocapModifiers;
@@ -31,16 +32,13 @@ public class PlaybackManager
 	private static double previousPlaybackSpeed = 0.0;
 	private static int nextPlaybackId = 0;
 
-	public static PlaybackRoot addPlayback(Playable playable, Playback playback, boolean isHidden)
+	public static PlaybackRoot onStart(Playable playable, Playback playback, boolean isHidden)
 	{
 		PlaybackRoot playbackRoot = new PlaybackRoot(playback, getNextId(), playable.getName(), playback.config, isHidden);
 		playbacksByOwner.put(playback.owner != null ? playback.owner.getName().getString() : "", playbackRoot);
-		return playbackRoot;
-	}
 
-	private static int getNextId()
-	{
-		return nextPlaybackId++;
+		MocapEvents.PLAYBACK_START.invoker.onPlaybackStart(playbackRoot);
+		return playbackRoot;
 	}
 
 	public static boolean stop(CommandOutput out, String id, @Nullable String expectedName)
@@ -205,8 +203,15 @@ public class PlaybackManager
 	{
 		for (PlaybackRoot playback : toRemove)
 		{
+			MocapEvents.PLAYBACK_END.invoker.onPlaybackEnd(playback);
+
 			ServerPlayer owner = playback.getOwner();
 			playbacksByOwner.remove(owner != null ? owner.getName().getString() : "", playback);
 		}
+	}
+
+	private static int getNextId()
+	{
+		return nextPlaybackId++;
 	}
 }

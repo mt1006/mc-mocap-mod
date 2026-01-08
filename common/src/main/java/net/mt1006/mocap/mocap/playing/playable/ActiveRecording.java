@@ -89,7 +89,7 @@ public class ActiveRecording extends Playable implements MocapActiveRecording
 		}
 
 		RecordingPlayback playback = RecordingPlayback.start(info, true, new PlaybackDataManager(), ctx.data, config, modifiers, null);
-		return playback != null ? PlaybackManager.addPlayback(this, playback, isHidden) : null;
+		return playback != null ? PlaybackManager.onStart(this, playback, isHidden) : null;
 	}
 
 	@Override public @Nullable Playback startAsSubscene(CommandInfo info, MocapModifiers modifiers, MocapPlaybackConfig config,
