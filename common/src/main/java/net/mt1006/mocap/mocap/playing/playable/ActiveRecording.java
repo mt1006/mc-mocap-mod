@@ -4,7 +4,7 @@ import net.mt1006.mocap.api.v1.controller.MocapPlaybackRoot;
 import net.mt1006.mocap.api.v1.controller.config.MocapPlaybackConfig;
 import net.mt1006.mocap.api.v1.controller.playable.MocapActiveRecording;
 import net.mt1006.mocap.api.v1.controller.playable.MocapRecordingFile;
-import net.mt1006.mocap.api.v1.extension.MocapActiveRecordingActions;
+import net.mt1006.mocap.api.v1.extension.MocapRecordingContext;
 import net.mt1006.mocap.api.v1.io.CommandInfo;
 import net.mt1006.mocap.api.v1.io.CommandOutput;
 import net.mt1006.mocap.api.v1.modifiers.MocapModifiers;
@@ -66,19 +66,14 @@ public class ActiveRecording extends Playable implements MocapActiveRecording
 		return success ? RecordingFile.get(out, name) : null;
 	}
 
-	@Override public MocapActiveRecordingActions getActions()
+	@Override public MocapRecordingContext getContext()
 	{
 		return ctx;
 	}
 
 	@Override public boolean isValid()
 	{
-		return !ctx.isRemoved();
-	}
-
-	@Override public RecordingData getRecordingData()
-	{
-		return ctx.data;
+		return !ctx.getState().removed;
 	}
 
 	@Override public @Nullable MocapPlaybackRoot startPlayback(CommandInfo info, MocapModifiers modifiers, MocapPlaybackConfig config, boolean isHidden)

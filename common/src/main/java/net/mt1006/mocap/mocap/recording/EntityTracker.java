@@ -3,7 +3,7 @@ package net.mt1006.mocap.mocap.recording;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.mt1006.mocap.api.v1.extension.MocapActiveRecordingActions;
+import net.mt1006.mocap.api.v1.extension.MocapRecordingContext;
 import net.mt1006.mocap.mixin.fields.LevelFields;
 import net.mt1006.mocap.mocap.actions.EntityUpdate;
 import net.mt1006.mocap.mocap.playing.PlaybackManager;
@@ -120,7 +120,7 @@ public class EntityTracker
 		toRemove.forEach(map::remove);
 	}
 
-	public static class TrackedEntity implements MocapActiveRecordingActions.TrackedEntity
+	public static class TrackedEntity implements MocapRecordingContext.TrackedEntity
 	{
 		private final RecordingContext ctx;
 		private final int id;
@@ -154,7 +154,7 @@ public class EntityTracker
 			}
 		}
 
-		@Override public MocapActiveRecordingActions getParent()
+		@Override public MocapRecordingContext getParent()
 		{
 			return ctx;
 		}

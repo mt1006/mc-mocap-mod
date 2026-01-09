@@ -7,8 +7,9 @@ import net.minecraft.world.level.Level;
 import net.mt1006.mocap.api.v1.controller.config.MocapOnChangeDimension;
 import net.mt1006.mocap.api.v1.controller.config.MocapOnDeath;
 import net.mt1006.mocap.api.v1.controller.config.MocapRecordingConfig;
+import net.mt1006.mocap.api.v1.controller.playable.MocapActiveRecording;
 import net.mt1006.mocap.api.v1.events.MocapEvents;
-import net.mt1006.mocap.api.v1.extension.MocapActiveRecordingActions;
+import net.mt1006.mocap.api.v1.extension.MocapRecordingContext;
 import net.mt1006.mocap.api.v1.extension.actions.MocapAction;
 import net.mt1006.mocap.api.v1.extension.actions.MocapBlockAction;
 import net.mt1006.mocap.api.v1.io.CommandOutput;
@@ -23,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.util.Collection;
 
-public class RecordingContext implements MocapActiveRecordingActions
+public class RecordingContext implements MocapRecordingContext
 {
 	public final RecordingId id;
 	public ServerPlayer recordedPlayer;
@@ -228,6 +229,11 @@ public class RecordingContext implements MocapActiveRecordingActions
 		if (!success) { Utils.sendMessage(source.player, "recording.stop.split.error"); }
 	}
 
+	@Override public MocapActiveRecording asActiveRecording()
+	{
+		return ActiveRecording.get(this);
+	}
+
 	@Override public void addAction(MocapAction action)
 	{
 		if (state != State.RECORDING)
@@ -248,6 +254,26 @@ public class RecordingContext implements MocapActiveRecordingActions
 	@Override public Collection<? extends TrackedEntity> getTrackedEntities()
 	{
 		return entityTracker.getAll();
+	}
+
+	@Override public @Nullable EntityTracker.TrackedEntity getTrackedEntity(Entity entity)
+	{
+		return entityTracker.get(entity);
+	}
+
+	@Override public State getState()
+	{
+		return state;
+	}
+
+	@Override public int getTick()
+	{
+		return tick;
+	}
+
+	@Override public RecordingData getRecordingData()
+	{
+		return data;
 	}
 
 	public void addTickAction()
@@ -275,48 +301,10 @@ public class RecordingContext implements MocapActiveRecordingActions
 		}
 	}
 
-	public @Nullable EntityTracker.TrackedEntity getTrackedEntity(Entity entity)
-	{
-		return entityTracker.get(entity);
-	}
-
-	public int getTick()
-	{
-		return tick;
-	}
-
-	public State getState()
-	{
-		return state;
-	}
-
 	private void setState(State state)
 	{
 		State prevState = this.state;
 		this.state = state;
 		MocapEvents.RECORDING_CHANGE_STATE.invoker.onRecordingChangeState(ActiveRecording.get(this), prevState);
-	}
-
-	public boolean isRemoved()
-	{
-		return state.removed;
-	}
-
-	public enum State
-	{
-		WAITING_FOR_ACTION(false),
-		RECORDING(false),
-		WAITING_FOR_DECISION(false),
-		CANCELED(true),
-		DISCARDED(true),
-		SAVED(true),
-		UNDEFINED(true); //TODO: remove/change name?
-
-		public final boolean removed;
-
-		State(boolean removed)
-		{
-			this.removed = removed;
-		}
 	}
 }

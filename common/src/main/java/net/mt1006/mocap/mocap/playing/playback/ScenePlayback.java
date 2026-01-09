@@ -78,8 +78,8 @@ public class ScenePlayback extends Playback
 		{
 			case MocapSceneFile sceneFile -> getSceneStartPos(info,
 					element.getModifiers().getTransformations().getConfig().getSceneCenter(), dataManager.getScene(sceneFile), dataManager);
-			case MocapRecordingFile recordingFile -> dataManager.getRecording(recordingFile).startPos;
-			case MocapActiveRecording activeRecording -> activeRecording.getRecordingData().startPos;
+			case MocapRecordingFile recordingFile -> dataManager.getRecording(recordingFile).getStartPos();
+			case MocapActiveRecording activeRecording -> activeRecording.getContext().getRecordingData().getStartPos();
 			case null -> throw new NullPointerException("Playable is null");
 			default -> throw new IllegalStateException("Unexpected value: " + element.getPlayable(info));
 		};

@@ -27,11 +27,11 @@ public interface MocapExtension
 
 	boolean isRecordingActive();
 
-	Collection<? extends MocapActiveRecordingActions> findRecordingByRecordedPlayer(Player player);
+	Collection<? extends MocapRecordingContext> findRecordingByRecordedPlayer(Player player);
 
-	Collection<? extends MocapActiveRecordingActions> findRecordingByRecordedPlayerUUID(UUID uuid);
+	Collection<? extends MocapRecordingContext> findRecordingByRecordedPlayerUUID(UUID uuid);
 
-	Collection<? extends MocapActiveRecordingActions.TrackedEntity> findTrackedEntities(Entity entity);
+	Collection<? extends MocapRecordingContext.TrackedEntity> findTrackedEntities(Entity entity);
 
 	@ApiStatus.Internal
 	MocapRecordingData.ExtensionHeader createHeader();

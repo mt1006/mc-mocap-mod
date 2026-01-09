@@ -2,11 +2,10 @@ package net.mt1006.mocap.api.v1.events;
 
 import net.mt1006.mocap.api.v1.controller.MocapPlaybackRoot;
 import net.mt1006.mocap.api.v1.controller.playable.MocapActiveRecording;
-import net.mt1006.mocap.mocap.recording.RecordingContext;
+import net.mt1006.mocap.api.v1.extension.MocapRecordingContext;
 
 public final class MocapEvents
 {
-	//TODO: replace MocapActiveRecordingActions with MocapRecordingContext
 	//TODO: add equals() to MocapPlayable
 	//TODO: add RECORDING_TICK action?
 	private MocapEvents() {}
@@ -47,8 +46,7 @@ public final class MocapEvents
 	@FunctionalInterface
 	public interface RecordingChangeState
 	{
-		//TODO: move State into MocapRecordingContext
-		void onRecordingChangeState(MocapActiveRecording recording, RecordingContext.State prevState);
+		void onRecordingChangeState(MocapActiveRecording recording, MocapRecordingContext.State prevState);
 	}
 
 	@FunctionalInterface

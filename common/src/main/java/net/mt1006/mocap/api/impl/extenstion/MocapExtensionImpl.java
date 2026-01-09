@@ -2,8 +2,8 @@ package net.mt1006.mocap.api.impl.extenstion;
 
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.mt1006.mocap.api.v1.extension.MocapActiveRecordingActions;
 import net.mt1006.mocap.api.v1.extension.MocapExtension;
+import net.mt1006.mocap.api.v1.extension.MocapRecordingContext;
 import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
 import net.mt1006.mocap.api.v1.extension.actions.MocapAction;
 import net.mt1006.mocap.mocap.actions.ActionType;
@@ -64,17 +64,17 @@ public class MocapExtensionImpl implements MocapExtension
 		return RecordingManager.isActive();
 	}
 
-	@Override public Collection<? extends MocapActiveRecordingActions> findRecordingByRecordedPlayer(Player player)
+	@Override public Collection<? extends MocapRecordingContext> findRecordingByRecordedPlayer(Player player)
 	{
 		return RecordingManager.byRecordedPlayer(player);
 	}
 
-	@Override public Collection<? extends MocapActiveRecordingActions> findRecordingByRecordedPlayerUUID(UUID uuid)
+	@Override public Collection<? extends MocapRecordingContext> findRecordingByRecordedPlayerUUID(UUID uuid)
 	{
 		return RecordingManager.byRecordedPlayer(uuid);
 	}
 
-	@Override public Collection<? extends MocapActiveRecordingActions.TrackedEntity> findTrackedEntities(Entity entity)
+	@Override public Collection<? extends MocapRecordingContext.TrackedEntity> findTrackedEntities(Entity entity)
 	{
 		return RecordingManager.listTrackedEntities(entity);
 	}
