@@ -18,16 +18,16 @@ import java.util.Locale;
 public class PlaybackModifiers implements MocapModifiers
 {
 	public static final PlaybackModifiers DEFAULT = new PlaybackModifiers(null, PlayerSkin.DEFAULT,
-			Transformations.EMPTY, PlayerAsEntity.DISABLED, TimeModifiers.DEFAULT, EntityFilter.FOR_PLAYBACK);
+			Transformations.EMPTY, PlayerAsEntity.DISABLED, TimeModifiers.DEFAULT, null);
 	public final @Nullable String playerName;
 	public final MocapPlayerSkin playerSkin;
 	public final MocapTransformations transformations;
 	public final MocapPlayerAsEntity playerAsEntity;
 	public final MocapTimeModifiers timeModifiers;
-	public final MocapEntityFilter entityFilter;
+	public final @Nullable MocapEntityFilter entityFilter;
 
 	private PlaybackModifiers(@Nullable String playerName, MocapPlayerSkin playerSkin, MocapTransformations transformations,
-							  MocapPlayerAsEntity playerAsEntity, MocapTimeModifiers timeModifiers, MocapEntityFilter entityFilter)
+							  MocapPlayerAsEntity playerAsEntity, MocapTimeModifiers timeModifiers, @Nullable MocapEntityFilter entityFilter)
 	{
 		this.playerName = playerName;
 		this.playerSkin = playerSkin;
@@ -97,7 +97,7 @@ public class PlaybackModifiers implements MocapModifiers
 		return new PlaybackModifiers(playerName, playerSkin, transformations, playerAsEntity, timeModifiers, entityFilter);
 	}
 
-	@Override public MocapEntityFilter getEntityFilter()
+	@Override public @Nullable MocapEntityFilter getEntityFilter()
 	{
 		return entityFilter;
 	}
@@ -111,7 +111,7 @@ public class PlaybackModifiers implements MocapModifiers
 	{
 		return playerName == null && playerSkin.getSource() == MocapPlayerSkin.Source.DEFAULT
 				&& transformations.areDefault() && !playerAsEntity.isEnabled() && timeModifiers.areDefault()
-				&& entityFilter.isDefaultForPlayback();
+				&& entityFilter == null;
 	}
 
 	@Override public MocapModifiers mergeWithParent(MocapModifiers parent)
@@ -122,7 +122,7 @@ public class PlaybackModifiers implements MocapModifiers
 				transformations.mergeWithParent(parent.getTransformations()),
 				playerAsEntity.isEnabled() ? playerAsEntity : parent.getPlayerAsEntity(),
 				timeModifiers.mergeWithParent(parent.getTimeModifiers()),
-				!entityFilter.isDefaultForPlayback() ? entityFilter : parent.getEntityFilter());
+				entityFilter != null ? entityFilter : parent.getEntityFilter());
 	}
 
 	@Override public void save(SceneFiles.Writer writer)
@@ -132,7 +132,7 @@ public class PlaybackModifiers implements MocapModifiers
 		writer.addObject("transformations", transformations.save());
 		writer.addObject("player_as_entity", playerAsEntity.save());
 		writer.addObject("time", timeModifiers.save());
-		writer.addString("entity_filter", entityFilter.save());
+		writer.addString("entity_filter", entityFilter != null ? entityFilter.save() : null);
 	}
 
 	@Override public void list(CommandOutput out)
@@ -168,7 +168,7 @@ public class PlaybackModifiers implements MocapModifiers
 		if (!playerAsEntity.isEnabled()) { out.sendSuccess("scenes.element_info.player_as_entity.disabled"); }
 		else { out.sendSuccess("scenes.element_info.player_as_entity.enabled", playerAsEntity.getRawEntityId()); }
 
-		if (entityFilter.isDefaultForPlayback()) { out.sendSuccess("scenes.element_info.entity_filter.disabled"); }
+		if (entityFilter == null) { out.sendSuccess("scenes.element_info.entity_filter.disabled"); }
 		else { out.sendSuccess("scenes.element_info.entity_filter.enabled", entityFilter.save()); }
 	}
 
@@ -225,19 +225,19 @@ public class PlaybackModifiers implements MocapModifiers
 
 				if (filterMode.equals("disabled"))
 				{
-					return withEntityFilter(EntityFilter.FOR_PLAYBACK);
+					return withEntityFilter(null);
 				}
 				else if (filterMode.equals("enabled"))
 				{
 					String filterStr = info.getString("entity_filter");
-					EntityFilterInstance filterInstance = EntityFilterInstance.create(filterStr);
-					if (filterInstance == null)
+					EntityFilter filter = EntityFilter.fromString(filterStr);
+					if (filter == null)
 					{
 						info.sendFailure("failure.entity_filter.failed_to_parse");
 						return null;
 					}
 
-					return withEntityFilter(new EntityFilter(filterInstance));
+					return withEntityFilter(filter);
 				}
 				return null;
 

@@ -57,7 +57,7 @@ public class EntityTracker
 				continue;
 			}
 
-			if (!ctx.entityFilter.isAllowed(entity)) { continue; }
+			if (!ctx.config.getTrackEntities().isAllowed(entity)) { continue; }
 
 			TrackedEntity trackedEntity = map.get(entity);
 			if (trackedEntity == null)

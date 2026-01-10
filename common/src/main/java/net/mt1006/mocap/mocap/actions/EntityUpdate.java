@@ -197,7 +197,7 @@ public class EntityUpdate implements MocapAction
 
 	private Result executeAdd(MocapActionContext ctx)
 	{
-		MocapEntityFilter filter = ctx.getModifiers().getEntityFilter();
+		MocapEntityFilter filter = ctx.getEntityFilter();
 		if (nbtString == null || position == null || ctx.hasEntity(id) || filter.isEmpty()) { return Result.IGNORED; }
 
 		CompoundTag compoundTag;

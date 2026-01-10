@@ -4,10 +4,12 @@ import net.mt1006.mocap.api.v1.controller.config.MocapDimensionSource;
 import net.mt1006.mocap.api.v1.controller.config.MocapEntitiesAfterPlayback;
 import net.mt1006.mocap.api.v1.controller.config.MocapPlaybackConfig;
 import net.mt1006.mocap.api.v1.controller.config.MocapPlayerNameHandling;
+import net.mt1006.mocap.api.v1.modifiers.MocapEntityFilter;
 import org.jetbrains.annotations.Nullable;
 
 public class PlaybackConfig implements MocapPlaybackConfig
 {
+	private @Nullable MocapEntityFilter playEntities;
 	private @Nullable Boolean canPushEntities;
 	private @Nullable MocapEntitiesAfterPlayback entitiesAfterPlayback;
 	private @Nullable Boolean blockActionsPlayback;
@@ -23,6 +25,7 @@ public class PlaybackConfig implements MocapPlaybackConfig
 
 	public PlaybackConfig(boolean setDefault)
 	{
+		playEntities = setDefault ? Settings.PLAY_ENTITIES.defVal : null;
 		canPushEntities = setDefault ? Settings.CAN_PUSH_ENTITIES.defVal : null;
 		entitiesAfterPlayback = setDefault ? Settings.ENTITIES_AFTER_PLAYBACK.defVal : null;
 		blockActionsPlayback = setDefault ? Settings.BLOCK_ACTIONS_PLAYBACK.defVal : null;
@@ -39,6 +42,7 @@ public class PlaybackConfig implements MocapPlaybackConfig
 
 	private PlaybackConfig(PlaybackConfig toCopy)
 	{
+		playEntities = toCopy.playEntities;
 		canPushEntities = toCopy.canPushEntities;
 		entitiesAfterPlayback = toCopy.entitiesAfterPlayback;
 		blockActionsPlayback = toCopy.blockActionsPlayback;
@@ -56,6 +60,16 @@ public class PlaybackConfig implements MocapPlaybackConfig
 	@Override public MocapPlaybackConfig copy()
 	{
 		return new PlaybackConfig(this);
+	}
+
+	@Override public MocapEntityFilter getPlayEntities()
+	{
+		return playEntities != null ? playEntities : Settings.PLAY_ENTITIES.val;
+	}
+
+	@Override public void setPlayEntities(@Nullable MocapEntityFilter val)
+	{
+		playEntities = val;
 	}
 
 	@Override public boolean getCanPushEntities()

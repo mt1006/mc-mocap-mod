@@ -16,7 +16,6 @@ import net.mt1006.mocap.api.v1.io.CommandOutput;
 import net.mt1006.mocap.mocap.actions.*;
 import net.mt1006.mocap.mocap.files.RecordingData;
 import net.mt1006.mocap.mocap.files.RecordingFiles;
-import net.mt1006.mocap.mocap.playing.modifiers.EntityFilter;
 import net.mt1006.mocap.mocap.playing.playable.ActiveRecording;
 import net.mt1006.mocap.utils.Utils;
 import org.jetbrains.annotations.Nullable;
@@ -35,7 +34,6 @@ public class RecordingContext implements MocapRecordingContext
 	private @Nullable RecordedEntityState entityState = null;
 	private final PositionTracker positionTracker;
 	private final EntityTracker entityTracker = new EntityTracker(this);
-	public final EntityFilter entityFilter;
 	public final @Nullable String instantSave;
 	private int tick = 0, diedOnTick = 0;
 	private boolean died = false;
@@ -50,7 +48,6 @@ public class RecordingContext implements MocapRecordingContext
 		this.source = source;
 		this.config = config;
 		this.positionTracker = new PositionTracker(recordedPlayer, false, recordedPlayer.position());
-		this.entityFilter = EntityFilter.FOR_RECORDING;
 		this.instantSave = instantSave;
 		this.lastDimension = recordedPlayer.level().dimension();
 

@@ -40,9 +40,9 @@ public interface MocapModifiers
 
 	MocapModifiers withTimeModifiers(MocapTimeModifiers timeModifiers);
 
-	MocapEntityFilter getEntityFilter();
+	@Nullable MocapEntityFilter getEntityFilter();
 
-	MocapModifiers withEntityFilter(MocapEntityFilter filter);
+	MocapModifiers withEntityFilter(@Nullable MocapEntityFilter filter);
 
 	@ApiStatus.Internal
 	boolean areDefault();

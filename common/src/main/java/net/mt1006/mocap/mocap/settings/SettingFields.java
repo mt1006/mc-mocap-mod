@@ -14,7 +14,7 @@ import net.mt1006.mocap.api.v1.io.CommandInfo;
 import net.mt1006.mocap.command.CommandSuggestions;
 import net.mt1006.mocap.command.io.FullCommandInfo;
 import net.mt1006.mocap.mocap.files.Files;
-import net.mt1006.mocap.mocap.playing.modifiers.EntityFilterInstance;
+import net.mt1006.mocap.mocap.playing.modifiers.EntityFilter;
 import net.mt1006.mocap.utils.Utils;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,7 +25,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
 
 public class SettingFields
 {
@@ -46,9 +45,9 @@ public class SettingFields
 		return addField(name, new EnumField<>(name, val));
 	}
 
-	public EntityFilterField addFilterField(String name, String val, @Nullable Consumer<String> onSet)
+	public EntityFilterField add(String name, EntityFilter val)
 	{
-		return addField(name, new EntityFilterField(name, val, onSet));
+		return addField(name, new EntityFilterField(name, val));
 	}
 
 	private <T extends Field<?>> T addField(String name, T field)
@@ -109,24 +108,19 @@ public class SettingFields
 	public abstract static class Field<T>
 	{
 		public final String name;
-		private final @Nullable Consumer<T> onSet;
 		public final T defVal;
 		public T val;
 
-		public Field(String name, T defVal, @Nullable Consumer<T> onSet)
+		public Field(String name, T defVal)
 		{
 			this.name = name;
 			this.defVal = defVal;
 			this.val = defVal;
-			this.onSet = onSet;
-
-			if (onSet != null) { onSet.accept(val); }
 		}
 
 		public void set(T val)
 		{
 			this.val = val;
-			if (onSet != null) { onSet.accept(val); }
 		}
 
 		public void reset()
@@ -211,7 +205,7 @@ public class SettingFields
 	{
 		public BooleanField(String name, Boolean val)
 		{
-			super(name, val, null);
+			super(name, val);
 		}
 
 		@Override public Boolean parseFromString(String str)
@@ -234,7 +228,7 @@ public class SettingFields
 	{
 		public DoubleField(String name, Double val)
 		{
-			super(name, val, null);
+			super(name, val);
 		}
 
 		@Override public Double parseFromString(String str)
@@ -253,21 +247,22 @@ public class SettingFields
 		}
 	}
 
-	public static class StringField extends Field<String>
+	public static class EntityFilterField extends Field<EntityFilter>
 	{
-		public StringField(String name, String val, @Nullable Consumer<String> onSet)
+		public EntityFilterField(String name, EntityFilter val)
 		{
-			super(name, val, onSet);
+			super(name, val);
 		}
 
-		@Override public String parseFromString(String str)
+		@Override public EntityFilter parseFromString(String str)
 		{
-			return str;
+			EntityFilter filter = EntityFilter.fromString(str);
+			return filter != null ? filter : defVal;
 		}
 
-		@Override public @Nullable String parseFromCommand(FullCommandInfo info)
+		@Override public @Nullable EntityFilter parseFromCommand(FullCommandInfo info)
 		{
-			return info.getString("new_value");
+			return EntityFilter.fromString(info.getString("new_value"));
 		}
 
 		@Override public ArgumentType<?> getArgumentType()
@@ -277,7 +272,8 @@ public class SettingFields
 
 		@Override public void printValues(CommandInfo info)
 		{
-			String valStr = val, defValStr = defVal;
+			String valStr = val.getFilterString();
+			String defValStr = defVal.getFilterString();
 
 			info.sendSuccess("settings.info.string_value",
 					info.getTranslatableComponent("settings.info.current_value", valStr),
@@ -286,25 +282,6 @@ public class SettingFields
 			info.sendSuccess("settings.info.string_value",
 					info.getTranslatableComponent("settings.info.default_value", defValStr),
 					info.createCopyButton(defValStr));
-		}
-	}
-
-	public static class EntityFilterField extends StringField
-	{
-		public EntityFilterField(String name, String val, @Nullable Consumer<String> onSet)
-		{
-			super(name, val, onSet);
-		}
-
-		@Override public String parseFromString(String str)
-		{
-			return EntityFilterInstance.test(str) ? str : defVal;
-		}
-
-		@Override public @Nullable String parseFromCommand(FullCommandInfo info)
-		{
-			String newValue = info.getString("new_value");
-			return EntityFilterInstance.test(newValue) ? newValue : null;
 		}
 
 		@Override public SuggestionProvider<CommandSourceStack> getSuggestionProvider()
@@ -320,7 +297,7 @@ public class SettingFields
 
 		public EnumField(String name, T val)
 		{
-			super(name, val, null);
+			super(name, val);
 			enumClass = (Class<T>)val.getClass();
 			constants = enumClass.getEnumConstants();
 		}

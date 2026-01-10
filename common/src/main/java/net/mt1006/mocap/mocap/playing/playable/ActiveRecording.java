@@ -8,7 +8,6 @@ import net.mt1006.mocap.api.v1.extension.MocapRecordingContext;
 import net.mt1006.mocap.api.v1.io.CommandInfo;
 import net.mt1006.mocap.api.v1.io.CommandOutput;
 import net.mt1006.mocap.api.v1.modifiers.MocapModifiers;
-import net.mt1006.mocap.mocap.files.RecordingData;
 import net.mt1006.mocap.mocap.playing.PlaybackDataManager;
 import net.mt1006.mocap.mocap.playing.PlaybackManager;
 import net.mt1006.mocap.mocap.playing.playback.Playback;

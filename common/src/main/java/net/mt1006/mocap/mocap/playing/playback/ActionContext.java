@@ -14,6 +14,7 @@ import net.mt1006.mocap.api.v1.controller.config.MocapPlaybackConfig;
 import net.mt1006.mocap.api.v1.extension.MocapPositionTransformer;
 import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
 import net.mt1006.mocap.api.v1.extension.actions.MocapActionContext;
+import net.mt1006.mocap.api.v1.modifiers.MocapEntityFilter;
 import net.mt1006.mocap.api.v1.modifiers.MocapModifiers;
 import net.mt1006.mocap.events.PlayerConnectionEvent;
 import net.mt1006.mocap.mocap.playing.PlaybackManager;
@@ -225,6 +226,12 @@ public class ActionContext implements MocapActionContext
 
 		entity.snapTo(finPos, finRotY, rotX);
 		if (ghostPlayer != null && entity == mainEntityData.entity) { ghostPlayer.snapTo(finPos, finRotY, rotX); }
+	}
+
+	@Override public MocapEntityFilter getEntityFilter()
+	{
+		MocapEntityFilter filter = modifiers.getEntityFilter();
+		return filter != null ? filter : config.getPlayEntities();
 	}
 
 	@Override public void addEntity(int id, Entity entity, Vec3 position)
