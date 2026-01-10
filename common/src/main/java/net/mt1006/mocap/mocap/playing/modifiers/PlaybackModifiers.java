@@ -19,12 +19,12 @@ public class PlaybackModifiers implements MocapModifiers
 {
 	public static final PlaybackModifiers DEFAULT = new PlaybackModifiers(null, PlayerSkin.DEFAULT,
 			Transformations.EMPTY, PlayerAsEntity.DISABLED, TimeModifiers.DEFAULT, null);
-	public final @Nullable String playerName;
-	public final MocapPlayerSkin playerSkin;
-	public final MocapTransformations transformations;
-	public final MocapPlayerAsEntity playerAsEntity;
-	public final MocapTimeModifiers timeModifiers;
-	public final @Nullable MocapEntityFilter entityFilter;
+	private final @Nullable String playerName;
+	private final MocapPlayerSkin playerSkin;
+	private final MocapTransformations transformations;
+	private final MocapPlayerAsEntity playerAsEntity;
+	private final MocapTimeModifiers timeModifiers;
+	private final @Nullable MocapEntityFilter entityFilter;
 
 	private PlaybackModifiers(@Nullable String playerName, MocapPlayerSkin playerSkin, MocapTransformations transformations,
 							  MocapPlayerAsEntity playerAsEntity, MocapTimeModifiers timeModifiers, @Nullable MocapEntityFilter entityFilter)
