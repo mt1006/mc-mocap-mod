@@ -4,6 +4,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.mt1006.mocap.api.v1.extension.MocapRecordingContext;
+import net.mt1006.mocap.api.v1.modifiers.MocapEntityFilter;
 import net.mt1006.mocap.mixin.fields.LevelFields;
 import net.mt1006.mocap.mocap.actions.EntityUpdate;
 import net.mt1006.mocap.mocap.playing.PlaybackManager;
@@ -48,6 +49,7 @@ public class EntityTracker
 		double entityTrackingDist = ctx.config.getEntityTrackingDistance();
 		boolean limitDistance = entityTrackingDist >= 0.0;
 		double maxDistanceSqr = entityTrackingDist * entityTrackingDist;
+		MocapEntityFilter filter = ctx.config.getTrackEntities();
 
 		for (Entity entity : ((LevelFields)ctx.recordedPlayer.level()).callGetEntities().getAll())
 		{
@@ -57,7 +59,7 @@ public class EntityTracker
 				continue;
 			}
 
-			if (!ctx.config.getTrackEntities().isAllowed(entity)) { continue; }
+			if (!filter.isAllowed(entity)) { continue; }
 
 			TrackedEntity trackedEntity = map.get(entity);
 			if (trackedEntity == null)
