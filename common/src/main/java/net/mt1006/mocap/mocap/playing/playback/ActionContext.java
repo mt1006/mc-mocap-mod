@@ -6,6 +6,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
@@ -114,9 +115,9 @@ public class ActionContext implements MocapActionContext
 		return (entity instanceof ServerPlayer) ? (ServerPlayer)entity : ghostPlayer;
 	}
 
-	@Override public @Nullable ServerPlayer getLivingEntityOrDummyPlayer()
+	@Override public @Nullable LivingEntity getLivingEntityOrDummyPlayer()
 	{
-		return (entity instanceof ServerPlayer) ? (ServerPlayer)entity : ghostPlayer;
+		return (entity instanceof LivingEntity) ? (LivingEntity)entity : ghostPlayer;
 	}
 
 	@Override public void setMainContextEntity()
