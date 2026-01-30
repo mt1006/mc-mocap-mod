@@ -54,19 +54,19 @@ public class PlayerConnectionEvent
 
 	public static void experimentalReleaseWarning(ServerPlayer player)
 	{
-		if (!MocapMod.EXPERIMENTAL
-				|| !Commands.LEVEL_GAMEMASTERS.check(player.permissions())
-				|| !Settings.EXPERIMENTAL_RELEASE_WARNING.val)
+		//TODO: remove completely?
+		if (MocapMod.EXPERIMENTAL
+				&& MocapMod.SHOW_EXPERIMENTAL_WARNING
+				&& Commands.LEVEL_GAMEMASTERS.check(player.permissions())
+				&& Settings.EXPERIMENTAL_RELEASE_WARNING.val)
 		{
-			return;
+			Utils.sendComponent(player, Utils.getTranslatableComponent(player, "warning.experimental")
+					.append(Utils.getOpenUrlComponent("https://modrinth.com/mod/motion-capture/versions?c=release",
+							Utils.getTranslatableComponent(player, "warning.experimental.stable_download")))
+					.append(Utils.getOpenUrlComponent("https://discord.gg/nzDETZhqur", Component.literal("§n[Discord]§r ")))
+					.append(Utils.getOpenUrlComponent("https://github.com/mt1006/mc-mocap-mod", Component.literal("§n[GitHub]§r ")))
+					.append(Utils.getSuggestCommandComponent("/mocap settings advanced experimental_release_warning false",
+							Utils.getTranslatableComponent(player, "warning.experimental.disable_message"))));
 		}
-
-		Utils.sendComponent(player, Utils.getTranslatableComponent(player, "warning.experimental")
-				.append(Utils.getOpenUrlComponent("https://modrinth.com/mod/motion-capture/versions?c=release",
-						Utils.getTranslatableComponent(player, "warning.experimental.stable_download")))
-				.append(Utils.getOpenUrlComponent("https://discord.gg/nzDETZhqur", Component.literal("§n[Discord]§r ")))
-				.append(Utils.getOpenUrlComponent("https://github.com/mt1006/mc-mocap-mod", Component.literal("§n[GitHub]§r ")))
-				.append(Utils.getSuggestCommandComponent("/mocap settings advanced experimental_release_warning false",
-						Utils.getTranslatableComponent(player, "warning.experimental.disable_message"))));
 	}
 }
