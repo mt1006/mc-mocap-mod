@@ -96,7 +96,7 @@ public class SetNonPlayerEntityData implements MocapStateAction
 		}
 	}
 
-	private SetNonPlayerEntityData(boolean flag1, boolean flag2, @Nullable Byte byte1, @Nullable Integer int1,
+	public SetNonPlayerEntityData(boolean flag1, boolean flag2, @Nullable Byte byte1, @Nullable Integer int1,
 								   @Nullable Integer int2, @Nullable Integer int3, @Nullable Float float1)
 	{
 		this.byte1 = byte1;
