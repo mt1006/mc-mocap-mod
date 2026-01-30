@@ -104,35 +104,18 @@ public class ScenePlayback extends Playback
 		return new PositionTransformer(transformations, parent, sceneStartPos);
 	}
 
-	@Override public void tick()
+	@Override public void executeTick()
 	{
-		if (finished) { return; }
-
-		if (shouldExecuteTick())
+		boolean subscenesInactive = true, subscenesStopped = true;
+		for (Playback scene : subscenes)
 		{
-			if (waitOnEnd != 0)
-			{
-				if (waitOnEnd == 1) { finished = true; }
-				waitOnEnd--;
-			}
-			else
-			{
-				boolean subscenesInactive = true, subscenesStopped = true;
-				for (Playback scene : subscenes)
-				{
-					scene.tick();
-					if (scene.isActive()) { subscenesInactive = false; }
-					if (!scene.stopped) { subscenesStopped = false; }
-				}
-
-				if (subscenesInactive) { finishOrWaitOnEnd(); }
-				if (subscenesStopped) { stop(); }
-			}
-			tickCounter++;
+			scene.tick();
+			if (scene.isActive()) { subscenesInactive = false; }
+			if (!scene.stopped) { subscenesStopped = false; }
 		}
 
-		if (finished && modifiers.getTimeModifiers().getLoop()) { loop(); }
-		else if (shouldSelfStop()) { stop(); }
+		if (subscenesInactive) { finishOrWaitOnEnd(); }
+		if (subscenesStopped) { stop(); }
 	}
 
 	@Override public void stop()
@@ -150,5 +133,10 @@ public class ScenePlayback extends Playback
 		subscenes.forEach(Playback::loop);
 		tickCounter = 0;
 		finished = false;
+	}
+
+	@Override protected boolean shouldSelfStop()
+	{
+		return finished && (isRoot || !modifiers.getTimeModifiers().getWaitForParentEnd());
 	}
 }

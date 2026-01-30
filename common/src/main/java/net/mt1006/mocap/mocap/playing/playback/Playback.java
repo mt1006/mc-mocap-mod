@@ -29,11 +29,35 @@ public abstract class Playback
 		this.modifiers = modifiers;
 	}
 
-	public abstract void tick();
+	public void tick()
+	{
+		if (finished) { return; }
+
+		if (shouldExecuteTick())
+		{
+			if (waitOnEnd != 0)
+			{
+				if (waitOnEnd == 1) { finished = true; }
+				waitOnEnd--;
+			}
+			else
+			{
+				executeTick();
+			}
+			tickCounter++;
+		}
+
+		if (finished && modifiers.getTimeModifiers().getLoop()) { loop(); }
+		else if (shouldSelfStop()) { stop(); }
+	}
+
+	protected abstract void executeTick();
 
 	public abstract void stop();
 
 	protected abstract void loop();
+
+	protected abstract boolean shouldSelfStop();
 
 	protected boolean isActive()
 	{
@@ -56,11 +80,6 @@ public abstract class Playback
 			if (ctx.getState() == RecordingContext.State.RECORDING) { return true; }
 		}
 		return false;
-	}
-
-	protected boolean shouldSelfStop()
-	{
-		return (isRoot || !modifiers.getTimeModifiers().getWaitForParentEnd()) && finished;
 	}
 
 	protected void finishOrWaitOnEnd()

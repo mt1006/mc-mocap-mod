@@ -185,37 +185,20 @@ public class RecordingPlayback extends Playback
 		return ProfileUtils.createGameProfile(name, skinProperty, customSkinProperty);
 	}
 
-	@Override public void tick()
+	@Override public void executeTick()
 	{
-		if (finished) { return; }
+		int startDelay = modifiers.getTimeModifiers().getStartDelay().ticks;
+		int waitOnStart = modifiers.getTimeModifiers().getWaitOnStart().ticks;
 
-		if (shouldExecuteTick())
+		if (startDelay == tickCounter)
 		{
-			if (waitOnEnd != 0)
-			{
-				if (waitOnEnd == 1) { finished = true; }
-				waitOnEnd--;
-			}
-			else
-			{
-				int startDelay = modifiers.getTimeModifiers().getStartDelay().ticks;
-				int waitOnStart = modifiers.getTimeModifiers().getWaitOnStart().ticks;
+			boolean delayedStart = (modifiers.getTimeModifiers().getStartDelay().ticks != 0);
+			if (delayedStart) { recording.initEntityPosition(ctx.getEntity(), ctx.getTransformer(), false); }
 
-				if (startDelay == tickCounter)
-				{
-					boolean delayedStart = (modifiers.getTimeModifiers().getStartDelay().ticks != 0);
-					if (delayedStart) { recording.initEntityPosition(ctx.getEntity(), ctx.getTransformer(), false); }
-
-					recording.firstExecute(ctx.getEntity());
-					tickInitialActions();
-				}
-				if (startDelay + waitOnStart <= tickCounter) { tickActions(); }
-			}
-			tickCounter++;
+			recording.firstExecute(ctx.getEntity());
+			tickInitialActions();
 		}
-
-		if (finished && modifiers.getTimeModifiers().getLoop()) { loop(); }
-		else if (shouldSelfStop()) { stop(); }
+		if (startDelay + waitOnStart <= tickCounter) { tickActions(); }
 	}
 
 	private void tickInitialActions()
@@ -298,5 +281,10 @@ public class RecordingPlayback extends Playback
 		pos = 0;
 		tickCounter = 0;
 		finished = false;
+	}
+
+	@Override protected boolean shouldSelfStop()
+	{
+		return finished && (isRoot || !modifiers.getTimeModifiers().getWaitForParentEnd() || !ctx.getEntity().isAlive());
 	}
 }
