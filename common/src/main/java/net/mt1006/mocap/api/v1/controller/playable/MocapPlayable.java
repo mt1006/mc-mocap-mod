@@ -21,6 +21,10 @@ public interface MocapPlayable
 	@ApiStatus.Internal
 	static @Nullable MocapPlayable get(CommandInfo info, String name)
 	{
+		if (name == null || name.isEmpty())
+		{
+			return null;
+		}	
 		return switch (name.charAt(0))
 		{
 			case '.' -> SceneFile.get(info, name);
