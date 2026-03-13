@@ -14,7 +14,7 @@ public final class MocapAPI
 {
 	public static @Nullable MocapController createController(MinecraftServer server, String name)
 	{
-		if (Files.checkIfProperName(CommandOutput.DUMMY, name))
+		if (!Files.checkIfProperName(CommandOutput.DUMMY, name))
 		{
 			MocapMod.LOGGER.warn("Failed to create MocapController - improper name!");
 			return null;
