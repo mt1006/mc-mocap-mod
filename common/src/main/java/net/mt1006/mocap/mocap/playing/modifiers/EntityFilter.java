@@ -193,7 +193,7 @@ public class EntityFilter implements MocapEntityFilter
 
 		@Override protected boolean applies(Entity entity)
 		{
-			return entity.getTags().contains(tag);
+			return entity.entityTags().contains(tag);
 		}
 	}
 

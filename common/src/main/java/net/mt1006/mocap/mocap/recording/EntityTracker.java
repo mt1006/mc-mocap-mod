@@ -54,7 +54,7 @@ public class EntityTracker
 		for (Entity entity : ((LevelFields)ctx.recordedPlayer.level()).callGetEntities().getAll())
 		{
 			if ((limitDistance && ctx.recordedPlayer.distanceToSqr(entity) > maxDistanceSqr) || entity instanceof Player
-					|| (ctx.config.getPreventTrackingPlayedEntities() && entity.getTags().contains(PlaybackManager.MOCAP_ENTITY_TAG)))
+					|| (ctx.config.getPreventTrackingPlayedEntities() && entity.entityTags().contains(PlaybackManager.MOCAP_ENTITY_TAG)))
 			{
 				continue;
 			}

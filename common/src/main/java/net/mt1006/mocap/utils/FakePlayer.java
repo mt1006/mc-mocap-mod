@@ -55,7 +55,6 @@ public class FakePlayer extends ServerPlayer
 	}
 
 	@Override public ServerPlayer teleport(@NotNull TeleportTransition dimensionTransition) { return null; }
-	@Override public void displayClientMessage(@NotNull Component chatComponent, boolean actionBar) { }
 	@Override public void awardStat(@NotNull Stat stat, int amount) { }
 
 	@Override public boolean hurtServer(ServerLevel level, DamageSource damageSource, float amount)
