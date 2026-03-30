@@ -21,7 +21,7 @@ public class EntityEvent
 
 	public static boolean onEntityDrop(LivingEntity entity)
 	{
-		return !PlaybackManager.playbacks.isEmpty() && entity.getTags().contains(PlaybackManager.MOCAP_ENTITY_TAG);
+		return !PlaybackManager.playbacks.isEmpty() && entity.entityTags().contains(PlaybackManager.MOCAP_ENTITY_TAG);
 	}
 
 	public static void onPlayerRespawn(ServerPlayer oldPlayer, ServerPlayer newPlayer)
