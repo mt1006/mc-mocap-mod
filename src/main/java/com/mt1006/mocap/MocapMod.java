@@ -9,7 +9,6 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
@@ -21,7 +20,7 @@ public class MocapMod implements ModInitializer
 {
 	public static final String MOD_ID = "mocap";
 	public static final String VERSION = "1.3.10";
-	public static final String FOR_VERSION = "1.21.11";
+	public static final String FOR_VERSION = "26.1";
 	public static final String FOR_LOADER = "Fabric";
 	public static final Logger LOGGER = LogManager.getLogger();
 	public static final boolean isDedicatedServer = FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER;

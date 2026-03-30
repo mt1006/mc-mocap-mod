@@ -11,11 +11,11 @@ public class MocapPackets
 
 	public static void register()
 	{
-		PayloadTypeRegistry.playC2S().register(MocapPacketC2S.TYPE, MocapPacketC2S.CODEC);
+		PayloadTypeRegistry.serverboundPlay().register(MocapPacketC2S.TYPE, MocapPacketC2S.CODEC);
 		ServerPlayNetworking.registerGlobalReceiver(MocapPacketC2S.TYPE, MocapPackets::serverReceiver);
 
 		//TODO: check on dedicated server
-		PayloadTypeRegistry.playS2C().register(MocapPacketS2C.TYPE, MocapPacketS2C.CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(MocapPacketS2C.TYPE, MocapPacketS2C.CODEC);
 		if (!MocapMod.isDedicatedServer)
 		{
 			ClientPlayNetworking.registerGlobalReceiver(MocapPacketS2C.TYPE, MocapPackets::clientReceiver);

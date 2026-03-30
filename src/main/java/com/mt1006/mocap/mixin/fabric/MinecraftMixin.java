@@ -24,8 +24,8 @@ public class MinecraftMixin
 		if (level != null) { WorldLoadEvent.onClientWorldUnload(); }
 	}
 
-	@Inject(method = "disconnect", at = @At(value = "HEAD"))
-	public void atDisconnect(Screen nextScreen, boolean keepResourcePacks, CallbackInfo ci)
+	@Inject(method = "disconnect(Lnet/minecraft/client/gui/screens/Screen;ZZ)V", at = @At(value = "HEAD"))
+	public void atDisconnect(Screen nextScreen, boolean keepResourcePacks, boolean stopSound, CallbackInfo ci)
 	{
 		if (level != null) { WorldLoadEvent.onClientWorldUnload(); }
 	}

@@ -1,6 +1,6 @@
 plugins
 {
-	id 'fabric-loom' version '1.14-SNAPSHOT'
+	id 'net.fabricmc.fabric-loom' version '1.15-SNAPSHOT'
 }
 
 version = project.mod_version
@@ -11,22 +11,12 @@ base
 	archivesName = "${project.archives_base_name}-FABRIC-${project.minecraft_version}"
 }
 
-repositories
-{
-	maven { url = 'https://maven.parchmentmc.org/' }
-}
-
 dependencies
 {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings loom.layered()
-	{
-		officialMojangMappings()
-		parchment("org.parchmentmc.data:parchment-${project.mappings_version}@zip")
-	}
 
-	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 }
 
 processResources
@@ -35,12 +25,12 @@ processResources
 	filesMatching("fabric.mod.json") { expand "version": project.version }
 }
 
-tasks.withType(JavaCompile).configureEach { it.options.release = 21 }
+tasks.withType(JavaCompile).configureEach { it.options.release = 25 }
 
 java
 {
 	withSourcesJar()
 
-	sourceCompatibility = JavaVersion.VERSION_21
-	targetCompatibility = JavaVersion.VERSION_21
+	sourceCompatibility = JavaVersion.VERSION_25
+	targetCompatibility = JavaVersion.VERSION_25
 }

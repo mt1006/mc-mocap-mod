@@ -214,7 +214,7 @@ public class Recording
 			for (Entity entity : ((LevelMixin)player.level()).callGetEntities().getAll())
 			{
 				if (limitDistance && player.distanceToSqr(entity) > maxDistanceSqr || entity instanceof Player
-						|| (!Settings.TRACK_PLAYED_ENTITIES.val && entity.getTags().contains(Playing.MOCAP_ENTITY_TAG)))
+						|| (!Settings.TRACK_PLAYED_ENTITIES.val && entity.entityTags().contains(Playing.MOCAP_ENTITY_TAG)))
 				{
 					continue;
 				}

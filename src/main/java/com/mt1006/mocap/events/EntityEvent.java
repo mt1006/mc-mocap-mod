@@ -30,6 +30,6 @@ public class EntityEvent
 
 	public static boolean onEntityDrop(LivingEntity entity)
 	{
-		return Playing.playedScenes.size() > 0 && entity.getTags().contains(Playing.MOCAP_ENTITY_TAG);
+		return Playing.playedScenes.size() > 0 && entity.entityTags().contains(Playing.MOCAP_ENTITY_TAG);
 	}
 }
