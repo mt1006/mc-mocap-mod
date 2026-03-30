@@ -15,12 +15,12 @@ import java.util.Set;
 @Mixin(Entity.class)
 public abstract class EntityMixin
 {
-	@Shadow public abstract Set<String> getTags();
+	@Shadow public abstract Set<String> entityTags();
 
 	@Inject(method = "save", at = @At(value = "HEAD"), cancellable = true)
 	private void atSave(ValueOutput valueOutput, CallbackInfoReturnable<Boolean> cir)
 	{
-		if (Playing.playedScenes.size() > 0 && Settings.PREVENT_SAVING_ENTITIES.val && getTags().contains(Playing.MOCAP_ENTITY_TAG))
+		if (Playing.playedScenes.size() > 0 && Settings.PREVENT_SAVING_ENTITIES.val && entityTags().contains(Playing.MOCAP_ENTITY_TAG))
 		{
 			cir.setReturnValue(false);
 			cir.cancel();

@@ -34,7 +34,7 @@ public class FakePlayer extends ServerPlayer
 		setInvulnerable(true);
 	}
 
-	@Override public void displayClientMessage(@NotNull Component chatComponent, boolean actionBar) { }
+	@Override public void sendSystemMessage(@NotNull Component chatComponent, boolean actionBar) { }
 	@Override public void awardStat(@NotNull Stat stat, int amount) { }
 	@Override public void die(@NotNull DamageSource source) { }
 	@Override public void tick() { }

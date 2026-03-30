@@ -35,7 +35,7 @@ public class EntityEvent
 	@SubscribeEvent
 	public static void onEntityDrop(LivingDropsEvent dropsEvent)
 	{
-		if (Playing.playedScenes.size() > 0 && dropsEvent.getEntity().getTags().contains(Playing.MOCAP_ENTITY_TAG))
+		if (Playing.playedScenes.size() > 0 && dropsEvent.getEntity().entityTags().contains(Playing.MOCAP_ENTITY_TAG))
 		{
 			dropsEvent.setCanceled(true);
 		}
