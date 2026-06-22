@@ -2,7 +2,7 @@ plugins
 {
 	id "eclipse"
 	id "idea"
-	id "net.neoforged.gradle.userdev" version "7.1.21"
+	id "net.neoforged.gradle.userdev" version "7.1.38"
 }
 
 version = mod_version

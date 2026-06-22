@@ -14,12 +14,13 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.util.BlockSnapshot;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 
 @EventBusSubscriber(modid = MocapMod.MOD_ID)
 public class BlockInteractionEvent
 {
 	@SubscribeEvent
-	public static void onBlockBreak(BlockEvent.BreakEvent breakEvent)
+	public static void onBlockBreak(BreakBlockEvent breakEvent)
 	{
 		if (Recording.state == Recording.State.RECORDING && Recording.isRecordedPlayer(breakEvent.getPlayer()))
 		{
