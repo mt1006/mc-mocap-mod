@@ -123,7 +123,7 @@ public class EntityUpdate implements Action
 			catch (Exception exception) { return Result.ERROR; }
 			ValueInput nbt = TagValueInput.create(ProblemReporter.DISCARDING, ctx.entity.registryAccess(), compoundTag);
 
-			Entity entity = EntityType.create(nbt, ctx.level, EntitySpawnReason.COMMAND).orElse(null);
+			Entity entity = EntityType.create(nbt, ctx.level, new EntitySpawnRequest(EntitySpawnReason.COMMAND, false)).orElse(null);
 			if (entity == null) { return Result.IGNORED; }
 
 			if (entity instanceof PlayerRideable || entity instanceof Minecart || entity instanceof Boat)
