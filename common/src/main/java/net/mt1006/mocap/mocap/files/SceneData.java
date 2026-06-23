@@ -75,7 +75,7 @@ public class SceneData
 	{
 		fileSize = scene.length;
 
-		LegacySceneDataParser legacyParser = new LegacySceneDataParser(this, out, scene);
+		LegacySceneDataParser legacyParser = new LegacySceneDataParser().tryParse(this, out, scene);
 		if (legacyParser.isLegacy()) { return legacyParser.wasParsed(); }
 
 		try

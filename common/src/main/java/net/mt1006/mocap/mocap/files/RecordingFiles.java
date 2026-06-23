@@ -59,7 +59,7 @@ public class RecordingFiles
 		return true;
 	}
 
-	public static boolean info(CommandInfo out, @Nullable RecordingFile file) //TODO: rename out
+	public static boolean info(CommandInfo out, @Nullable RecordingFile file)
 	{
 		MocapRecordingFile.Info info = RecordingFile.Info.load(out, file);
 		if (file == null || info == null) { return false; }
@@ -82,7 +82,7 @@ public class RecordingFiles
 		return true;
 	}
 
-	private static void printPosInfo(CommandInfo out, MocapRecordingFile.Info info) //TODO: rename out
+	private static void printPosInfo(CommandInfo out, MocapRecordingFile.Info info)
 	{
 		Identifier dimensionId = info.assignedDimensionId();
 		boolean anotherDimension = (dimensionId != null && out.getLevel().dimension() != ResourceKey.create(Registries.DIMENSION, dimensionId)

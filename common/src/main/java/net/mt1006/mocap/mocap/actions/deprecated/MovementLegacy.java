@@ -12,7 +12,6 @@ import java.util.Set;
 
 public class MovementLegacy implements MocapAction
 {
-	//TODO: test with legacy recordings
 	private final Vec3 position;
 	private final float[] rotation = new float[2];
 	private final boolean isOnGround;
