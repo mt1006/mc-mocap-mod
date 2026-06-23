@@ -24,7 +24,7 @@ public interface MocapPlayable
 		if (name == null || name.isEmpty())
 		{
 			return null;
-		}	
+		}
 		return switch (name.charAt(0))
 		{
 			case '.' -> SceneFile.get(info, name);
