@@ -154,6 +154,7 @@ public class FakePlayer extends ServerPlayer
 		public DummyConnection(PacketFlow packetFlow)
 		{
 			super(packetFlow);
+			new EmbeddedChannel(this);
 		}
 	}
 }
