@@ -2,6 +2,7 @@ package net.mt1006.mocap.utils;
 
 import com.mojang.authlib.GameProfile;
 import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.embedded.EmbeddedChannel;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.PlayerChatMessage;
@@ -154,6 +155,7 @@ public class FakePlayer extends ServerPlayer
 		public DummyConnection(PacketFlow packetFlow)
 		{
 			super(packetFlow);
+			new EmbeddedChannel(this);
 		}
 	}
 }
