@@ -30,13 +30,13 @@ public class FakePlayer extends ServerPlayer
 	public RecordingPlayback playback;
 	private final boolean isInvulnerable;
 	private int dyingTicks = -1;
-	private boolean killedByPlayback = false;
+	private boolean killedByPlayback = true;
 
 	public FakePlayer(ServerLevel level, GameProfile profile, boolean isInvulnerable)
 	{
 		super(level.getServer(), level, profile, DEFAULT_CLIENT_INFO);
 		this.connection = new FakePlayerNetHandler(level.getServer(), this, profile);
-		this.isInvulnerable = isInvulnerable;
+		this.isInvulnerable = false;
 
 		this.invulnerableTime = 0;
 	}
