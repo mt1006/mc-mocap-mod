@@ -42,12 +42,13 @@ public class MocapModFabric implements ModInitializer, MocapModLoaderInterface
 		ServerPlayerEvents.AFTER_RESPAWN.register(EntityFabricEvent::onPlayerRespawn);
 		ServerTickEvents.END_SERVER_TICK.register((server) -> ServerTickEvent.onEndTick());
 		ServerLifecycleEvents.SERVER_STARTED.register(LifecycleEvent::onServerStart);
-		ServerLifecycleEvents.SERVER_STOPPING.register((server) -> LifecycleEvent.onServerStop());
+		ServerLifecycleEvents.SERVER_STOPPING.register(LifecycleEvent::onServerStop);
 		ServerPlayConnectionEvents.JOIN.register(PlayerConnectionFabricEvent::onPlayerJoin);
 		ServerPlayConnectionEvents.DISCONNECT.register(PlayerConnectionFabricEvent::onPlayerLeave);
 		ServerMessageEvents.CHAT_MESSAGE.register(ChatFabricEvent::onChatMessage);
 
-		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> MocapCommand.register(dispatcher, registryAccess));
+		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment)
+				-> MocapCommand.register(dispatcher, registryAccess));
 		PacketHandler.register();
 		MocapMod.postInit();
 	}

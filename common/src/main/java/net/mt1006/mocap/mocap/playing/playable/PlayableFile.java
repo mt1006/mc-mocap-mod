@@ -83,7 +83,7 @@ public abstract class PlayableFile<T extends MocapPlayable & MocapFile<T>> exten
 
 	@Override public Path getPath()
 	{
-		return file.toPath();
+		return file.toPath().toAbsolutePath();
 	}
 
 	@Override public String getName()
@@ -92,6 +92,11 @@ public abstract class PlayableFile<T extends MocapPlayable & MocapFile<T>> exten
 	}
 
 	@Override public boolean exists()
+	{
+		return file.exists();
+	}
+
+	@Override public boolean accessible()
 	{
 		return file.exists();
 	}

@@ -12,8 +12,6 @@ import java.util.function.Supplier;
 
 public interface MocapActionContext extends MocapBasicActionContext
 {
-	Entity getMainEntity();
-
 	@Nullable ServerPlayer getDummyPlayer();
 
 	@Nullable ServerPlayer getRealOrDummyPlayer();

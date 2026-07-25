@@ -11,6 +11,7 @@ import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 @EventBusSubscriber(modid = MocapMod.MOD_ID)
 public class LifecycleNeoForgeEvent
 {
+	//TODO: remove all ...Event to event
 	@SubscribeEvent
 	public static void onServerStart(ServerStartedEvent startedEvent)
 	{
@@ -20,7 +21,7 @@ public class LifecycleNeoForgeEvent
 	@SubscribeEvent
 	public static void onServerStop(ServerStoppingEvent stoppingEvent)
 	{
-		LifecycleEvent.onServerStop();
+		LifecycleEvent.onServerStop(stoppingEvent.getServer());
 	}
 
 	@SubscribeEvent

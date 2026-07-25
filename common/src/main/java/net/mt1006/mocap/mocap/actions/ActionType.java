@@ -174,6 +174,10 @@ public enum ActionType
 			{
 				throw new RuntimeException("Tried to register MocapStateAction without \"fromEntity\" constructor!");
 			}
+			else if (fromEntity != null && !(instance instanceof MocapStateAction))
+			{
+				throw new RuntimeException("Tried to add \"fromEntity\" constructor for action which isn't state action!");
+			}
 
 			if (id > 254) { throw new RuntimeException("Tried to register an Action with ID higher than 254!"); }
 			if (id != lastRegisteredId + 1) { throw new RuntimeException("Tried to register an Action with id out of order!"); }

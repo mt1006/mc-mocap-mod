@@ -65,7 +65,7 @@ public class RecordingFile extends PlayableFile<MocapRecordingFile> implements M
 			int experimentalSubversion,
 			long lengthInTicks,
 			long sizeInBytes,
-			long sizeInOps,
+			long sizeInActionCount,
 			Vec3 startPos,
 			@Nullable Identifier assignedDimensionId,
 			AssignedProfile assignedProfile,

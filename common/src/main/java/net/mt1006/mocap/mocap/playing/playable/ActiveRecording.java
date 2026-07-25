@@ -70,7 +70,7 @@ public class ActiveRecording extends Playable implements MocapActiveRecording
 		return ctx;
 	}
 
-	@Override public boolean isValid()
+	@Override public boolean accessible()
 	{
 		return !ctx.getState().removed;
 	}

@@ -69,7 +69,7 @@ public class RecordingFiles
 		if (!Files.printVersionInfo(out, VERSION, info.version(), info.experimental(), info.experimentalSubversion())) { return true; }
 
 		out.sendSuccess("recordings.info.length", String.format(Locale.ROOT, "%.2f", info.lengthInTicks() / 20.0), info.lengthInTicks());
-		out.sendSuccess("recordings.info.size", String.format(Locale.ROOT, "%.2f", info.sizeInBytes() / 1024.0), info.sizeInOps());
+		out.sendSuccess("recordings.info.size", String.format(Locale.ROOT, "%.2f", info.sizeInBytes() / 1024.0), info.sizeInActionCount());
 
 		printPosInfo(out, info);
 

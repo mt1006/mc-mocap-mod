@@ -4,7 +4,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.mt1006.mocap.mocap.playing.PlaybackManager;
 import net.mt1006.mocap.mocap.settings.Settings;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;

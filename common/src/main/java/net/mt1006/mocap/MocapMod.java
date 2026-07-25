@@ -25,6 +25,7 @@ public class MocapMod
 	public static final Logger LOGGER = LogManager.getLogger();
 	public static final List<Runnable> toRunOnInit = new ArrayList<>();
 	public static boolean initialized = false;
+	public static boolean initializedExceptApi = false;
 	public static boolean isDedicatedServer = false;
 	public static MocapModLoaderInterface loaderInterface = null;
 	public static @Nullable MinecraftServer server = null;
@@ -39,6 +40,7 @@ public class MocapMod
 
 	public static void postInit()
 	{
+		initializedExceptApi = true;
 		toRunOnInit.forEach(Runnable::run);
 		toRunOnInit.clear();
 		initialized = true;

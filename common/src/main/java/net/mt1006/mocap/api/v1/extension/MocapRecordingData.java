@@ -8,8 +8,18 @@ import org.jetbrains.annotations.Nullable;
 
 public interface MocapRecordingData
 {
+	/**
+	 * @return recording start position (first position of a recorded player)
+	 */
 	Vec3 getStartPos();
 
+	/**
+	 * Returns item (type) object assigned to a given numeric ID.
+	 * Note that this isn't (in most cases) ID assigned by Minecraft, but one registered during recording.
+	 * @param id ID of an item
+	 * @return item
+	 * @see MocapRecordingData#provideItemId(Item)
+	 */
 	Item itemFromId(int id);
 
 	int provideItemId(Item item);

@@ -100,6 +100,15 @@ public class PlaybackManager
 		}
 	}
 
+	public static void onServerStop()
+	{
+		PlaybackManager.stopAll(CommandOutput.DUMMY, null);
+
+		// normally it would be cleared on server tick, but there will be no more ticks
+		playbacks.forEach(MocapEvents.PLAYBACK_END.invoker::onPlaybackEnd);
+		playbacksByOwner.clear();
+	}
+
 	public static boolean modifiersSet(FullCommandInfo rootInfo)
 	{
 		ServerPlayer source = rootInfo.getSourcePlayer();

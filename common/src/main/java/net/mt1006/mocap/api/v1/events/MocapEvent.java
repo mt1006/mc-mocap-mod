@@ -18,6 +18,10 @@ public final class MocapEvent<T>
 		this.invoker = invokerFactory.apply(listeners);
 	}
 
+	/**
+	 * Register event listener.
+	 * @param listener function to be called when event is triggered
+	 */
 	public void register(T listener)
 	{
 		listeners.add(listener);

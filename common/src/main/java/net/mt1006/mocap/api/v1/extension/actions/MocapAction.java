@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
@@ -22,6 +23,9 @@ public interface MocapAction
 	interface FromReaderOnly extends Function<Reader, MocapAction> {}
 	interface FromEntity extends Function<Entity, @Nullable MocapStateAction> {}
 
+	/**
+	 * Writes data to a recording
+	 */
 	interface Writer
 	{
 		void addByte(byte val);
@@ -38,6 +42,9 @@ public interface MocapAction
 		void addPackedInt(int size);
 	}
 
+	/**
+	 * Reads data from a recording
+	 */
 	interface Reader
 	{
 		byte readByte();
@@ -56,12 +63,20 @@ public interface MocapAction
 		boolean isDummy();
 	}
 
+	/**
+	 * Result of an action execution.
+	 * OK and IGNORED are for successful executions of an action with main difference being that
+	 * IGNORED should be returned when nothing happened (e.g. specific kind of actions was disabled in settings).
+	 * END will result in playback being stopped.
+	 * ERROR means something went wrong and will result in playback being stopped.
+	 * NEXT_TICK and REPEAT_TICK are reserved for internal use by tick actions.
+	 */
 	enum Result
 	{
 		OK,
 		IGNORED,
-		NEXT_TICK,
-		REPEAT_TICK,
+		@ApiStatus.Internal NEXT_TICK,
+		@ApiStatus.Internal REPEAT_TICK,
 		END,
 		ERROR
 	}

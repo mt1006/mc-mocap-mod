@@ -42,7 +42,7 @@ public class MocapControllerImpl implements MocapController
 		return new APICommandInfo(level.getServer(), level, commandInfo.getSourceName());
 	}
 
-	@Override public MocapPlayable getPlayable(String name)
+	@Override public @Nullable MocapPlayable getPlayable(String name)
 	{
 		return MocapPlayable.get(commandInfo, name);
 	}
