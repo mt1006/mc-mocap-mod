@@ -9,7 +9,7 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 public class ServerTickModNeoForgeEvent
 {
 	@SubscribeEvent
-	public static void onServerTick(ServerTickEvent.Post tickEvent)
+	public static void onServerTick(ServerTickEvent.Post event)
 	{
 		net.mt1006.mocap.events.ServerTickEvent.onEndTick();
 	}

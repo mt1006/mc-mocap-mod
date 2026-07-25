@@ -13,18 +13,18 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 public class PlayerConnectionNeoForgeEvent
 {
 	@SubscribeEvent
-	public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent loggedInEvent)
+	public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event)
 	{
-		Player player = loggedInEvent.getEntity();
+		Player player = event.getEntity();
 		if (!(player instanceof ServerPlayer)) { return; }
 
 		PlayerConnectionEvent.onPlayerJoin(new PacketHandler.Client((ServerPlayer)player));
 	}
 
 	@SubscribeEvent
-	public static void onPlayerLeave(PlayerEvent.PlayerLoggedOutEvent loggedOutEvent)
+	public static void onPlayerLeave(PlayerEvent.PlayerLoggedOutEvent event)
 	{
-		Player player = loggedOutEvent.getEntity();
+		Player player = event.getEntity();
 		if (!(player instanceof ServerPlayer)) { return; }
 
 		PlayerConnectionEvent.onPlayerLeave((ServerPlayer)player);

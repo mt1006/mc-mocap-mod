@@ -14,45 +14,45 @@ import net.neoforged.neoforge.event.level.BlockEvent;
 public class BlockInteractionNeoForgeEvent
 {
 	@SubscribeEvent
-	public static void onBlockBreak(BlockEvent.BreakEvent breakEvent)
+	public static void onBlockBreak(BlockEvent.BreakEvent event)
 	{
-		BlockInteractionEvent.onBlockBreak(breakEvent.getPlayer(), breakEvent.getPos(), breakEvent.getState());
+		BlockInteractionEvent.onBlockBreak(event.getPlayer(), event.getPos(), event.getState());
 	}
 
 	@SubscribeEvent
-	public static void onBlockPlace(BlockEvent.EntityPlaceEvent placeEvent)
+	public static void onBlockPlace(BlockEvent.EntityPlaceEvent event)
 	{
-		Entity entity = placeEvent.getEntity();
+		Entity entity = event.getEntity();
 		if (!(entity instanceof Player)) { return; }
 
 		BlockInteractionEvent.onBlockPlace((Player)entity,
-				placeEvent.getBlockSnapshot().getState(),
-				placeEvent.getPlacedBlock(), placeEvent.getPos());
+				event.getBlockSnapshot().getState(),
+				event.getPlacedBlock(), event.getPos());
 	}
 
 	@SubscribeEvent
-	public static void onBlockPlaceSilently(BlockEvent.EntityMultiPlaceEvent placeEvent)
+	public static void onBlockPlaceSilently(BlockEvent.EntityMultiPlaceEvent event)
 	{
-		Entity entity = placeEvent.getEntity();
+		Entity entity = event.getEntity();
 		if (!(entity instanceof Player)) { return; }
 
 		BlockInteractionEvent.onSilentBlockPlace((Player)entity,
-				placeEvent.getBlockSnapshot().getState(),
-				placeEvent.getPlacedBlock(), placeEvent.getPos());
+				event.getBlockSnapshot().getState(),
+				event.getPlacedBlock(), event.getPos());
 	}
 
 	@SubscribeEvent
-	public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock clickEvent)
+	public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event)
 	{
-		Player player = clickEvent.getEntity();
+		Player player = event.getEntity();
 
-		BlockInteractionEvent.onRightClickBlock(player, clickEvent.getHand(), clickEvent.getHitVec(),
-				player.getMainHandItem().doesSneakBypassUse(player.level(), clickEvent.getPos(), player));
+		BlockInteractionEvent.onRightClickBlock(player, event.getHand(), event.getHitVec(),
+				player.getMainHandItem().doesSneakBypassUse(player.level(), event.getPos(), player));
 	}
 
 	@SubscribeEvent
-	public static void onContainerClose(PlayerContainerEvent.Close closeContainerEvent)
+	public static void onContainerClose(PlayerContainerEvent.Close event)
 	{
-		BlockInteractionEvent.onContainerClose(closeContainerEvent.getEntity(), closeContainerEvent.getContainer());
+		BlockInteractionEvent.onContainerClose(event.getEntity(), event.getContainer());
 	}
 }
