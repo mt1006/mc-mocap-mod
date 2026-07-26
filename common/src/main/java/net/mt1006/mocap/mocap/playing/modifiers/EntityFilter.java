@@ -132,6 +132,11 @@ public class EntityFilter implements MocapEntityFilter
 	{
 		return str;
 	}
+
+	@Override public String toString()
+	{
+		return str;
+	}
 	
 	private static Identifier parseToId(String str) throws FilterParserException
 	{
