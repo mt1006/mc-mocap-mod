@@ -8,6 +8,7 @@
 		"EntityMixin",
 		"LivingEntityMethodMixin",
 		"ServerLevelMixin",
+		"SlimeMixin",
 		"fields.AbstractArrowFields",
 		"fields.AbstractHorseFields",
 		"fields.AgeableModFields",
