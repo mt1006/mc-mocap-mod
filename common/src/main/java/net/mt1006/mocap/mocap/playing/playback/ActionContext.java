@@ -211,7 +211,7 @@ public class ActionContext implements MocapActionContext
 		}
 		if (playerToRemove != ghostPlayer) { broadcast(new ClientboundPlayerInfoRemovePacket(List.of(uuid))); }
 		playerToRemove.remove(Entity.RemovalReason.KILLED);
-		playerToRemove.getAdvancements().stopListening();
+		playerToRemove.getAdvancements().clearTriggers();
 	}
 
 	@Override public Vec3 getPosition()

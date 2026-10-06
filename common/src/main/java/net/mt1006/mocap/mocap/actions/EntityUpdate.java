@@ -211,7 +211,7 @@ public class EntityUpdate implements MocapAction
 		}
 		ValueInput nbt = TagValueInput.create(ProblemReporter.DISCARDING, ctx.getEntity().registryAccess(), compoundTag);
 
-		Entity entity = EntityType.create(nbt, ctx.getLevel(), EntitySpawnReason.MOB_SUMMONED).orElse(null);
+		Entity entity = EntityType.create(nbt, ctx.getLevel(), new EntitySpawnRequest(EntitySpawnReason.MOB_SUMMONED, false)).orElse(null);
 		if (entity == null || !filter.isAllowed(entity)) { return Result.IGNORED; }
 
 		entity.setPos(ctx.getTransformer().transformPos(position));

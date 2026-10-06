@@ -1,16 +1,16 @@
 package net.mt1006.mocap.mixin;
 
-import net.minecraft.world.entity.monster.Slime;
+import net.minecraft.world.entity.monster.cubemob.AbstractCubeMob;
 import net.mt1006.mocap.mocap.playing.PlaybackManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-@Mixin(Slime.class)
+@Mixin(AbstractCubeMob.class)
 public class SlimeMixin
 {
-	@Redirect(method = "remove", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/monster/Slime;isDeadOrDying()Z"))
-	private boolean atRemove(Slime entity)
+	@Redirect(method = "remove", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/monster/cubemob/AbstractCubeMob;isDeadOrDying()Z"))
+	private boolean atRemove(AbstractCubeMob entity)
 	{
 		// fix slime splitting
 		// (this might be called after playback is finished,
