@@ -241,6 +241,7 @@
   "mocap.settings.info.about.drop_from_blocks": "Active le drop des blocs détruits (recommandé si vous excluez les entités d'objets du playback pour éviter les doublons)",
   "mocap.settings.info.about.start_as_recorded": "Démarre le playback directement en tant que joueur enregistré, plutôt que comme joueur lançant le playback. Pour les enregistrements sauvegardés, vous devez activer \"assign_player_name\".",
   "mocap.settings.info.about.chat_playback": "Active la restitution des messages de chat dans le playback. L'enregistrement doit avoir été réalisé avec \"chat_recording\" activé.",
+  "mocap.settings.info.about.replay_item_pickups": "Rejoue les effets visuels de ramassage enregistrés pour les entités d'objet suivies.",
   "mocap.settings.info.about.invulnerable_playback": "Rend le joueur et les autres entités du playback invulnérables",
   "mocap.settings.info.about.dimension_source": "Définit la dimension dans laquelle le playback démarre (assigned_or_current : utilise la dimension attribuée ou, si aucune, celle du joueur/bloc de commande lançant le playback ; assigned_or_overworld : utilise la dimension attribuée ou l'Overworld si aucune n'est définie ; current : ignore la dimension attribuée et utilise toujours celle du joueur/bloc de commande ; overworld : ignore la dimension attribuée et utilise toujours l'Overworld)",
 

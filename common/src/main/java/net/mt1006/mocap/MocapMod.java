@@ -3,6 +3,7 @@ package net.mt1006.mocap;
 import net.minecraft.server.MinecraftServer;
 import net.mt1006.mocap.api.v1.MocapAPI;
 import net.mt1006.mocap.mocap.actions.ActionType;
+import net.mt1006.mocap.mocap.actions.ItemPickupAction;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
@@ -41,6 +42,7 @@ public class MocapMod
 	public static void postInit()
 	{
 		initializedExceptApi = true;
+		ItemPickupAction.registerExtension();
 		toRunOnInit.forEach(Runnable::run);
 		toRunOnInit.clear();
 		initialized = true;
