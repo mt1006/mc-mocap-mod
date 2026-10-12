@@ -36,6 +36,7 @@ public class Settings
 	static final SettingFields.BooleanField DROP_FROM_BLOCKS = PLAYBACK.add(fields.add("drop_from_blocks", false));
 	static final SettingFields.BooleanField START_AS_RECORDED = PLAYBACK.add(fields.add("start_as_recorded", false));
 	static final SettingFields.BooleanField CHAT_PLAYBACK = PLAYBACK.add(fields.add("chat_playback", true));
+	public static final SettingFields.BooleanField REPLAY_ITEM_PICKUPS = PLAYBACK.add(fields.add("replay_item_pickups", false));
 	static final SettingFields.BooleanField INVULNERABLE_PLAYBACK = PLAYBACK.add(fields.add("invulnerable_playback", true));
 	public static final SettingFields.EnumField<MocapDimensionSource> DIMENSION_SOURCE = PLAYBACK.add(fields.add("dimension_source", MocapDimensionSource.ASSIGNED_OR_CURRENT));
 	static final SettingFields.EnumField<MocapPlayerNameHandling> PLAYER_NAME_HANDLING = PLAYBACK.add(fields.add("player_name_handling", MocapPlayerNameHandling.IGNORE_CASING));
