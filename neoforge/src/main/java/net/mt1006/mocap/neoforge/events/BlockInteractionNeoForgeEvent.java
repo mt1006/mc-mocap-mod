@@ -9,13 +9,16 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerContainerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 
 @EventBusSubscriber(modid = MocapMod.MOD_ID)
 public class BlockInteractionNeoForgeEvent
 {
 	@SubscribeEvent
-	public static void onBlockBreak(BlockEvent.BreakEvent event)
+	public static void onBlockBreak(BreakBlockEvent event)
 	{
+		if (event.getLevel().isClientSide()) { return; }
+
 		BlockInteractionEvent.onBlockBreak(event.getPlayer(), event.getPos(), event.getState());
 	}
 
