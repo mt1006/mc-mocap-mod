@@ -179,7 +179,7 @@ public class EntityUpdate implements MocapAction
 				return Result.OK;
 
 			case KILL:
-				entity.invulnerableTime = 0; // for sound effect
+				entity.setInvulnerableTime(0); // for sound effect
 				entity.kill(ctx.getLevel());
 				return Result.OK;
 
@@ -211,13 +211,13 @@ public class EntityUpdate implements MocapAction
 		}
 		ValueInput nbt = TagValueInput.create(ProblemReporter.DISCARDING, ctx.getEntity().registryAccess(), compoundTag);
 
-		Entity entity = EntityType.create(nbt, ctx.getLevel(), EntitySpawnReason.MOB_SUMMONED).orElse(null);
+		Entity entity = EntityType.create(nbt, ctx.getLevel(), new EntitySpawnRequest(EntitySpawnReason.MOB_SUMMONED, false)).orElse(null);
 		if (entity == null || !filter.isAllowed(entity)) { return Result.IGNORED; }
 
 		entity.setPos(ctx.getTransformer().transformPos(position));
 		entity.setDeltaMovement(0.0, 0.0, 0.0);
 		entity.setNoGravity(true);
-		entity.setInvulnerable(ctx.getConfig().getInvulnerablePlayback());
+		entity.setPermanentlyInvulnerable(ctx.getConfig().getInvulnerablePlayback());
 		entity.addTag(PlaybackManager.MOCAP_ENTITY_TAG);
 		if (entity instanceof Mob) { ((Mob)entity).setNoAi(true); }
 		ctx.getModifiers().getTransformations().applyScaleToEntity(entity);

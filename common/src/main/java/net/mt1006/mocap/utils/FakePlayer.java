@@ -38,12 +38,12 @@ public class FakePlayer extends ServerPlayer
 		this.connection = new FakePlayerNetHandler(level.getServer(), this, profile);
 		this.isInvulnerable = isInvulnerable;
 
-		this.invulnerableTime = 0;
+		this.setInvulnerableTime(0);
 	}
 
 	@Override public void tick()
 	{
-		if (!isInvulnerable && invulnerableTime > 0) { invulnerableTime--; }
+		if (!isInvulnerable && getInvulnerableTime() > 0) { setInvulnerableTime(getInvulnerableTime() - 1); }
 
 		if (dyingTicks >= 0)
 		{
@@ -129,7 +129,7 @@ public class FakePlayer extends ServerPlayer
 		@Override public void send(Packet<?> packet, @Nullable ChannelFutureListener sendListener) { }
 		@Override public void handleSetCarriedItem(ServerboundSetCarriedItemPacket packet) { }
 		@Override public void handleChat(ServerboundChatPacket packet) { }
-		@Override public void handleAnimate(ServerboundSwingPacket packet) { }
+		@Override public void handlePunch(ServerboundPunchPacket packet) { }
 		@Override public void handlePlayerCommand(ServerboundPlayerCommandPacket packet) { }
 		@Override public void handleInteract(ServerboundInteractPacket packet) { }
 		@Override public void handleClientCommand(ServerboundClientCommandPacket packet) { }

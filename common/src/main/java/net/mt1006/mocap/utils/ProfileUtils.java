@@ -4,15 +4,14 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.HttpAuthenticationService;
 import com.mojang.authlib.exceptions.MinecraftClientException;
 import com.mojang.authlib.exceptions.MinecraftClientHttpException;
 import com.mojang.authlib.minecraft.client.MinecraftClient;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
-import com.mojang.authlib.yggdrasil.ProfileResult;
-import com.mojang.authlib.yggdrasil.response.MinecraftProfilePropertiesResponse;
-import com.mojang.authlib.yggdrasil.response.NameAndId;
+import com.mojang.authlib.services.ProfileResult;
+import com.mojang.authlib.services.response.MinecraftProfilePropertiesResponse;
+import com.mojang.authlib.services.response.NameAndId;
 import com.mojang.util.UndashedUuid;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.Services;
@@ -21,7 +20,10 @@ import net.mt1006.mocap.api.v1.controller.config.MocapPlayerNameHandling;
 import net.mt1006.mocap.mocap.settings.Settings;
 import org.jetbrains.annotations.Nullable;
 
+import java.net.MalformedURLException;
 import java.net.Proxy;
+import java.net.URI;
+import java.net.URL;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -30,6 +32,12 @@ public class ProfileUtils
 	private static final MinecraftClient client = new MinecraftClient(null, Proxy.NO_PROXY);
 	private static final Cache<String, Profile> cache = new Cache<>("profiles - case sensitive", 4096);
 	private static final Cache<String, Profile> cacheInsensitive = new Cache<>("profiles - case insensitive", 4096);
+
+	private static URL constantURL(String url)
+	{
+		try { return URI.create(url).toURL(); }
+		catch (MalformedURLException e) { throw new IllegalArgumentException("Invalid URL: " + url, e); }
+	}
 
 	public static Profile getProfile(MinecraftServer server, MocapPlayerNameHandling mode, String name, boolean withSkin)
 	{
@@ -87,7 +95,7 @@ public class ProfileUtils
 		try
 		{
 			return new NameAndIdResult(client.get(
-					HttpAuthenticationService.constantURL("https://api.mojang.com/users/profiles/minecraft/" + playerName.toLowerCase(Locale.ROOT)),
+					constantURL("https://api.mojang.com/users/profiles/minecraft/" + playerName.toLowerCase(Locale.ROOT)),
 					NameAndId.class));
 		}
 		catch (MinecraftClientException e)
@@ -111,7 +119,7 @@ public class ProfileUtils
 		try
 		{
 			MinecraftProfilePropertiesResponse response = client.get(
-					HttpAuthenticationService.constantURL("https://sessionserver.mojang.com/session/minecraft/profile/"
+					constantURL("https://sessionserver.mojang.com/session/minecraft/profile/"
 							+ UndashedUuid.toString(nameAndId.id()) + "?unsigned=false"),
 					MinecraftProfilePropertiesResponse.class);
 
