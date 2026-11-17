@@ -102,7 +102,7 @@ public class CommandSuggestions
 		if (elements == null)
 		{
 			SceneData sceneData = new SceneData();
-			if (!sceneData.load(CommandOutput.LOGS, SceneFile.get(CommandOutput.LOGS, sceneName))) { builder.buildFuture(); }
+				if (!sceneData.load(CommandOutput.LOGS, SceneFile.get(CommandOutput.LOGS, sceneName))) { return builder.buildFuture(); }
 			elements = sceneData.saveToSceneElementCache(sceneName);
 		}
 		if (elements == null) { return builder.buildFuture(); }
