@@ -5,7 +5,7 @@
 	"compatibilityLevel": "JAVA_21",
 	"mixins":
 	[
-		"fabric.BedItemMixin",
+		"fabric.BedBlockMixin",
 		"fabric.BlockItemMixin",
 		"fabric.DoubleHighBlockItemMixin",
 		"fabric.FlintAndSteelItemMixin",

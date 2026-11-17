@@ -101,7 +101,7 @@ public class RecordingPlayback extends Playback
 
 			recording.initEntityPosition(entity, transformer, delayedStart);
 			entity.setDeltaMovement(0.0, 0.0, 0.0);
-			entity.setInvulnerable(config.getInvulnerablePlayback());
+			entity.setPermanentlyInvulnerable(config.getInvulnerablePlayback());
 			entity.setNoGravity(true);
 			if (entity instanceof Mob) { ((Mob)entity).setNoAi(true); }
 			modifiers.getTransformations().applyScaleToPlayer(entity);

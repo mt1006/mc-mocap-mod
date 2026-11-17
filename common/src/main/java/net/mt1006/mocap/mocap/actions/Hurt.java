@@ -23,14 +23,14 @@ public class Hurt implements MocapAction
 	public static void hurtEntity(Entity entity, MocapPlaybackConfig config)
 	{
 		LivingEntity livingEntity = (entity instanceof LivingEntity) ? (LivingEntity)entity : null;
-		entity.setInvulnerable(false);
+		entity.setPermanentlyInvulnerable(false);
 		if (livingEntity != null) { livingEntity.setHealth(livingEntity.getMaxHealth()); }
 
-		entity.invulnerableTime = 0;
+		entity.setInvulnerableTime(0);
 		entity.hurt(new DamageSource(entity.level().damageSources().fellOutOfWorld().typeHolder()), 1.0f);
 
 		if (livingEntity != null) { livingEntity.setHealth(livingEntity.getMaxHealth()); }
-		entity.setInvulnerable(config.getInvulnerablePlayback());
+		entity.setPermanentlyInvulnerable(config.getInvulnerablePlayback());
 	}
 
 	@Override public void write(Writer writer, MocapRecordingData data)

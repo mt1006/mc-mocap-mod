@@ -9,6 +9,7 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.component.SwingAnimation;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.mt1006.mocap.api.v1.extension.MocapRecordingData;
@@ -21,7 +22,7 @@ import java.util.Optional;
 public class Swing implements MocapStateAction
 {
 	private final boolean swinging;
-	private final int swingingTime;
+	private final float swingProgress;
 	private final InteractionHand hand;
 
 	public static @Nullable Swing fromEntity(Entity entity)
@@ -31,22 +32,23 @@ public class Swing implements MocapStateAction
 
 	private Swing(LivingEntity entity)
 	{
-		swinging = entity.swinging;
-		swingingTime = entity.swingTime;
-		hand = entity.swingingArm;
+		LivingEntity.SwingDescription swing = entity.getCurrentSwing();
+		swinging = swing != null;
+		swingProgress = swinging ? entity.getSwingAnimation(0.0f) : 0.0f;
+		hand = swing != null ? swing.hand() : InteractionHand.MAIN_HAND;
 	}
 
 	public Swing(Reader reader)
 	{
 		swinging = true;
-		swingingTime = 0;
+		swingProgress = 0.0f;
 		hand = reader.readBoolean() ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
 	}
 
 	@Override public boolean differs(MocapStateAction previousAction)
 	{
 		Swing previousSwing = (Swing)previousAction;
-		return swinging && (previousSwing == null || !previousSwing.swinging || previousSwing.swingingTime > swingingTime);
+		return swinging && (previousSwing == null || !previousSwing.swinging || previousSwing.swingProgress > swingProgress);
 	}
 
 	@Override public boolean shouldBeInitialized()
@@ -89,7 +91,8 @@ public class Swing implements MocapStateAction
 			}
 		}
 
-		entity.swing(hand); // resets attackStrengthTicker for players
+		SwingAnimation animation = entity.getItemInHand(hand).getAttackAnimation();
+		entity.swing(hand, animation, false);
 		return Result.OK;
 	}
 

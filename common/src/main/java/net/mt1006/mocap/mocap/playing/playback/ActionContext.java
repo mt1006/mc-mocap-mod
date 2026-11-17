@@ -211,7 +211,7 @@ public class ActionContext implements MocapActionContext
 		}
 		if (playerToRemove != ghostPlayer) { broadcast(new ClientboundPlayerInfoRemovePacket(List.of(uuid))); }
 		playerToRemove.remove(Entity.RemovalReason.KILLED);
-		playerToRemove.getAdvancements().stopListening();
+		playerToRemove.getAdvancements().clearTriggers();
 	}
 
 	@Override public Vec3 getPosition()
@@ -273,7 +273,7 @@ public class ActionContext implements MocapActionContext
 				entity.remove(Entity.RemovalReason.KILLED);
 
 			case KILL:
-				entity.invulnerableTime = 0; // for sound effect
+				entity.setInvulnerableTime(0); // for sound effect
 				if (entity instanceof FakePlayer) { ((FakePlayer)entity).fakeKill(); }
 				else { entity.kill(level); }
 				break;
@@ -283,7 +283,7 @@ public class ActionContext implements MocapActionContext
 
 			case RELEASE_AS_NORMAL:
 				entity.setNoGravity(false);
-				entity.setInvulnerable(false);
+				entity.setPermanentlyInvulnerable(false);
 				entity.removeTag(PlaybackManager.MOCAP_ENTITY_TAG);
 				if (entity instanceof Mob) { ((Mob)entity).setNoAi(false); }
 				break;
